@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>作业批改 - AI 龙老师</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; background: linear-gradient(180deg, #F3E8FF 0%, #E8F4FD 50%, #E0F2FE 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* === iPhone 16 Pro 机身模拟 === */
+        .iphone-frame {
+            width: 393px; height: 852px; background: linear-gradient(180deg, #F3E8FF 0%, #E8F4FD 50%, #E0F2FE 100%); position: relative; overflow: hidden;
+            box-shadow: 0 0 0 12px #333, 0 0 0 13px #555, 0 20px 50px rgba(0,0,0,0.3);
+            border-radius: 50px;
+        }
+        .dynamic-island {
+            position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+            width: 120px; height: 35px; background: #000; border-radius: 20px; z-index: 1000; pointer-events: none;
+        }
+
+        /* === 页面切换逻辑 === */
+        .page-container {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            overflow: hidden; background: linear-gradient(180deg, #F3E8FF 0%, #E8F4FD 50%, #E0F2FE 100%);
+            transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), filter 0.3s;
+            will-change: transform;
+        }
+
+        .page-camera { z-index: 30; transform: translateY(0); opacity: 1; transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s; }
+
+        /* === 扫描动画 === */
+        .scan-line-global {
+            position: absolute; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(to right, transparent, #3B82F6, transparent);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+            animation: scan 2s infinite linear; z-index: 50;
+        }
+        @keyframes scan { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+
+        /* === 标记样式 === */
+        .mark-symbol { position: absolute; font-family: 'Ma Shan Zheng', cursive; font-weight: bold; font-size: 24px; pointer-events: none; }
+        .mark-correct { color: #22C55E; } 
+        .mark-wrong { color: #EF4444; border: 2px solid #EF4444; border-radius: 4px; width: 100%; height: 100%; pointer-events: none; } 
+        .mark-cross { position: absolute; bottom: -10px; right: -10px; width: 20px; height: 20px; background: #EF4444; color: white; border-radius: 50%; font-size: 14px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; }
+        .handwriting { font-family: 'Ma Shan Zheng', cursive; color: #334155; opacity: 0.8; transform: rotate(-1deg); }
+
+        .bottom-sheet {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 85%;
+            background: white; border-top-left-radius: 20px; border-top-right-radius: 20px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 100; display: flex; flex-direction: column;
+        }
+        .bottom-sheet.open { transform: translateY(0); }
+
+        /* === 快门与相机 UI === */
+        .shutter-btn {
+            width: 72px; height: 72px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.3);
+            display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer;
+            transition: all 0.1s;
+        }
+        .shutter-inner { width: 56px; height: 56px; background: white; border-radius: 50%; transition: all 0.1s; }
+        .shutter-btn:active { transform: scale(0.95); }
+        .shutter-btn:active .shutter-inner { transform: scale(0.9); background: #ddd; }
+
+        .mode-text { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.5); padding: 4px 12px; border-radius: 16px; transition: all 0.3s; cursor: pointer; }
+        .mode-text.active { color: white; background: rgba(255,255,255,0.15); font-weight: 600; }
+
+        #toast {
+            position: absolute; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 24px;
+            font-size: 13px; font-weight: 600; pointer-events: none; opacity: 0;
+            transition: all 0.3s ease-out; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex; align-items: center; gap: 8px;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* === 题目编号选择器 === */
+        .question-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 8px 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .question-selector::-webkit-scrollbar {
+            display: none;
+        }
+        .question-number-btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #E2E8F0;
+            background: white;
+            color: #64748B;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .question-number-btn.active {
+            border-color: #3B82F6;
+            background: #3B82F6;
+            color: white;
+        }
+        .question-number-btn:hover {
+            border-color: #3B82F6;
+            transform: scale(1.05);
+        }
+        .question-ai-badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            background: #9333EA;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+            color: white;
+            line-height: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="iphone-frame" id="app-root">
+        
+        <div class="dynamic-island"></div>
+        <div id="toast"><svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg><span id="toast-msg">操作成功</span></div>
+
+        <div id="page-camera" class="page-container page-camera flex flex-col bg-black pt-[50px]">
+            
+            <div id="camera-preview" class="absolute inset-0 z-50 flex flex-col bg-gray-900">
+                <div class="h-14 px-4 flex justify-between items-center z-20">
+                    <button onclick="closeCamera()" class="w-8 h-8 rounded-full bg-black/20 backdrop-blur flex items-center justify-center text-white">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                    <div class="text-white/80 text-xs font-medium bg-black/20 px-3 py-1 rounded-full backdrop-blur">AI 自动识别</div>
+                    <div class="w-8"></div>
+                </div>
+
+                <div class="flex-1 relative overflow-hidden bg-[#222]">
+                    <img src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1000&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-60">
+                    <div id="focus-box-correction" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[70%] border border-white/40 rounded-lg">
+                        <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-white"></div>
+                        <div class="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-white"></div>
+                        <div class="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-white"></div>
+                        <div class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-white"></div>
+                        <p class="absolute bottom-[-30px] w-full text-center text-white/70 text-xs">整页拍摄，自动批改</p>
+                    </div>
+                    <div id="focus-box-qa" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[120px] border border-yellow-400 rounded-lg bg-black/10 shadow-[0_0_0_999px_rgba(0,0,0,0.5)]">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-full h-[1px] bg-yellow-400/50"></div>
+                        </div>
+                        <p class="absolute bottom-[-30px] w-full text-center text-white/90 text-xs font-bold">对准题目，精准答疑</p>
+                    </div>
+                </div>
+
+                <div class="h-40 bg-black/80 backdrop-blur-md flex flex-col items-center justify-end pb-10 gap-6 relative z-30">
+                    <div class="flex items-center gap-2 bg-black/30 rounded-full p-1">
+                        <div id="mode-btn-correction" onclick="switchCameraMode('correction')" class="mode-text active">作业批改</div>
+                        <div id="mode-btn-qa" onclick="switchCameraMode('qa')" class="mode-text">拍照答疑</div>
+                    </div>
+                    <button onclick="takePhoto()" class="shutter-btn scale-100">
+                        <div class="shutter-inner"></div>
+                    </button>
+                </div>
+            </div>
+
+            <div id="scan-state" class="absolute inset-0 flex flex-col hidden bg-black z-40">
+                <div class="absolute top-0 w-full pt-14 px-4 z-30">
+                    <span id="scan-hint-text" class="text-white text-sm shadow-sm font-medium">AI 正在识别试卷...</span>
+                </div>
+                <div class="flex-1 relative overflow-hidden bg-white rounded-t-[20px] mt-10">
+                    <div class="w-full h-full p-6 bg-white text-slate-800 text-xs leading-relaxed select-none relative">
+                        <div class="flex justify-between border-b border-gray-200 pb-2 mb-4"><span>八年级 7 班</span> <span>姓名: 薛云腾</span></div>
+                        <h2 class="text-center font-bold text-sm mb-4">第十章 分式 (1)</h2>
+                        <div class="mb-4">
+                            <p class="font-bold mb-2">一、单项选择题</p>
+                            <div class="mb-3"><p>1. 下列变形正确的是 ( <span class="handwriting">D</span> )</p></div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="font-bold mb-2">二、填空题</p>
+                            <p class="mb-2">3. 若 2a-b=0, 则分式 (a+b)/(a-b) 的值为 <span class="handwriting underline">3</span>.</p>
+                        </div>
+                        <div>
+                            <p class="font-bold mb-2">三、解答题</p>
+                            <p class="mb-1">5. 先化简, 再求值: (x+1)/x ÷ ... 其中 x = √2 + 1</p>
+                            <div class="handwriting text-blue-900 mt-2 ml-4">解: 原式 = (x+1)/x ... <br>= 1 / (x-1) ...</div>
+                        </div>
+                    </div>
+                    <div id="scan-line-global" class="scan-line-global"></div>
+                </div>
+            </div>
+
+            <div id="result-state" class="absolute inset-0 bg-[#F0F2F5] flex flex-col hidden z-40 pt-[50px]">
+                <header class="bg-white pt-2 pb-3 px-4 shadow-sm flex justify-between items-center z-20">
+                    <button onclick="closeCamera()" class="p-1 -ml-1"><svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+                    <h1 class="text-lg font-bold text-slate-800">批改结果</h1>
+                    <div class="w-6"></div>
+                </header>
+
+                <main class="flex-1 relative overflow-hidden bg-white">
+                    <div class="w-full h-full p-4 text-slate-800 text-xs leading-relaxed relative overflow-y-auto pb-24">
+                        <div class="flex justify-between border-b border-gray-200 pb-2 mb-2"><span>八年级 7 班</span> <span>姓名: 薛云腾</span></div>
+                        
+                        <div class="text-center text-xs text-slate-400 mb-3">点击题目查看详情</div>
+
+                        <div class="border border-gray-300 rounded-lg p-3 mb-3 relative bg-white active:bg-gray-50 transition-colors" onclick="openDetail(0)">
+                            <h3 class="font-bold mb-2 text-sm">一、单项选择题</h3>
+                            <div class="mb-1"><p>1. 下列变形正确的是 ( <span class="handwriting">D</span> )</p></div>
+                            <div class="text-[10px] text-gray-500 mt-2 grid grid-cols-2 gap-1"><span>A. x/y = (x+2)/(y+2)</span><span>B. (a-b)/(b-a) = -1</span></div>
+                            <span class="mark-symbol mark-correct absolute right-2 top-2">√</span>
+                        </div>
+
+                        <div class="border border-gray-300 rounded-lg p-3 mb-3 relative bg-white active:bg-gray-50 transition-colors" onclick="openDetail(1)">
+                            <h3 class="font-bold mb-2 text-sm">二、填空题</h3>
+                            <p class="mb-1">3. 若 2a-b=0, 则分式 (a+b)/(a-b) 的值为 <span class="handwriting underline">3</span>.</p>
+                            <span class="mark-symbol mark-correct absolute right-2 top-2">√</span>
+                        </div>
+
+                        <div class="border border-red-200 rounded-lg p-3 mb-3 relative bg-red-50/30 active:bg-red-50 transition-colors" onclick="openDetail(2)">
+                            <h3 class="font-bold mb-2 text-sm">三、解答题</h3>
+                            <p class="mb-1">5. 先化简, 再求值: (x+1)/x ÷ ... 其中 x = √2 + 1</p>
+                            <div class="handwriting text-blue-900 mt-2 ml-4">解: 原式 = (x+1)/x ... <br>= 1 / (x-1) ...</div>
+                            <div class="absolute inset-0 border-2 border-red-500 rounded-lg pointer-events-none opacity-80"></div>
+                            <div class="mark-cross">×</div>
+                        </div>
+
+                        <div class="h-8"></div>
+                    </div>
+                </main>
+
+                <div class="bg-white border-t border-gray-100 px-6 pt-3 pb-8 shadow-[0_-5px_20px_rgba(0,0,0,0.03)] z-50 rounded-b-[40px]">
+                    <div class="flex items-center justify-center">
+                        <button onclick="restartCamera()" class="w-full max-w-[200px] bg-[#FFD036] active:scale-98 transition-transform text-slate-900 rounded-full h-11 flex items-center justify-center gap-2 font-bold text-sm shadow-sm">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            再拍一张
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="detail-sheet" class="bottom-sheet">
+                <div class="w-full flex justify-center pt-3 pb-1" onclick="closeDetail()"><div class="w-12 h-1.5 bg-gray-200 rounded-full"></div></div>
+                <div class="px-5 py-3 border-b border-gray-50 flex justify-between items-center">
+                    <div class="flex gap-3"><span id="detail-title" class="text-slate-900 font-bold text-base">第 5 题</span><span id="detail-tag" class="bg-slate-100 text-slate-500 text-xs px-2 py-0.5 rounded flex items-center">解答题</span></div>
+                    <button onclick="closeDetail()" class="text-slate-400"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 pb-8 space-y-6">
+                    <div><h4 class="text-sm font-bold text-slate-800 mb-2">题目</h4><div id="detail-question" class="text-sm text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">先化简，再求值...</div></div>
+                    <div><h4 class="text-sm font-bold text-slate-800 mb-2">视频讲解</h4><div class="bg-black rounded-xl overflow-hidden relative aspect-video shadow-sm"><div class="absolute inset-0 flex items-center justify-center"><div class="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center pl-1 cursor-pointer"><svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" /></svg></div></div></div></div>
+                    <div><h4 class="text-sm font-bold text-slate-800 mb-2">答案解析</h4><div id="detail-analysis" class="text-sm text-slate-700 leading-relaxed space-y-2"><p>解：原式 = ...</p></div></div>
+                    <div class="h-4"></div>
+                </div>
+                <!-- 题目编号选择器 -->
+                <div id="question-selector" class="border-t border-gray-100 px-4 py-3 hidden">
+                    <div class="question-selector">
+                        <!-- 题目编号按钮将动态生成 -->
+                    </div>
+                </div>
+                <div id="detail-buttons" class="border-t border-gray-100 p-4 flex gap-3 pb-8"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentMode = 'correction'; 
+        
+        // === 题目数据结构 ===
+        let questionsData = [];
+        let currentQuestionIndex = 0;
+        
+        // 从 URL 参数或 sessionStorage 获取模式
+        function initPage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode') || sessionStorage.getItem('cameraMode') || 'correction';
+            currentMode = mode;
+            updateCameraUI();
+        }
+
+        // 初始化题目数据（示例数据，实际应从批改结果中获取）
+        function initQuestionsData() {
+            questionsData = [
+                {
+                    number: 1,
+                    title: '第 1 题',
+                    tag: '选择题',
+                    question: '下列变形正确的是 ( D )\nA. x/y = (x+2)/(y+2)\nB. (a-b)/(b-a) = -1',
+                    analysis: '<p>解：选项A错误，分式的基本性质不适用于加减运算。</p><p>选项B正确，因为 (a-b)/(b-a) = (a-b)/-(a-b) = -1</p>',
+                    hasAi: true
+                },
+                {
+                    number: 2,
+                    title: '第 2 题',
+                    tag: '填空题',
+                    question: '若 2a-b=0, 则分式 (a+b)/(a-b) 的值为 3.',
+                    analysis: '<p>解：由 2a-b=0 得 b=2a</p><p>代入得 (a+b)/(a-b) = (a+2a)/(a-2a) = 3a/(-a) = -3</p>',
+                    hasAi: false
+                },
+                {
+                    number: 3,
+                    title: '第 3 题',
+                    tag: '解答题',
+                    question: '先化简, 再求值: (x+1)/x ÷ (x²-1)/x² 其中 x = √2 + 1',
+                    analysis: '<p>解：原式 = (x+1)/x × x²/(x²-1)</p><p>= (x+1)/x × x²/((x+1)(x-1))</p><p>= x/(x-1)</p><p>当 x = √2 + 1 时，原式 = (√2+1)/(√2+1-1) = (√2+1)/√2 = 1 + 1/√2</p>',
+                    hasAi: false
+                },
+                {
+                    number: 4,
+                    title: '第 4 题',
+                    tag: '解答题',
+                    question: '解方程：2(x + 3) - 5 = 3(x - 1) + 4',
+                    analysis: '<p>解：2x + 6 - 5 = 3x - 3 + 4</p><p>2x + 1 = 3x + 1</p><p>2x - 3x = 1 - 1</p><p>-x = 0</p><p>x = 0</p>',
+                    hasAi: true
+                },
+                {
+                    number: 5,
+                    title: '第 5 题',
+                    tag: '解答题',
+                    question: '先化简，再求值：当 x = 2 时，求 (x² - 1) / (x - 1) 的值。',
+                    analysis: '<p>解：原式 = (x² - 1) / (x - 1)</p><p>= (x+1)(x-1) / (x-1)</p><p>= x + 1</p><p>当 x = 2 时，原式 = 2 + 1 = 3</p>',
+                    hasAi: true
+                },
+                {
+                    number: 6,
+                    title: '第 6 题',
+                    tag: '解答题',
+                    question: '已知等腰三角形 ABC 中，AB = AC，∠A = 80°，求 ∠B 的度数。',
+                    analysis: '<p>解：在等腰三角形 ABC 中，AB = AC</p><p>所以 ∠B = ∠C</p><p>由三角形内角和定理：∠A + ∠B + ∠C = 180°</p><p>80° + 2∠B = 180°</p><p>2∠B = 100°</p><p>∠B = 50°</p>',
+                    hasAi: false
+                }
+            ];
+        } 
+
+        function switchCameraMode(mode) {
+            currentMode = mode;
+            updateCameraUI();
+        }
+
+        function updateCameraUI() {
+            const btnCorr = document.getElementById('mode-btn-correction');
+            const btnQa = document.getElementById('mode-btn-qa');
+            const boxCorr = document.getElementById('focus-box-correction');
+            const boxQa = document.getElementById('focus-box-qa');
+
+            if (currentMode === 'correction') {
+                btnCorr.classList.add('active');
+                btnQa.classList.remove('active');
+                boxCorr.classList.remove('hidden');
+                boxQa.classList.add('hidden');
+            } else if (currentMode === 'qa') {
+                btnCorr.classList.remove('active');
+                btnQa.classList.add('active');
+                boxCorr.classList.add('hidden');
+                boxQa.classList.remove('hidden');
+            }
+        }
+
+        // === 拍照流程 ===
+        function takePhoto() {
+            document.getElementById('camera-preview').classList.add('hidden');
+            document.getElementById('scan-state').classList.remove('hidden');
+            
+            const hintText = document.getElementById('scan-hint-text');
+            if (currentMode === 'correction') {
+                hintText.innerText = "AI 正在识别试卷...";
+            } else {
+                hintText.innerText = "AI 正在聚焦题目...";
+            }
+            
+            setTimeout(() => {
+                document.getElementById('scan-state').classList.add('hidden');
+                document.getElementById('result-state').classList.remove('hidden');
+                
+                // 批改模式显示结果列表，答疑模式直接弹窗
+                if (currentMode === 'correction') {
+                    // 初始化题目数据
+                    if (questionsData.length === 0) {
+                        initQuestionsData();
+                    }
+                } else {
+                    updateDetailContent('qa');
+                    openDetail();
+                }
+            }, 2000);
+        }
+
+        function closeCamera() {
+            window.location.href = '首页.html';
+        }
+
+        function restartCamera() {
+            document.getElementById('result-state').classList.add('hidden');
+            document.getElementById('camera-preview').classList.remove('hidden');
+            closeDetail();
+        }
+
+        // === 详情页与数据联动 ===
+        function openDetail(questionIndex = 0) {
+            // 每次打开详情都强制刷新按钮逻辑
+            if (currentMode === 'correction') {
+                // 初始化题目数据（如果还没有初始化）
+                if (questionsData.length === 0) {
+                    initQuestionsData();
+                }
+                currentQuestionIndex = questionIndex;
+                renderQuestionSelector();
+                updateDetailContent('correction');
+            } else {
+                // 答疑模式不显示题目选择器
+                const selector = document.getElementById('question-selector');
+                if (selector) selector.classList.add('hidden');
+                updateDetailContent('qa');
+            }
+            document.getElementById('detail-sheet').classList.add('open');
+        }
+        
+        // 渲染题目编号选择器
+        function renderQuestionSelector() {
+            const selectorContainer = document.getElementById('question-selector');
+            if (!selectorContainer) return;
+            
+            // 如果只有一个题目，不显示选择器
+            if (questionsData.length <= 1) {
+                selectorContainer.classList.add('hidden');
+                return;
+            }
+            
+            selectorContainer.classList.remove('hidden');
+            const selector = selectorContainer.querySelector('.question-selector');
+            if (!selector) return;
+            
+            selector.innerHTML = questionsData.map((q, index) => {
+                const isActive = index === currentQuestionIndex;
+                return `
+                    <button 
+                        class="question-number-btn ${isActive ? 'active' : ''}" 
+                        onclick="switchQuestion(${index})"
+                        aria-label="第 ${q.number} 题"
+                    >
+                        ${q.number}
+                        ${q.hasAi ? '<span class="question-ai-badge">AI</span>' : ''}
+                    </button>
+                `;
+            }).join('');
+        }
+        
+        // 切换题目
+        function switchQuestion(index) {
+            if (index < 0 || index >= questionsData.length) return;
+            currentQuestionIndex = index;
+            renderQuestionSelector();
+            updateDetailContent('correction');
+        }
+
+        function closeDetail() {
+            document.getElementById('detail-sheet').classList.remove('open');
+        }
+
+        // 跳转到 AI 讲题页，并传递当前题目与解析
+        function goToAiExplain() {
+            const questionEl = document.getElementById('detail-question');
+            const analysisEl = document.getElementById('detail-analysis');
+            const question = questionEl ? questionEl.innerText : '';
+            const analysis = analysisEl ? analysisEl.innerText : '';
+            sessionStorage.setItem('aiQuestion', question);
+            sessionStorage.setItem('aiAnalysis', analysis);
+            window.location.href = '../拍照检查作业/ai 讲题.html';
+        }
+
+        // 统一按钮逻辑：无论是批改还是答疑，按钮都一致
+        function updateDetailContent(mode) {
+            const btnContainer = document.getElementById('detail-buttons');
+            const title = document.getElementById('detail-title');
+            const tag = document.getElementById('detail-tag');
+            const questionEl = document.getElementById('detail-question');
+            const analysisEl = document.getElementById('detail-analysis');
+            
+            // 按钮统一 HTML
+            let buttonsHTML = `
+                <button id="btn-add-notebook" onclick="addToNotebook()" class="flex-1 bg-white border border-blue-600 text-blue-600 font-bold text-sm py-3 rounded-full flex items-center justify-center gap-1 active:bg-blue-50">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                    加入错题本
+                </button>`;
+            
+            // 批改模式：根据当前题目是否支持AI来决定是否显示AI讲解按钮
+            if (mode === 'correction' && questionsData.length > 0) {
+                const currentQ = questionsData[currentQuestionIndex];
+                if (currentQ) {
+                    // 更新标题和标签
+                    title.innerText = currentQ.title;
+                    tag.innerText = currentQ.tag;
+                    // 更新题目和解析
+                    if (questionEl) questionEl.innerText = currentQ.question;
+                    if (analysisEl) analysisEl.innerHTML = currentQ.analysis;
+                    
+                    // 如果支持AI，显示AI讲解按钮
+                    if (currentQ.hasAi) {
+                        buttonsHTML += `
+                            <button onclick="goToAiExplain()" class="flex-1 bg-[#FFD036] text-slate-900 font-bold text-sm py-3 rounded-full shadow-sm active:bg-[#FFC600]">
+                                AI 讲解
+                            </button>`;
+                    } else {
+                        // 不支持AI时，AI讲解按钮置灰或隐藏
+                        buttonsHTML += `
+                            <button disabled class="flex-1 bg-gray-200 text-gray-400 font-bold text-sm py-3 rounded-full cursor-not-allowed">
+                                AI 讲解
+                            </button>`;
+                    }
+                }
+            } else if (mode === 'qa') {
+                title.innerText = "拍题答疑";
+                tag.innerText = "解答题";
+                buttonsHTML += `
+                    <button onclick="goToAiExplain()" class="flex-1 bg-[#FFD036] text-slate-900 font-bold text-sm py-3 rounded-full shadow-sm active:bg-[#FFC600]">
+                        AI 讲解
+                    </button>`;
+            }
+            
+            btnContainer.innerHTML = buttonsHTML;
+        }
+
+        // === 加入错题本逻辑 ===
+        function addToNotebook() {
+            const btn = document.getElementById('btn-add-notebook');
+            if (btn.classList.contains('bg-gray-100')) return;
+
+            showToast("已加入错题本");
+            
+            btn.className = "flex-1 bg-gray-100 border border-transparent text-gray-400 font-bold text-sm py-3 rounded-full flex items-center justify-center gap-1";
+            btn.innerHTML = "已加入";
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

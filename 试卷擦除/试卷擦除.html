@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AI 龙老师 - 试卷擦除</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif; 
+            background-color: #E5E7EB; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .card-press:active { transform: scale(0.98); transition: transform 0.1s; }
+        
+        /* === iPhone 16 机身模拟 === */
+        .iphone-frame {
+            width: 393px; 
+            height: 852px; 
+            background-color: #F0F2F5; 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #333, 0 0 0 13px #555, 0 20px 50px rgba(0,0,0,0.3);
+            border-radius: 50px;
+        }
+        .dynamic-island {
+            position: absolute; 
+            top: 11px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 120px; 
+            height: 35px; 
+            background: #000; 
+            border-radius: 20px; 
+            z-index: 1000; 
+            pointer-events: none;
+        }
+        
+        /* 小程序右上角按钮 */
+        .miniprogram-header {
+            position: absolute;
+            top: 50px;
+            right: 16px;
+            width: 87px;
+            height: 32px;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+            padding-right: 4px;
+        }
+        .miniprogram-btn {
+            width: 28px;
+            height: 28px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+        }
+        .miniprogram-btn:active {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .miniprogram-btn::before {
+            content: '';
+            width: 3px;
+            height: 3px;
+            background: #000;
+            border-radius: 50%;
+            box-shadow: 0 -5px 0 #000, 0 5px 0 #000;
+            opacity: 0.6;
+        }
+        .miniprogram-btn-close {
+            width: 28px;
+            height: 28px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .miniprogram-btn-close:active {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .miniprogram-btn-close::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid #000;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+        
+        /* 页面切换动画 */
+        .page-container {
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0;
+            overflow: hidden; 
+            background-color: #F6F7F9;
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .page-list { z-index: 10; transform: translateX(0); }
+        .page-camera { z-index: 20; transform: translateX(100%); }
+        .page-camera.active { transform: translateX(0); }
+        .page-processing { z-index: 30; transform: translateX(100%); background-color: #F6F7F9; }
+        .page-processing.active { transform: translateX(0); }
+        .page-result { 
+            z-index: 40; 
+            transform: translateX(100%); 
+            background-color: #F6F7F9; 
+            display: flex;
+            flex-direction: column;
+        }
+        .page-result.active { transform: translateX(0); }
+
+        /* 历史任务列表 */
+        .task-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .task-item:active {
+            transform: scale(0.98);
+            background: #F9FAFB;
+        }
+        .task-thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #F1F5F9;
+            flex-shrink: 0;
+        }
+        .task-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .task-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 4px;
+        }
+        .task-time {
+            font-size: 12px;
+            color: #94A3B8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .new-badge {
+            background: #EF4444;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* 相机页面 */
+        .camera-viewfinder {
+            position: relative; 
+            width: 100%; 
+            height: 100%;
+            background: #000; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
+        .camera-frame {
+            width: 90%; 
+            max-width: 320px; 
+            aspect-ratio: 3/4;
+            border: 2px dashed rgba(255,255,255,0.5); 
+            border-radius: 8px;
+        }
+
+        /* 快门按钮 */
+        .shutter-btn {
+            width: 72px; 
+            height: 72px; 
+            border-radius: 50%; 
+            border: 4px solid rgba(255,255,255,0.3);
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 0; 
+            cursor: pointer;
+            transition: all 0.1s;
+            background: transparent;
+        }
+        .shutter-inner { 
+            width: 56px; 
+            height: 56px; 
+            background: white; 
+            border-radius: 50%; 
+            transition: all 0.1s; 
+        }
+        .shutter-btn:active { transform: scale(0.95); }
+        .shutter-btn:active .shutter-inner { transform: scale(0.9); background: #ddd; }
+
+        /* 处理中页面 */
+        .processing-animation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
+        }
+        .processing-spinner {
+            width: 64px;
+            height: 64px;
+            border: 4px solid rgba(16, 185, 129, 0.2);
+            border-top-color: #10B981;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .processing-progress {
+            width: 200px;
+            height: 4px;
+            background: rgba(16, 185, 129, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .processing-progress-bar {
+            height: 100%;
+            background: #10B981;
+            border-radius: 2px;
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        /* 结果对比页面 */
+        .comparison-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            padding: 16px;
+        }
+        .comparison-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .comparison-label {
+            padding: 8px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            background: #F1F5F9;
+            color: #64748B;
+        }
+        .comparison-label.before {
+            background: #FEF2F2;
+            color: #DC2626;
+        }
+        .comparison-label.after {
+            background: #F0FDF4;
+            color: #16A34A;
+        }
+        .comparison-image {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            background: #F9FAFB;
+        }
+
+        /* Toast 提示 */
+        .toast {
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8); 
+            color: white; 
+            padding: 12px 24px;
+            border-radius: 8px; 
+            z-index: 1000; 
+            opacity: 0; 
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+
+        /* 重拍确认弹窗 - 在手机框架内 */
+        #page-result {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .confirm-dialog {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            z-index: 300;
+            min-width: 280px;
+            max-width: 320px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .confirm-dialog.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .confirm-dialog-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 299;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .confirm-dialog-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .confirm-dialog-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .confirm-dialog-message {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 24px;
+            text-align: center;
+            line-height: 1.5;
+        }
+        .confirm-dialog-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .confirm-dialog-actions button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+        .btn-cancel {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+        .btn-cancel:active {
+            background: #e2e8f0;
+        }
+        .btn-confirm {
+            background: #fbbf24;
+            color: white;
+        }
+        .btn-confirm:active {
+            background: #f59e0b;
+        }
+
+        /* 照片列表弹窗 */
+        .photo-list-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 200;
+            padding: 20px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .photo-list-sheet.show {
+            transform: translateY(0);
+        }
+        .photo-list-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 199;
+        }
+        .photo-list-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .photo-item {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3/4;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f3f4f6;
+        }
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .photo-item-delete {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .photo-item-delete svg {
+            width: 14px;
+            height: 14px;
+            color: white;
+        }
+
+        /* 导出弹窗 - 在手机框架内 */
+        .export-sheet {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 200;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .export-sheet.show {
+            transform: translateY(0);
+        }
+        .export-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 199;
+        }
+        .export-overlay.show {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .export-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .export-header-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .export-header-close {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f1f5f9;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .export-header-close:active {
+            background: #e2e8f0;
+        }
+        .export-header-close svg {
+            width: 18px;
+            height: 18px;
+            color: #64748b;
+        }
+        .export-header-btn-pdf {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f59e0b;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .export-header-btn-pdf:active {
+            background: #d97706;
+        }
+        .export-header-btn-pdf svg {
+            color: white;
+        }
+        .export-image-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9fafb;
+        }
+        .export-image-container img {
+            max-width: 100%;
+            max-height: 50vh;
+            object-fit: contain;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .export-actions {
+            padding: 20px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 12px;
+        }
+        .export-actions button {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-center: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .export-actions .btn-wechat {
+            background: #07c160;
+            color: white;
+        }
+        .export-actions .btn-wechat:active {
+            background: #06ad56;
+        }
+        .export-actions .btn-save {
+            background: #3b82f6;
+            color: white;
+        }
+        .export-actions .btn-save:active {
+            background: #2563eb;
+        }
+
+        /* 结果页面图片轮播 */
+        #result-images-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+        .result-image-item {
+            flex: 0 0 100%;
+            width: 100%;
+            height: 100%;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .result-image-item img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            object-position: center;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        #original-images-list {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+        .original-image-item {
+            flex: 0 0 100%;
+            width: 100%;
+            height: 100%;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .original-image-item img {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            object-position: center;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        /* 导出弹窗缩略图 */
+        .export-thumbnails {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            overflow-x: auto;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .export-thumbnail {
+            min-width: 80px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f3f4f6;
+            position: relative;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        .export-thumbnail.active {
+            border-color: #3b82f6;
+        }
+        .export-thumbnail.selected {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        .export-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .export-thumbnail-checkbox {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .export-thumbnail.selected .export-thumbnail-checkbox {
+            background: #10b981;
+        }
+        .export-thumbnail-checkbox svg {
+            width: 12px;
+            height: 12px;
+            color: white;
+            display: none;
+        }
+        .export-thumbnail.selected .export-thumbnail-checkbox svg {
+            display: block;
+        }
+        .export-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="iphone-frame" id="app-root">
+        
+        <div class="dynamic-island"></div>
+        <div class="miniprogram-header">
+            <div class="miniprogram-btn" onclick="showMiniprogramMenu()"></div>
+            <div class="miniprogram-btn-close" onclick="closeMiniprogram()"></div>
+        </div>
+
+        <!-- 历史任务列表页面 -->
+        <div id="page-list" class="page-container page-list flex flex-col">
+            <header class="bg-white sticky top-0 z-30 shadow-sm pt-[90px] pb-0">
+                <div class="px-4 pb-3 flex justify-between items-center">
+                    <div class="flex items-center gap-1">
+                        <button onclick="goBack()" class="p-2 -ml-1 active:opacity-60">
+                            <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <h1 class="text-lg font-bold text-slate-800">我的试卷</h1>
+                    </div>
+                    <button onclick="openOrganizePage()" class="text-sm text-slate-400 active:text-slate-600">
+                        管理
+                    </button>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto no-scrollbar px-4 py-4 pb-[100px]">
+                <div id="task-list" class="space-y-3">
+                    <!-- 历史任务将动态渲染在这里 -->
+                </div>
+                <div id="empty-state" class="hidden flex flex-col items-center justify-center py-20 text-center">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <p class="text-slate-400 text-sm">暂无历史任务</p>
+                </div>
+            </main>
+
+            <!-- 底部操作按钮 -->
+            <div class="absolute bottom-0 w-full bg-white border-t border-gray-100 pb-safe pt-3 px-4 pb-4 z-40">
+                <button onclick="openCamera()" class="w-full bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-xl font-bold text-sm py-3 flex items-center justify-center gap-2 shadow-lg shadow-green-500/30 active:opacity-90 transition-opacity">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    试卷/练习册 擦除重练
+                </button>
+            </div>
+        </div>
+
+        <!-- 拍照页面 -->
+        <div id="page-camera" class="page-container page-camera flex flex-col">
+            <header class="bg-black/50 backdrop-blur-sm pt-[90px] pb-4 px-4 z-30">
+                <div class="flex items-center justify-between">
+                    <button onclick="backToList()" class="text-white p-2">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <h2 class="text-white text-lg font-bold" id="camera-title">试卷擦除</h2>
+                    <div class="w-10"></div>
+                </div>
+            </header>
+            <div class="camera-viewfinder flex-1">
+                <div class="camera-frame">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-white/50 text-sm text-center">
+                            <p id="camera-hint">将试卷放入取景框</p>
+                            <p class="text-xs mt-2">整页拍摄效果更佳</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-black/50 backdrop-blur-sm p-6 pb-safe relative">
+                <!-- 拍照后的缩略图 -->
+                <div id="photo-thumbnail" class="hidden absolute bottom-24 right-4 flex flex-col items-end gap-2">
+                    <div class="relative w-20 h-20 rounded-lg overflow-hidden border-2 border-white shadow-lg cursor-pointer" onclick="showPhotoList()">
+                        <img id="thumbnail-img" src="" class="w-full h-full object-cover" alt="缩略图">
+                        <!-- 数量徽章 -->
+                        <div id="photo-count-badge" class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
+                            1
+                        </div>
+                    </div>
+                    <!-- 下一步按钮 -->
+                    <button id="next-btn" onclick="goToProcessing()" class="w-20 bg-green-600 text-white rounded-lg font-bold text-xs py-2 flex items-center justify-center gap-1 shadow-lg shadow-green-500/30 active:bg-green-700 transition-colors">
+                        下一步
+                    </button>
+                </div>
+                <div class="flex flex-col items-center gap-4">
+                    <p class="text-white/70 text-xs text-center">AI 智能擦除手写内容，还原空白试卷</p>
+                    <!-- 拍照按钮（始终显示，允许继续拍照） -->
+                    <button id="shutter-btn" onclick="takePhoto()" class="shutter-btn">
+                        <div class="shutter-inner"></div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 处理中页面 -->
+        <div id="page-processing" class="page-container page-processing flex flex-col">
+            <header class="bg-white pt-[90px] pb-4 px-4 z-30 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <button onclick="backToCamera()" class="p-2">
+                        <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <h2 class="text-lg font-bold text-slate-800">正在处理</h2>
+                    <div class="w-10"></div>
+                </div>
+            </header>
+            <main class="flex-1 flex items-center justify-center bg-white">
+                <div class="processing-animation">
+                    <div class="processing-spinner"></div>
+                    <div>
+                        <p class="text-lg font-bold text-slate-800 text-center mb-2" id="processing-text">AI 正在识别手写内容...</p>
+                        <div class="processing-progress">
+                            <div class="processing-progress-bar" id="progress-bar"></div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-400 text-center">请稍候，正在智能擦除中</p>
+                </div>
+            </main>
+        </div>
+
+        <!-- 结果页面 -->
+        <div id="page-result" class="page-container page-result flex flex-col">
+            <header class="bg-white pt-[90px] pb-4 px-4 z-30 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <button onclick="backToCameraFromResult()" class="flex items-center gap-1 text-sm text-slate-600 font-medium px-2 py-1 active:opacity-60">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                            <span>重拍</span>
+                        </button>
+                    </div>
+                    <div class="text-lg font-bold text-slate-800" id="page-indicator">1/1</div>
+                    <div class="w-10"></div>
+                </div>
+            </header>
+            <main class="flex-1 overflow-hidden bg-gray-50 relative" style="min-height: 0;">
+                <!-- 图片轮播容器 -->
+                <div id="result-carousel" class="absolute inset-0 overflow-hidden" style="bottom: 90px;">
+                    <!-- 擦除后的图片列表 -->
+                    <div id="result-images-container" class="h-full w-full transition-transform duration-300 ease-in-out" style="display: flex;">
+                        <!-- 动态生成图片项 -->
+                    </div>
+                    <!-- 查看原图按钮（放在图片右上角） -->
+                    <button onclick="toggleOriginalImage()" id="view-original-btn" class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-blue-600 text-sm font-medium px-3 py-1.5 rounded-lg shadow-md active:bg-white transition-colors z-10">
+                        查看原图
+                    </button>
+                    <!-- 左右切换按钮 -->
+                    <button id="prev-btn" onclick="switchImage(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm text-white w-10 h-10 rounded-full flex items-center justify-center z-10 active:bg-black/70 transition-colors">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <button id="next-btn" onclick="switchImage(1)" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm text-white w-10 h-10 rounded-full flex items-center justify-center z-10 active:bg-black/70 transition-colors">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                    </button>
+                </div>
+                <!-- 原图视图（默认隐藏） -->
+                <div id="original-images-container" class="absolute inset-0 hidden overflow-hidden" style="bottom: 90px;">
+                    <div id="original-images-list" class="h-full w-full transition-transform duration-300 ease-in-out" style="display: flex;">
+                        <!-- 动态生成原图项 -->
+                    </div>
+                    <!-- 查看结果按钮（放在图片右上角） -->
+                    <button onclick="toggleOriginalImage()" id="view-result-btn" class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-blue-600 text-sm font-medium px-3 py-1.5 rounded-lg shadow-md active:bg-white transition-colors z-10">
+                        查看结果
+                    </button>
+                    <!-- 左右切换按钮（原图视图） -->
+                    <button id="original-prev-btn" onclick="switchOriginalImage(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm text-white w-10 h-10 rounded-full flex items-center justify-center z-10 active:bg-black/70 transition-colors">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <button id="original-next-btn" onclick="switchOriginalImage(1)" class="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 backdrop-blur-sm text-white w-10 h-10 rounded-full flex items-center justify-center z-10 active:bg-black/70 transition-colors">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                    </button>
+                </div>
+            </main>
+            <div class="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100 pt-3 px-4 pb-4 z-40" style="padding-bottom: calc(16px + env(safe-area-inset-bottom));">
+                <div class="flex gap-3">
+                    <button onclick="showExportSheet()" class="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-bold text-sm py-3 flex items-center justify-center gap-2 shadow-lg shadow-orange-500/30 active:opacity-90 transition-opacity">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                        导出
+                    </button>
+                    <button onclick="saveToMyPapers()" class="flex-1 bg-green-600 text-white rounded-xl font-bold text-sm py-3 flex items-center justify-center gap-2 shadow-lg shadow-green-500/30 active:bg-green-700 transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+                        保存
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 重拍确认弹窗 -->
+            <div id="retake-overlay" class="confirm-dialog-overlay" onclick="closeRetakeConfirm()"></div>
+            <div id="retake-dialog" class="confirm-dialog">
+                <div class="confirm-dialog-title">是否确认重新拍摄</div>
+                <div class="confirm-dialog-message">重拍后，历史拍照的试卷将不可找回</div>
+                <div class="confirm-dialog-actions">
+                    <button class="btn-cancel" onclick="closeRetakeConfirm()">取消</button>
+                    <button class="btn-confirm" onclick="confirmRetake()">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast 提示 -->
+        <div id="toast" class="toast"></div>
+
+        <!-- 照片列表弹窗 -->
+        <div id="photo-list-overlay" class="photo-list-overlay" onclick="closePhotoList()"></div>
+        <div id="photo-list-sheet" class="photo-list-sheet">
+            <div class="w-full flex justify-center mb-4">
+                <div class="w-12 h-1.5 bg-gray-200 rounded-full"></div>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 mb-4 text-center">已拍摄照片</h3>
+            <div id="photo-list-grid" class="grid grid-cols-2 gap-3">
+                <!-- 照片列表将动态渲染在这里 -->
+            </div>
+        </div>
+
+        <!-- 导出弹窗 -->
+        <div id="export-overlay" class="export-overlay" onclick="closeExportSheet()"></div>
+        <div id="export-sheet" class="export-sheet">
+            <div class="export-header">
+                <div class="export-header-title" id="export-page-count">共 1 页</div>
+                <div class="flex items-center gap-2">
+                    <button class="export-header-btn-pdf" onclick="previewPDF()" title="预览PDF">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </button>
+                    <button class="export-header-close" onclick="closeExportSheet()">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- 缩略图列表 -->
+            <div id="export-thumbnails" class="export-thumbnails">
+                <!-- 动态生成缩略图 -->
+            </div>
+            <div class="export-image-container">
+                <img id="export-image" src="" alt="导出图片">
+            </div>
+            <div class="export-actions">
+                <button class="btn-wechat" onclick="shareToWeChat()">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                    发送到微信
+                </button>
+                <button class="btn-save" onclick="saveToAlbum()">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+                    保存相册
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局状态
+        let capturedImages = []; // 改为数组，支持多张照片
+        let processedImages = []; // 擦除处理后的图片数组
+        let currentImageIndex = 0; // 当前查看的图片索引
+        let selectedImages = []; // 选中的图片索引数组（用于多选）
+        let progressInterval = null;
+        let currentType = 'paper'; // 'paper' 或 'workbook'
+        let isOrganizeMode = false;
+        
+        // 历史任务数据（按时间倒序）
+        let historyTasks = [];
+
+        // 从localStorage加载任务数据
+        function loadTasks() {
+            const savedTasks = localStorage.getItem('historyTasks');
+            if (savedTasks) {
+                try {
+                    historyTasks = JSON.parse(savedTasks);
+                } catch (e) {
+                    console.error('Failed to parse tasks from localStorage', e);
+                    // 如果解析失败，使用默认数据
+                    historyTasks = [
+                        { id: 1, type: 'paper', title: '数学初二上学期', date: '2026-01-27 17:55', thumbnail: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=200&h=200&fit=crop', isNew: true },
+                        { id: 2, type: 'paper', title: '数学初一上学期', date: '2026-01-27 17:29', thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=200&h=200&fit=crop', isNew: true },
+                        { id: 3, type: 'workbook', title: '英语练习册 Unit 5', date: '2026-01-27 17:11', thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=200&h=200&fit=crop', isNew: true },
+                        { id: 4, type: 'paper', title: '物理初二上学期', date: '2026-01-26 15:30', thumbnail: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=200&h=200&fit=crop', isNew: false },
+                    ];
+                }
+            } else {
+                // 如果没有保存的数据，使用默认数据
+                historyTasks = [
+                    { id: 1, type: 'paper', title: '数学初二上学期', date: '2026-01-27 17:55', thumbnail: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=200&h=200&fit=crop', isNew: true },
+                    { id: 2, type: 'paper', title: '数学初一上学期', date: '2026-01-27 17:29', thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=200&h=200&fit=crop', isNew: true },
+                    { id: 3, type: 'workbook', title: '英语练习册 Unit 5', date: '2026-01-27 17:11', thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=200&h=200&fit=crop', isNew: true },
+                    { id: 4, type: 'paper', title: '物理初二上学期', date: '2026-01-26 15:30', thumbnail: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=200&h=200&fit=crop', isNew: false },
+                ];
+            }
+        }
+
+        // 保存任务到localStorage
+        function saveTasks() {
+            localStorage.setItem('historyTasks', JSON.stringify(historyTasks));
+        }
+
+        // 页面初始化
+        function initPage() {
+            loadTasks();
+            renderTaskList();
+        }
+
+        // 渲染任务列表
+        function renderTaskList() {
+            const taskList = document.getElementById('task-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (historyTasks.length === 0) {
+                taskList.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            taskList.innerHTML = '';
+            
+            // 按时间倒序展示
+            historyTasks.forEach(task => {
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item';
+                taskItem.onclick = function() { openTaskDetail(task); };
+                
+                const dateStr = task.date.split(' ')[0];
+                const timeStr = task.date.split(' ')[1];
+                
+                taskItem.innerHTML = `
+                    <img src="${task.thumbnail}" class="task-thumbnail" alt="${task.title}">
+                    <div class="task-content">
+                        <div>
+                            <div class="task-title">${task.title} ${dateStr}</div>
+                            <div class="task-time">
+                                ${task.date}
+                                ${task.isNew ? '<span class="new-badge">NEW</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                taskList.appendChild(taskItem);
+            });
+        }
+
+        // 打开任务详情
+        function openTaskDetail(task) {
+            // 可以跳转到详情页或直接显示结果
+            showToast('查看任务详情');
+        }
+
+        // 打开整理页面
+        function openOrganizePage() {
+            window.location.href = '试卷整理.html';
+        }
+
+        // 打开相机
+        function openCamera() {
+            currentType = 'paper'; // 默认类型，不再区分
+            const cameraTitle = document.getElementById('camera-title');
+            const cameraHint = document.getElementById('camera-hint');
+            
+            cameraTitle.textContent = '试卷擦除';
+            cameraHint.textContent = '将试卷放入取景框';
+            
+            // 重置拍照状态
+            capturedImages = [];
+            processedImages = [];
+            selectedImages = [];
+            currentImageIndex = 0;
+            updateCameraUI();
+            
+            document.getElementById('page-list').style.transform = 'translateX(-100%)';
+            document.getElementById('page-camera').classList.add('active');
+        }
+
+        // 更新相机UI
+        function updateCameraUI() {
+            const thumbnail = document.getElementById('photo-thumbnail');
+            const thumbnailImg = document.getElementById('thumbnail-img');
+            const countBadge = document.getElementById('photo-count-badge');
+            const nextBtn = document.getElementById('next-btn');
+            
+            if (capturedImages.length > 0) {
+                // 显示缩略图（最新一张）
+                thumbnailImg.src = capturedImages[capturedImages.length - 1];
+                countBadge.textContent = capturedImages.length;
+                thumbnail.classList.remove('hidden');
+                nextBtn.classList.remove('hidden');
+            } else {
+                // 隐藏缩略图
+                thumbnail.classList.add('hidden');
+                nextBtn.classList.add('hidden');
+            }
+        }
+
+        // 返回列表
+        function backToList() {
+            document.getElementById('page-camera').classList.remove('active');
+            document.getElementById('page-list').style.transform = 'translateX(0)';
+        }
+
+        // 返回首页
+        function goBack() {
+            window.location.href = '../首页/首页.html';
+        }
+
+        // 小程序菜单
+        function showMiniprogramMenu() {
+            showToast('小程序菜单');
+        }
+        
+        function closeMiniprogram() {
+            goBack();
+        }
+
+        // 拍照
+        function takePhoto() {
+            // 模拟拍照，使用不同的图片模拟多张照片
+            const photoUrls = [
+                'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800',
+                'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800',
+                'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800',
+                'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800'
+            ];
+            
+            // 添加新照片到数组
+            const newPhoto = photoUrls[capturedImages.length % photoUrls.length];
+            capturedImages.push(newPhoto);
+            
+            // 更新UI
+            updateCameraUI();
+            
+            // 显示提示
+            showToast(`已拍摄 ${capturedImages.length} 张照片`);
+        }
+
+        // 进入处理页面
+        function goToProcessing() {
+            if (capturedImages.length === 0) {
+                showToast('请先拍摄照片');
+                return;
+            }
+            
+            // 切换到处理页面
+            document.getElementById('page-camera').classList.remove('active');
+            document.getElementById('page-processing').classList.add('active');
+            
+            // 开始处理动画
+            startProcessing();
+        }
+
+        // 显示照片列表
+        function showPhotoList() {
+            renderPhotoList();
+            document.getElementById('photo-list-overlay').classList.add('show');
+            document.getElementById('photo-list-sheet').classList.add('show');
+        }
+
+        // 关闭照片列表
+        function closePhotoList() {
+            document.getElementById('photo-list-overlay').classList.remove('show');
+            document.getElementById('photo-list-sheet').classList.remove('show');
+        }
+
+        // 渲染照片列表
+        function renderPhotoList() {
+            const grid = document.getElementById('photo-list-grid');
+            grid.innerHTML = '';
+            
+            capturedImages.forEach((photo, index) => {
+                const item = document.createElement('div');
+                item.className = 'photo-item';
+                item.innerHTML = `
+                    <img src="${photo}" alt="照片 ${index + 1}">
+                    <div class="photo-item-delete" onclick="deletePhoto(${index}); event.stopPropagation();">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </div>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        // 删除照片
+        function deletePhoto(index) {
+            capturedImages.splice(index, 1);
+            updateCameraUI();
+            renderPhotoList();
+            
+            if (capturedImages.length === 0) {
+                closePhotoList();
+            }
+        }
+
+        // 处理中动画
+        function startProcessing() {
+            const progressBar = document.getElementById('progress-bar');
+            const processingText = document.getElementById('processing-text');
+            let progress = 0;
+            
+            const texts = [
+                'AI 正在识别手写内容...',
+                '正在分析试卷结构...',
+                '正在擦除手写痕迹...',
+                '正在优化图像质量...',
+                '处理完成！'
+            ];
+            let textIndex = 0;
+            
+            progressInterval = setInterval(() => {
+                progress += 2;
+                progressBar.style.width = progress + '%';
+                
+                // 更新提示文字
+                if (progress >= 20 && textIndex === 0) {
+                    processingText.textContent = texts[1];
+                    textIndex = 1;
+                } else if (progress >= 40 && textIndex === 1) {
+                    processingText.textContent = texts[2];
+                    textIndex = 2;
+                } else if (progress >= 60 && textIndex === 2) {
+                    processingText.textContent = texts[3];
+                    textIndex = 3;
+                } else if (progress >= 80 && textIndex === 3) {
+                    processingText.textContent = texts[4];
+                    textIndex = 4;
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    setTimeout(() => {
+                        showResult();
+                    }, 500);
+                }
+            }, 50);
+        }
+
+        // 显示结果
+        function showResult() {
+            document.getElementById('page-processing').classList.remove('active');
+            document.getElementById('page-result').classList.add('active');
+            
+            // 生成擦除后的图片数组（模拟，基于拍摄的照片数量）
+            const processedUrls = [
+                'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800',
+                'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800',
+                'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800',
+                'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800'
+            ];
+            
+            // 根据拍摄的照片数量生成处理后的图片
+            processedImages = [];
+            for (let i = 0; i < capturedImages.length; i++) {
+                processedImages.push(processedUrls[i % processedUrls.length]);
+            }
+            
+            // 如果没有照片，至少显示一张
+            if (processedImages.length === 0) {
+                processedImages.push(processedUrls[0]);
+            }
+            
+            // 重置当前索引
+            currentImageIndex = 0;
+            
+            // 延迟一下确保DOM已更新
+            setTimeout(() => {
+                // 渲染结果图片
+                renderResultImages();
+                renderOriginalImages();
+                updatePageIndicator();
+                updateNavigationButtons();
+            }, 100);
+        }
+
+        // 渲染结果图片
+        function renderResultImages() {
+            const container = document.getElementById('result-images-container');
+            if (!container) return;
+            
+            // 确保容器有正确的样式
+            container.style.display = 'flex';
+            container.style.width = '100%';
+            container.style.height = '100%';
+            
+            container.innerHTML = '';
+            
+            if (processedImages.length === 0) {
+                // 如果没有图片，显示提示
+                container.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-slate-400">暂无图片</p></div>';
+                return;
+            }
+            
+            // 每个图片项使用 flex: 0 0 100% 占据整个视口宽度
+            processedImages.forEach((imgSrc, index) => {
+                const item = document.createElement('div');
+                item.className = 'result-image-item';
+                item.style.flex = '0 0 100%';
+                item.style.width = '100%';
+                item.style.height = '100%';
+                item.style.display = 'flex';
+                item.style.alignItems = 'center';
+                item.style.justifyContent = 'center';
+                item.style.padding = '16px';
+                item.style.boxSizing = 'border-box';
+                
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.alt = `擦除后 ${index + 1}`;
+                img.style.display = 'block';
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '100%';
+                img.style.width = 'auto';
+                img.style.height = 'auto';
+                img.style.objectFit = 'contain';
+                img.style.objectPosition = 'center';
+                img.style.borderRadius = '8px';
+                img.style.background = 'white';
+                img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                
+                img.onload = function() {
+                    // 确保图片加载后正确显示
+                    updateCarouselPosition();
+                };
+                img.onerror = function() {
+                    // 如果图片加载失败，显示占位符
+                    img.src = 'https://via.placeholder.com/800x600?text=图片加载失败';
+                };
+                
+                item.appendChild(img);
+                container.appendChild(item);
+            });
+            
+            // 更新位置
+            updateCarouselPosition();
+        }
+
+        // 渲染原图
+        function renderOriginalImages() {
+            const container = document.getElementById('original-images-list');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (capturedImages.length === 0) {
+                // 如果没有图片，显示提示
+                container.innerHTML = '<div class="w-full h-full flex items-center justify-center"><p class="text-slate-400">暂无原图</p></div>';
+                return;
+            }
+            
+            // 不需要设置容器宽度，使用 flex 布局
+            // 每个图片项使用 flex: 0 0 100% 占据整个视口宽度
+            
+            capturedImages.forEach((imgSrc, index) => {
+                const item = document.createElement('div');
+                item.className = 'original-image-item';
+                const img = document.createElement('img');
+                img.src = imgSrc;
+                img.alt = `原图 ${index + 1}`;
+                img.style.display = 'block';
+                img.onload = function() {
+                    // 确保图片加载后正确显示
+                    updateOriginalCarouselPosition();
+                };
+                img.onerror = function() {
+                    console.error('原图加载失败:', imgSrc);
+                    // 如果图片加载失败，显示占位符
+                    img.src = 'https://via.placeholder.com/800x600?text=图片加载失败';
+                };
+                item.appendChild(img);
+                container.appendChild(item);
+            });
+            
+            // 更新原图轮播位置
+            updateOriginalCarouselPosition();
+            updateOriginalNavigationButtons();
+        }
+
+        // 切换原图
+        function switchOriginalImage(direction) {
+            const total = capturedImages.length;
+            if (total === 0) return;
+            
+            currentImageIndex += direction;
+            if (currentImageIndex < 0) currentImageIndex = total - 1;
+            if (currentImageIndex >= total) currentImageIndex = 0;
+            
+            updateOriginalCarouselPosition();
+            updatePageIndicator();
+            updateOriginalNavigationButtons();
+        }
+
+        // 更新原图轮播位置
+        function updateOriginalCarouselPosition() {
+            const container = document.getElementById('original-images-list');
+            if (!container) return;
+            // 每个图片项占据 100% 宽度，所以偏移量是 -currentImageIndex * 100%
+            const offset = -currentImageIndex * 100;
+            container.style.transform = `translateX(${offset}%)`;
+        }
+
+        // 更新原图导航按钮显示
+        function updateOriginalNavigationButtons() {
+            const total = capturedImages.length;
+            const prevBtn = document.getElementById('original-prev-btn');
+            const nextBtn = document.getElementById('original-next-btn');
+            
+            // 如果只有一张图片，隐藏导航按钮
+            if (total <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+            }
+        }
+
+        // 切换图片
+        function switchImage(direction) {
+            const total = processedImages.length;
+            if (total === 0) return;
+            
+            currentImageIndex += direction;
+            if (currentImageIndex < 0) currentImageIndex = total - 1;
+            if (currentImageIndex >= total) currentImageIndex = 0;
+            
+            updateCarouselPosition();
+            updatePageIndicator();
+            updateNavigationButtons();
+        }
+
+        // 更新轮播位置
+        function updateCarouselPosition() {
+            const container = document.getElementById('result-images-container');
+            if (!container) return;
+            // 每个图片项占据 100% 宽度，所以偏移量是 -currentImageIndex * 100%
+            const offset = -currentImageIndex * 100;
+            container.style.transform = `translateX(${offset}%)`;
+        }
+
+        // 更新页面指示器
+        function updatePageIndicator() {
+            const total = processedImages.length;
+            const indicator = document.getElementById('page-indicator');
+            indicator.textContent = `${currentImageIndex + 1}/${total}`;
+        }
+
+        // 更新导航按钮显示
+        function updateNavigationButtons() {
+            const total = processedImages.length;
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            
+            // 如果只有一张图片，隐藏导航按钮
+            if (total <= 1) {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'flex';
+                nextBtn.style.display = 'flex';
+            }
+        }
+
+        // 切换查看原图
+        function toggleOriginalImage() {
+            const resultCarousel = document.getElementById('result-carousel');
+            const originalContainer = document.getElementById('original-images-container');
+            const viewOriginalBtn = document.getElementById('view-original-btn');
+            const viewResultBtn = document.getElementById('view-result-btn');
+            
+            if (originalContainer.classList.contains('hidden')) {
+                // 显示原图
+                resultCarousel.style.display = 'none';
+                originalContainer.classList.remove('hidden');
+                // 同步当前索引到原图视图
+                updateOriginalCarouselPosition();
+            } else {
+                // 显示擦除后的图片
+                originalContainer.classList.add('hidden');
+                resultCarousel.style.display = 'block';
+                // 同步当前索引到结果视图
+                updateCarouselPosition();
+            }
+        }
+
+        // 返回相机
+        function backToCamera() {
+            document.getElementById('page-processing').classList.remove('active');
+            document.getElementById('page-camera').classList.add('active');
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = '0%';
+        }
+
+        // 返回处理页面
+        function backToProcessing() {
+            document.getElementById('page-result').classList.remove('active');
+            document.getElementById('page-processing').classList.add('active');
+        }
+
+        // 从结果页面返回到拍照页面（带提示）
+        function backToCameraFromResult() {
+            // 显示提示弹窗
+            if (confirm('返回后，当前擦除结果将丢失，是否确认返回？')) {
+                // 重置所有状态
+                capturedImages = [];
+                processedImages = [];
+                selectedImages = [];
+                currentImageIndex = 0;
+                
+                // 返回到拍照页面
+                document.getElementById('page-result').classList.remove('active');
+                document.getElementById('page-camera').classList.add('active');
+                
+                // 重置相机UI
+                updateCameraUI();
+            }
+        }
+
+        // 从结果页面返回到我的试卷页面
+        function backToListFromResult() {
+            // 关闭结果页面，返回到列表页面
+            document.getElementById('page-result').classList.remove('active');
+            document.getElementById('page-list').style.transform = 'translateX(0)';
+            
+            // 重置状态
+            capturedImages = [];
+            processedImages = [];
+            selectedImages = [];
+            currentImageIndex = 0;
+        }
+
+        // 显示重拍确认弹窗
+        function showRetakeConfirm() {
+            document.getElementById('retake-overlay').classList.add('show');
+            document.getElementById('retake-dialog').classList.add('show');
+        }
+
+        // 关闭重拍确认弹窗
+        function closeRetakeConfirm() {
+            document.getElementById('retake-overlay').classList.remove('show');
+            document.getElementById('retake-dialog').classList.remove('show');
+        }
+
+        // 确认重拍
+        function confirmRetake() {
+            closeRetakeConfirm();
+            
+            // 重置所有状态
+            capturedImages = [];
+            processedImages = [];
+            selectedImages = [];
+            currentImageIndex = 0;
+            
+            // 返回到拍照页面
+            document.getElementById('page-result').classList.remove('active');
+            document.getElementById('page-camera').classList.add('active');
+            
+            // 重置相机UI
+            updateCameraUI();
+            
+            showToast('已重置，请重新拍摄');
+        }
+
+        // 保存到我的试卷
+        function saveToMyPapers() {
+            if (processedImages.length === 0) {
+                showToast('没有可保存的内容');
+                return;
+            }
+            
+            // 使用第一张照片作为缩略图
+            const thumbnail = processedImages[0];
+            
+            const now = new Date();
+            const dateStr = now.toISOString().slice(0, 10);
+            const timeStr = now.toTimeString().slice(0, 5);
+            const newTask = {
+                id: Date.now(),
+                type: currentType,
+                title: '试卷擦除',
+                date: `${dateStr} ${timeStr}`,
+                thumbnail: thumbnail,
+                isNew: true
+            };
+            
+            // 添加到列表顶部（时间倒序）
+            historyTasks.unshift(newTask);
+            
+            // 清除所有NEW标记（除了最新的）
+            historyTasks.forEach((task, index) => {
+                task.isNew = index === 0;
+            });
+            
+            // 保存到localStorage
+            saveTasks();
+            
+            // 显示提示
+            showToast('已保存到我的试卷');
+            
+            // 重置状态
+            capturedImages = [];
+            processedImages = [];
+            selectedImages = [];
+            currentImageIndex = 0;
+            
+            // 返回到我的试卷页面并刷新数据
+            document.getElementById('page-result').classList.remove('active');
+            document.getElementById('page-list').style.transform = 'translateX(0)';
+            
+            // 刷新任务列表
+            renderTaskList();
+        }
+
+        // 显示导出弹窗
+        function showExportSheet() {
+            // 更新页数显示（根据处理后的图片数量）
+            const pageCount = processedImages.length > 0 ? processedImages.length : 1;
+            document.getElementById('export-page-count').textContent = `共 ${pageCount} 页`;
+            
+            // 设置当前查看的图片
+            const currentImage = processedImages[currentImageIndex] || processedImages[0];
+            document.getElementById('export-image').src = currentImage;
+            
+            // 初始化选中状态（默认选中当前图片）
+            if (selectedImages.length === 0 && processedImages.length > 0) {
+                selectedImages = [currentImageIndex];
+            }
+            
+            // 渲染缩略图
+            renderExportThumbnails();
+            
+            // 显示弹窗
+            document.getElementById('export-overlay').classList.add('show');
+            document.getElementById('export-sheet').classList.add('show');
+        }
+
+        // 渲染导出缩略图（支持多选）
+        function renderExportThumbnails() {
+            const container = document.getElementById('export-thumbnails');
+            container.innerHTML = '';
+            
+            processedImages.forEach((imgSrc, index) => {
+                const thumbnail = document.createElement('div');
+                const isSelected = selectedImages.includes(index);
+                const isActive = index === currentImageIndex;
+                thumbnail.className = `export-thumbnail ${isActive ? 'active' : ''} ${isSelected ? 'selected' : ''}`;
+                thumbnail.onclick = (e) => {
+                    // 如果点击的是复选框区域，切换多选
+                    if (e.target.closest('.export-thumbnail-checkbox')) {
+                        toggleSelectThumbnail(index);
+                    } else {
+                        // 点击图片区域，切换查看
+                        selectExportThumbnail(index);
+                    }
+                };
+                thumbnail.innerHTML = `
+                    <img src="${imgSrc}" alt="缩略图 ${index + 1}">
+                    <div class="export-thumbnail-checkbox">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                `;
+                container.appendChild(thumbnail);
+            });
+        }
+
+        // 切换缩略图选中状态（多选）
+        function toggleSelectThumbnail(index) {
+            const idx = selectedImages.indexOf(index);
+            if (idx > -1) {
+                // 取消选中
+                selectedImages.splice(idx, 1);
+            } else {
+                // 选中
+                selectedImages.push(index);
+            }
+            renderExportThumbnails();
+        }
+
+        // 选择导出缩略图（切换查看）
+        function selectExportThumbnail(index) {
+            currentImageIndex = index;
+            document.getElementById('export-image').src = processedImages[index];
+            renderExportThumbnails();
+        }
+
+        // 关闭导出弹窗
+        function closeExportSheet() {
+            document.getElementById('export-overlay').classList.remove('show');
+            document.getElementById('export-sheet').classList.remove('show');
+        }
+
+        // 预览PDF
+        function previewPDF() {
+            // 使用选中的图片生成PDF预览
+            const imagesToExport = selectedImages.length > 0 
+                ? selectedImages.map(idx => processedImages[idx])
+                : [processedImages[currentImageIndex] || processedImages[0]];
+            
+            closeExportSheet();
+            showToast(`正在生成PDF预览（${imagesToExport.length} 页）`);
+            // 这里可以添加实际的PDF预览逻辑
+            // 例如：打开新窗口显示PDF，或使用PDF.js库预览
+        }
+
+        // 发送到微信
+        function shareToWeChat() {
+            // 使用选中的图片
+            const imagesToExport = selectedImages.length > 0 
+                ? selectedImages.map(idx => processedImages[idx])
+                : [processedImages[currentImageIndex] || processedImages[0]];
+            
+            closeExportSheet();
+            showToast(`已发送 ${imagesToExport.length} 张图片到微信`);
+            // 这里可以添加实际的微信分享逻辑
+        }
+
+        // 保存到相册
+        function saveToAlbum() {
+            // 使用选中的图片
+            const imagesToExport = selectedImages.length > 0 
+                ? selectedImages.map(idx => processedImages[idx])
+                : [processedImages[currentImageIndex] || processedImages[0]];
+            
+            closeExportSheet();
+            showToast(`已保存 ${imagesToExport.length} 张图片到相册`);
+            // 这里可以添加实际的保存逻辑
+            // 保存后可以自动返回列表
+            setTimeout(() => {
+                confirmAndBack();
+            }, 1500);
+        }
+
+        // 确认并返回列表
+        function confirmAndBack() {
+            // 添加新任务到历史列表（使用第一张照片作为缩略图）
+            const thumbnail = capturedImages.length > 0 ? capturedImages[0] : 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=200&h=200&fit=crop';
+            
+            const now = new Date();
+            const dateStr = now.toISOString().slice(0, 10);
+            const timeStr = now.toTimeString().slice(0, 5);
+            const newTask = {
+                id: Date.now(),
+                type: currentType,
+                title: '试卷擦除',
+                date: `${dateStr} ${timeStr}`,
+                thumbnail: thumbnail,
+                isNew: true
+            };
+            
+            // 添加到列表顶部（时间倒序）
+            historyTasks.unshift(newTask);
+            
+            // 清除所有NEW标记（除了最新的）
+            historyTasks.forEach((task, index) => {
+                task.isNew = index === 0;
+            });
+            
+            // 保存到localStorage
+            saveTasks();
+            
+            // 返回列表并刷新
+            document.getElementById('page-result').classList.remove('active');
+            document.getElementById('page-list').style.transform = 'translateX(0)';
+            renderTaskList();
+            
+            // 重置状态
+            capturedImages = [];
+            
+            showToast('已保存到我的试卷');
+        }
+
+        // Toast 提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initPage();
+        });
+    </script>
+</body>
+</html>

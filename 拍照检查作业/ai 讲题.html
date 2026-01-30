@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AI 讲解</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft Yahei', sans-serif;
+            background: #E5E7EB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        .iphone-frame {
+            width: 393px;
+            height: 852px;
+            background: linear-gradient(180deg, #EFF6FF 0%, #F8FAFC 40%, #fff 100%);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #333, 0 0 0 13px #555, 0 20px 50px rgba(0,0,0,0.3);
+            border-radius: 50px;
+        }
+        .dynamic-island {
+            position: absolute;
+            top: 11px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 35px;
+            background: #000;
+            border-radius: 20px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .page-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            background: transparent;
+        }
+
+        /* 顶部导航 */
+        .header-bar {
+            padding: 50px 16px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .header-bar .back {
+            padding: 8px;
+            margin: -8px;
+            color: #1e293b;
+        }
+        .header-bar .title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .header-bar .icons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-bar .icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+        }
+
+        /* 副标题：音量、记录 */
+        .sub-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 16px;
+            padding: 0 16px 8px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .sub-header span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* AI 头像 */
+        .ai-avatar-wrap {
+            display: flex;
+            justify-content: center;
+            padding: 16px 0;
+            flex-shrink: 0;
+        }
+        .ai-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.2);
+            border: 2px solid #EFF6FF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .ai-avatar-emoji {
+            font-size: 42px;
+            line-height: 1;
+        }
+        .ai-avatar-ring {
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            pointer-events: none;
+        }
+
+        /* 题目卡片 */
+        .question-card {
+            margin: 0 16px 12px;
+            padding: 14px 16px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid #f1f5f9;
+        }
+        .question-card .label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+        .question-card .content {
+            font-size: 14px;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        /* 对话区域 */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 16px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 0;
+        }
+        .msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .msg.ai {
+            align-self: flex-start;
+            background: #f1f5f9;
+            color: #334155;
+            border-bottom-left-radius: 4px;
+        }
+        .msg.ai.warn {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        .msg.user {
+            align-self: flex-end;
+            background: #3B82F6;
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* 底部输入 */
+        .input-bar {
+            padding: 12px 16px 24px;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom));
+            background: #fff;
+            border-top: 1px solid #f1f5f9;
+            flex-shrink: 0;
+        }
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .voice-btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+            transition: transform 0.1s;
+        }
+        .voice-btn:active {
+            transform: scale(0.98);
+        }
+        .keyboard-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .keyboard-btn:active {
+            background: #e2e8f0;
+        }
+
+        /* 文字输入框（默认隐藏） */
+        .text-input-wrap {
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .text-input-wrap.show {
+            display: flex;
+        }
+        .text-input-wrap .input-row {
+            display: flex;
+            gap: 8px;
+        }
+        .text-input-wrap input {
+            flex: 1;
+            height: 44px;
+            border: 1px solid #e2e8f0;
+            border-radius: 22px;
+            padding: 0 16px;
+            font-size: 15px;
+            outline: none;
+        }
+        .text-input-wrap input:focus {
+            border-color: #3B82F6;
+        }
+        .text-input-wrap .send-btn {
+            padding: 0 20px;
+            height: 44px;
+            border-radius: 22px;
+            background: #3B82F6;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            border: none;
+        }
+        .text-input-wrap .send-btn:active {
+            opacity: 0.9;
+        }
+        .hide-text-input {
+            font-size: 12px;
+            color: #64748b;
+            text-align: center;
+            padding: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-frame">
+        <div class="dynamic-island"></div>
+
+        <div class="page-container">
+            <header class="header-bar">
+                <button class="back" onclick="goBack()" aria-label="返回">
+                    <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <h1 class="title">AI 讲解</h1>
+                <div class="icons">
+                    <button class="icon-btn" aria-label="更多"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01" /></svg></button>
+                    <button class="icon-btn" aria-label="设置"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /></svg></button>
+                </div>
+            </header>
+
+            <div class="sub-header">
+                <span><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg> 音量</span>
+                <span><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> 记录</span>
+            </div>
+
+            <div class="ai-avatar-wrap">
+                <div class="ai-avatar">
+                    <span class="ai-avatar-emoji" aria-hidden="true">🤖</span>
+                    <div class="ai-avatar-ring"></div>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div class="label">题目</div>
+                <div id="question-content" class="content">解方程：2(x + 3) - 5 = 3(x - 1) + 4。</div>
+            </div>
+
+            <div id="chat-area" class="chat-area no-scrollbar"></div>
+
+            <div class="input-bar">
+                <div id="voice-row" class="input-row">
+                    <button type="button" id="voice-btn" class="voice-btn" onclick="toggleVoiceInput()">
+                        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                        点击说话
+                    </button>
+                    <button type="button" class="keyboard-btn" onclick="showTextInput()" aria-label="键盘输入">
+                        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h7" /></svg>
+                    </button>
+                </div>
+                <div id="text-input-wrap" class="text-input-wrap">
+                    <div class="input-row">
+                        <input type="text" id="text-input" placeholder="输入你的问题..." maxlength="500" />
+                        <button type="button" class="send-btn" onclick="sendText()">发送</button>
+                    </div>
+                    <div class="hide-text-input" onclick="hideTextInput()">收起键盘</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatArea = document.getElementById('chat-area');
+        const questionContent = document.getElementById('question-content');
+        const voiceBtn = document.getElementById('voice-btn');
+        const voiceRow = document.getElementById('voice-row');
+        const textInputWrap = document.getElementById('text-input-wrap');
+        const textInput = document.getElementById('text-input');
+
+        let stepIndex = 0;
+        const aiReplies = [
+            '这道题可以先化简再代入。我们先看分母 x - 1，当 x = 2 时，x - 1 = 1 ≠ 0，所以可以代入。',
+            '分子 x² - 1 可以因式分解为 (x + 1)(x - 1)，所以原式 = (x + 1)(x - 1) / (x - 1)。',
+            '约去 (x - 1) 后得到 x + 1，当 x = 2 时，结果就是 2 + 1 = 3。',
+            '总结：先化简成 x + 1，再代入 x = 2，答案是 3。如果还有哪一步不清楚，可以继续问我。'
+        ];
+
+        function goBack() {
+            window.location.href = '../首页/首页.html';
+        }
+
+        function loadQuestion() {
+            try {
+                const q = sessionStorage.getItem('aiQuestion');
+                const a = sessionStorage.getItem('aiAnalysis');
+                if (q) questionContent.textContent = q;
+                if (a) {
+                    const firstLine = a.replace(/<[^>]+>/g, ' ').trim().slice(0, 80);
+                    if (firstLine) questionContent.textContent = questionContent.textContent + '\n\n（答案解析摘要：' + firstLine + '…）';
+                }
+            } catch (e) {}
+        }
+
+        function appendUserMsg(text) {
+            const div = document.createElement('div');
+            div.className = 'msg user';
+            div.textContent = text;
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function appendAiMsg(text, isWarn) {
+            const div = document.createElement('div');
+            div.className = 'msg ai' + (isWarn ? ' warn' : '');
+            div.textContent = text;
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function replyFromAi(userText) {
+            if (userText.includes('不懂') || userText.includes('不会') || userText.includes('怎么') || userText.includes('？') || userText.includes('?')) {
+                const reply = aiReplies[stepIndex % aiReplies.length];
+                stepIndex++;
+                setTimeout(() => appendAiMsg(reply), 600);
+            } else {
+                setTimeout(() => appendAiMsg('你可以问「这道题怎么做？」或「先化简是什么意思？」我会一步步讲给你听。'), 600);
+            }
+        }
+
+        function toggleVoiceInput() {
+            if (voiceBtn.textContent.includes('点击说话')) {
+                voiceBtn.innerHTML = '<span>正在聆听...</span>';
+                voiceBtn.classList.add('opacity-90');
+                setTimeout(() => {
+                    voiceBtn.innerHTML = '<svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg> 点击说话';
+                    voiceBtn.classList.remove('opacity-90');
+                    appendUserMsg('这道题怎么做？');
+                    replyFromAi('这道题怎么做？');
+                }, 1500);
+            }
+        }
+
+        function showTextInput() {
+            voiceRow.style.display = 'none';
+            textInputWrap.classList.add('show');
+            textInput.focus();
+        }
+
+        function hideTextInput() {
+            textInputWrap.classList.remove('show');
+            voiceRow.style.display = 'flex';
+            textInput.value = '';
+        }
+
+        function sendText() {
+            const t = textInput.value.trim();
+            if (!t) return;
+            appendUserMsg(t);
+            textInput.value = '';
+            replyFromAi(t);
+        }
+
+        textInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendText();
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            loadQuestion();
+        });
+    </script>
+</body>
+</html>

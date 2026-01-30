@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AI 龙老师 - 错题本</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif; 
+            background: linear-gradient(180deg, #F3E8FF 0%, #E8F4FD 50%, #E0F2FE 100%); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .card-press:active { transform: scale(0.98); transition: transform 0.1s; }
+        
+        /* === iPhone 16 机身模拟 === */
+        .iphone-frame {
+            width: 393px; 
+            height: 852px; 
+            background: linear-gradient(180deg, #F3E8FF 0%, #E8F4FD 50%, #E0F2FE 100%); 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #333, 0 0 0 13px #555, 0 20px 50px rgba(0,0,0,0.3);
+            border-radius: 50px;
+        }
+        /* iPhone 16 比例：393x852，约 1:2.17 */
+        .dynamic-island {
+            position: absolute; 
+            top: 11px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 120px; 
+            height: 35px; 
+            background: #000; 
+            border-radius: 20px; 
+            z-index: 1000; 
+            pointer-events: none;
+        }
+        
+        /* 小程序右上角按钮 */
+        .miniprogram-header {
+            position: absolute;
+            top: 50px;
+            right: 16px;
+            width: 87px;
+            height: 32px;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+            padding-right: 4px;
+        }
+        .miniprogram-btn {
+            width: 28px;
+            height: 28px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            position: relative;
+        }
+        .miniprogram-btn:active {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .miniprogram-btn::before {
+            content: '';
+            width: 3px;
+            height: 3px;
+            background: #000;
+            border-radius: 50%;
+            box-shadow: 0 -5px 0 #000, 0 5px 0 #000;
+            opacity: 0.6;
+        }
+        .miniprogram-btn-close {
+            width: 28px;
+            height: 28px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .miniprogram-btn-close:active {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .miniprogram-btn-close::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid #000;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+        
+        /* 页面切换动画 */
+        .page-container {
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0;
+            overflow: visible; 
+            background: linear-gradient(180deg, #F3E8FF 0%, #E8F4FD 50%, #E0F2FE 100%);
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .page-container.flex.flex-col {
+            display: flex;
+            flex-direction: column;
+        }
+        .page-sub { z-index: 20; transform: translateX(100%); background: linear-gradient(180deg, #F3E8FF 0%, #E8F4FD 50%, #E0F2FE 100%); }
+        .page-sub.active { transform: translateX(0); }
+        
+        /* Aurora装饰元素 */
+        .aurora-orb { position: absolute; border-radius: 9999px; filter: blur(80px); opacity: 0.4; pointer-events: none; z-index: 0; }
+        
+        /* 毛玻璃卡片效果 */
+        .glass-card { background: rgba(255,255,255,0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 0 rgba(255,255,255,0.6); }
+
+        .timeline-line { 
+            position: absolute; 
+            left: 19px; 
+            top: 0; 
+            bottom: 0; 
+            width: 2px; 
+            background-color: #E2E8F0; 
+            z-index: 0; 
+        }
+        
+        /* 筛选胶囊 */
+        .filter-pill {
+            padding: 4px 12px; 
+            border-radius: 999px; 
+            font-size: 11px; 
+            font-weight: 500;
+            background: rgba(255,255,255,0.5); 
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px); 
+            color: #64748B; 
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .filter-pill.active {
+            background: rgba(239,246,255,0.8); 
+            color: #2563EB; 
+            font-weight: bold;
+            border-color: rgba(37,99,235,0.3);
+        }
+
+        /* 编辑模式样式 */
+        .edit-mode .question-card {
+            transform: translateX(0); 
+            transition: transform 0.3s;
+        }
+        .edit-mode .question-checkbox {
+            opacity: 1; 
+            transform: translateX(0); 
+            transition: all 0.3s;
+        }
+        .question-checkbox {
+            position: absolute; 
+            left: 12px; 
+            top: 12px; 
+            transform: translateX(-20px);
+            width: 24px; 
+            height: 24px; 
+            border: 2px solid #94a3b8; 
+            border-radius: 50%;
+            background: white; 
+            opacity: 0; 
+            transition: all 0.3s;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .question-checkbox.checked {
+            background: #2563EB; 
+            border-color: #2563EB;
+        }
+        .question-checkbox.checked::after {
+            content: '✓'; 
+            color: white; 
+            font-size: 14px; 
+            font-weight: bold;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            right: 0;
+            background: linear-gradient(to top, rgba(243,232,255,0.95) 0%, rgba(232,244,253,0.95) 50%, rgba(224,242,254,0.95) 100%); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.5);
+            padding: 12px 16px; 
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            transform: translateY(100%); 
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.3s, opacity 0.3s;
+            z-index: 60;
+        }
+        .edit-mode .action-bar {
+            transform: translateY(0);
+            opacity: 1;
+            pointer-events: all;
+        }
+        .edit-mode #bottom-nav {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
+        }
+        #bottom-nav {
+            transition: transform 0.3s, opacity 0.3s, visibility 0.3s;
+        }
+
+        /* 相机页面 */
+        .camera-viewfinder {
+            position: relative; 
+            width: 100%; 
+            height: 100%;
+            background: #000; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
+        .camera-frame {
+            width: 90%; 
+            max-width: 320px; 
+            aspect-ratio: 3/4;
+            border: 2px dashed rgba(255,255,255,0.5); 
+            border-radius: 8px;
+        }
+
+        /* 智能框题页 */
+        .detection-box {
+            position: absolute; 
+            border: 2px dashed #60A5FA;
+            background: rgba(96, 165, 250, 0.1); 
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .detection-box::before {
+            content: '+';
+            color: #EF4444;
+            font-size: 32px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        .detection-box.selected {
+            border: 2px solid #2563EB; 
+            background: rgba(37, 99, 235, 0.2);
+        }
+        
+        /* 手动框题框 */
+        .manual-crop-box {
+            position: absolute;
+            border: 2px solid #10B981;
+            background: rgba(16, 185, 129, 0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .manual-crop-box::before {
+            content: '+';
+            color: #10B981;
+            font-size: 32px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        .manual-crop-box.selected {
+            border: 2px solid #059669;
+            background: rgba(5, 150, 105, 0.2);
+        }
+
+        /* 手动框题页 */
+        .crop-box {
+            position: absolute; 
+            border: 2px solid #2563EB;
+            background: rgba(37, 99, 235, 0.1); 
+            cursor: move;
+        }
+        .crop-handle {
+            position: absolute; 
+            width: 12px; 
+            height: 12px;
+            background: #2563EB; 
+            border: 2px solid white;
+            border-radius: 50%;
+        }
+        .crop-handle.nw { top: -6px; left: -6px; cursor: nw-resize; }
+        .crop-handle.ne { top: -6px; right: -6px; cursor: ne-resize; }
+        .crop-handle.sw { bottom: -6px; left: -6px; cursor: sw-resize; }
+        .crop-handle.se { bottom: -6px; right: -6px; cursor: se-resize; }
+
+        /* Toast 提示 */
+        .toast {
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8); 
+            color: white; 
+            padding: 12px 24px;
+            border-radius: 8px; 
+            z-index: 1000; 
+            opacity: 0; 
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
+
+        /* Loading */
+        .loading-overlay {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0;
+            background: rgba(0,0,0,0.5); 
+            z-index: 999;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            opacity: 0; 
+            pointer-events: none; 
+            transition: opacity 0.3s;
+        }
+        .loading-overlay.show {
+            opacity: 1; 
+            pointer-events: all;
+        }
+        .loading-spinner {
+            width: 48px; 
+            height: 48px; 
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: white; 
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="iphone-frame" id="app-root">
+        
+        <div class="dynamic-island"></div>
+        <div class="miniprogram-header">
+            <div class="miniprogram-btn" onclick="showMiniprogramMenu()"></div>
+            <div class="miniprogram-btn-close" onclick="closeMiniprogram()"></div>
+        </div>
+
+        <!-- 错题本页面 -->
+        <div id="page-book" class="page-container page-sub flex flex-col active relative">
+            <div class="aurora-orb w-64 h-64 bg-[#8B5CF6]/20 -top-32 -left-24"></div>
+            <div class="aurora-orb w-72 h-72 bg-[#06B6D4]/20 bottom-32 -right-28"></div>
+            
+            <header class="sticky top-0 z-30 pt-[50px] pb-0">
+                <div class="px-2 pb-3 flex justify-between items-center relative">
+                    <div class="flex items-center gap-1">
+                        <button onclick="closeBook()" class="p-2 -ml-1 active:opacity-60">
+                            <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <h1 class="text-lg font-bold text-slate-800">错题本</h1>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between pl-4 pr-2 pb-2">
+                    <div class="flex overflow-x-auto no-scrollbar gap-6 flex-1">
+                        <div onclick="selectSubject('math', this)" class="subject-tab pb-2 border-b-2 border-blue-600 text-blue-600 font-bold text-sm whitespace-nowrap cursor-pointer">数学</div>
+                        <div onclick="selectSubject('eng', this)" class="subject-tab pb-2 border-b-2 border-transparent text-slate-400 font-medium text-sm whitespace-nowrap cursor-pointer">英语</div>
+                    </div>
+                    <!-- 管理按钮 - 放在学科标签行 -->
+                    <button id="edit-mode-btn" onclick="toggleEditMode()" class="text-sm text-slate-400 active:text-slate-600 px-2 pb-2">
+                        <span id="edit-mode-text">管理</span>
+                    </button>
+                </div>
+
+                <div id="sub-filter-row" class="hidden px-4 py-2 flex gap-2 overflow-x-auto no-scrollbar">
+                    <div onclick="selectFilter('all', this)" class="filter-pill active" data-subject="all">全部(24)</div>
+                    <div onclick="selectFilter('single', this)" class="filter-pill" data-subject="math">单选题(6)</div>
+                    <div onclick="selectFilter('fill', this)" class="filter-pill" data-subject="math">填空题(4)</div>
+                    <div onclick="selectFilter('answer', this)" class="filter-pill" data-subject="math">解答题(13)</div>
+                    <div onclick="selectFilter('reading', this)" class="filter-pill" data-subject="eng">阅读理解(8)</div>
+                    <div onclick="selectFilter('writing', this)" class="filter-pill" data-subject="eng">写作(5)</div>
+                    <div onclick="selectFilter('grammar', this)" class="filter-pill" data-subject="eng">语法(11)</div>
+                </div>
+            </header>
+
+            <main id="book-main" class="flex-1 overflow-y-auto no-scrollbar p-4 relative z-10" style="padding-bottom: 100px;">
+                <div id="question-list" class="space-y-4">
+                    <!-- Timeline 方式展示错题，按时间倒序 -->
+                </div>
+            </main>
+
+            <!-- 底部操作栏 -->
+            <div id="bottom-nav" class="absolute bottom-0 left-0 right-0 w-full px-4 py-4 z-40 transition-all duration-300" style="background: linear-gradient(to top, rgba(243,232,255,0.95) 0%, rgba(232,244,253,0.95) 50%, rgba(224,242,254,0.95) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding-bottom: calc(1rem + env(safe-area-inset-bottom));">
+                <div class="flex gap-3">
+                    <button onclick="openCamera()" class="flex-1 bg-gradient-to-r from-[#6A2C70] via-[#8B5CF6] to-[#06B6D4] text-white rounded-full font-bold text-sm py-3 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/30 active:scale-[0.98] transition-transform">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                        上传错题
+                    </button>
+                    <button onclick="printQuestions()" class="flex-1 bg-white border border-slate-200 text-slate-700 rounded-full font-bold text-sm py-3 flex items-center justify-center gap-2 active:scale-[0.98] transition-transform active:bg-slate-50">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                        打印错题
+                    </button>
+                </div>
+            </div>
+
+            <!-- 操作栏（仅在编辑模式下显示） -->
+            <div class="action-bar">
+                <div class="flex items-center justify-between px-4 py-3">
+                    <button onclick="selectAllQuestions()" class="px-4 py-2 text-blue-600 font-medium">全选</button>
+                    <button onclick="deleteSelectedQuestions()" class="px-4 py-2 bg-red-500 text-white rounded-full font-medium active:bg-red-600">删除</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 相机页面 -->
+        <div id="page-camera" class="page-container page-sub flex flex-col">
+            <!-- 步骤A: 拍照模拟 -->
+            <div id="camera-step-a" class="flex-1 flex flex-col">
+                <header class="bg-black/50 backdrop-blur-sm pt-[50px] pb-4 px-4 z-30">
+                    <button onclick="closeCamera()" class="text-white p-2">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </header>
+                <div class="camera-viewfinder flex-1">
+                    <div class="camera-frame"></div>
+                </div>
+                <div class="bg-black/50 backdrop-blur-sm p-6 pb-safe">
+                    <button onclick="takePhoto()" class="w-16 h-16 mx-auto bg-white rounded-full border-4 border-gray-300 flex items-center justify-center">
+                        <div class="w-12 h-12 bg-white rounded-full"></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 步骤B: 智能框题页 -->
+            <div id="camera-step-b" class="flex-1 flex flex-col hidden">
+                <header class="bg-white pt-[50px] pb-4 px-4 z-30 border-b border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <button onclick="backToStepA()" class="p-2">
+                            <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <h2 class="text-lg font-bold text-slate-800">智能识别</h2>
+                        <div class="w-10"></div>
+                    </div>
+                </header>
+                <div id="detection-container" class="flex-1 relative overflow-hidden bg-gray-900">
+                    <img id="captured-image" src="https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800" class="w-full h-full object-contain" alt="试卷">
+                    <!-- 自动识别框 -->
+                    <div class="detection-box" style="left: 10%; top: 15%; width: 80%; height: 20%;" onclick="selectDetectionBox(this)"></div>
+                    <div class="detection-box" style="left: 10%; top: 40%; width: 80%; height: 20%;" onclick="selectDetectionBox(this)"></div>
+                    <div class="detection-box" style="left: 10%; top: 65%; width: 80%; height: 20%;" onclick="selectDetectionBox(this)"></div>
+                    <!-- 手动框题框将动态添加到这里 -->
+                </div>
+                <div class="bg-white border-t border-gray-100 p-4 pb-safe">
+                    <div class="flex gap-3">
+                        <button onclick="openManualCrop()" class="flex-1 py-3 bg-gray-100 text-slate-700 rounded-xl font-medium">手动框题</button>
+                        <button id="upload-btn" onclick="uploadQuestion()" class="flex-1 py-3 bg-gray-300 text-white rounded-xl font-medium" disabled>上传</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 步骤C: 手动框题页 -->
+            <div id="camera-step-c" class="flex-1 flex flex-col hidden">
+                <header class="bg-white pt-[50px] pb-4 px-4 z-30 border-b border-gray-100">
+                    <div class="flex items-center justify-between">
+                        <button onclick="backToStepB()" class="p-2">
+                            <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <h2 class="text-lg font-bold text-slate-800">手动框题</h2>
+                        <div class="w-10"></div>
+                    </div>
+                </header>
+                <div id="manual-crop-container" class="flex-1 relative overflow-hidden bg-gray-900">
+                    <img src="https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800" class="w-full h-full object-contain" alt="试卷">
+                    <div id="crop-box" class="crop-box" style="left: 20%; top: 30%; width: 60%; height: 30%;">
+                        <div class="crop-handle nw"></div>
+                        <div class="crop-handle ne"></div>
+                        <div class="crop-handle sw"></div>
+                        <div class="crop-handle se"></div>
+                    </div>
+                </div>
+                <div class="bg-white border-t border-gray-100 p-4 pb-safe">
+                    <button onclick="confirmManualCrop()" class="w-full py-3 bg-blue-600 text-white rounded-xl font-medium">确认上传</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 详情页 -->
+        <div id="page-detail" class="page-container page-sub flex flex-col hidden">
+            <header class="bg-white pt-[50px] pb-4 px-4 z-30 border-b border-gray-100">
+                <div class="flex items-center justify-between">
+                    <button onclick="closeDetail()" class="p-2">
+                        <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <h2 class="text-lg font-bold text-slate-800">题目详情</h2>
+                    <div class="w-10"></div>
+                </div>
+            </header>
+            <main class="flex-1 overflow-y-auto p-4">
+                <div class="bg-white rounded-xl p-4 shadow-sm">
+                    <img id="detail-image" src="" class="w-full rounded-lg mb-4" alt="题目">
+                    <div class="text-sm text-slate-600">搜题结果将显示在这里...</div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Toast 提示 -->
+        <div id="toast" class="toast"></div>
+
+        <!-- Loading 遮罩 -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <script>
+        // 全局状态
+        let isEditMode = false;
+        let selectedBoxes = []; // 支持多选
+        let manualCropBox = null; // 手动框题的位置信息
+        let cropBoxDragging = false;
+        let cropResizing = false;
+        let cropStartX = 0, cropStartY = 0;
+        let cropStartLeft = 0, cropStartTop = 0, cropStartWidth = 0, cropStartHeight = 0;
+        let currentSubject = 'math'; // 默认选择数学
+        let currentFilter = 'all';
+        
+        // 模拟错题数据（按时间倒序）- 使用真实的题目图片
+        const mockQuestions = [
+            { id: 1, subject: 'math', type: 'fill', image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&h=267&fit=crop', date: '2025-01-27 14:30', dateLabel: '今天' },
+            { id: 2, subject: 'math', type: 'single', image: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&h=267&fit=crop', date: '2025-01-27 10:15', dateLabel: '今天' },
+            { id: 3, subject: 'eng', type: 'reading', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=267&fit=crop', date: '2025-01-26 16:20', dateLabel: '昨天' },
+            { id: 4, subject: 'math', type: 'fill', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=267&fit=crop', date: '2025-01-26 09:00', dateLabel: '昨天' },
+            { id: 5, subject: 'eng', type: 'writing', image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=267&fit=crop', date: '2025-01-25 15:45', dateLabel: '1月25日' },
+            { id: 6, subject: 'eng', type: 'grammar', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=267&fit=crop', date: '2025-01-24 11:20', dateLabel: '1月24日' },
+        ];
+
+        // 页面初始化
+        function initPage() {
+            // 错题本页面默认显示，直接渲染
+            // 显示题型分类
+            const subFilterRow = document.getElementById('sub-filter-row');
+            if (subFilterRow) {
+                subFilterRow.classList.remove('hidden');
+                // 根据当前学科显示/隐藏对应的分类标签
+                document.querySelectorAll('#sub-filter-row .filter-pill').forEach(p => {
+                    const pillSubject = p.getAttribute('data-subject');
+                    if (pillSubject === 'all' || pillSubject === currentSubject) {
+                        p.style.display = 'block';
+                    } else {
+                        p.style.display = 'none';
+                    }
+                });
+            }
+            renderQuestions();
+        }
+
+        function closeBook() {
+            // 返回到首页
+            exitEditMode();
+            window.location.href = '../首页/首页.html';
+        }
+
+        // 渲染错题列表（简化版，只显示图片和时间）
+        function renderQuestions() {
+            const questionList = document.getElementById('question-list');
+            questionList.innerHTML = '';
+            
+            // 筛选数据
+            let filtered = mockQuestions;
+            if (currentSubject !== 'all') {
+                filtered = filtered.filter(q => q.subject === currentSubject);
+            }
+            if (currentFilter !== 'all') {
+                const filterMap = { 
+                    'single': 'single', 
+                    'fill': 'fill', 
+                    'answer': 'answer',
+                    'reading': 'reading',
+                    'writing': 'writing',
+                    'grammar': 'grammar'
+                };
+                if (filterMap[currentFilter]) {
+                    filtered = filtered.filter(q => q.type === filterMap[currentFilter]);
+                }
+            }
+            
+            // 直接渲染错题卡片，不分组
+            filtered.forEach(q => {
+                const card = document.createElement('div');
+                card.className = 'glass-card rounded-[24px] mb-3 overflow-hidden question-card relative cursor-pointer';
+                card.onclick = function() { if(!isEditMode) openDetail(this); };
+                
+                // 格式化时间显示
+                const timeStr = q.date.split(' ')[1] || q.date;
+                const dateStr = q.dateLabel;
+                
+                card.innerHTML = `
+                    <div class="question-checkbox" onclick="event.stopPropagation(); toggleQuestionSelect(this)"></div>
+                    <div class="w-full h-[120px] overflow-hidden relative">
+                        <img src="${q.image}" class="w-full h-full object-cover" alt="错题">
+                    </div>
+                    <div class="p-3 flex items-center justify-between">
+                        <span class="text-xs text-slate-400">${dateStr} ${timeStr}</span>
+                    </div>
+                `;
+                questionList.appendChild(card);
+            });
+            
+            // 如果没有任何错题
+            if (filtered.length === 0) {
+                questionList.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-20 text-center">
+                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <p class="text-slate-400 text-sm">暂无错题</p>
+                    </div>
+                `;
+            }
+        }
+
+        // 打开详情页
+        function openDetail(card) {
+            const img = card.querySelector('img');
+            const detailPage = document.getElementById('page-detail');
+            const detailImage = document.getElementById('detail-image');
+            if (img && detailImage) {
+                detailImage.src = img.src;
+                detailPage.classList.remove('hidden');
+                detailPage.classList.add('active');
+            }
+        }
+
+        function closeDetail() {
+            const detailPage = document.getElementById('page-detail');
+            detailPage.classList.remove('active');
+            detailPage.classList.add('hidden');
+        }
+
+        // 学科筛选
+        function selectSubject(subj, el) {
+            exitEditMode();
+            currentSubject = subj;
+            
+            document.querySelectorAll('.subject-tab').forEach(t => {
+                t.classList.remove('border-blue-600', 'text-blue-600', 'font-bold');
+                t.classList.add('border-transparent', 'text-slate-400', 'font-medium');
+            });
+            el.classList.remove('border-transparent', 'text-slate-400', 'font-medium');
+            el.classList.add('border-blue-600', 'text-blue-600', 'font-bold');
+
+            const subFilterRow = document.getElementById('sub-filter-row');
+            // 显示题型分类（数学和英语都显示）
+            subFilterRow.classList.remove('hidden');
+            
+            // 根据学科显示/隐藏对应的分类标签
+            document.querySelectorAll('#sub-filter-row .filter-pill').forEach(p => {
+                const pillSubject = p.getAttribute('data-subject');
+                if (pillSubject === 'all' || pillSubject === subj) {
+                    p.style.display = 'block';
+                } else {
+                    p.style.display = 'none';
+                }
+            });
+            
+            // 重置筛选为全部
+            currentFilter = 'all';
+            document.querySelectorAll('#sub-filter-row .filter-pill').forEach(p => {
+                p.classList.remove('active');
+            });
+            document.querySelector('#sub-filter-row .filter-pill[data-subject="all"]').classList.add('active');
+            
+            renderQuestions();
+        }
+        
+        // 小程序菜单
+        function showMiniprogramMenu() {
+            showToast('小程序菜单');
+        }
+        
+        function closeMiniprogram() {
+            showToast('关闭小程序');
+        }
+        
+        // 筛选项点击
+        function selectFilter(filter, el) {
+            currentFilter = filter;
+            
+            document.querySelectorAll('#sub-filter-row .filter-pill').forEach(p => {
+                p.classList.remove('active');
+            });
+            el.classList.add('active');
+            
+            renderQuestions();
+        }
+
+        // 编辑模式切换
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const bookPage = document.getElementById('page-book');
+            const editText = document.getElementById('edit-mode-text');
+            
+            if (isEditMode) {
+                bookPage.classList.add('edit-mode');
+                editText.textContent = '完成';
+            } else {
+                exitEditMode();
+            }
+        }
+
+        function exitEditMode() {
+            isEditMode = false;
+            const bookPage = document.getElementById('page-book');
+            const editText = document.getElementById('edit-mode-text');
+            bookPage.classList.remove('edit-mode');
+            editText.textContent = '管理';
+            
+            document.querySelectorAll('.question-checkbox.checked').forEach(cb => {
+                cb.classList.remove('checked');
+            });
+        }
+
+        // 题目选择
+        function toggleQuestionSelect(checkbox) {
+            checkbox.classList.toggle('checked');
+        }
+
+        function selectAllQuestions() {
+            document.querySelectorAll('.question-checkbox').forEach(cb => {
+                cb.classList.add('checked');
+            });
+        }
+
+        function deleteSelectedQuestions() {
+            const selected = document.querySelectorAll('.question-checkbox.checked');
+            if (selected.length === 0) {
+                showToast('请先选择要删除的题目');
+                return;
+            }
+            
+            selected.forEach(cb => {
+                const card = cb.closest('.question-card');
+                if (card) {
+                    card.style.transition = 'opacity 0.3s, transform 0.3s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.8)';
+                    setTimeout(() => card.remove(), 300);
+                }
+            });
+            
+            showToast('删除成功');
+            exitEditMode();
+        }
+
+        // 打印错题
+        function printQuestions() {
+            // 保存当前错题数据到 localStorage，供打印页面使用
+            try {
+                localStorage.setItem('wrongQuestions', JSON.stringify(mockQuestions));
+            } catch (e) {
+                console.error('保存错题数据失败:', e);
+            }
+            // 跳转到打印错题页面
+            window.location.href = '打印错题.html';
+        }
+
+        // 相机流程
+        function openCamera() {
+            const book = document.getElementById('page-book');
+            const camera = document.getElementById('page-camera');
+            book.classList.remove('active');
+            camera.classList.add('active');
+            showStepA();
+        }
+
+        function closeCamera() {
+            const book = document.getElementById('page-book');
+            const camera = document.getElementById('page-camera');
+            camera.classList.remove('active');
+            book.classList.add('active');
+            showStepA();
+            // 重置状态
+            selectedBoxes = [];
+            manualCropBox = null;
+            document.querySelectorAll('.detection-box').forEach(box => {
+                box.classList.remove('selected');
+            });
+            const container = document.getElementById('detection-container');
+            const oldManualBox = container.querySelector('.manual-crop-box');
+            if (oldManualBox) {
+                oldManualBox.remove();
+            }
+        }
+
+        function showStepA() {
+            document.getElementById('camera-step-a').classList.remove('hidden');
+            document.getElementById('camera-step-b').classList.add('hidden');
+            document.getElementById('camera-step-c').classList.add('hidden');
+        }
+
+        function takePhoto() {
+            document.getElementById('camera-step-a').classList.add('hidden');
+            document.getElementById('camera-step-b').classList.remove('hidden');
+            selectedBoxes = [];
+            document.querySelectorAll('.detection-box').forEach(box => {
+                box.classList.remove('selected');
+            });
+            // 如果有手动框题，显示它
+            if (manualCropBox) {
+                setTimeout(() => {
+                    showManualCropBox();
+                }, 100);
+            }
+            updateUploadButton();
+        }
+
+        function backToStepA() {
+            showStepA();
+        }
+
+        function selectDetectionBox(box) {
+            // 支持多选：toggle选中状态
+            if (box.classList.contains('selected')) {
+                box.classList.remove('selected');
+                selectedBoxes = selectedBoxes.filter(b => b !== box);
+            } else {
+                box.classList.add('selected');
+                selectedBoxes.push(box);
+            }
+            updateUploadButton();
+        }
+        
+        function updateUploadButton() {
+            const uploadBtn = document.getElementById('upload-btn');
+            const hasSelection = selectedBoxes.length > 0 || manualCropBox !== null;
+            if (hasSelection) {
+                uploadBtn.disabled = false;
+                uploadBtn.classList.remove('bg-gray-300');
+                uploadBtn.classList.add('bg-blue-600');
+            } else {
+                uploadBtn.disabled = true;
+                uploadBtn.classList.remove('bg-blue-600');
+                uploadBtn.classList.add('bg-gray-300');
+            }
+        }
+
+        function openManualCrop() {
+            document.getElementById('camera-step-b').classList.add('hidden');
+            document.getElementById('camera-step-c').classList.remove('hidden');
+            setTimeout(() => {
+                initCropBox();
+            }, 100);
+        }
+
+        function backToStepB() {
+            document.getElementById('camera-step-c').classList.add('hidden');
+            document.getElementById('camera-step-b').classList.remove('hidden');
+            // 显示手动框题框
+            if (manualCropBox) {
+                showManualCropBox();
+            }
+        }
+        
+        function showManualCropBox() {
+            // 移除旧的手动框
+            const container = document.getElementById('detection-container');
+            const oldManualBox = container.querySelector('.manual-crop-box');
+            if (oldManualBox) {
+                oldManualBox.remove();
+            }
+            
+            if (manualCropBox) {
+                const manualBox = document.createElement('div');
+                manualBox.className = 'manual-crop-box';
+                manualBox.style.left = manualCropBox.left + '%';
+                manualBox.style.top = manualCropBox.top + '%';
+                manualBox.style.width = manualCropBox.width + '%';
+                manualBox.style.height = manualCropBox.height + '%';
+                manualBox.onclick = function() { selectManualCropBox(this); };
+                container.appendChild(manualBox);
+                updateUploadButton();
+            }
+        }
+        
+        function selectManualCropBox(box) {
+            // 手动框题框也支持选择
+            if (box.classList.contains('selected')) {
+                box.classList.remove('selected');
+                manualCropBox = null;
+            } else {
+                box.classList.add('selected');
+            }
+            updateUploadButton();
+        }
+
+        function initCropBox() {
+            const cropBox = document.getElementById('crop-box');
+            if (!cropBox) return;
+            
+            const newCropBox = cropBox.cloneNode(true);
+            cropBox.parentNode.replaceChild(newCropBox, cropBox);
+            
+            newCropBox.addEventListener('mousedown', startDrag);
+            newCropBox.addEventListener('touchstart', startDrag, { passive: false });
+            
+            const handles = newCropBox.querySelectorAll('.crop-handle');
+            handles.forEach(handle => {
+                handle.addEventListener('mousedown', startResize);
+                handle.addEventListener('touchstart', startResize, { passive: false });
+            });
+        }
+
+        function startDrag(e) {
+            if (e.target.classList.contains('crop-handle')) return;
+            cropBoxDragging = true;
+            const cropBox = document.getElementById('crop-box');
+            const rect = cropBox.getBoundingClientRect();
+            const container = document.getElementById('manual-crop-container');
+            const containerRect = container.getBoundingClientRect();
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            cropStartX = clientX;
+            cropStartY = clientY;
+            cropStartLeft = rect.left - containerRect.left;
+            cropStartTop = rect.top - containerRect.top;
+            
+            e.preventDefault();
+        }
+
+        function startResize(e) {
+            cropResizing = true;
+            const cropBox = document.getElementById('crop-box');
+            const rect = cropBox.getBoundingClientRect();
+            const container = document.getElementById('manual-crop-container');
+            const containerRect = container.getBoundingClientRect();
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            cropStartX = clientX;
+            cropStartY = clientY;
+            cropStartLeft = rect.left - containerRect.left;
+            cropStartTop = rect.top - containerRect.top;
+            cropStartWidth = rect.width;
+            cropStartHeight = rect.height;
+            
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function handleMove(e) {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            if (cropBoxDragging) {
+                const container = document.getElementById('manual-crop-container');
+                const containerRect = container.getBoundingClientRect();
+                const cropBox = document.getElementById('crop-box');
+                
+                const deltaX = clientX - cropStartX;
+                const deltaY = clientY - cropStartY;
+                
+                let newLeft = cropStartLeft + deltaX;
+                let newTop = cropStartTop + deltaY;
+                
+                newLeft = Math.max(0, Math.min(newLeft, containerRect.width - cropBox.offsetWidth));
+                newTop = Math.max(0, Math.min(newTop, containerRect.height - cropBox.offsetHeight));
+                
+                cropBox.style.left = newLeft + 'px';
+                cropBox.style.top = newTop + 'px';
+            }
+            
+            if (cropResizing) {
+                const container = document.getElementById('manual-crop-container');
+                const containerRect = container.getBoundingClientRect();
+                const cropBox = document.getElementById('crop-box');
+                
+                const deltaX = clientX - cropStartX;
+                const deltaY = clientY - cropStartY;
+                
+                let newWidth = cropStartWidth + deltaX;
+                let newHeight = cropStartHeight + deltaY;
+                
+                newWidth = Math.max(100, Math.min(newWidth, containerRect.width - cropBox.offsetLeft));
+                newHeight = Math.max(100, Math.min(newHeight, containerRect.height - cropBox.offsetTop));
+                
+                cropBox.style.width = newWidth + 'px';
+                cropBox.style.height = newHeight + 'px';
+            }
+        }
+
+        document.addEventListener('mousemove', handleMove);
+        document.addEventListener('touchmove', (e) => {
+            if (cropBoxDragging || cropResizing) {
+                e.preventDefault();
+                handleMove(e);
+            }
+        }, { passive: false });
+
+        document.addEventListener('mouseup', () => {
+            cropBoxDragging = false;
+            cropResizing = false;
+        });
+
+        document.addEventListener('touchend', () => {
+            cropBoxDragging = false;
+            cropResizing = false;
+        });
+
+        function confirmManualCrop() {
+            // 保存手动框题的位置信息
+            const cropBox = document.getElementById('crop-box');
+            const container = document.getElementById('manual-crop-container');
+            const containerRect = container.getBoundingClientRect();
+            const boxRect = cropBox.getBoundingClientRect();
+            
+            manualCropBox = {
+                left: ((boxRect.left - containerRect.left) / containerRect.width) * 100,
+                top: ((boxRect.top - containerRect.top) / containerRect.height) * 100,
+                width: (boxRect.width / containerRect.width) * 100,
+                height: (boxRect.height / containerRect.height) * 100
+            };
+            
+            // 返回智能识别页面
+            backToStepB();
+        }
+
+        function uploadQuestion() {
+            // 检查是否有选中的题目
+            if (selectedBoxes.length === 0 && manualCropBox === null) {
+                showToast('请先选择题目');
+                return;
+            }
+            
+            showLoading();
+            
+            setTimeout(() => {
+                hideLoading();
+                const count = selectedBoxes.length + (manualCropBox ? 1 : 0);
+                showToast(`成功添加 ${count} 道错题`);
+                
+                // 添加新题目到数据（模拟）
+                const now = new Date();
+                const timeStr = now.toTimeString().slice(0, 5);
+                
+                // 为每个选中的框添加一道错题
+                for (let i = 0; i < selectedBoxes.length; i++) {
+                    const newQuestion = {
+                        id: Date.now() + i,
+                        subject: currentSubject,
+                        type: 'fill',
+                        image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&h=267&fit=crop',
+                        date: now.toISOString().slice(0, 16).replace('T', ' ') + ' ' + timeStr,
+                        dateLabel: '今天'
+                    };
+                    mockQuestions.unshift(newQuestion);
+                }
+                
+                // 如果有手动框题，也添加
+                if (manualCropBox) {
+                    const newQuestion = {
+                        id: Date.now() + selectedBoxes.length,
+                        subject: currentSubject,
+                        type: 'fill',
+                        image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&h=267&fit=crop',
+                        date: now.toISOString().slice(0, 16).replace('T', ' ') + ' ' + timeStr,
+                        dateLabel: '今天'
+                    };
+                    mockQuestions.unshift(newQuestion);
+                }
+                
+                // 重置状态
+                selectedBoxes = [];
+                manualCropBox = null;
+                document.querySelectorAll('.detection-box').forEach(box => {
+                    box.classList.remove('selected');
+                });
+                const container = document.getElementById('detection-container');
+                const oldManualBox = container.querySelector('.manual-crop-box');
+                if (oldManualBox) {
+                    oldManualBox.remove();
+                }
+                
+                // 重新渲染
+                renderQuestions();
+                
+                setTimeout(() => {
+                    closeCamera();
+                }, 500);
+            }, 1500);
+        }
+
+        // Toast 提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // Loading 遮罩
+        function showLoading() {
+            document.getElementById('loading-overlay').classList.add('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading-overlay').classList.remove('show');
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initPage();
+        });
+    </script>
+</body>
+</html>

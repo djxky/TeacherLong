@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AI 龙老师 - 打印错题</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif; 
+            background-color: #E5E7EB; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* === iPhone 16 机身模拟 === */
+        .iphone-frame {
+            width: 393px; 
+            height: 852px; 
+            background-color: #F0F2F5; 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #333, 0 0 0 13px #555, 0 20px 50px rgba(0,0,0,0.3);
+            border-radius: 50px;
+        }
+        .dynamic-island {
+            position: absolute; 
+            top: 11px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 120px; 
+            height: 35px; 
+            background: #000; 
+            border-radius: 20px; 
+            z-index: 1000; 
+            pointer-events: none;
+        }
+        
+        /* 小程序右上角按钮 */
+        .miniprogram-header {
+            position: absolute;
+            top: 50px;
+            right: 16px;
+            width: 87px;
+            height: 32px;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+            padding-right: 4px;
+        }
+        .miniprogram-btn {
+            width: 28px;
+            height: 28px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .miniprogram-btn:active {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .miniprogram-btn::before {
+            content: '';
+            width: 3px;
+            height: 3px;
+            background: #000;
+            border-radius: 50%;
+            box-shadow: 0 -5px 0 #000, 0 5px 0 #000;
+            opacity: 0.6;
+        }
+        .miniprogram-btn-close {
+            width: 28px;
+            height: 28px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .miniprogram-btn-close:active {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .miniprogram-btn-close::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid #000;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        /* 页面容器：头部 + 可滚动内容 + 底部栏固定贴底 */
+        .page-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            background-color: #F6F7F9;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .page-container > header {
+            flex-shrink: 0;
+        }
+        #main-content {
+            flex: 1 1 0;
+            min-height: 0;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
+            padding-bottom: 88px; /* 为底部操作栏留出空间，避免被遮挡 */
+        }
+        /* 底部操作栏：始终固定在页面底部可见 */
+        .page-container > .action-bar {
+            flex-shrink: 0;
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        /* 错题项样式 */
+        .question-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .question-item:active {
+            transform: scale(0.98);
+        }
+        .question-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #94a3b8;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .question-checkbox.checked {
+            background: #2563EB;
+            border-color: #2563EB;
+        }
+        .question-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .question-thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .question-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .question-time {
+            font-size: 12px;
+            color: #94A3B8;
+        }
+
+        /* 操作栏 - 固定在底部，始终可见 */
+        .action-bar {
+            flex-shrink: 0;
+            min-height: 56px;
+            background: #fff;
+            border-top: 1px solid #e2e8f0;
+            padding: 12px 16px;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+            z-index: 60;
+        }
+
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* 导出弹窗 - 在小程序内显示 */
+        .export-sheet-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 199;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .export-sheet-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .export-sheet {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 200;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+        }
+        .export-sheet.show {
+            transform: translateY(0);
+        }
+        /* 弹窗内：预览区可滚动，底部三个按钮始终贴底可见 */
+        .export-sheet .export-sheet-preview-wrap {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+        }
+        .export-sheet .export-sheet-actions {
+            flex-shrink: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-frame" id="app-root">
+        <div class="dynamic-island"></div>
+        <div class="miniprogram-header">
+            <div class="miniprogram-btn" onclick="showMiniprogramMenu()"></div>
+            <div class="miniprogram-btn-close" onclick="closeMiniprogram()"></div>
+        </div>
+
+        <!-- 打印错题选择页面 -->
+        <div id="page-print" class="page-container" style="position: relative;">
+            <header class="bg-white sticky top-0 z-30 shadow-sm pt-[90px] pb-0">
+                <div class="px-4 pb-3 flex justify-between items-center">
+                    <div class="flex items-center gap-1">
+                        <button onclick="goBack()" class="p-2 -ml-1 active:opacity-60">
+                            <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </button>
+                        <h1 class="text-lg font-bold text-slate-800">打印错题</h1>
+                    </div>
+                </div>
+            </header>
+
+            <main id="main-content" class="overflow-y-auto no-scrollbar px-4 py-4 pb-4">
+                <div id="question-list" class="space-y-3">
+                    <!-- 错题列表将动态渲染在这里 -->
+                </div>
+                <div id="empty-state" class="hidden flex flex-col items-center justify-center py-20 text-center">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <p class="text-slate-400 text-sm">暂无错题</p>
+                </div>
+            </main>
+
+            <!-- 底部操作栏：全选、取消、生成 pdf -->
+            <div class="action-bar">
+                <div class="flex items-center justify-between gap-3">
+                    <button type="button" onclick="selectAllQuestions()" class="px-4 py-2.5 text-blue-600 font-medium active:opacity-60">全选</button>
+                    <button type="button" onclick="cancelPrint()" class="px-4 py-2.5 text-slate-600 font-medium active:opacity-60">取消</button>
+                    <button type="button" onclick="generatePdf()" class="flex-1 bg-blue-500 text-white rounded-lg font-medium py-2.5 px-4 active:opacity-90 transition-opacity">
+                        生成 pdf (<span id="selected-count">0</span>)
+                    </button>
+                </div>
+            </div>
+
+            <!-- 导出弹窗 - 在小程序内 -->
+            <div class="export-sheet-overlay" id="export-overlay" onclick="closeExportSheet()"></div>
+            <div class="export-sheet" id="export-sheet">
+            <div class="px-4 pt-4 pb-2 flex items-center justify-between border-b border-gray-100">
+                <h3 class="text-lg font-bold text-slate-800" id="export-title">共 0 页</h3>
+                <button onclick="closeExportSheet()" class="p-2 active:opacity-60">
+                    <svg class="w-6 h-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="export-sheet-preview-wrap p-4">
+                <div id="export-preview" class="space-y-4">
+                    <!-- 预览图片将在这里显示 -->
+                </div>
+            </div>
+            <div class="export-sheet-actions px-4 py-3" style="padding-bottom: calc(12px + env(safe-area-inset-bottom));">
+                <div class="flex gap-2">
+                    <button type="button" onclick="doBrowserPrint()" class="flex-1 bg-orange-500 text-white rounded-xl font-semibold text-sm py-3 flex items-center justify-center gap-1.5 active:opacity-90 transition-opacity">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                        <span>打印</span>
+                    </button>
+                    <button type="button" onclick="sendToWeChat()" class="flex-1 bg-green-500 text-white rounded-xl font-semibold text-sm py-3 flex items-center justify-center gap-1.5 active:opacity-90 transition-opacity">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                        <span>发送到微信</span>
+                    </button>
+                    <button type="button" onclick="saveToAlbum()" class="flex-1 bg-blue-500 text-white rounded-xl font-semibold text-sm py-3 flex items-center justify-center gap-1.5 active:opacity-90 transition-opacity">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        <span>保存PDF</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script>
+        // 错题数据（从错题本获取或使用模拟数据）
+        let allQuestions = [];
+        let selectedQuestions = new Set();
+        // 当前导出弹窗里显示的题目（用于打印/微信/保存）
+        let exportQuestionsForPrint = [];
+
+        // 页面初始化
+        function initPage() {
+            loadQuestions();
+            renderQuestionList();
+            updateSelectedCount();
+        }
+
+        // 加载错题数据
+        function loadQuestions() {
+            try {
+                const saved = localStorage.getItem('wrongQuestions');
+                if (saved) {
+                    allQuestions = JSON.parse(saved);
+                } else {
+                    // 模拟数据
+                    allQuestions = [
+                        { id: 1, subject: 'math', type: 'fill', image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&h=267&fit=crop', date: '2025-01-27 14:30', dateLabel: '今天' },
+                        { id: 2, subject: 'math', type: 'single', image: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&h=267&fit=crop', date: '2025-01-27 10:15', dateLabel: '今天' },
+                        { id: 3, subject: 'eng', type: 'answer', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=267&fit=crop', date: '2025-01-26 16:20', dateLabel: '昨天' },
+                        { id: 4, subject: 'math', type: 'fill', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=267&fit=crop', date: '2025-01-26 09:00', dateLabel: '昨天' },
+                        { id: 5, subject: 'eng', type: 'single', image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=267&fit=crop', date: '2025-01-25 15:45', dateLabel: '1月25日' },
+                    ];
+                }
+            } catch (e) {
+                console.error('加载错题数据失败:', e);
+                allQuestions = [];
+            }
+        }
+
+        // 渲染错题列表
+        function renderQuestionList() {
+            const questionList = document.getElementById('question-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            questionList.innerHTML = '';
+            selectedQuestions.clear(); // 每次渲染时重置勾选，保证与界面一致
+            
+            if (allQuestions.length === 0) {
+                questionList.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            questionList.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            // 按时间倒序排列
+            const sortedQuestions = [...allQuestions].sort((a, b) => {
+                return new Date(b.date) - new Date(a.date);
+            });
+            
+            sortedQuestions.forEach(q => {
+                const item = document.createElement('div');
+                item.className = 'question-item';
+                item.dataset.id = q.id;
+                
+                const timeStr = q.date.split(' ')[1] || '';
+                const dateStr = q.dateLabel || q.date.split(' ')[0];
+                
+                item.innerHTML = `
+                    <div class="question-checkbox" onclick="event.stopPropagation(); toggleQuestionSelect(${q.id}, this)"></div>
+                    <img src="${q.image}" class="question-thumbnail" alt="错题" onerror="this.src='https://via.placeholder.com/800x267?text=图片加载失败'">
+                    <div class="question-content">
+                        <div class="question-time">${dateStr} ${timeStr}</div>
+                    </div>
+                `;
+                
+                questionList.appendChild(item);
+            });
+            updateSelectedCount();
+        }
+
+        // 更新已选数量显示
+        function updateSelectedCount() {
+            const el = document.getElementById('selected-count');
+            if (el) {
+                el.textContent = selectedQuestions.size;
+                el.setAttribute('aria-label', '已选 ' + selectedQuestions.size + ' 道');
+            }
+        }
+
+        // 切换错题选择
+        function toggleQuestionSelect(id, checkbox) {
+            if (selectedQuestions.has(id)) {
+                selectedQuestions.delete(id);
+                checkbox.classList.remove('checked');
+            } else {
+                selectedQuestions.add(id);
+                checkbox.classList.add('checked');
+            }
+            updateSelectedCount();
+        }
+
+        // 全选
+        function selectAllQuestions() {
+            const checkboxes = document.querySelectorAll('.question-checkbox');
+            checkboxes.forEach(cb => {
+                const item = cb.closest('.question-item');
+                const id = parseInt(item.dataset.id);
+                selectedQuestions.add(id);
+                cb.classList.add('checked');
+            });
+            updateSelectedCount();
+        }
+
+        // 取消
+        function cancelPrint() {
+            // 返回错题本页面
+            window.location.href = '错题本 01.html';
+        }
+
+        // 生成 pdf（按钮点击入口）：先提示正在生成，再展示预览与「发送到微信」
+        function generatePdf() {
+            if (selectedQuestions.size === 0) {
+                showToast('请至少选择一道错题');
+                return;
+            }
+            showToast('正在生成文件...');
+            const selected = allQuestions.filter(q => selectedQuestions.has(q.id));
+            setTimeout(function() {
+                showExportSheet(selected);
+            }, 400);
+        }
+
+        // 兼容旧名
+        function generatePreview() {
+            generatePdf();
+        }
+
+        // 打印选中的错题（内部用，直接弹窗）
+        function printSelectedQuestions() {
+            if (selectedQuestions.size === 0) {
+                showToast('请至少选择一道错题');
+                return;
+            }
+            const selected = allQuestions.filter(q => selectedQuestions.has(q.id));
+            showExportSheet(selected);
+        }
+
+        // 显示导出弹窗（生成完成后展示「打印」「发送到微信」「保存PDF」）
+        function showExportSheet(questions) {
+            exportQuestionsForPrint = questions;
+            const sheet = document.getElementById('export-sheet');
+            const overlay = document.getElementById('export-overlay');
+            const title = document.getElementById('export-title');
+            const preview = document.getElementById('export-preview');
+            
+            title.textContent = `共 ${questions.length} 页 · 可打印或导出`;
+            preview.innerHTML = '';
+            
+            questions.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100';
+                card.innerHTML = `
+                    <div class="px-3 py-2 border-b border-slate-100 text-sm font-medium text-slate-600">第 ${index + 1} 题</div>
+                    <img src="${q.image}" class="w-full h-auto block" alt="错题 ${index + 1}" onerror="this.src='https://via.placeholder.com/800x267?text=图片加载失败'">
+                `;
+                preview.appendChild(card);
+            });
+            
+            sheet.classList.add('show');
+            overlay.classList.add('show');
+        }
+
+        // 关闭导出弹窗
+        function closeExportSheet() {
+            const sheet = document.getElementById('export-sheet');
+            const overlay = document.getElementById('export-overlay');
+            sheet.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+
+        // 浏览器打印：用当前预览中的题目打开打印页并调起打印对话框
+        function doBrowserPrint() {
+            if (exportQuestionsForPrint.length === 0) {
+                showToast('没有可打印的题目');
+                return;
+            }
+            var printWin = window.open('', '_blank');
+            if (!printWin) {
+                showToast('请允许弹窗后重试');
+                return;
+            }
+            var html = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>错题打印 - 共 ' + exportQuestionsForPrint.length + ' 题</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:\"PingFang SC\",\"Microsoft YaHei\",sans-serif;background:#fff}.print-page{page-break-after:always;padding:20mm;min-height:277mm;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}.print-page:last-child{page-break-after:auto}.question-num{font-size:14pt;color:#333;margin-bottom:12px;font-weight:bold}.question-num span{color:#2563EB}.question-img{max-width:100%;height:auto;max-height:230mm;object-fit:contain}</style></head><body>';
+            for (var i = 0; i < exportQuestionsForPrint.length; i++) {
+                var q = exportQuestionsForPrint[i];
+                html += '<div class="print-page"><div class="question-num">第 <span>' + (i + 1) + '</span> 题</div><img class="question-img" src="' + q.image + '" alt="第 ' + (i + 1) + ' 题" /></div>';
+            }
+            html += '</body></html>';
+            printWin.document.write(html);
+            printWin.document.close();
+            printWin.focus();
+            setTimeout(function() {
+                printWin.print();
+                printWin.onafterprint = function() { printWin.close(); };
+            }, 400);
+        }
+
+        // 发送到微信（使用当前预览中的题目）
+        function sendToWeChat() {
+            if (exportQuestionsForPrint.length === 0) {
+                showToast('没有可导出的题目');
+                return;
+            }
+            generatePDF(exportQuestionsForPrint, 'wechat');
+        }
+
+        // 保存为 PDF 下载（使用当前预览中的题目）
+        function saveToAlbum() {
+            if (exportQuestionsForPrint.length === 0) {
+                showToast('没有可导出的题目');
+                return;
+            }
+            generatePDF(exportQuestionsForPrint, 'album');
+        }
+
+        // 生成PDF
+        function generatePDF(questions, action) {
+            if (questions.length === 0) {
+                showToast('没有选中的错题');
+                return;
+            }
+            
+            showToast('正在生成PDF...');
+            
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+            
+            const totalImages = questions.length;
+            const loadedResults = []; // 按 index 存储每张图片的 img 和尺寸，保证顺序
+            
+            function tryFinish() {
+                if (loadedResults.length !== totalImages) return;
+                
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                loadedResults.sort((a, b) => a.index - b.index);
+                
+                loadedResults.forEach((item, i) => {
+                    if (item.img) {
+                        if (i > 0) pdf.addPage();
+                        const x = (pageWidth - item.scaledWidth) / 2;
+                        const y = (pageHeight - item.scaledHeight) / 2;
+                        pdf.addImage(item.img, 'JPEG', x, y, item.scaledWidth, item.scaledHeight);
+                    }
+                });
+                
+                if (action === 'wechat') {
+                    showToast('PDF已生成，请使用微信分享');
+                } else if (action === 'album') {
+                    pdf.save('错题本.pdf');
+                    showToast('已保存');
+                }
+                closeExportSheet();
+            }
+            
+            questions.forEach((q, index) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = function() {
+                    const imgWidth = img.width;
+                    const imgHeight = img.height;
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    const ratio = Math.min((pageWidth - 20) / imgWidth, (pageHeight - 20) / imgHeight);
+                    loadedResults.push({
+                        index,
+                        img: img,
+                        scaledWidth: imgWidth * ratio,
+                        scaledHeight: imgHeight * ratio
+                    });
+                    tryFinish();
+                };
+                
+                img.onerror = function() {
+                    loadedResults.push({ index, img: null, scaledWidth: 0, scaledHeight: 0 });
+                    tryFinish();
+                };
+                
+                img.src = q.image;
+            });
+        }
+
+        // 返回
+        function goBack() {
+            window.location.href = '错题本 01.html';
+        }
+
+        // 显示提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 小程序按钮
+        function showMiniprogramMenu() {
+            showToast('更多选项');
+        }
+
+        function closeMiniprogram() {
+            showToast('关闭小程序');
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>
