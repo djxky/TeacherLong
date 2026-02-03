@@ -21,11 +21,10 @@
         .aurora-orb:nth-child(2) { animation-delay: -4s; }
         .aurora-orb:nth-child(3) { animation-delay: -8s; }
         @keyframes aurora-pulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.05); } }
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; }
+        .tab-panel { display: none !important; visibility: hidden; pointer-events: none; }
+        .tab-panel.active { display: flex !important; visibility: visible; pointer-events: auto; flex-direction: column; min-height: 0; }
         .tab-content-slot { flex: 1; min-height: 0; position: relative; padding-bottom: env(safe-area-inset-bottom, 0); }
         .tab-content-slot .tab-panel { position: absolute; inset: 0; flex: none; }
-        .tab-content-slot .tab-panel.active { display: flex; flex-direction: column; min-height: 0; }
         .home-scroll {
             flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
             -webkit-overflow-scrolling: touch; position: relative; z-index: 1;
@@ -208,6 +207,41 @@
         .tab-item.active { color: #6366f1; font-weight: 600; }
         .tab-item svg { width: 22px; height: 22px; }
         .tab-item span { font-size: 11px; }
+        /* 我的：用户信息与退出登录 */
+        .me-info-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(16px);
+            border-radius: 16px;
+            border: 1px solid rgba(226,232,240,0.9);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .me-info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(226,232,240,0.8);
+            font-size: 0.9375rem;
+        }
+        .me-info-row:last-child { border-bottom: none; }
+        .me-info-label { color: #64748b; font-weight: 500; }
+        .me-info-value { color: #18181b; font-weight: 600; }
+        .btn-logout {
+            width: 100%;
+            margin-top: 1.5rem;
+            padding: 0.875rem 1.5rem;
+            border-radius: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            border: none;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.2s;
+            box-shadow: 0 4px 16px rgba(99,102,241,0.35);
+        }
+        .btn-logout:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
@@ -229,14 +263,14 @@
                 </button>
                 <div class="home-scroll">
                     <div class="px-4 pt-2 pb-6">
-                    <!-- 欢迎区：整块卡片包裹龙 + 对话气泡 -->
+                    <!-- 欢迎区：首页不展示个人信息，仅通用问候；个人信息在「我的」Tab 展示 -->
                     <section class="greeting-card">
                         <div class="greeting-row">
                             <div class="companion-avatar-wrap" style="width: 160px; height: 160px;">
                                 <img src="dragon.png" alt="龙老师" class="dragon-front w-full h-full object-contain object-center" style="width: 160px; height: 160px;">
                             </div>
                             <div class="greeting-bubble">
-                                <h1>HI 薛云腾同学</h1>
+                                <h1>HI <span id="home-greeting-name">同学</span></h1>
                                 <p>我是龙老师，你的 AI 学伴</p>
                             </div>
                         </div>
@@ -288,9 +322,29 @@
                 </div>
             </div>
 
-            <!-- 我的面板（无顶栏，与首页一致） -->
+            <!-- 我的面板：用户信息 + 退出登录 -->
             <div id="panel-me" class="tab-panel flex flex-col relative overflow-hidden">
-                <main class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4"></main>
+                <main class="flex-1 overflow-y-auto no-scrollbar px-4 pt-6 pb-8">
+                    <div class="me-info-card">
+                        <div class="me-info-row">
+                            <span class="me-info-label">手机号</span>
+                            <span id="me-phone" class="me-info-value">138****5678</span>
+                        </div>
+                        <div class="me-info-row">
+                            <span class="me-info-label">学校名称</span>
+                            <span id="me-school" class="me-info-value">某某中学</span>
+                        </div>
+                        <div class="me-info-row">
+                            <span class="me-info-label">班级名称</span>
+                            <span id="me-class" class="me-info-value">八年级 7 班</span>
+                        </div>
+                        <div class="me-info-row">
+                            <span class="me-info-label">姓名</span>
+                            <span id="me-name" class="me-info-value">薛云腾</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-logout" onclick="logout()">退出登录</button>
+                </main>
             </div>
             </div>
         </div>
@@ -340,6 +394,28 @@
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
+        // 从 sessionStorage 读取登录态用户信息（与登录页约定 key）
+        function loadMeInfo() {
+            const phone = sessionStorage.getItem('phone') || '138****5678';
+            const school = sessionStorage.getItem('school') || '某某中学';
+            const cls = sessionStorage.getItem('gradeClass') || '八年级 7 班';
+            const name = sessionStorage.getItem('name') || '';
+            const el = id => document.getElementById(id);
+            if (el('me-phone')) el('me-phone').textContent = phone;
+            if (el('me-school')) el('me-school').textContent = school;
+            if (el('me-class')) el('me-class').textContent = cls;
+            if (el('me-name')) el('me-name').textContent = name || '薛云腾';
+            // 首页问候：展示学生输入的姓名，如「HI 薛云腾同学」
+            if (el('home-greeting-name')) el('home-greeting-name').textContent = name ? name + '同学' : '同学';
+        }
+        function logout() {
+            sessionStorage.removeItem('phone');
+            sessionStorage.removeItem('school');
+            sessionStorage.removeItem('gradeClass');
+            sessionStorage.removeItem('name');
+            sessionStorage.removeItem('loggedIn');
+            window.location.href = '../登录/index.html';
+        }
         // 委托点击：确保在 Chrome 滚动容器内点击也能跳转
         document.getElementById('app-root').addEventListener('click', function(e) {
             var card = e.target.closest('.bento-hero');
@@ -347,6 +423,7 @@
             card = e.target.closest('.bento-strip');
             if (card) { e.preventDefault(); openAiJiangTi(); }
         }, true);
+        loadMeInfo();
     </script>
 </body>
 </html>
