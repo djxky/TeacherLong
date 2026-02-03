@@ -134,6 +134,49 @@
             color: white;
             line-height: 1;
         }
+        /* === 录错题：智能识别页（图3）=== */
+        .wrong-detection-box {
+            position: absolute;
+            border: 2px dashed #60A5FA;
+            background: rgba(96, 165, 250, 0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .wrong-detection-box::before {
+            content: '+';
+            color: #EF4444;
+            font-size: 28px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        .wrong-detection-box.selected {
+            border: 2px solid #2563EB;
+            background: rgba(37, 99, 235, 0.2);
+        }
+        .wrong-manual-box {
+            position: absolute;
+            border: 2px dashed #10B981;
+            background: rgba(16, 185, 129, 0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .wrong-manual-box::before {
+            content: '+';
+            color: #10B981;
+            font-size: 28px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        .wrong-manual-box.selected {
+            border: 2px solid #059669;
+            background: rgba(5, 150, 105, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -173,7 +216,7 @@
                         <div class="absolute inset-0 flex items-center justify-center">
                             <div class="w-full h-[1px] bg-orange-400/50"></div>
                         </div>
-                        <p class="absolute bottom-[-30px] w-full text-center text-white/90 text-xs font-bold">对准错题，加入错题本</p>
+                        <p class="absolute bottom-[-30px] w-full text-center text-white/90 text-xs font-bold">一次拍摄一整页，题目平行参考线</p>
                     </div>
                     <div id="focus-box-erase" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[70%] border border-white/40 rounded-lg">
                         <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-white"></div>
@@ -220,6 +263,29 @@
                         </div>
                     </div>
                     <div id="scan-line-global" class="scan-line-global"></div>
+                </div>
+            </div>
+
+            <!-- 录错题：拍照后智能识别页（图3）自动识别题目 + 手动框题 + 上传 -->
+            <div id="wrong-recognize-state" class="absolute inset-0 bg-white flex flex-col hidden z-40 pt-[50px]">
+                <header class="bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between flex-shrink-0 z-20">
+                    <button type="button" onclick="backFromWrongRecognize()" class="p-2 -ml-1">
+                        <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <h2 class="text-lg font-bold text-slate-800">智能识别</h2>
+                    <div class="w-10"></div>
+                </header>
+                <div id="wrong-detection-container" class="flex-1 relative overflow-hidden bg-gray-900 min-h-0">
+                    <img id="wrong-captured-image" src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800" class="w-full h-full object-contain" alt="试卷">
+                    <!-- 自动识别框 -->
+                    <div class="wrong-detection-box" data-wrong-box="auto" style="left: 10%; top: 15%; width: 80%; height: 20%;" onclick="selectWrongBox(this)"></div>
+                    <div class="wrong-detection-box" data-wrong-box="auto" style="left: 10%; top: 40%; width: 80%; height: 20%;" onclick="selectWrongBox(this)"></div>
+                    <div class="wrong-detection-box" data-wrong-box="auto" style="left: 10%; top: 65%; width: 80%; height: 20%;" onclick="selectWrongBox(this)"></div>
+                    <!-- 手动框题将动态追加到此容器 -->
+                </div>
+                <div class="bg-white border-t border-gray-100 p-4 pb-safe flex gap-3 flex-shrink-0">
+                    <button type="button" onclick="addManualWrongBox()" class="flex-1 py-3 bg-gray-100 text-slate-700 rounded-xl font-medium text-sm">手动框题</button>
+                    <button type="button" id="wrong-upload-btn" onclick="uploadWrongQuestions()" class="flex-1 py-3 bg-gray-300 text-white rounded-xl font-medium text-sm" disabled>上传</button>
                 </div>
             </div>
 
@@ -302,12 +368,18 @@
         let questionsData = [];
         let currentQuestionIndex = 0;
         
-        // 从 URL 参数或 sessionStorage 获取模式
+        // 从 URL 参数或 sessionStorage 获取模式（上传错题进入时 mode=wrong，默认选中录错题）
         function initPage() {
             const urlParams = new URLSearchParams(window.location.search);
             const mode = urlParams.get('mode') || sessionStorage.getItem('cameraMode') || 'correction';
             currentMode = mode;
             updateCameraUI();
+        }
+        // 尽早应用 mode：上传错题进入时默认选中「录错题」Tab
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPage);
+        } else {
+            initPage();
         }
 
         // 初始化题目数据（示例数据，实际应从批改结果中获取）
@@ -399,8 +471,7 @@
                 document.getElementById('scan-state').classList.add('hidden');
                 
                 if (currentMode === 'wrong') {
-                    document.getElementById('camera-preview').classList.remove('hidden');
-                    showToast('已加入错题本');
+                    showWrongRecognize();
                     return;
                 }
                 if (currentMode === 'erase') {
@@ -420,6 +491,52 @@
 
         function closeCamera() {
             window.location.href = '首页.html';
+        }
+
+        // === 录错题：智能识别页（图3）===
+        function showWrongRecognize() {
+            document.getElementById('wrong-recognize-state').classList.remove('hidden');
+            document.querySelectorAll('#wrong-detection-container .wrong-detection-box').forEach(el => { el.classList.remove('selected'); });
+            document.querySelectorAll('#wrong-detection-container .wrong-manual-box').forEach(el => el.remove());
+            updateWrongUploadBtn();
+        }
+        function backFromWrongRecognize() {
+            document.getElementById('wrong-recognize-state').classList.add('hidden');
+            document.getElementById('camera-preview').classList.remove('hidden');
+        }
+        function selectWrongBox(el) {
+            el.classList.toggle('selected');
+            updateWrongUploadBtn();
+        }
+        function addManualWrongBox() {
+            const container = document.getElementById('wrong-detection-container');
+            const manual = document.createElement('div');
+            manual.className = 'wrong-manual-box';
+            manual.style.left = '15%';
+            manual.style.top = '70%';
+            manual.style.width = '70%';
+            manual.style.height = '18%';
+            manual.onclick = function() { selectWrongBox(this); };
+            container.appendChild(manual);
+            updateWrongUploadBtn();
+        }
+        function updateWrongUploadBtn() {
+            const n = document.querySelectorAll('#wrong-detection-container .wrong-detection-box.selected, #wrong-detection-container .wrong-manual-box').length;
+            const btn = document.getElementById('wrong-upload-btn');
+            btn.disabled = n === 0;
+            btn.classList.toggle('bg-gray-300', n === 0);
+            btn.classList.toggle('bg-blue-600', n > 0);
+        }
+        function uploadWrongQuestions() {
+            const n = document.querySelectorAll('#wrong-detection-container .wrong-detection-box.selected, #wrong-detection-container .wrong-manual-box').length;
+            if (n === 0) {
+                showToast('请先选择题目');
+                return;
+            }
+            showToast('已加入错题本，共 ' + n + ' 道');
+            setTimeout(() => {
+                backFromWrongRecognize();
+            }, 1200);
         }
 
         function restartCamera() {
@@ -573,8 +690,6 @@
             }, 2000);
         }
 
-        // 页面加载时初始化
-        document.addEventListener('DOMContentLoaded', initPage);
     </script>
 </body>
 </html>

@@ -421,7 +421,7 @@
             <!-- 底部操作栏 -->
             <div id="bottom-nav" class="absolute bottom-0 left-0 right-0 w-full px-4 py-4 z-40 transition-all duration-300" style="background: linear-gradient(to top, rgba(243,232,255,0.95) 0%, rgba(232,244,253,0.95) 50%, rgba(224,242,254,0.95) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding-bottom: calc(1rem + env(safe-area-inset-bottom));">
                 <div class="flex gap-3">
-                    <button onclick="openCamera()" class="flex-1 bg-gradient-to-r from-[#6A2C70] via-[#8B5CF6] to-[#06B6D4] text-white rounded-full font-bold text-sm py-3 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/30 active:scale-[0.98] transition-transform">
+                    <button onclick="goToUploadWrong()" class="flex-1 bg-gradient-to-r from-[#6A2C70] via-[#8B5CF6] to-[#06B6D4] text-white rounded-full font-bold text-sm py-3 flex items-center justify-center gap-2 shadow-lg shadow-purple-500/30 active:scale-[0.98] transition-transform">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                         上传错题
                     </button>
@@ -802,6 +802,12 @@
             book.classList.remove('active');
             camera.classList.add('active');
             showStepA();
+        }
+
+        // 上传错题：进入拍照页，默认选中「录错题」Tab（与首页上传错题一致）
+        function goToUploadWrong() {
+            sessionStorage.setItem('cameraMode', 'wrong');
+            window.location.href = '../首页/作业批改.html?mode=wrong';
         }
 
         function closeCamera() {
