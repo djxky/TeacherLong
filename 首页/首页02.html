@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AI 龙老师 - 首页 02</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; background: linear-gradient(180deg, #F3E8FF 0%, #E8F4FD 50%, #E0F2FE 100%); display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .card-press:active { transform: scale(0.98); transition: transform 0.1s; }
+        .iphone-frame {
+            width: 393px; height: 852px; background: linear-gradient(180deg, #F3E8FF 0%, #E8F4FD 50%, #E0F2FE 100%); position: relative; overflow: hidden;
+            box-shadow: 0 0 0 12px #333, 0 0 0 13px #555, 0 20px 50px rgba(0,0,0,0.3);
+            border-radius: 50px;
+        }
+        .dynamic-island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 120px; height: 35px; background: #000; border-radius: 20px; z-index: 1000; pointer-events: none; }
+        .aurora-orb { position: absolute; border-radius: 9999px; filter: blur(80px); opacity: 0.4; pointer-events: none; z-index: 0; }
+        .glass-card { background: rgba(255,255,255,0.65); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.5); box-shadow: 0 8px 32px rgba(0,0,0,0.06), inset 0 1px 0 0 rgba(255,255,255,0.6); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        .tab-panel.tab-panel--scroll { overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+        .tab-panel.tab-panel--scroll::-webkit-scrollbar { display: none; }
+        .tab-panel main { min-height: 0; }
+        .tab-content-slot { flex: 1; min-height: 0; position: relative; }
+        .tab-content-slot .tab-panel {
+            position: absolute;
+            inset: 0;
+            flex: none;
+        }
+        .tab-content-slot .tab-panel.active { display: flex; flex-direction: column; min-height: 0; }
+        .home-scroll {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+        .home-scroll::-webkit-scrollbar { display: none; }
+        .history-icon-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            z-index: 20;
+            width: 40px;
+            height: 40px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+        .history-icon-btn:active { transform: scale(0.95); }
+        .tab-bar { height: 56px; background: rgba(255,255,255,0.85); backdrop-filter: blur(16px); border-top: 1px solid rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: space-around; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+        .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 6px 0; cursor: pointer; transition: color 0.2s; color: #94a3b8; }
+        .tab-item.active { color: #6A2C70; font-weight: 600; }
+        .tab-item svg { width: 22px; height: 22px; }
+        .tab-item span { font-size: 11px; }
+        #toast {
+            position: absolute; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 24px;
+            font-size: 13px; font-weight: 600; pointer-events: none; opacity: 0;
+            transition: all 0.3s ease-out; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex; align-items: center; gap: 8px;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .profile-entry:active { background: rgba(255,255,255,0.4); transform: scale(0.98); }
+        .companion-avatar-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+        /* 龙背后光晕：范围更大、更柔 */
+        .companion-avatar-wrap::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(243,232,255,0.5) 0%, rgba(232,244,253,0.35) 45%, transparent 70%);
+            filter: blur(36px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        .dragon-front {
+            position: relative;
+            z-index: 10;
+            transform: scaleX(-1);
+            filter: drop-shadow(0 0 40px rgba(243,232,255,0.5)) drop-shadow(0 0 80px rgba(224,242,254,0.35));
+        }
+        /* 学伴在说话：龙 + 对话气泡 */
+        .greeting-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .greeting-row .companion-avatar-wrap { flex-shrink: 0; margin-bottom: 0; }
+        .greeting-bubble {
+            flex: 1;
+            min-width: 0;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 20px 20px 20px 6px;
+            padding: 0.875rem 1rem;
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8);
+        }
+        .greeting-bubble h1 { font-size: 1rem; font-weight: 700; color: #1e293b; margin: 0; line-height: 1.35; }
+        .greeting-bubble p { font-size: 0.8125rem; color: #64748b; margin: 0.2rem 0 0 0; line-height: 1.4; }
+        /* Bento 功能区 */
+        .bento-hero {
+            background: linear-gradient(135deg, #6A2C70 0%, #8B5CF6 100%);
+            color: white;
+            border-radius: 24px;
+            padding: 1.25rem 1.25rem;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 12px 32px -8px rgba(106,44,112,0.35);
+        }
+        .bento-hero .icon-wrap { width: 48px; height: 48px; border-radius: 14px; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .bento-hero h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+        .bento-hero p { font-size: 0.6875rem; opacity: 0.9; margin: 0.25rem 0 0 0; }
+        /* 长条入口（青色调，拍照解题用） */
+        .bento-strip {
+            background: linear-gradient(135deg, #0891b2 0%, #06B6D4 100%);
+            color: white;
+            border-radius: 24px;
+            padding: 1.25rem 1.25rem;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 12px 32px -8px rgba(6,182,212,0.35);
+        }
+        .bento-strip .icon-wrap { width: 48px; height: 48px; border-radius: 14px; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .bento-strip h3 { font-size: 1rem; font-weight: 700; margin: 0; }
+        .bento-strip p { font-size: 0.6875rem; opacity: 0.9; margin: 0.25rem 0 0 0; }
+        .bento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .bento-cell {
+            background: rgba(255,255,255,0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 20px;
+            padding: 1rem;
+            min-height: 88px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 0.25rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.04), inset 0 1px 0 0 rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.2s;
+        }
+        .bento-cell:active { transform: scale(0.98); }
+        .bento-cell .icon-wrap { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .bento-cell h3 { font-size: 0.875rem; font-weight: 700; color: #1e293b; margin: 0; }
+        .bento-cell p { font-size: 0.6875rem; color: #64748b; margin: 0; }
+        .bento-cell-cyan .icon-wrap { background: rgba(6,182,212,0.15); border: 1px solid rgba(6,182,212,0.25); }
+        .bento-cell-cyan .icon-wrap svg { color: #06B6D4; }
+        .bento-cell-green .icon-wrap { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.25); }
+        .bento-cell-green .icon-wrap svg { color: #16a34a; }
+        .bento-cell-orange .icon-wrap { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.25); }
+        .bento-cell-orange .icon-wrap svg { color: #ea580c; }
+    </style>
+</head>
+<body>
+
+    <div class="iphone-frame flex flex-col" id="app-root">
+        <div class="dynamic-island"></div>
+        <div id="toast"><svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg><span id="toast-msg">操作成功</span></div>
+
+        <!-- 内容区：一期两 Tab 面板（首页、我的） -->
+        <div class="flex-1 min-h-0 flex flex-col pt-[50px] relative">
+            <div class="aurora-orb w-64 h-64 bg-[#8B5CF6]/20 -top-32 -left-24"></div>
+            <div class="aurora-orb w-72 h-72 bg-[#06B6D4]/20 bottom-32 -right-28"></div>
+
+            <div class="tab-content-slot flex-1 min-h-0 relative z-10">
+            <!-- Tab1: 首页 -->
+            <div id="panel-home" class="tab-panel active flex flex-col min-h-0 relative">
+                <button type="button" onclick="openHistory()" class="history-icon-btn" title="历史记录" aria-label="历史记录">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </button>
+                <div class="home-scroll">
+                    <div class="px-4 pt-2 pb-6">
+                    <!-- 打招呼：龙在左 + 对话气泡，学伴在说话 -->
+                    <section class="greeting-row">
+                        <div class="companion-avatar-wrap" style="width: 180px; height: 180px;">
+                            <img src="dragon.png" alt="龙老师" class="dragon-front w-full h-full object-contain object-center" style="width: 180px; height: 180px;">
+                        </div>
+                        <div class="greeting-bubble">
+                            <h1>HI 薛云腾同学</h1>
+                            <p>我是龙老师，你的 AI 学伴</p>
+                        </div>
+                    </section>
+                    <!-- 功能区：长条入口（AI 作业批改、拍照解题）+ 方形入口（试卷擦除、错题本） -->
+                    <section class="space-y-4">
+                        <div onclick="goToCorrection('correction')" class="bento-hero card-press cursor-pointer">
+                            <div class="icon-wrap">
+                                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3>AI 作业批改</h3>
+                                <p>拍作业，秒出解析</p>
+                            </div>
+                            <svg class="w-5 h-5 text-white/80 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                        </div>
+                        <div onclick="goToCorrection('qa')" class="bento-strip card-press cursor-pointer">
+                            <div class="icon-wrap">
+                                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3>拍照解题</h3>
+                                <p>AI 分步讲解</p>
+                            </div>
+                            <svg class="w-5 h-5 text-white/80 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                        </div>
+                        <div class="bento-grid">
+                            <div onclick="openErase()" class="bento-cell bento-cell-green">
+                                <div class="icon-wrap">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </div>
+                                <h3>试卷擦除</h3>
+                            </div>
+                            <div onclick="openBook()" class="bento-cell bento-cell-orange">
+                                <div class="icon-wrap">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                </div>
+                                <h3>上传错题</h3>
+                            </div>
+                        </div>
+                    </section>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab2: 我的 -->
+            <div id="panel-me" class="tab-panel flex flex-col relative overflow-hidden">
+                <main class="flex-1 overflow-y-auto no-scrollbar px-4 pb-4"></main>
+            </div>
+            </div>
+        </div>
+
+        <!-- 底部 Tab（一期）：首页、我的 -->
+        <nav class="tab-bar shrink-0">
+            <div class="tab-item active" data-tab="home" onclick="switchTab('home')">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                <span>首页</span>
+            </div>
+            <div class="tab-item" data-tab="me" onclick="switchTab('me')">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                <span>我的</span>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+            const panel = document.getElementById('panel-' + tab);
+            const item = document.querySelector('.tab-item[data-tab="' + tab + '"]');
+            if (panel) panel.classList.add('active');
+            if (item) item.classList.add('active');
+        }
+        function goToCorrection(mode) {
+            sessionStorage.setItem('cameraMode', mode);
+            window.location.href = '作业批改.html?mode=' + mode;
+        }
+        function openBook() {
+            window.location.href = '../错题本/错题本 01.html';
+        }
+        function openErase() {
+            window.location.href = '../试卷擦除/试卷擦除.html';
+        }
+        function openHistory() {
+            showToast('历史记录（可跳转独立页）');
+        }
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+    </script>
+</body>
+</html>

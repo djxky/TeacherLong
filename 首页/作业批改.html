@@ -169,12 +169,27 @@
                         </div>
                         <p class="absolute bottom-[-30px] w-full text-center text-white/90 text-xs font-bold">对准题目，精准答疑</p>
                     </div>
+                    <div id="focus-box-wrong" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[120px] border border-orange-400 rounded-lg bg-black/10 shadow-[0_0_0_999px_rgba(0,0,0,0.5)]">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-full h-[1px] bg-orange-400/50"></div>
+                        </div>
+                        <p class="absolute bottom-[-30px] w-full text-center text-white/90 text-xs font-bold">对准错题，加入错题本</p>
+                    </div>
+                    <div id="focus-box-erase" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[70%] border border-white/40 rounded-lg">
+                        <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-white"></div>
+                        <div class="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-white"></div>
+                        <div class="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-white"></div>
+                        <div class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-white"></div>
+                        <p class="absolute bottom-[-30px] w-full text-center text-white/70 text-xs">整页拍摄，擦除笔迹</p>
+                    </div>
                 </div>
 
                 <div class="h-40 bg-black/80 backdrop-blur-md flex flex-col items-center justify-end pb-10 gap-6 relative z-30">
-                    <div class="flex items-center gap-2 bg-black/30 rounded-full p-1">
-                        <div id="mode-btn-correction" onclick="switchCameraMode('correction')" class="mode-text active">作业批改</div>
-                        <div id="mode-btn-qa" onclick="switchCameraMode('qa')" class="mode-text">拍照答疑</div>
+                    <div class="flex items-center gap-1 bg-black/30 rounded-full px-2 py-1.5 max-w-[95%] overflow-x-auto no-scrollbar">
+                        <div id="mode-btn-correction" onclick="switchCameraMode('correction')" class="mode-text active shrink-0">作业批改</div>
+                        <div id="mode-btn-qa" onclick="switchCameraMode('qa')" class="mode-text shrink-0">拍照答疑</div>
+                        <div id="mode-btn-wrong" onclick="switchCameraMode('wrong')" class="mode-text shrink-0">录错题</div>
+                        <div id="mode-btn-erase" onclick="switchCameraMode('erase')" class="mode-text shrink-0">试卷擦除</div>
                     </div>
                     <button onclick="takePhoto()" class="shutter-btn scale-100">
                         <div class="shutter-inner"></div>
@@ -355,22 +370,13 @@
         }
 
         function updateCameraUI() {
-            const btnCorr = document.getElementById('mode-btn-correction');
-            const btnQa = document.getElementById('mode-btn-qa');
-            const boxCorr = document.getElementById('focus-box-correction');
-            const boxQa = document.getElementById('focus-box-qa');
-
-            if (currentMode === 'correction') {
-                btnCorr.classList.add('active');
-                btnQa.classList.remove('active');
-                boxCorr.classList.remove('hidden');
-                boxQa.classList.add('hidden');
-            } else if (currentMode === 'qa') {
-                btnCorr.classList.remove('active');
-                btnQa.classList.add('active');
-                boxCorr.classList.add('hidden');
-                boxQa.classList.remove('hidden');
-            }
+            const modes = ['correction', 'qa', 'wrong', 'erase'];
+            modes.forEach(m => {
+                const btn = document.getElementById('mode-btn-' + m);
+                const box = document.getElementById('focus-box-' + m);
+                if (btn) btn.classList.toggle('active', currentMode === m);
+                if (box) box.classList.toggle('hidden', currentMode !== m);
+            });
         }
 
         // === 拍照流程 ===
@@ -381,20 +387,30 @@
             const hintText = document.getElementById('scan-hint-text');
             if (currentMode === 'correction') {
                 hintText.innerText = "AI 正在识别试卷...";
-            } else {
+            } else if (currentMode === 'qa') {
                 hintText.innerText = "AI 正在聚焦题目...";
+            } else if (currentMode === 'wrong') {
+                hintText.innerText = "正在加入错题本...";
+            } else if (currentMode === 'erase') {
+                hintText.innerText = "正在擦除笔迹...";
             }
             
             setTimeout(() => {
                 document.getElementById('scan-state').classList.add('hidden');
-                document.getElementById('result-state').classList.remove('hidden');
                 
-                // 批改模式显示结果列表，答疑模式直接弹窗
+                if (currentMode === 'wrong') {
+                    document.getElementById('camera-preview').classList.remove('hidden');
+                    showToast('已加入错题本');
+                    return;
+                }
+                if (currentMode === 'erase') {
+                    window.location.href = '../试卷擦除/试卷擦除.html';
+                    return;
+                }
+                
+                document.getElementById('result-state').classList.remove('hidden');
                 if (currentMode === 'correction') {
-                    // 初始化题目数据
-                    if (questionsData.length === 0) {
-                        initQuestionsData();
-                    }
+                    if (questionsData.length === 0) initQuestionsData();
                 } else {
                     updateDetailContent('qa');
                     openDetail();
