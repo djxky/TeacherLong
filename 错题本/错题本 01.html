@@ -391,9 +391,18 @@
                 </div>
                 
                 <div class="flex items-center justify-between pl-4 pr-2 pb-2">
-                    <div class="flex overflow-x-auto no-scrollbar gap-6 flex-1">
-                        <div onclick="selectSubject('math', this)" class="subject-tab pb-2 border-b-2 border-blue-600 text-blue-600 font-bold text-sm whitespace-nowrap cursor-pointer">数学</div>
-                        <div onclick="selectSubject('eng', this)" class="subject-tab pb-2 border-b-2 border-transparent text-slate-400 font-medium text-sm whitespace-nowrap cursor-pointer">英语</div>
+                    <div class="flex overflow-x-auto no-scrollbar gap-4 flex-1 min-w-0">
+                        <div onclick="selectSubject('math', this)" class="subject-tab pb-2 border-b-2 border-blue-600 text-blue-600 font-bold text-sm whitespace-nowrap cursor-pointer shrink-0">数学</div>
+                        <div onclick="selectSubject('chinese', this)" class="subject-tab pb-2 border-b-2 border-transparent text-slate-400 font-medium text-sm whitespace-nowrap cursor-pointer shrink-0">语文</div>
+                        <div onclick="selectSubject('eng', this)" class="subject-tab pb-2 border-b-2 border-transparent text-slate-400 font-medium text-sm whitespace-nowrap cursor-pointer shrink-0">英语</div>
+                        <div onclick="selectSubject('science', this)" class="subject-tab pb-2 border-b-2 border-transparent text-slate-400 font-medium text-sm whitespace-nowrap cursor-pointer shrink-0">科学</div>
+                        <div onclick="selectSubject('physics', this)" class="subject-tab pb-2 border-b-2 border-transparent text-slate-400 font-medium text-sm whitespace-nowrap cursor-pointer shrink-0">物理</div>
+                        <div onclick="selectSubject('chemistry', this)" class="subject-tab pb-2 border-b-2 border-transparent text-slate-400 font-medium text-sm whitespace-nowrap cursor-pointer shrink-0">化学</div>
+                        <div onclick="selectSubject('history', this)" class="subject-tab pb-2 border-b-2 border-transparent text-slate-400 font-medium text-sm whitespace-nowrap cursor-pointer shrink-0">历史</div>
+                        <div onclick="selectSubject('morality', this)" class="subject-tab pb-2 border-b-2 border-transparent text-slate-400 font-medium text-sm whitespace-nowrap cursor-pointer shrink-0">道法</div>
+                        <div onclick="selectSubject('geography', this)" class="subject-tab pb-2 border-b-2 border-transparent text-slate-400 font-medium text-sm whitespace-nowrap cursor-pointer shrink-0">地理</div>
+                        <div onclick="selectSubject('biology', this)" class="subject-tab pb-2 border-b-2 border-transparent text-slate-400 font-medium text-sm whitespace-nowrap cursor-pointer shrink-0">生物</div>
+                        <div onclick="selectSubject('other', this)" class="subject-tab pb-2 border-b-2 border-transparent text-slate-400 font-medium text-sm whitespace-nowrap cursor-pointer shrink-0">其他</div>
                     </div>
                     <!-- 管理按钮 - 放在学科标签行 -->
                     <button id="edit-mode-btn" onclick="toggleEditMode()" class="text-sm text-slate-400 active:text-slate-600 px-2 pb-2">
