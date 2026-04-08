@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>视频播放 - AI 龙老师</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter','Noto Sans SC',sans-serif;background:#000;overflow:hidden;width:100vw;height:100vh}
+
+        .player-wrap{
+            position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;
+        }
+
+        @media (orientation:portrait){
+            .player-wrap{
+                transform:rotate(90deg);
+                transform-origin:center center;
+                width:100vh;height:100vw;
+                top:50%;left:50%;
+                margin-top:calc(-50vw);margin-left:calc(-50vh);
+            }
+        }
+
+        .vp-container{position:relative;width:100%;height:100%;background:#0a0a0f;overflow:hidden}
+
+        video{width:100%;height:100%;object-fit:contain;background:#000}
+
+        .vp-poster{
+            position:absolute;inset:0;z-index:5;
+            display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;
+            background:linear-gradient(145deg,#1e1b4b 0%,#312e81 40%,#4338ca 100%);
+            transition:opacity .3s;
+        }
+        .vp-poster[data-theme="green"]{background:linear-gradient(145deg,#064e3b 0%,#065f46 40%,#047857 100%)}
+        .vp-poster[data-theme="orange"]{background:linear-gradient(145deg,#7c2d12 0%,#9a3412 40%,#c2410c 100%)}
+        .vp-poster::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.1),transparent 55%);pointer-events:none}
+        .vp-poster.hidden{opacity:0;pointer-events:none}
+
+        .vp-poster-play{
+            position:relative;z-index:2;width:72px;height:72px;border-radius:50%;
+            background:rgba(255,255,255,.95);border:none;cursor:pointer;
+            display:flex;align-items:center;justify-content:center;
+            box-shadow:0 8px 32px rgba(0,0,0,.3);
+            transition:transform .15s;
+        }
+        .vp-poster-play:active{transform:scale(.92)}
+        .vp-poster-play svg{color:#6366f1;margin-left:4px}
+        .vp-poster[data-theme="green"] .vp-poster-play svg{color:#059669}
+        .vp-poster[data-theme="orange"] .vp-poster-play svg{color:#ea580c}
+
+        .vp-poster-title{
+            position:relative;z-index:2;color:rgba(255,255,255,.9);font-size:15px;font-weight:600;
+            max-width:70%;text-align:center;line-height:1.4;
+        }
+
+        /* 控制层 */
+        .vp-controls{
+            position:absolute;inset:0;z-index:10;
+            display:flex;flex-direction:column;justify-content:space-between;
+            opacity:1;transition:opacity .3s;
+            pointer-events:none;
+        }
+        .vp-controls.hidden{opacity:0}
+        .vp-controls>*{pointer-events:auto}
+
+        /* 顶栏 */
+        .vp-top{
+            display:flex;align-items:center;gap:12px;
+            padding:12px 16px 8px;
+            background:linear-gradient(180deg,rgba(0,0,0,.55) 0%,transparent 100%);
+        }
+        .vp-back{
+            width:36px;height:36px;border-radius:50%;border:none;
+            background:rgba(255,255,255,.12);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+            display:flex;align-items:center;justify-content:center;
+            cursor:pointer;color:#fff;flex-shrink:0;
+        }
+        .vp-back:active{background:rgba(255,255,255,.2)}
+        .vp-title{flex:1;color:#fff;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+        /* 中央播放/暂停 */
+        .vp-center{
+            flex:1;display:flex;align-items:center;justify-content:center;
+        }
+        .vp-center-play{
+            width:56px;height:56px;border-radius:50%;border:none;
+            background:rgba(255,255,255,.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+            display:flex;align-items:center;justify-content:center;
+            cursor:pointer;color:#fff;opacity:0;transition:opacity .2s;
+        }
+        .vp-controls:not(.hidden) .vp-center-play{opacity:1}
+
+        /* 底部栏 */
+        .vp-bottom{
+            padding:0 16px 14px;
+            background:linear-gradient(0deg,rgba(0,0,0,.6) 0%,transparent 100%);
+        }
+
+        /* 进度条 */
+        .vp-progress{
+            position:relative;height:28px;display:flex;align-items:center;
+            cursor:pointer;touch-action:none;
+        }
+        .vp-progress-track{
+            position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
+            height:3px;background:rgba(255,255,255,.2);border-radius:2px;
+            transition:height .15s;
+        }
+        .vp-progress:hover .vp-progress-track,
+        .vp-progress.dragging .vp-progress-track{height:5px}
+        .vp-progress-buffer{
+            position:absolute;left:0;top:0;height:100%;background:rgba(255,255,255,.15);border-radius:2px;
+        }
+        .vp-progress-fill{
+            position:absolute;left:0;top:0;height:100%;background:#818cf8;border-radius:2px;
+            transition:width .1s linear;
+        }
+        .vp-progress-thumb{
+            position:absolute;top:50%;transform:translate(-50%,-50%) scale(0);
+            width:14px;height:14px;border-radius:50%;background:#fff;
+            box-shadow:0 2px 8px rgba(0,0,0,.3);
+            transition:transform .15s;
+        }
+        .vp-progress:hover .vp-progress-thumb,
+        .vp-progress.dragging .vp-progress-thumb{transform:translate(-50%,-50%) scale(1)}
+
+        /* 底部按钮行 */
+        .vp-bar{display:flex;align-items:center;gap:6px;margin-top:4px}
+        .vp-play-sm{
+            width:32px;height:32px;border:none;background:0 0;
+            display:flex;align-items:center;justify-content:center;
+            color:#fff;cursor:pointer;flex-shrink:0;border-radius:6px;
+        }
+        .vp-play-sm:active{background:rgba(255,255,255,.1)}
+        .vp-time{color:rgba(255,255,255,.8);font-size:12px;font-weight:500;letter-spacing:.02em;white-space:nowrap}
+        .vp-spacer{flex:1}
+        .vp-opt-btn{
+            height:28px;padding:0 10px;border:none;border-radius:6px;
+            background:rgba(255,255,255,.1);color:#fff;font-size:12px;font-weight:600;
+            cursor:pointer;display:flex;align-items:center;gap:4px;flex-shrink:0;
+        }
+        .vp-opt-btn:active{background:rgba(255,255,255,.18)}
+
+        /* 锁屏区域（点击显示/隐藏控制） */
+        .vp-tap-area{
+            position:absolute;inset:0;z-index:8;cursor:pointer;
+        }
+
+        /* 面板弹窗 */
+        .vp-panel-overlay{
+            position:absolute;inset:0;z-index:50;background:rgba(0,0,0,.5);
+            display:none;align-items:center;justify-content:flex-end;
+        }
+        .vp-panel-overlay.open{display:flex}
+        .vp-panel{
+            width:220px;height:100%;background:rgba(20,20,28,.96);
+            backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+            display:flex;flex-direction:column;padding:20px 0;overflow-y:auto;
+        }
+        .vp-panel-title{
+            font-size:13px;font-weight:700;color:rgba(255,255,255,.5);
+            padding:0 20px 12px;letter-spacing:.04em;
+        }
+        .vp-panel-item{
+            padding:10px 20px;font-size:14px;font-weight:500;color:rgba(255,255,255,.7);
+            cursor:pointer;transition:background .12s,color .12s;display:flex;align-items:center;gap:8px;
+        }
+        .vp-panel-item:active{background:rgba(255,255,255,.06)}
+        .vp-panel-item.active{color:#818cf8;font-weight:700}
+        .vp-panel-item.active::before{
+            content:'';width:4px;height:4px;border-radius:50%;background:#818cf8;
+        }
+        .vp-panel-close{
+            margin-top:auto;padding:14px 20px;font-size:13px;font-weight:600;
+            color:rgba(255,255,255,.5);cursor:pointer;text-align:center;
+        }
+        .vp-panel-close:active{color:#fff}
+
+        /* 提示气泡 */
+        .vp-toast{
+            position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:40;
+            background:rgba(0,0,0,.75);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+            color:#fff;padding:8px 20px;border-radius:10px;font-size:14px;font-weight:600;
+            opacity:0;transition:opacity .2s;pointer-events:none;
+        }
+        .vp-toast.show{opacity:1}
+
+        /* 快进/快退指示 */
+        .vp-seek-hint{
+            position:absolute;top:50%;transform:translateY(-50%);z-index:35;
+            width:80px;height:80px;border-radius:50%;
+            background:rgba(255,255,255,.12);
+            display:none;align-items:center;justify-content:center;
+            color:#fff;
+        }
+        .vp-seek-hint.left{left:15%}
+        .vp-seek-hint.right{right:15%}
+        .vp-seek-hint.show{display:flex}
+    </style>
+</head>
+<body>
+<div class="player-wrap">
+    <div class="vp-container" id="vpContainer">
+        <video id="vpVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline
+               src="https://www.w3schools.com/html/mov_bbb.mp4"
+               poster="">
+        </video>
+
+        <!-- 封面 -->
+        <div class="vp-poster" id="vpPoster">
+            <button class="vp-poster-play" id="vpPosterPlay">
+                <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <p class="vp-poster-title" id="vpPosterTitle">视频加载中…</p>
+        </div>
+
+        <!-- 点击区域 -->
+        <div class="vp-tap-area" id="vpTapArea"></div>
+
+        <!-- 快进/快退 -->
+        <div class="vp-seek-hint left" id="seekLeft">
+            <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z"/></svg>
+        </div>
+        <div class="vp-seek-hint right" id="seekRight">
+            <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z"/></svg>
+        </div>
+
+        <!-- 控制层 -->
+        <div class="vp-controls" id="vpControls">
+            <div class="vp-top">
+                <button class="vp-back" id="vpBack">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <span class="vp-title" id="vpTitle">视频标题</span>
+            </div>
+            <div class="vp-center">
+                <button class="vp-center-play" id="vpCenterPlay">
+                    <svg width="28" height="28" fill="currentColor" viewBox="0 0 24 24" id="vpCenterIcon"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+            </div>
+            <div class="vp-bottom">
+                <div class="vp-progress" id="vpProgress">
+                    <div class="vp-progress-track">
+                        <div class="vp-progress-buffer" id="vpBuffer"></div>
+                        <div class="vp-progress-fill" id="vpFill"></div>
+                    </div>
+                    <div class="vp-progress-thumb" id="vpThumb"></div>
+                </div>
+                <div class="vp-bar">
+                    <button class="vp-play-sm" id="vpPlayBtn">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" id="vpPlayIcon"><path d="M8 5v14l11-7z"/></svg>
+                    </button>
+                    <span class="vp-time"><span id="vpCur">00:00</span> / <span id="vpDur">00:00</span></span>
+                    <div class="vp-spacer"></div>
+                    <button class="vp-opt-btn" id="vpSpeedBtn">倍速</button>
+                    <button class="vp-opt-btn" id="vpQualityBtn">高清</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 倍速面板 -->
+        <div class="vp-panel-overlay" id="speedPanel">
+            <div class="vp-panel">
+                <div class="vp-panel-title">播放速度</div>
+                <div id="speedOptions"></div>
+                <div class="vp-panel-close" id="speedClose">关闭</div>
+            </div>
+        </div>
+
+        <!-- 清晰度面板 -->
+        <div class="vp-panel-overlay" id="qualityPanel">
+            <div class="vp-panel">
+                <div class="vp-panel-title">清晰度</div>
+                <div id="qualityOptions"></div>
+                <div class="vp-panel-close" id="qualityClose">关闭</div>
+            </div>
+        </div>
+
+        <!-- 提示气泡 -->
+        <div class="vp-toast" id="vpToast"></div>
+    </div>
+</div>
+
+<script>
+const SPEEDS = [
+    { label: '0.5x', value: 0.5 },
+    { label: '0.75x', value: 0.75 },
+    { label: '1.0x  正常', value: 1.0 },
+    { label: '1.25x', value: 1.25 },
+    { label: '1.5x', value: 1.5 },
+    { label: '2.0x', value: 2.0 },
+];
+
+const QUALITIES = [
+    { label: '超清 1080P', value: '1080p' },
+    { label: '高清 720P', value: '720p' },
+    { label: '标清 480P', value: '480p' },
+    { label: '流畅 360P', value: '360p' },
+];
+
+const $ = id => document.getElementById(id);
+const video = $('vpVideo');
+let currentSpeed = 1.0;
+let currentQuality = '720p';
+let controlsTimer = null;
+let isDragging = false;
+let posterDismissed = false;
+
+/* ── 从 URL 参数读取信息 ── */
+const params = new URLSearchParams(window.location.search);
+const videoTitle = decodeURIComponent(params.get('title') || '知识点讲解');
+const videoDur = params.get('dur') || '';
+const videoCat = params.get('cat') || 'new-standard';
+
+const themeMap = { 'new-standard': 'indigo', 'sync-course': 'green', 'special-skills': 'orange' };
+const posterTheme = themeMap[videoCat] || 'indigo';
+
+$('vpTitle').textContent = videoTitle;
+$('vpPosterTitle').textContent = videoTitle;
+if (posterTheme === 'green') $('vpPoster').dataset.theme = 'green';
+else if (posterTheme === 'orange') $('vpPoster').dataset.theme = 'orange';
+
+/* ── 时间格式化 ── */
+function fmt(sec) {
+    if (!sec || !isFinite(sec)) return '00:00';
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+
+/* ── 提示气泡 ── */
+let toastTimer = null;
+function showToast(msg) {
+    const t = $('vpToast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 1200);
+}
+
+/* ── 控制层显隐 ── */
+function showControls() {
+    $('vpControls').classList.remove('hidden');
+    clearTimeout(controlsTimer);
+    if (!video.paused && posterDismissed) {
+        controlsTimer = setTimeout(hideControls, 4000);
+    }
+}
+
+function hideControls() {
+    if (isDragging) return;
+    $('vpControls').classList.add('hidden');
+}
+
+/* ── 播放/暂停 ── */
+const PLAY_PATH = 'M8 5v14l11-7z';
+const PAUSE_PATH = 'M6 4h4v16H6V4zm8 0h4v16h-4V4z';
+
+function syncPlayIcon() {
+    const d = video.paused ? PLAY_PATH : PAUSE_PATH;
+    $('vpPlayIcon').innerHTML = `<path d="${d}"/>`;
+    $('vpCenterIcon').innerHTML = `<path d="${d}"/>`;
+}
+
+function togglePlay() {
+    if (video.paused) {
+        video.play().catch(() => {});
+    } else {
+        video.pause();
+    }
+}
+
+function startFromPoster() {
+    posterDismissed = true;
+    $('vpPoster').classList.add('hidden');
+    video.play().catch(() => {});
+    showControls();
+}
+
+$('vpPosterPlay').addEventListener('click', startFromPoster);
+
+$('vpPlayBtn').addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
+$('vpCenterPlay').addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
+
+video.addEventListener('play', () => { syncPlayIcon(); showControls(); });
+video.addEventListener('pause', () => { syncPlayIcon(); showControls(); clearTimeout(controlsTimer); });
+video.addEventListener('ended', () => { syncPlayIcon(); showControls(); clearTimeout(controlsTimer); });
+
+/* ── 点击区域：单击切换控制层，双击快进/快退 ── */
+let tapCount = 0;
+let tapTimer = null;
+let tapX = 0;
+
+$('vpTapArea').addEventListener('click', e => {
+    if (!posterDismissed) { startFromPoster(); return; }
+    tapX = e.clientX;
+    tapCount++;
+    if (tapCount === 1) {
+        tapTimer = setTimeout(() => {
+            if ($('vpControls').classList.contains('hidden')) {
+                showControls();
+            } else {
+                hideControls();
+            }
+            tapCount = 0;
+        }, 250);
+    } else if (tapCount === 2) {
+        clearTimeout(tapTimer);
+        tapCount = 0;
+        const rect = $('vpTapArea').getBoundingClientRect();
+        const ratio = (tapX - rect.left) / rect.width;
+        if (ratio < 0.35) {
+            video.currentTime = Math.max(0, video.currentTime - 10);
+            flashSeek('left');
+        } else if (ratio > 0.65) {
+            video.currentTime = Math.min(video.duration, video.currentTime + 10);
+            flashSeek('right');
+        } else {
+            togglePlay();
+        }
+    }
+});
+
+function flashSeek(dir) {
+    const el = dir === 'left' ? $('seekLeft') : $('seekRight');
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 400);
+}
+
+/* ── 进度条 ── */
+const progress = $('vpProgress');
+
+function updateProgress() {
+    if (isDragging) return;
+    const pct = video.duration ? (video.currentTime / video.duration * 100) : 0;
+    $('vpFill').style.width = pct + '%';
+    $('vpThumb').style.left = pct + '%';
+    $('vpCur').textContent = fmt(video.currentTime);
+}
+
+function updateBuffer() {
+    if (video.buffered.length > 0) {
+        const bufEnd = video.buffered.end(video.buffered.length - 1);
+        const pct = video.duration ? (bufEnd / video.duration * 100) : 0;
+        $('vpBuffer').style.width = pct + '%';
+    }
+}
+
+video.addEventListener('timeupdate', updateProgress);
+video.addEventListener('progress', updateBuffer);
+video.addEventListener('loadedmetadata', () => {
+    $('vpDur').textContent = fmt(video.duration);
+    updateProgress();
+});
+
+function seekFromEvent(e) {
+    const rect = progress.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    let pct = (clientX - rect.left) / rect.width;
+    pct = Math.max(0, Math.min(1, pct));
+    $('vpFill').style.width = (pct * 100) + '%';
+    $('vpThumb').style.left = (pct * 100) + '%';
+    return pct;
+}
+
+progress.addEventListener('mousedown', e => { startDrag(e); });
+progress.addEventListener('touchstart', e => { startDrag(e); }, { passive: false });
+
+function startDrag(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    isDragging = true;
+    progress.classList.add('dragging');
+    clearTimeout(controlsTimer);
+    seekFromEvent(e);
+
+    const onMove = ev => {
+        ev.preventDefault();
+        const pct = seekFromEvent(ev);
+        $('vpCur').textContent = fmt(pct * (video.duration || 0));
+    };
+    const onEnd = ev => {
+        const pct = seekFromEvent(ev.changedTouches ? ev.changedTouches[0] || ev : ev);
+        video.currentTime = pct * (video.duration || 0);
+        isDragging = false;
+        progress.classList.remove('dragging');
+        showControls();
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onEnd);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onEnd);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchmove', onMove, { passive: false });
+    document.addEventListener('touchend', onEnd);
+}
+
+/* ── 倍速面板 ── */
+function renderSpeeds() {
+    $('speedOptions').innerHTML = SPEEDS.map(s =>
+        `<div class="vp-panel-item${s.value === currentSpeed ? ' active' : ''}" data-speed="${s.value}">${s.label}</div>`
+    ).join('');
+}
+renderSpeeds();
+
+$('vpSpeedBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    $('speedPanel').classList.add('open');
+    clearTimeout(controlsTimer);
+});
+
+$('speedPanel').addEventListener('click', e => {
+    const item = e.target.closest('.vp-panel-item');
+    if (item) {
+        currentSpeed = parseFloat(item.dataset.speed);
+        video.playbackRate = currentSpeed;
+        $('vpSpeedBtn').textContent = currentSpeed === 1 ? '倍速' : currentSpeed + 'x';
+        renderSpeeds();
+        showToast('播放速度 ' + currentSpeed + 'x');
+        $('speedPanel').classList.remove('open');
+        showControls();
+        return;
+    }
+    if (e.target === $('speedPanel') || e.target === $('speedClose')) {
+        $('speedPanel').classList.remove('open');
+        showControls();
+    }
+});
+
+/* ── 清晰度面板 ── */
+function renderQualities() {
+    $('qualityOptions').innerHTML = QUALITIES.map(q =>
+        `<div class="vp-panel-item${q.value === currentQuality ? ' active' : ''}" data-quality="${q.value}">${q.label}</div>`
+    ).join('');
+}
+renderQualities();
+
+$('vpQualityBtn').addEventListener('click', e => {
+    e.stopPropagation();
+    $('qualityPanel').classList.add('open');
+    clearTimeout(controlsTimer);
+});
+
+$('qualityPanel').addEventListener('click', e => {
+    const item = e.target.closest('.vp-panel-item');
+    if (item) {
+        currentQuality = item.dataset.quality;
+        const q = QUALITIES.find(q => q.value === currentQuality);
+        $('vpQualityBtn').textContent = q ? q.label.split(' ')[0] : '高清';
+        renderQualities();
+        showToast('切换到 ' + (q ? q.label : currentQuality));
+        $('qualityPanel').classList.remove('open');
+        showControls();
+        return;
+    }
+    if (e.target === $('qualityPanel') || e.target === $('qualityClose')) {
+        $('qualityPanel').classList.remove('open');
+        showControls();
+    }
+});
+
+/* ── 返回 ── */
+$('vpBack').addEventListener('click', e => {
+    e.stopPropagation();
+    video.pause();
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        window.location.href = '知识点讲解视频.html';
+    }
+});
+
+/* ── 横屏锁定 ── */
+if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock('landscape').catch(() => {});
+}
+
+/* ── 键盘快捷键（桌面调试用） ── */
+document.addEventListener('keydown', e => {
+    if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+    if (e.code === 'ArrowLeft') { video.currentTime = Math.max(0, video.currentTime - 5); }
+    if (e.code === 'ArrowRight') { video.currentTime = Math.min(video.duration, video.currentTime + 5); }
+});
+</script>
+</body>
+</html>

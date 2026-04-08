@@ -19,29 +19,24 @@
         .v-topbar-title{flex:1;text-align:center;font-size:1.0625rem;font-weight:700;color:#18181b;letter-spacing:-.02em}
         .v-topbar-spacer{width:40px;height:40px;flex-shrink:0;pointer-events:none}
 
-        /* ── Hero 区 ── */
-        .v-hero{position:relative;margin:0 20px 4px;border-radius:20px;padding:24px 20px 20px;overflow:hidden;color:#fff;flex-shrink:0;transition:all .4s cubic-bezier(.4,0,.2,1)}
-        .v-hero::before{content:'';position:absolute;inset:0;z-index:0}
-        .v-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18) 0%,transparent 55%);z-index:1;pointer-events:none;border-radius:20px}
-        .v-hero[data-cat="new-standard"]{background:linear-gradient(145deg,#3730a3 0%,#4f46e5 30%,#6366f1 60%,#818cf8 100%)}
-        .v-hero[data-cat="new-standard"]::before{background:radial-gradient(circle at 85% 20%,rgba(129,140,248,.5),transparent 55%),radial-gradient(circle at 15% 80%,rgba(99,102,241,.3),transparent 45%)}
-        .v-hero[data-cat="sync-course"]{background:linear-gradient(145deg,#065f46 0%,#059669 30%,#10b981 60%,#34d399 100%)}
-        .v-hero[data-cat="sync-course"]::before{background:radial-gradient(circle at 85% 20%,rgba(52,211,153,.5),transparent 55%),radial-gradient(circle at 15% 80%,rgba(16,185,129,.3),transparent 45%)}
-        .v-hero[data-cat="special-skills"]{background:linear-gradient(145deg,#9a3412 0%,#ea580c 30%,#f97316 60%,#fb923c 100%)}
-        .v-hero[data-cat="special-skills"]::before{background:radial-gradient(circle at 85% 20%,rgba(251,146,60,.5),transparent 55%),radial-gradient(circle at 15% 80%,rgba(249,115,22,.3),transparent 45%)}
-        .v-hero-content{position:relative;z-index:2}
-        .v-hero-badge{display:inline-flex;align-items:center;gap:5px;font-size:.625rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:rgba(255,255,255,.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:4px 10px;border-radius:999px;margin-bottom:10px}
-        .v-hero h2{font-size:1.375rem;font-weight:800;line-height:1.3;letter-spacing:-.03em}
-        .v-hero p{font-size:.75rem;opacity:.88;margin-top:6px;line-height:1.5}
-        .v-hero-decor{position:absolute;right:-12px;bottom:-18px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.08);z-index:1;pointer-events:none}
-        .v-hero-decor2{position:absolute;right:50px;bottom:30px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.06);z-index:1;pointer-events:none}
-
         /* ── 学科 Tab ── */
-        .v-subj-bar{display:flex;gap:6px;padding:10px 20px 6px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
+        .v-subj-bar{display:flex;gap:6px;padding:6px 20px 4px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
         .v-subj-bar::-webkit-scrollbar{display:none}
         .v-subj-tab{flex-shrink:0;padding:6px 14px;border-radius:10px;font-size:.8125rem;font-weight:600;cursor:pointer;color:#71717a;background:transparent;transition:all .2s;border:none;-webkit-tap-highlight-color:transparent}
         .v-subj-tab:active{transform:scale(.97)}
         .v-subj-tab.active{background:rgba(0,0,0,.06);color:#18181b}
+
+        /* ── 科目介绍卡片 ── */
+        .v-intro{position:relative;margin:6px 20px 2px;border-radius:16px;padding:18px 18px 16px;overflow:hidden;color:#fff;flex-shrink:0;transition:all .35s cubic-bezier(.4,0,.2,1)}
+        .v-intro::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15) 0%,transparent 55%);border-radius:16px;pointer-events:none}
+        .v-intro[data-cat="new-standard"]{background:linear-gradient(145deg,#3730a3 0%,#4f46e5 35%,#6366f1 65%,#818cf8 100%)}
+        .v-intro[data-cat="sync-course"]{background:linear-gradient(145deg,#065f46 0%,#059669 35%,#10b981 65%,#34d399 100%)}
+        .v-intro[data-cat="special-skills"]{background:linear-gradient(145deg,#9a3412 0%,#ea580c 35%,#f97316 65%,#fb923c 100%)}
+        .v-intro-content{position:relative;z-index:2}
+        .v-intro h3{font-size:1.0625rem;font-weight:800;line-height:1.3;letter-spacing:-.02em;margin-bottom:6px}
+        .v-intro p{font-size:.75rem;opacity:.88;line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+        .v-intro-decor{position:absolute;right:-10px;bottom:-14px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.07);z-index:1;pointer-events:none}
+        .v-intro-decor2{position:absolute;right:42px;bottom:24px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.05);z-index:1;pointer-events:none}
 
         /* ── 教材选择器（校内同步课专属） ── */
         .v-textbook-bar{display:flex;align-items:center;gap:8px;padding:6px 20px 2px;flex-shrink:0}
@@ -61,7 +56,6 @@
         .v-ch-header:active{background:rgba(99,102,241,.04)}
         .v-chapter.is-open .v-ch-header{border-bottom:1px solid rgba(226,232,240,.7)}
         .v-ch-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.125rem}
-        .v-hero[data-cat="new-standard"] ~ .v-content .v-ch-icon,
         [data-active-cat="new-standard"] .v-ch-icon{background:linear-gradient(135deg,rgba(99,102,241,.14),rgba(139,92,246,.1));color:#6366f1}
         [data-active-cat="sync-course"] .v-ch-icon{background:linear-gradient(135deg,rgba(16,185,129,.14),rgba(5,150,105,.1));color:#059669}
         [data-active-cat="special-skills"] .v-ch-icon{background:linear-gradient(135deg,rgba(249,115,22,.14),rgba(234,88,12,.1));color:#ea580c}
@@ -74,32 +68,17 @@
         .v-ch-expand{display:none;padding:10px 10px 6px}
         .v-chapter.is-open .v-ch-expand{display:block}
 
-        /* 播放器内嵌 */
-        .v-player{border-radius:12px;overflow:hidden;background:#0f0f12;position:relative;aspect-ratio:16/9;margin-bottom:12px;box-shadow:0 6px 20px -8px rgba(15,15,18,.35)}
-        .v-player-poster{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-        [data-active-cat="new-standard"] .v-player-poster{background:linear-gradient(145deg,#1e1b4b,#312e81 40%,#4c1d95)}
-        [data-active-cat="sync-course"] .v-player-poster{background:linear-gradient(145deg,#064e3b,#065f46 40%,#047857)}
-        [data-active-cat="special-skills"] .v-player-poster{background:linear-gradient(145deg,#7c2d12,#9a3412 40%,#c2410c)}
-        .v-player-poster::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.12),transparent 55%)}
-        .v-play-btn{position:relative;z-index:2;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.95);border:none;display:flex;align-items:center;justify-content:center;color:#6366f1;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.25);transition:transform .15s}
-        [data-active-cat="sync-course"] .v-play-btn{color:#059669}
-        [data-active-cat="special-skills"] .v-play-btn{color:#ea580c}
-        .v-play-btn:active{transform:scale(.92)}
-        .v-now-label{position:absolute;bottom:8px;left:10px;right:10px;z-index:2;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.92);text-shadow:0 1px 6px rgba(0,0,0,.5);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
         /* 视频条目 */
         .v-ep{margin-bottom:6px;background:rgba(255,255,255,.95);border-radius:10px;padding:10px 10px;border:1px solid rgba(226,232,240,.9);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s,border-color .15s;-webkit-tap-highlight-color:transparent}
         .v-ep:active{transform:scale(.99)}
-        .v-ep.active{border-color:rgba(99,102,241,.4);background:linear-gradient(135deg,rgba(99,102,241,.07),rgba(139,92,246,.04))}
-        [data-active-cat="sync-course"] .v-ep.active{border-color:rgba(16,185,129,.4);background:linear-gradient(135deg,rgba(16,185,129,.07),rgba(5,150,105,.04))}
-        [data-active-cat="special-skills"] .v-ep.active{border-color:rgba(249,115,22,.4);background:linear-gradient(135deg,rgba(249,115,22,.07),rgba(234,88,12,.04))}
         .v-ep-num{width:24px;height:24px;border-radius:6px;background:#f4f4f5;color:#71717a;font-size:.6875rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-        .v-ep.active .v-ep-num{background:#6366f1;color:#fff}
-        [data-active-cat="sync-course"] .v-ep.active .v-ep-num{background:#059669}
-        [data-active-cat="special-skills"] .v-ep.active .v-ep-num{background:#ea580c}
         .v-ep-info{flex:1;min-width:0}
         .v-ep-title{font-size:.8125rem;font-weight:600;color:#18181b;line-height:1.35}
         .v-ep-dur{font-size:.625rem;color:#a1a1aa;margin-top:2px}
+        .v-ep-play-icon{flex-shrink:0;color:#c7c7cc;transition:color .15s}
+        .v-ep:active .v-ep-play-icon{color:#6366f1}
+        [data-active-cat="sync-course"] .v-ep:active .v-ep-play-icon{color:#059669}
+        [data-active-cat="special-skills"] .v-ep:active .v-ep-play-icon{color:#ea580c}
 
         /* ── 教材弹窗 ── */
         .v-modal-overlay{position:absolute;inset:0;z-index:500;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center}
@@ -135,22 +114,18 @@
                 <div class="v-topbar-spacer" aria-hidden="true"></div>
             </header>
 
-            <!-- Hero 区 -->
-            <div class="v-hero" id="hero" data-cat="new-standard">
-                <div class="v-hero-content">
-                    <div class="v-hero-badge" id="hero-badge">
-                        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        <span id="hero-badge-text">精选课程</span>
-                    </div>
-                    <h2 id="hero-title">新课标重点讲</h2>
-                    <p id="hero-desc">紧扣新课标考点，重点题型逐个突破</p>
-                </div>
-                <div class="v-hero-decor"></div>
-                <div class="v-hero-decor2"></div>
-            </div>
-
             <!-- 学科 Tab -->
             <div class="v-subj-bar" id="subj-bar"></div>
+
+            <!-- 科目介绍卡片 -->
+            <div class="v-intro" id="intro-card" data-cat="new-standard">
+                <div class="v-intro-content">
+                    <h3 id="intro-title"></h3>
+                    <p id="intro-desc"></p>
+                </div>
+                <div class="v-intro-decor"></div>
+                <div class="v-intro-decor2"></div>
+            </div>
 
             <!-- 教材选择器（仅校内同步课展示） -->
             <div class="v-textbook-bar hidden" id="textbook-bar">
@@ -196,6 +171,11 @@
             title: '新课标重点讲',
             desc: '紧扣新课标考点，重点题型逐个突破',
             subjects: ['语文', '数学', '英语'],
+            intro: {
+                '语文': { title: '新课标语文重点讲', desc: '聚焦新课标核心素养，融入情境化、任务驱动等新理念，深度融合新教材，紧扣最新命题趋势，精准剖析十大新考法解题策略，助力学生快速掌握新题型，全面提升语文综合能力。' },
+                '数学': { title: '新课标数学重点讲', desc: '紧扣新课标数学核心素养，聚焦几何直观、数据分析与数学建模，系统梳理重难点知识，突破典型考题解题策略，培养数学思维，提前适应新考法。' },
+                '英语': { title: '新课标英语重点讲', desc: '围绕新课标英语学科核心素养，强化语篇理解与语用能力，精讲新题型解题思路，提升阅读理解与写作表达水平，全面对接新中考英语要求。' },
+            },
             data: {
                 '语文': [
                     { title: '探究性试题：阅读策略类', meta: '4 个视频', videos: [
@@ -247,6 +227,13 @@
             title: '校内同步课',
             desc: '与校内教材同步，系统查漏补缺',
             subjects: ['语文', '数学', '英语', '科学', '道法'],
+            intro: {
+                '语文': { title: '校内同步·语文', desc: '与校内教材完全同步，逐课精讲重点字词、阅读理解与写作技法，帮助学生巩固课堂所学，系统查漏补缺，夯实语文基础。' },
+                '数学': { title: '校内同步·数学', desc: '紧跟教材进度，逐单元讲解核心概念与典型例题，强化计算能力与解题思路，帮助学生扎实掌握每一个数学知识点。' },
+                '英语': { title: '校内同步·英语', desc: '同步校内教材单元内容，系统讲解词汇、句型与对话，配合听说读写综合训练，稳步提升英语综合运用能力。' },
+                '科学': { title: '校内同步·科学', desc: '紧贴教材实验与探究主题，引导学生观察、思考、动手验证，培养科学思维与探究精神，轻松掌握核心科学知识。' },
+                '道法': { title: '校内同步·道法', desc: '围绕教材单元主题，结合生活实际讲解道德与法治知识，引导学生树立正确价值观，培养良好行为习惯与公民意识。' },
+            },
             needsTextbook: true,
             editions: {
                 '语文': ['人教版', '部编版'],
@@ -319,11 +306,15 @@
         },
         {
             id: 'special-skills',
-            label: '专项大招课',
-            badge: '技能突破',
-            title: '专项大招课',
-            desc: '阅读写作专项提升，掌握核心大招',
+            label: '拓展提升课',
+            badge: '专题精讲',
+            title: '拓展提升课',
+            desc: '1200+专题精讲，拓展提升',
             subjects: ['语文', '英语'],
+            intro: {
+                '语文': { title: '语文专项大招', desc: '针对阅读理解、作文写作、古诗文三大失分重灾区，逐一拆解高分答题框架与实战技巧，掌握核心大招，快速突破语文薄弱环节。' },
+                '英语': { title: '英语专项大招', desc: '聚焦阅读理解与写作两大核心板块，精讲解题策略与高分模板，帮助学生建立系统答题思维，高效提升英语应试能力。' },
+            },
             data: {
                 '语文': [
                     { title: '阅读理解高分大招', meta: '4 个视频', videos: [
@@ -361,7 +352,6 @@
     let activeCat = 'new-standard';
     let activeSubject = {};
     let expandedChapter = {};
-    let selectedVideo = {};
     let syncGrade = STUDENT_GRADE.replace(/[^\u4e00-\u9fa5]/g, '') || '三年级';
     let syncEdition = {};
 
@@ -377,14 +367,15 @@
     /* ══════════ 渲染 ══════════ */
     const $ = id => document.getElementById(id);
 
-    function renderHero() {
+    function renderIntro() {
         const cat = CATEGORIES.find(c => c.id === activeCat);
-        const hero = $('hero');
-        hero.dataset.cat = activeCat;
+        const subj = activeSubject[activeCat];
+        const intro = (cat.intro && cat.intro[subj]) || { title: cat.title, desc: cat.desc };
+        const card = $('intro-card');
+        card.dataset.cat = activeCat;
         $('app').dataset.activeCat = activeCat;
-        $('hero-badge-text').textContent = cat.badge;
-        $('hero-title').textContent = cat.title;
-        $('hero-desc').textContent = cat.desc;
+        $('intro-title').textContent = intro.title;
+        $('intro-desc').textContent = intro.desc;
     }
 
     function renderSubjBar() {
@@ -422,18 +413,16 @@
         const key = activeCat + '|' + subj;
 
         area.innerHTML = chapters.map((ch, ci) => {
-            const chKey = key + '|' + ci;
             const isOpen = expandedChapter[key] === ci;
-            const vid = selectedVideo[chKey] ?? 0;
-            const currentV = ch.videos[vid];
 
             const eps = ch.videos.map((v, vi) => `
-                <div class="v-ep${vi === vid ? ' active' : ''}" data-chi="${ci}" data-vi="${vi}">
+                <div class="v-ep" data-chi="${ci}" data-vi="${vi}">
                     <div class="v-ep-num">${vi + 1}</div>
                     <div class="v-ep-info">
                         <p class="v-ep-title">${v.title}</p>
                         <p class="v-ep-dur">${v.dur}</p>
                     </div>
+                    <svg class="v-ep-play-icon" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
                 </div>
             `).join('');
 
@@ -455,14 +444,6 @@
                         </div>
                     </div>
                     <div class="v-ch-expand">
-                        <div class="v-player">
-                            <div class="v-player-poster">
-                                <button type="button" class="v-play-btn" data-chi="${ci}" aria-label="播放">
-                                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                                </button>
-                                <p class="v-now-label">${currentV ? currentV.title : ''}</p>
-                            </div>
-                        </div>
                         ${eps}
                     </div>
                 </div>`;
@@ -470,8 +451,8 @@
     }
 
     function renderAll() {
-        renderHero();
         renderSubjBar();
+        renderIntro();
         renderTextbookBar();
         renderContent();
     }
@@ -484,6 +465,7 @@
         if (!tab) return;
         activeSubject[activeCat] = tab.dataset.subj;
         renderSubjBar();
+        renderIntro();
         renderTextbookBar();
         renderContent();
     });
@@ -495,8 +477,6 @@
             const ci = parseInt(chapter.dataset.chi);
             const key = activeCat + '|' + activeSubject[activeCat];
             expandedChapter[key] = expandedChapter[key] === ci ? null : ci;
-            const chKey = key + '|' + ci;
-            if (selectedVideo[chKey] == null) selectedVideo[chKey] = 0;
             renderContent();
             return;
         }
@@ -504,22 +484,15 @@
         if (ep) {
             const ci = parseInt(ep.dataset.chi);
             const vi = parseInt(ep.dataset.vi);
-            const key = activeCat + '|' + activeSubject[activeCat];
-            const chKey = key + '|' + ci;
-            selectedVideo[chKey] = vi;
-            renderContent();
-            return;
-        }
-        const play = e.target.closest('.v-play-btn');
-        if (play) {
-            const ci = parseInt(play.dataset.chi);
             const cat = CATEGORIES.find(c => c.id === activeCat);
-            const chapters = cat.data[activeSubject[activeCat]] || [];
+            const chapters = (cat.data && cat.data[activeSubject[activeCat]]) || [];
             const ch = chapters[ci];
-            const key = activeCat + '|' + activeSubject[activeCat] + '|' + ci;
-            const vi = selectedVideo[key] ?? 0;
             const v = ch && ch.videos[vi];
-            if (v) alert('演示原型：将在此处拉起真实播放器\n\n当前选中：' + v.title);
+            if (v) {
+                const qs = new URLSearchParams({ title: v.title, dur: v.dur, cat: activeCat });
+                window.location.href = '视频播放.html?' + qs.toString();
+            }
+            return;
         }
     });
 

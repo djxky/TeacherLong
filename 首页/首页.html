@@ -631,11 +631,17 @@
                                     </div>
                                     <span class="minor-tool-label">错因分析</span>
                                 </div>
-                                <div class="minor-tool" onclick="openEssayCorrection()" data-doc="tool-essay" data-prd="即将上线。跳转作文批改页面，拍照上传作文后 AI 给出批改建议和评分" data-track="/click/teacherLongHomePage/enterEssayCorrection | 点击作文批改 | 无">
-                                    <div class="minor-tool-icon mi-rose">
-                                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                <div class="minor-tool" onclick="openErase()" data-doc="tool-erase" data-prd="跳转试卷擦除页（试卷擦除/试卷擦除.html），拍照后自动擦除试卷上的手写笔迹" data-track="/click/teacherLongHomePage/enterErase | 点击试卷擦除 | 无">
+                                    <div class="minor-tool-icon mi-purple">
+                                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </div>
-                                    <span class="minor-tool-label">作文批改</span>
+                                    <span class="minor-tool-label">试卷擦除</span>
+                                </div>
+                                <div class="minor-tool" onclick="openExamPapers()" data-doc="tool-paper-download" data-prd="即将上线。跳转试卷下载列表页，可按学科和试卷类型筛选下载" data-track="/click/teacherLongHomePage/enterExamPapers | 点击试卷下载 | 无">
+                                    <div class="minor-tool-icon mi-blue">
+                                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    </div>
+                                    <span class="minor-tool-label">试卷下载</span>
                                 </div>
                                 <div class="minor-tool" onclick="openPaperExplain()" data-doc="tool-paper-explain" data-prd="即将上线。试卷讲解功能，拍照上传试卷后 AI 逐题讲解" data-track="/click/teacherLongHomePage/enterPaperExplain | 点击试卷讲解 | 无">
                                     <div class="minor-tool-icon mi-blue">
@@ -643,23 +649,17 @@
                                     </div>
                                     <span class="minor-tool-label">试卷讲解</span>
                                 </div>
-                                <div class="minor-tool" onclick="openErase()" data-doc="tool-erase" data-prd="跳转试卷擦除页（试卷擦除/试卷擦除.html），拍照后自动擦除试卷上的手写笔迹" data-track="/click/teacherLongHomePage/enterErase | 点击试卷擦除 | 无">
-                                    <div class="minor-tool-icon mi-purple">
-                                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                    </div>
-                                    <span class="minor-tool-label">试卷擦除</span>
-                                </div>
-                                <div class="minor-tool" onclick="openRealExam()" data-doc="tool-real-exam" data-prd="即将上线。根据用户年级动态显示：小学→小升初真题，初中（七八九年级）→中考真题" data-track="/click/teacherLongHomePage/enterRealExam | 点击真题入口 | 无">
+                                <div class="minor-tool" onclick="openRealExam('primary')" data-doc="tool-primary-exam" data-prd="即将上线。跳转小升初真题专区，按学科浏览历年小升初真题" data-track="/click/teacherLongHomePage/enterPrimaryExam | 点击小升初真题 | 无">
                                     <div class="minor-tool-icon mi-teal">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
                                     </div>
-                                    <span class="minor-tool-label" id="realExamLabel">小升初真题</span>
+                                    <span class="minor-tool-label">小升初真题</span>
                                 </div>
-                                <div class="minor-tool" onclick="openExamPapers()" data-doc="tool-paper-download" data-prd="即将上线。跳转试卷下载列表页，可按学科和试卷类型筛选下载" data-track="/click/teacherLongHomePage/enterExamPapers | 点击试卷下载 | 无">
-                                    <div class="minor-tool-icon mi-blue">
-                                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                <div class="minor-tool" onclick="openRealExam('middle')" data-doc="tool-middle-exam" data-prd="即将上线。跳转中考真题专区，按学科浏览历年中考真题" data-track="/click/teacherLongHomePage/enterMiddleExam | 点击中考真题 | 无">
+                                    <div class="minor-tool-icon mi-rose">
+                                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
                                     </div>
-                                    <span class="minor-tool-label">试卷下载</span>
+                                    <span class="minor-tool-label">中考真题</span>
                                 </div>
                             </div>
                         </div>
@@ -704,12 +704,12 @@
                                         <span class="vm-tag">英语</span>
                                     </div>
                                 </div>
-                                <div class="vz-mini vz-mini-orange card-press" onclick="openKnowledgeVideos('special-skills')" data-doc="video-special-skills" data-prd="跳转知识点讲解视频页（cat=special-skills），语文和英语阅读写作专项提升" data-track="/click/teacherLongHomePage/enterVideo | 点击视频课堂入口 | category#STRING：category：课程体系__special-skills-专项大招课">
+                                <div class="vz-mini vz-mini-orange card-press" onclick="openKnowledgeVideos('special-skills')" data-doc="video-special-skills" data-prd="跳转知识点讲解视频页（cat=special-skills），1200+专题精讲拓展提升" data-track="/click/teacherLongHomePage/enterVideo | 点击视频课堂入口 | category#STRING：category：课程体系__special-skills-拓展提升课">
                                     <div class="vz-mini-icon">
                                         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                                     </div>
-                                    <h4>专项大招课</h4>
-                                    <p>阅读写作提升</p>
+                                    <h4>拓展提升课</h4>
+                                    <p>1200+专题精讲</p>
                                     <div class="vz-mini-tags">
                                         <span class="vm-tag">语文</span>
                                         <span class="vm-tag">英语</span>
@@ -787,7 +787,7 @@
             window.location.href = '试卷擦除/试卷擦除.html';
         }
         function openEssayCorrection() {
-            showToast('作文批改（即将上线）');
+            showToast('作文批改（已下线）');
         }
         function openPaperExplain() {
             showToast('试卷讲解（即将上线）');
@@ -796,8 +796,12 @@
             sessionStorage.setItem('cameraMode', 'wrong');
             window.location.href = '作业批改.html?mode=wrong';
         }
-        function openRealExam() {
-            showToast('真题专区（即将上线）');
+        function openRealExam(type) {
+            if (type === 'primary') {
+                showToast('小升初真题（即将上线）');
+            } else {
+                showToast('中考真题（即将上线）');
+            }
         }
         function openExamPapers() {
             showToast('精品试卷（即将上线）');
@@ -821,7 +825,7 @@
             chinese: [
                 { title: '探究性试题：阅读策略类', tag: '新课标', tagCls: 'vct-new', lessons: 6, done: 2, cover: 'vc-indigo', cat: 'new-standard' },
                 { title: '记叙文阅读理解·高频考点', tag: '同步课', tagCls: 'vct-sync', lessons: 8, done: 5, cover: 'vc-green', cat: 'sync-course' },
-                { title: '作文提分大招·审题与立意', tag: '大招课', tagCls: 'vct-special', lessons: 5, done: 0, cover: 'vc-amber', cat: 'special-skills' },
+                { title: '作文提分大招·审题与立意', tag: '拓展课', tagCls: 'vct-special', lessons: 5, done: 0, cover: 'vc-amber', cat: 'special-skills' },
                 { title: '古诗文鉴赏与默写', tag: '同步课', tagCls: 'vct-sync', lessons: 7, done: 3, cover: 'vc-green', cat: 'sync-course' },
             ],
             math: [
@@ -831,9 +835,9 @@
                 { title: '函数图像与性质', tag: '新课标', tagCls: 'vct-new', lessons: 5, done: 3, cover: 'vc-indigo', cat: 'new-standard' },
             ],
             english: [
-                { title: '阅读理解高分技巧', tag: '大招课', tagCls: 'vct-special', lessons: 5, done: 2, cover: 'vc-amber', cat: 'special-skills' },
+                { title: '阅读理解高分技巧', tag: '拓展课', tagCls: 'vct-special', lessons: 5, done: 2, cover: 'vc-amber', cat: 'special-skills' },
                 { title: '语法填空·时态专练', tag: '同步课', tagCls: 'vct-sync', lessons: 7, done: 7, cover: 'vc-green', cat: 'sync-course' },
-                { title: '写作模板与万能句型', tag: '大招课', tagCls: 'vct-special', lessons: 4, done: 0, cover: 'vc-amber', cat: 'special-skills' },
+                { title: '写作模板与万能句型', tag: '拓展课', tagCls: 'vct-special', lessons: 4, done: 0, cover: 'vc-amber', cat: 'special-skills' },
                 { title: '完形填空解题策略', tag: '新课标', tagCls: 'vct-new', lessons: 6, done: 1, cover: 'vc-indigo', cat: 'new-standard' },
             ],
             science: [
@@ -943,13 +947,6 @@
         renderVzCourses('chinese');
         renderPapers('chinese');
 
-        (function updateRealExamLabel() {
-            const grade = sessionStorage.getItem('gradeClass') || '三年级';
-            const label = document.getElementById('realExamLabel');
-            if (!label) return;
-            const isMiddleSchool = /[七八九]年级|初[一二三]/.test(grade);
-            label.textContent = isMiddleSchool ? '中考真题' : '小升初真题';
-        })();
 
         /* ═══ 模式切换 & 侧边栏浮窗 ═══ */
         function setMode(mode) {
@@ -1089,7 +1086,7 @@
 ### v1.0 · 2026-04-03
 - [新增] 首页产品稿初版
 - [新增] 主功能双卡：作业批改、拍照解题
-- [新增] 次级工具栏 8 项：错题本、上传错题、错因分析、作文批改、试卷讲解、试卷擦除、小升初/中考真题、试卷下载
+- [新增] 次级工具栏 8 项：错题本、上传错题、错因分析、试卷擦除、试卷下载、试卷讲解、小升初真题、中考真题
 - [新增] 视频课堂专区：三种课程体系入口 + 学科 Tab 课程网格
 - [新增] 精品试卷专区：学科 Tab + 试卷列表
     </script>
@@ -1170,19 +1167,16 @@
 | 1 | 错题本 | `错题本/错题本 01.html` | 已上线 | 查看按学科分类的错题列表 |
 | 2 | 上传错题 | `作业批改.html?mode=wrong` | 已上线 | 拍照上传错题到错题本 |
 | 3 | 错因分析 | `作业批改.html?mode=wrong` | 已上线 | 拍照识别错题后 AI 分析错因，复用上传错题拍照入口 |
-| 4 | 作文批改 | 即将上线 | 待开发 | 拍照上传作文后 AI 给出批改建议和评分 |
-| 5 | 试卷讲解 | 即将上线 | 待开发 | 拍照上传试卷后 AI 逐题讲解 |
-| 6 | 试卷擦除 | `试卷擦除/试卷擦除.html` | 已上线 | 拍照后自动擦除试卷上的手写笔迹 |
-| 7 | 小升初真题 / 中考真题 | 即将上线 | 待开发 | 真题资源专区 |
-| 8 | 试卷下载 | 即将上线 | 待开发 | 按学科和类型筛选下载试卷 |
+| 4 | 试卷擦除 | `试卷擦除/试卷擦除.html` | 已上线 | 拍照后自动擦除试卷上的手写笔迹 |
+| 5 | 试卷下载 | 即将上线 | 待开发 | 按学科和类型筛选下载试卷 |
+| 6 | 试卷讲解 | 即将上线 | 待开发 | 拍照上传试卷后 AI 逐题讲解 |
+| 7 | 小升初真题 | 即将上线 | 待开发 | 历年小升初真题资源专区 |
+| 8 | 中考真题 | 即将上线 | 待开发 | 历年中考真题资源专区 |
 
 #### 交互逻辑
 
 - **错因分析**：入口交互与上传错题共用拍照页（mode=wrong），但结果页增加错因分析模块，展示 AI 对错误原因的诊断
-- **小升初真题 / 中考真题**：根据用户当前年级动态显示文案
-  - 小学阶段（三~六年级）→ 显示「小升初真题」
-  - 初中阶段（七/八/九年级、初一/初二/初三）→ 显示「中考真题」
-  - 判断逻辑：`/[七八九]年级|初[一二三]/.test(grade)`，默认年级从 `sessionStorage.gradeClass` 读取
+- **小升初真题 / 中考真题**：两个独立入口，分别跳转对应的真题专区
 - **未上线功能**：点击后显示 Toast 提示「XX（即将上线）」
 
 #### 布局规范
@@ -1206,7 +1200,7 @@
 |------|------|--------|------|------|
 | 大卡 | 新课标重点讲 | 紧扣新课标考点，重点题型逐个突破 | 语文/数学/英语 | 重磅推荐 |
 | 小卡左 | 校内同步课 | 与教材同步 | 语文/数学/英语 | — |
-| 小卡右 | 专项大招课 | 阅读写作提升 | 语文/英语 | — |
+| 小卡右 | 拓展提升课 | 1200+专题精讲 | 语文/英语 | — |
 
 所有卡片点击后跳转 `知识点讲解视频.html?cat={category}`，进入手风琴展开式的视频目录页。
 
@@ -1217,14 +1211,14 @@
 - 每张课程卡片包含：
   - 彩色封面 + 播放按钮（32×32 圆形白底）
   - 课程标题（最多两行，超出省略）
-  - 标签（新课标 / 同步课 / 大招课）+ 学习进度
+  - 标签（新课标 / 同步课 / 拓展课）+ 学习进度
 - 课程卡片点击后跳转对应 category 的视频目录
 
 #### 数据结构
 
 课程数据由 JS 对象 `COURSE_DATA` 定义，按学科分组：
 - `title`：课程标题
-- `tag`：课程体系标签（新课标 / 同步课 / 大招课）
+- `tag`：课程体系标签（新课标 / 同步课 / 拓展课）
 - `tagCls`：标签样式类名
 - `lessons`：总课时数
 - `done`：已学课时数（0 = 显示"N节课"，全部完成 = "已学完"，部分完成 = "已学X/Y节"）
