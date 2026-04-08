@@ -14,7 +14,7 @@
         
         .iphone-frame {
             width: 393px; height: 852px; position: relative; overflow: hidden;
-            background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
+            background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 40%, #e8edf4 100%);
             box-shadow: 0 0 0 12px #18181b, 0 0 0 14px #27272a, 0 24px 48px -12px rgba(24,24,27,0.2);
             border-radius: 50px;
         }
@@ -22,28 +22,28 @@
         /* Mesh Gradients */
         .mesh-bg {
             position: absolute; top: -10%; left: -20%; width: 80%; height: 60%;
-            background: radial-gradient(ellipse at center, rgba(99,102,241,0.45) 0%, transparent 65%);
-            filter: blur(60px); pointer-events: none; z-index: 0;
+            background: radial-gradient(ellipse at center, rgba(99,102,241,0.3) 0%, transparent 65%);
+            filter: blur(70px); pointer-events: none; z-index: 0;
         }
         .mesh-bg-2 {
             position: absolute; top: 15%; right: -30%; width: 90%; height: 70%;
-            background: radial-gradient(ellipse at center, rgba(236,72,153,0.35) 0%, transparent 65%);
-            filter: blur(60px); pointer-events: none; z-index: 0;
+            background: radial-gradient(ellipse at center, rgba(236,72,153,0.22) 0%, transparent 65%);
+            filter: blur(70px); pointer-events: none; z-index: 0;
         }
         .mesh-bg-3 {
             position: absolute; bottom: -10%; left: -20%; width: 80%; height: 70%;
-            background: radial-gradient(ellipse at center, rgba(168,85,247,0.35) 0%, transparent 65%);
-            filter: blur(60px); pointer-events: none; z-index: 0;
+            background: radial-gradient(ellipse at center, rgba(168,85,247,0.22) 0%, transparent 65%);
+            filter: blur(70px); pointer-events: none; z-index: 0;
         }
         .mesh-bg-4 {
             position: absolute; top: 40%; left: 10%; width: 70%; height: 60%;
-            background: radial-gradient(ellipse at center, rgba(56,189,248,0.3) 0%, transparent 65%);
-            filter: blur(60px); pointer-events: none; z-index: 0;
+            background: radial-gradient(ellipse at center, rgba(56,189,248,0.18) 0%, transparent 65%);
+            filter: blur(70px); pointer-events: none; z-index: 0;
         }
         .mesh-bg-5 {
             position: absolute; bottom: 10%; right: -20%; width: 80%; height: 60%;
-            background: radial-gradient(ellipse at center, rgba(245,158,11,0.25) 0%, transparent 65%);
-            filter: blur(60px); pointer-events: none; z-index: 0;
+            background: radial-gradient(ellipse at center, rgba(245,158,11,0.15) 0%, transparent 65%);
+            filter: blur(70px); pointer-events: none; z-index: 0;
         }
 
         .dynamic-island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 120px; height: 35px; background: linear-gradient(180deg, #27272a 0%, #18181b 100%); border-radius: 20px; z-index: 1000; pointer-events: none; }
@@ -62,112 +62,112 @@
             display: flex; align-items: center; justify-content: space-between;
             flex-shrink: 0; position: relative; z-index: 20;
         }
-        .top-nav-tabs { display: flex; gap: 20px; align-items: baseline; }
+        .top-nav-tabs { display: flex; gap: 18px; align-items: baseline; }
         .top-nav-tab {
-            font-size: 1.125rem; font-weight: 400; color: #a1a1aa;
+            font-size: 1rem; font-weight: 400; color: #94a3b8;
             cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); padding: 0; background: none; border: none;
             font-family: inherit; position: relative;
         }
         .top-nav-tab.active {
-            font-size: 1.25rem; font-weight: 700; color: #18181b;
+            font-size: 1.125rem; font-weight: 700; color: #0f172a;
         }
         .top-nav-icon {
-            width: 36px; height: 36px; border-radius: 50%;
+            width: 34px; height: 34px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            color: #71717a; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            color: #94a3b8; cursor: pointer; transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .top-nav-icon:active { transform: scale(0.92); background: rgba(0,0,0,0.03); }
 
         /* 通用玻璃拟态样式 */
-        .main-card, .minor-tools, .vz-featured, .vz-mini, .vz-course-card, .paper-item {
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            box-shadow: 0 12px 32px -8px rgba(0,0,0,0.04), inset 0 0 0 1px rgba(255,255,255,0.7);
+        .main-card, .minor-tools, .vz-featured, .vz-mini, .zk-card, .paper-item {
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 2px 12px -4px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.65);
             border: none;
         }
+        .minor-tools, .paper-item { background: rgba(255, 255, 255, 0.55); }
         
-        .minor-tools, .paper-item { background: rgba(255, 255, 255, 0.6); }
-        
-        .main-card, .minor-tool, .minor-tool-icon, .vz-featured, .vz-mini, .vz-course-card, .paper-item {
+        .main-card, .minor-tool, .minor-tool-icon, .vz-featured, .vz-mini, .zk-card, .paper-item {
             cursor: pointer; -webkit-tap-highlight-color: transparent;
-            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .main-card:active, .minor-tool:active, .vz-featured:active, .vz-mini:active, .vz-course-card:active, .paper-item:active {
-            transform: scale(0.96);
+        .main-card:active, .minor-tool:active, .vz-featured:active, .vz-mini:active, .zk-card:active, .paper-item:active {
+            transform: scale(0.97);
         }
 
         /* AI 龙老师问候区 */
         .hero-banner {
-            margin: 12px 20px 0; padding: 12px 8px;
+            margin: 8px 20px 0; padding: 14px 12px;
             position: relative;
-            display: flex; align-items: center; gap: 16px;
+            display: flex; align-items: center; gap: 14px;
         }
         .mascot-img {
-            position: relative; z-index: 2; width: 68px; height: 68px;
+            position: relative; z-index: 2; width: 56px; height: 56px;
             object-fit: cover; object-position: top center;
             border-radius: 50%; flex-shrink: 0;
-            box-shadow: 0 6px 16px -4px rgba(15,23,42,0.1), inset 0 0 0 1px rgba(255,255,255,0.5);
+            box-shadow: 0 4px 12px -4px rgba(15,23,42,0.08);
+            border: 2px solid rgba(255,255,255,0.8);
         }
         .hero-text {
             flex: 1; min-width: 0; position: relative; z-index: 1;
         }
         .hero-text h1 {
-            font-size: 1.125rem; font-weight: 700; margin: 0; letter-spacing: -0.02em; line-height: 1.3;
-            background: linear-gradient(135deg, #312e81, #9333ea);
+            font-size: 1.0625rem; font-weight: 700; margin: 0; letter-spacing: -0.02em; line-height: 1.3;
+            background: linear-gradient(135deg, #312e81, #7c3aed);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .hero-text p {
-            font-size: 0.75rem; color: #64748b; margin: 4px 0 0 0; line-height: 1.4;
+            font-size: 0.6875rem; color: #64748b; margin: 4px 0 0 0; line-height: 1.4;
             display: flex; align-items: center; gap: 4px;
         }
-        .hero-text p svg { color: #8b5cf6; }
+        .hero-text p svg { color: #a78bfa; }
 
         /* ── 主功能双卡 ── */
-        .tools-area { margin: 24px 20px 0; }
+        .tools-area { margin: 20px 20px 0; }
         .main-tools {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
-            margin-bottom: 20px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+            margin-bottom: 16px;
         }
         .main-card {
-            padding: 18px 16px; border-radius: 20px;
+            padding: 16px 14px; border-radius: 16px;
             position: relative; overflow: hidden;
         }
         .main-card-icon {
-            width: 40px; height: 40px; border-radius: 12px;
+            width: 36px; height: 36px; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            margin-bottom: 12px; position: relative; z-index: 2;
+            margin-bottom: 10px; position: relative; z-index: 2;
             background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 4px 12px -4px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.8);
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.05);
         }
         .main-card h3 {
-            font-size: 0.9375rem; font-weight: 700; margin: 0; color: #0f172a;
+            font-size: 0.875rem; font-weight: 700; margin: 0; color: #0f172a;
             line-height: 1.3; position: relative; z-index: 2;
         }
         .main-card p {
-            font-size: 0.6875rem; margin: 4px 0 0; color: #64748b;
+            font-size: 0.6875rem; margin: 3px 0 0; color: #64748b;
             line-height: 1.3; position: relative; z-index: 2;
         }
-        .mc-indigo { background: linear-gradient(135deg, rgba(238,242,255,0.8) 0%, rgba(255,255,255,0.5) 100%); }
-        .mc-indigo .main-card-icon { color: #4338ca; }
-        .mc-amber { background: linear-gradient(135deg, rgba(255,251,235,0.8) 0%, rgba(255,255,255,0.5) 100%); }
-        .mc-amber .main-card-icon { color: #b45309; }
+        .mc-indigo { background: linear-gradient(135deg, rgba(238,242,255,0.7) 0%, rgba(255,255,255,0.4) 100%); }
+        .mc-indigo .main-card-icon { color: #4f46e5; }
+        .mc-amber { background: linear-gradient(135deg, rgba(255,251,235,0.7) 0%, rgba(255,255,255,0.4) 100%); }
+        .mc-amber .main-card-icon { color: #d97706; }
 
         /* ── 次级工具行 ── */
         .minor-tools {
             display: grid; grid-template-columns: repeat(4, 1fr);
-            border-radius: 20px; padding: 16px 8px 10px;
-            row-gap: 12px;
+            border-radius: 16px; padding: 14px 6px 10px;
+            row-gap: 10px;
         }
         .minor-tool {
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
         }
         .minor-tool-icon {
-            width: 44px; height: 44px; border-radius: 14px;
+            width: 40px; height: 40px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 4px 12px -4px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.8);
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.04);
         }
         .minor-tool-label {
-            font-size: 0.6875rem; font-weight: 500; color: #475569;
+            font-size: 0.625rem; font-weight: 500; color: #64748b;
             text-align: center;
         }
         .minor-tool-icon.mi-green { color: #059669; }
@@ -178,179 +178,100 @@
         .minor-tool-icon.mi-amber { color: #d97706; }
         .minor-tool-icon.mi-teal { color: #0d9488; }
 
-        /* ── 视频课堂专区 ── */
-        .vz-section { padding: 0 20px; margin-top: 32px; }
-        .vz-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
+        /* ── 通用 section 样式 ── */
+        .sec { padding: 0 20px; margin-top: 28px; }
+        .sec-hd {
+            display: flex; align-items: center; margin-bottom: 16px;
         }
-        .vz-header h2 {
-            font-size: 1.125rem;
-            font-weight: 700;
-            color: #0f172a;
-            margin: 0;
-            letter-spacing: -0.01em;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .vz-header-badge {
-            font-size: 0.5625rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            padding: 2px 8px;
-            border-radius: 999px;
-            background: rgba(99,102,241,0.1);
-            color: #4f46e5;
-        }
-
-        /* ── 视频卡片 (featured大卡 + 2小卡并排) ── */
-        .vz-featured {
-            border-radius: 20px; padding: 20px 18px;
-            position: relative; overflow: hidden;
-            margin-bottom: 12px;
-            background: linear-gradient(135deg, rgba(240, 253, 250, 0.7) 0%, rgba(255, 255, 255, 0.4) 100%);
-        }
-        .vz-featured .vf-glow {
-            position: absolute; right: -40px; top: -40px; width: 160px; height: 160px;
-            background: radial-gradient(circle, rgba(16,185,129,0.25) 0%, transparent 70%);
-            pointer-events: none; filter: blur(32px);
-        }
-        .vz-featured .vf-badge {
-            display: inline-flex; align-items: center; gap: 4px;
-            font-size: 0.625rem; font-weight: 700; padding: 4px 10px;
-            border-radius: 8px; background: rgba(99,102,241,0.1); color: #4f46e5;
-            margin-bottom: 12px; position: relative; z-index: 1;
-        }
-        .vz-featured .vf-title {
-            font-size: 1.125rem; font-weight: 700; margin: 0; color: #0f172a;
-            line-height: 1.3; position: relative; z-index: 1;
-        }
-        .vz-featured .vf-desc {
-            font-size: 0.8125rem; color: #64748b;
-            margin: 6px 0 0; position: relative; z-index: 1;
-        }
-        .vz-featured .vf-tags {
-            display: flex; gap: 6px; margin-top: 14px; position: relative; z-index: 1;
-        }
-        .vz-featured .vf-tag {
-            font-size: 0.6875rem; font-weight: 600; padding: 4px 10px;
-            border-radius: 8px; background: rgba(255,255,255,0.6); color: #475569;
-        }
-
-        .vz-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .vz-mini {
-            border-radius: 16px; padding: 16px 14px;
-            position: relative; overflow: hidden;
-        }
-        .vz-mini-icon {
-            width: 36px; height: 36px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            margin-bottom: 10px;
-            background: rgba(255,255,255,0.8);
-            box-shadow: 0 4px 12px -4px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.8);
-        }
-        .vz-mini-green { background: linear-gradient(135deg, rgba(240, 253, 244, 0.7) 0%, rgba(255, 255, 255, 0.4) 100%); }
-        .vz-mini-green .vz-mini-icon { color: #059669; }
-        .vz-mini-orange { background: linear-gradient(135deg, rgba(255, 247, 237, 0.7) 0%, rgba(255, 255, 255, 0.4) 100%); }
-        .vz-mini-orange .vz-mini-icon { color: #b45309; }
-        .vz-mini h4 {
-            font-size: 0.875rem; font-weight: 700; color: #0f172a;
-            margin: 0; line-height: 1.3;
-        }
-        .vz-mini p {
-            font-size: 0.6875rem; color: #64748b;
-            margin: 4px 0 0;
-        }
-        .vz-mini-tags {
-            display: flex; gap: 4px; margin-top: 10px; flex-wrap: wrap;
-        }
-        .vm-tag {
-            font-size: 0.625rem; font-weight: 600; padding: 3px 8px; border-radius: 6px;
-            background: rgba(255,255,255,0.6); color: #475569;
-        }
-
-        /* ── 视频课堂·按学科课程网格 ── */
-        .vz-course-tabs {
-            display: flex; gap: 4px; margin: 20px 0 16px;
-        }
-        .vz-course-tab {
-            padding: 6px 14px; font-size: 0.75rem; font-weight: 600;
-            color: #a1a1aa; background: transparent; border: none;
-            cursor: pointer; border-radius: 12px;
-            -webkit-tap-highlight-color: transparent;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .vz-course-tab.active {
-            color: #18181b;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            box-shadow: 0 4px 12px -4px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.8);
-        }
-        .vz-course-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-        }
-        .vz-course-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(248, 250, 252, 0.5) 100%);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-        .vz-course-cover {
-            height: 72px; display: flex; align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-        .vz-course-play-btn {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: rgba(255,255,255,0.95);
-            box-shadow: 0 4px 12px -2px rgba(0,0,0,0.1);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .vz-course-play-btn svg { width: 14px; height: 14px; margin-left: 2px; }
-        .vc-indigo { background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(99,102,241,0.02) 100%); color: #4f46e5; }
-        .vc-green { background: linear-gradient(135deg, rgba(16,185,129,0.15) 0%, rgba(16,185,129,0.02) 100%); color: #059669; }
-        .vc-amber { background: linear-gradient(135deg, rgba(245,158,11,0.15) 0%, rgba(245,158,11,0.02) 100%); color: #d97706; }
-        .vc-rose { background: linear-gradient(135deg, rgba(225,29,72,0.15) 0%, rgba(225,29,72,0.02) 100%); color: #e11d48; }
-        .vc-cyan { background: linear-gradient(135deg, rgba(6,182,212,0.15) 0%, rgba(6,182,212,0.02) 100%); color: #0891b2; }
-        .vz-course-body { padding: 12px; }
-        .vz-course-title {
-            font-size: 0.8125rem; font-weight: 600; color: #0f172a;
-            margin: 0; line-height: 1.35;
-            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-            overflow: hidden; min-height: 2.7em;
-        }
-        .vz-course-meta {
-            display: flex; align-items: center; gap: 6px; margin-top: 8px;
-        }
-        .vz-course-tag {
-            font-size: 0.5rem; font-weight: 600;
-            padding: 2px 6px; border-radius: 4px;
-        }
-        .vct-new { background: rgba(99,102,241,0.08); color: #6366f1; }
-        .vct-sync { background: rgba(5,150,105,0.08); color: #059669; }
-        .vct-special { background: rgba(217,119,6,0.08); color: #b45309; }
-        .vz-course-lessons {
-            font-size: 0.5625rem; color: #64748b;
-        }
-
-        /* ── 专项大招课模块 ── */
-        .zk-section { padding: 0 20px; margin-top: 32px; }
-        .zk-header { display: flex; align-items: center; margin-bottom: 14px; }
-        .zk-header h2 {
-            font-size: 1.125rem; font-weight: 700; color: #0f172a;
+        .sec-hd h2 {
+            font-size: 1.0625rem; font-weight: 700; color: #0f172a;
             margin: 0; letter-spacing: -0.01em;
             display: flex; align-items: center; gap: 6px;
         }
-        .zk-header-sub { font-size: 0.6875rem; font-weight: 600; color: #a1a1aa; margin-left: 8px; letter-spacing: .02em; }
+        .sec-hd h2 svg { color: #64748b; }
+        .sec-badge {
+            font-size: 0.5625rem; font-weight: 700; letter-spacing: 0.04em;
+            padding: 2px 8px; border-radius: 999px; margin-left: 6px;
+        }
+        .sec-badge-indigo { background: rgba(99,102,241,0.08); color: #6366f1; }
+        .sec-badge-amber { background: rgba(245,158,11,0.08); color: #d97706; }
+        .sec-sub { font-size: 0.6875rem; font-weight: 600; color: #a1a1aa; margin-left: 8px; letter-spacing: .02em; }
+
+        /* ── 视频课堂卡片 ── */
+        .vz-featured {
+            border-radius: 16px; padding: 18px 16px;
+            position: relative; overflow: hidden;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, rgba(240,253,250,0.65) 0%, rgba(255,255,255,0.35) 100%);
+        }
+        .vz-featured .vf-glow {
+            position: absolute; right: -30px; top: -30px; width: 140px; height: 140px;
+            background: radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%);
+            pointer-events: none; filter: blur(28px);
+        }
+        .vz-featured .vf-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 0.5625rem; font-weight: 700; padding: 3px 8px;
+            border-radius: 6px; background: rgba(99,102,241,0.08); color: #6366f1;
+            margin-bottom: 10px; position: relative; z-index: 1;
+        }
+        .vz-featured .vf-title {
+            font-size: 1rem; font-weight: 700; margin: 0; color: #0f172a;
+            line-height: 1.3; position: relative; z-index: 1;
+        }
+        .vz-featured .vf-desc {
+            font-size: 0.75rem; color: #64748b;
+            margin: 4px 0 0; position: relative; z-index: 1;
+        }
+        .vz-featured .vf-tags {
+            display: flex; gap: 6px; margin-top: 12px; position: relative; z-index: 1;
+        }
+        .vz-featured .vf-tag {
+            font-size: 0.625rem; font-weight: 600; padding: 3px 8px;
+            border-radius: 6px; background: rgba(255,255,255,0.5); color: #64748b;
+        }
+
+        .vz-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .vz-mini {
+            border-radius: 14px; padding: 14px 12px;
+            position: relative; overflow: hidden;
+        }
+        .vz-mini-icon {
+            width: 32px; height: 32px; border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.7);
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.04);
+        }
+        .vz-mini-green { background: linear-gradient(135deg, rgba(240,253,244,0.65) 0%, rgba(255,255,255,0.35) 100%); }
+        .vz-mini-green .vz-mini-icon { color: #059669; }
+        .vz-mini-orange { background: linear-gradient(135deg, rgba(255,247,237,0.65) 0%, rgba(255,255,255,0.35) 100%); }
+        .vz-mini-orange .vz-mini-icon { color: #d97706; }
+        .vz-mini h4 {
+            font-size: 0.8125rem; font-weight: 700; color: #0f172a;
+            margin: 0; line-height: 1.3;
+        }
+        .vz-mini p {
+            font-size: 0.625rem; color: #64748b;
+            margin: 3px 0 0;
+        }
+        .vz-mini-tags {
+            display: flex; gap: 4px; margin-top: 8px; flex-wrap: wrap;
+        }
+        .vm-tag {
+            font-size: 0.5625rem; font-weight: 600; padding: 2px 7px; border-radius: 5px;
+            background: rgba(255,255,255,0.5); color: #64748b;
+        }
+
+        /* ── 专项大招课模块 ── */
         .zk-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .zk-card {
             display: flex; align-items: center; gap: 0;
-            padding: 12px 10px 12px 0; border-radius: 12px;
-            background: rgba(255,255,255,0.75);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.04), inset 0 0 0 1px rgba(255,255,255,0.7);
-            cursor: pointer; transition: transform .12s;
+            padding: 12px 10px 12px 0; border-radius: 14px;
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 2px 10px -3px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.6);
+            cursor: pointer; transition: transform .18s cubic-bezier(0.16,1,0.3,1);
             -webkit-tap-highlight-color: transparent; overflow: hidden;
         }
         .zk-card:active { transform: scale(0.97); }
@@ -361,53 +282,63 @@
         .zk-bar-cn { background: linear-gradient(180deg, #f59e0b, #ef4444); }
         .zk-bar-en { background: linear-gradient(180deg, #3b82f6, #6366f1); }
         .zk-body { flex: 1; min-width: 0; }
-        .zk-title { font-size: 0.8125rem; font-weight: 700; color: #0f172a; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .zk-desc { font-size: 0.625rem; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .zk-title { font-size: 0.75rem; font-weight: 700; color: #0f172a; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .zk-desc { font-size: 0.5625rem; color: #64748b; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .zk-arrow { flex-shrink: 0; color: #d4d4d8; margin-left: 4px; }
 
-        /* ── 内容推荐横滑区 ── */
-        .feed-section { margin-top: 32px; }
-        .feed-header {
-            display: flex; align-items: center; padding: 0 20px; margin-bottom: 20px;
-        }
-        .feed-header h2 {
-            font-size: 1.125rem; font-weight: 700; color: #0f172a;
-            margin: 0; letter-spacing: -0.01em;
-            display: flex; align-items: center; gap: 6px;
-        }
+        /* ── 精品试卷区 ── */
         .paper-tabs {
-            display: flex; gap: 4px; padding: 0 20px; margin-bottom: 16px;
+            display: flex; gap: 4px; margin-bottom: 12px;
         }
         .paper-tab {
-            padding: 6px 16px; font-size: 0.8125rem; font-weight: 600;
-            color: #64748b; background: transparent; border: none;
-            cursor: pointer; border-radius: 12px;
+            padding: 5px 14px; font-size: 0.75rem; font-weight: 600;
+            color: #a1a1aa; background: transparent; border: none;
+            cursor: pointer; border-radius: 10px;
             -webkit-tap-highlight-color: transparent;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .paper-tab.active {
             color: #0f172a;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(255,255,255,0.7);
             backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            box-shadow: 0 4px 12px -4px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.8);
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.05);
         }
-        .paper-list { padding: 0 20px; }
+        .paper-filters {
+            display: flex; gap: 6px; margin-bottom: 12px;
+            overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap;
+        }
+        .paper-filters::-webkit-scrollbar { display: none; }
+        .paper-filter {
+            flex-shrink: 0; padding: 4px 10px; font-size: 0.625rem; font-weight: 600;
+            color: #a1a1aa; background: transparent; border: 1px solid rgba(226,232,240,0.5);
+            border-radius: 16px; cursor: pointer; transition: all .18s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .paper-filter.active {
+            color: #6366f1; background: rgba(99,102,241,0.06);
+            border-color: rgba(99,102,241,0.25);
+        }
+        .paper-recommend {
+            display: inline; font-size: 0.5625rem; font-weight: 700; padding: 1px 6px;
+            border-radius: 3px; letter-spacing: .02em; margin-right: 4px;
+            vertical-align: middle;
+        }
+        .pr-recommend { background: rgba(239,68,68,0.08); color: #ef4444; }
+        .pr-pick { background: rgba(99,102,241,0.08); color: #6366f1; }
+        .paper-list { display: flex; flex-direction: column; gap: 10px; }
         .paper-item {
-            display: flex; align-items: center; gap: 14px;
-            padding: 16px; border-radius: 16px;
-            margin-bottom: 12px;
+            position: relative; display: flex; align-items: center; gap: 14px;
+            padding: 16px; border-radius: 14px;
         }
-        .paper-item:last-child { margin-bottom: 0; }
         .paper-icon {
-            width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0;
+            width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.8);
-            box-shadow: 0 4px 12px -4px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.8);
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.04);
         }
-        .pi-chinese { background: linear-gradient(135deg, rgba(238,242,255,0.9) 0%, rgba(255,255,255,0.6) 100%); color: #4f46e5; }
-        .pi-math { background: linear-gradient(135deg, rgba(255,251,235,0.9) 0%, rgba(255,255,255,0.6) 100%); color: #d97706; }
-        .pi-eng { background: linear-gradient(135deg, rgba(236,253,245,0.9) 0%, rgba(255,255,255,0.6) 100%); color: #059669; }
-        .pi-sci { background: linear-gradient(135deg, rgba(236,254,255,0.9) 0%, rgba(255,255,255,0.6) 100%); color: #0891b2; }
+        .pi-chinese { background: linear-gradient(135deg, rgba(238,242,255,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #6366f1; }
+        .pi-math { background: linear-gradient(135deg, rgba(255,251,235,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #d97706; }
+        .pi-eng { background: linear-gradient(135deg, rgba(236,253,245,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #059669; }
+        .pi-sci { background: linear-gradient(135deg, rgba(236,254,255,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #0891b2; }
         .paper-info { flex: 1; min-width: 0; }
         .paper-title {
             font-size: 0.8125rem; font-weight: 600; color: #0f172a;
@@ -415,18 +346,19 @@
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .paper-row {
-            display: flex; align-items: center; gap: 6px; margin-top: 6px;
+            display: flex; align-items: center; gap: 8px; margin-top: 6px;
         }
         .paper-type-tag {
-            font-size: 0.5rem; font-weight: 600;
-            padding: 2px 5px; border-radius: 4px;
+            font-size: 0.5625rem; font-weight: 700;
+            padding: 2px 8px; border-radius: 4px;
         }
-        .pt-midterm { background: rgba(37,99,235,0.08); color: #2563eb; }
-        .pt-final { background: rgba(219,39,119,0.08); color: #db2777; }
-        .pt-unit { background: rgba(22,163,74,0.08); color: #16a34a; }
-        .pt-mock { background: rgba(217,119,6,0.08); color: #d97706; }
+        .pt-midterm { background: rgba(37,99,235,0.08); color: #3b82f6; }
+        .pt-final { background: rgba(219,39,119,0.08); color: #ec4899; }
+        .pt-unit { background: rgba(22,163,74,0.08); color: #22c55e; }
+        .pt-mock { background: rgba(245,158,11,0.08); color: #f59e0b; }
+        .pt-real { background: rgba(139,92,246,0.08); color: #8b5cf6; }
         .paper-dl {
-            font-size: 0.625rem; color: #a1a1aa;
+            font-size: 0.625rem; color: #64748b;
             display: flex; align-items: center; gap: 3px;
         }
         .paper-arrow { color: #d4d4d8; flex-shrink: 0; }
@@ -696,17 +628,17 @@
                         </div>
 
                         <!-- ═══ 视频课堂专区 ═══ -->
-                        <section class="vz-section" data-s="5">
-                            <div class="vz-header">
+                        <section class="sec" data-s="5">
+                            <div class="sec-hd">
                                 <h2>
-                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     视频课堂
-                                    <span class="vz-header-badge">HOT</span>
                                 </h2>
+                                <span class="sec-badge sec-badge-indigo">HOT</span>
                             </div>
 
                             <!-- Featured: 新课标重点讲 -->
-                            <div class="vz-featured card-press" onclick="openKnowledgeVideos('new-standard')" data-doc="video-new-standard" data-prd="跳转知识点讲解视频页（cat=new-standard），展示新课标重点讲的语数英三科视频目录" data-track="/click/teacherLongHomePage/enterVideo | 点击视频课堂入口 | category#STRING：category：课程体系__new-standard-新课标重点讲">
+                            <div class="vz-featured" onclick="openKnowledgeVideos('new-standard')" data-doc="video-new-standard" data-prd="跳转知识点讲解视频页（cat=new-standard），展示新课标重点讲的语数英三科视频目录" data-track="/click/teacherLongHomePage/enterVideo | 点击视频课堂入口 | category#STRING：category：课程体系__new-standard-新课标重点讲">
                                 <div class="vf-glow"></div>
                                 <div class="vf-badge">
                                     <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -723,7 +655,7 @@
 
                             <!-- 2小卡并排 -->
                             <div class="vz-pair">
-                                <div class="vz-mini vz-mini-green card-press" onclick="openKnowledgeVideos('sync-course')" data-doc="video-sync-course" data-prd="跳转知识点讲解视频页（cat=sync-course），与教材同步，默认匹配用户年级对应版本" data-track="/click/teacherLongHomePage/enterVideo | 点击视频课堂入口 | category#STRING：category：课程体系__sync-course-校内同步课">
+                                <div class="vz-mini vz-mini-green" onclick="openKnowledgeVideos('sync-course')" data-doc="video-sync-course" data-prd="跳转知识点讲解视频页（cat=sync-course），与教材同步，默认匹配用户年级对应版本" data-track="/click/teacherLongHomePage/enterVideo | 点击视频课堂入口 | category#STRING：category：课程体系__sync-course-校内同步课">
                                     <div class="vz-mini-icon">
                                         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                                     </div>
@@ -735,7 +667,7 @@
                                         <span class="vm-tag">英语</span>
                                     </div>
                                 </div>
-                                <div class="vz-mini vz-mini-orange card-press" onclick="openKnowledgeVideos('special-skills')" data-doc="video-special-skills" data-prd="跳转知识点讲解视频页（cat=special-skills），1200+专题精讲拓展提升" data-track="/click/teacherLongHomePage/enterVideo | 点击视频课堂入口 | category#STRING：category：课程体系__special-skills-拓展提升课">
+                                <div class="vz-mini vz-mini-orange" onclick="openKnowledgeVideos('special-skills')" data-doc="video-special-skills" data-prd="跳转知识点讲解视频页（cat=special-skills），1200+专题精讲拓展提升" data-track="/click/teacherLongHomePage/enterVideo | 点击视频课堂入口 | category#STRING：category：课程体系__special-skills-拓展提升课">
                                     <div class="vz-mini-icon">
                                         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                                     </div>
@@ -751,30 +683,40 @@
                         </section>
 
                         <!-- ═══ 专项大招课 ═══ -->
-                        <section class="zk-section" data-s="5.5">
-                            <div class="zk-header" data-doc="zk-header" data-prd="专项大招课模块标题，展示专项秒解课程入口" data-track="/expose/teacherLongHomePage/zkSection | 曝光专项大招课模块 | 无">
+                        <section class="sec" data-s="5.5">
+                            <div class="sec-hd" data-doc="zk-header" data-prd="专项大招课模块标题，展示专项秒解课程入口" data-track="/expose/teacherLongHomePage/zkSection | 曝光专项大招课模块 | 无">
                                 <h2>
-                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                    <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                                     专项大招课
                                 </h2>
-                                <span class="zk-header-sub">专项秒解</span>
+                                <span class="sec-sub">专项秒解</span>
                             </div>
                             <div class="zk-cards" id="zkCards"></div>
                         </section>
 
                         <!-- ═══ 精品试卷 ═══ -->
-                        <section class="feed-section" style="margin-bottom: 8px;" data-s="6">
-                            <div class="feed-header">
+                        <section class="sec" style="margin-bottom: 8px;" data-s="6">
+                            <div class="sec-hd">
                                 <h2>
-                                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                     精品试卷
                                 </h2>
+                                <span class="sec-badge sec-badge-amber">精选</span>
                             </div>
                             <div class="paper-tabs" id="paperTabs">
                                 <button class="paper-tab active" data-subj="chinese">语文</button>
                                 <button class="paper-tab" data-subj="math">数学</button>
                                 <button class="paper-tab" data-subj="english">英语</button>
                                 <button class="paper-tab" data-subj="science">科学</button>
+                            </div>
+                            <div class="paper-filters" id="paperFilters">
+                                <button class="paper-filter active" data-filter="all">全部</button>
+                                <button class="paper-filter" data-filter="热门推荐">热门推荐</button>
+                                <button class="paper-filter" data-filter="小升初真题">小升初真题</button>
+                                <button class="paper-filter" data-filter="小升初模拟">小升初模拟</button>
+                                <button class="paper-filter" data-filter="期末试题">期末试题</button>
+                                <button class="paper-filter" data-filter="期中试题">期中试题</button>
+                                <button class="paper-filter" data-filter="单元测试">单元测试</button>
                             </div>
                             <div class="paper-list" id="paperList"></div>
                         </section>
@@ -858,55 +800,73 @@
 
         const PAPER_DATA = {
             chinese: [
-                { title: '2025年新课标全国卷语文模拟题（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '2.3k' },
-                { title: '七年级语文期中综合测试卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.6k' },
-                { title: '八年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '2.1k' },
-                { title: '九年级语文第三单元检测卷', type: '单元测试', typeCls: 'pt-unit', downloads: '980' },
-                { title: '中考语文古诗文默写专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k' },
+                { id: 'cn01', title: '2025年新课标全国卷语文模拟题（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '2.3k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'cn02', title: '2024年小升初语文真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '3.1k', filter: '小升初真题', recommend: '精选' },
+                { id: 'cn03', title: '七年级语文期中综合测试卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.6k', filter: '期中试题' },
+                { id: 'cn04', title: '八年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '2.1k', filter: '期末试题', recommend: '推荐' },
+                { id: 'cn05', title: '小升初语文模拟冲刺卷（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '小升初模拟' },
+                { id: 'cn06', title: '九年级语文第三单元检测卷', type: '单元测试', typeCls: 'pt-unit', downloads: '980', filter: '单元测试' },
+                { id: 'cn07', title: '中考语文古诗文默写专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '热门推荐' },
             ],
             math: [
-                { title: '七年级数学期末综合测试卷', type: '期末', typeCls: 'pt-final', downloads: '1.8k' },
-                { title: '八年级数学期中检测卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.5k' },
-                { title: '几何证明专项模拟试题', type: '模拟题', typeCls: 'pt-mock', downloads: '1.2k' },
-                { title: '九年级数学第二单元测试', type: '单元测试', typeCls: 'pt-unit', downloads: '890' },
-                { title: '一元二次方程综合测试', type: '单元测试', typeCls: 'pt-unit', downloads: '1.1k' },
+                { id: 'ma01', title: '七年级数学期末综合测试卷', type: '期末', typeCls: 'pt-final', downloads: '1.8k', filter: '期末试题', recommend: '推荐' },
+                { id: 'ma02', title: '2024年小升初数学真题精选', type: '真题', typeCls: 'pt-real', downloads: '2.6k', filter: '小升初真题', recommend: '精选' },
+                { id: 'ma03', title: '八年级数学期中检测卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.5k', filter: '期中试题' },
+                { id: 'ma04', title: '几何证明专项模拟试题', type: '模拟题', typeCls: 'pt-mock', downloads: '1.2k', filter: '热门推荐' },
+                { id: 'ma05', title: '小升初数学模拟卷（计算综合）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '小升初模拟' },
+                { id: 'ma06', title: '九年级数学第二单元测试', type: '单元测试', typeCls: 'pt-unit', downloads: '890', filter: '单元测试' },
             ],
             english: [
-                { title: '八年级英语阅读理解专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k' },
-                { title: '七年级英语期末综合试卷', type: '期末', typeCls: 'pt-final', downloads: '1.3k' },
-                { title: '九年级英语期中模拟卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.1k' },
-                { title: '完形填空与语法填空专练', type: '模拟题', typeCls: 'pt-mock', downloads: '960' },
+                { id: 'en01', title: '八年级英语阅读理解专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'en02', title: '2024年小升初英语真题卷', type: '真题', typeCls: 'pt-real', downloads: '2.0k', filter: '小升初真题', recommend: '精选' },
+                { id: 'en03', title: '七年级英语期末综合试卷', type: '期末', typeCls: 'pt-final', downloads: '1.3k', filter: '期末试题' },
+                { id: 'en04', title: '九年级英语期中模拟卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.1k', filter: '期中试题' },
+                { id: 'en05', title: '完形填空与语法填空专练', type: '模拟题', typeCls: 'pt-mock', downloads: '960', filter: '热门推荐' },
             ],
             science: [
-                { title: '九年级科学中考真题汇编', type: '模拟题', typeCls: 'pt-mock', downloads: '960' },
-                { title: '八年级科学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '850' },
-                { title: '力学综合单元测试卷', type: '单元测试', typeCls: 'pt-unit', downloads: '780' },
-                { title: '七年级科学期中考试卷', type: '期中', typeCls: 'pt-midterm', downloads: '720' },
+                { id: 'sc01', title: '九年级科学中考真题汇编', type: '真题', typeCls: 'pt-real', downloads: '960', filter: '热门推荐', recommend: '精选' },
+                { id: 'sc02', title: '八年级科学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '850', filter: '期末试题' },
+                { id: 'sc03', title: '力学综合单元测试卷', type: '单元测试', typeCls: 'pt-unit', downloads: '780', filter: '单元测试' },
+                { id: 'sc04', title: '七年级科学期中考试卷', type: '期中', typeCls: 'pt-midterm', downloads: '720', filter: '期中试题' },
             ],
         };
 
-        function renderPapers(subj) {
+        let activePaperSubj = 'chinese';
+        let activePaperFilter = 'all';
+
+        function renderPapers() {
             const list = document.getElementById('paperList');
-            const items = PAPER_DATA[subj] || [];
+            let items = PAPER_DATA[activePaperSubj] || [];
+            if (activePaperFilter !== 'all') {
+                items = items.filter(p => p.filter === activePaperFilter);
+            }
             const iconMap = { chinese: 'pi-chinese', math: 'pi-math', english: 'pi-eng', science: 'pi-sci' };
-            const icon = iconMap[subj] || 'pi-chinese';
-            list.innerHTML = items.map(p => `
-                <div class="paper-item" onclick="openExamPapers()">
+            const icon = iconMap[activePaperSubj] || 'pi-chinese';
+            if (!items.length) {
+                list.innerHTML = '<div style="text-align:center;padding:24px 0;color:#a1a1aa;font-size:.75rem;">暂无该分类试卷</div>';
+                return;
+            }
+            list.innerHTML = items.map(p => {
+                const recHtml = p.recommend
+                    ? `<span class="paper-recommend ${p.recommend === '推荐' ? 'pr-recommend' : 'pr-pick'}">${p.recommend}</span>`
+                    : '';
+                return `
+                <div class="paper-item" onclick="window.location.href='试卷详情.html?id=${p.id}&title=${encodeURIComponent(p.title)}'">
                     <div class="paper-icon ${icon}">
-                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     </div>
                     <div class="paper-info">
-                        <div class="paper-title">${p.title}</div>
+                        <div class="paper-title">${recHtml}${p.title}</div>
                         <div class="paper-row">
-                            <span class="paper-type-tag ${p.typeCls}">${p.type}</span>
                             <span class="paper-dl">
                                 <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                 ${p.downloads}
                             </span>
                         </div>
                     </div>
-                    <div class="paper-arrow"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div>
-                </div>`).join('');
+                    <div class="paper-arrow"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div>
+                </div>`;
+            }).join('');
         }
 
         document.getElementById('paperTabs').addEventListener('click', e => {
@@ -914,16 +874,31 @@
             if (!tab) return;
             document.querySelectorAll('#paperTabs .paper-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            renderPapers(tab.dataset.subj);
+            activePaperSubj = tab.dataset.subj;
+            activePaperFilter = 'all';
+            document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.toggle('active', f.dataset.filter === 'all'));
+            renderPapers();
         });
 
-        renderPapers('chinese');
+        document.getElementById('paperFilters').addEventListener('click', e => {
+            const btn = e.target.closest('.paper-filter');
+            if (!btn) return;
+            document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.remove('active'));
+            btn.classList.add('active');
+            activePaperFilter = btn.dataset.filter;
+            renderPapers();
+        });
+
+        renderPapers();
 
         /* ═══ 专项大招课卡片 ═══ */
         const ZK_DATA = {
             primary: [
-                { title: '古诗名篇', desc: '生动讲解 情景联想', subj: '语文', lang: 'cn', count: 24 },
-                { title: '语法提升专项', desc: '语法提升 系统精讲', subj: '英语', lang: 'en', count: 18 },
+                { title: '语文-古诗名篇', desc: '生动讲解 情景联想', subj: '语文', lang: 'cn', topic: '古诗名篇', count: 24 },
+                { title: '语文-看图写话', desc: '观察方法 表达训练', subj: '语文', lang: 'cn', topic: '看图写话', count: 18 },
+                { title: '语文-阅读理解', desc: '精读泛读 答题技巧', subj: '语文', lang: 'cn', topic: '阅读理解', count: 20 },
+                { title: '英语-语法提升', desc: '语法提升 系统精讲', subj: '英语', lang: 'en', topic: '语法提升', count: 18 },
+                { title: '英语-阅读专项', desc: '阅读策略 词汇拓展', subj: '英语', lang: 'en', topic: '阅读专项', count: 16 },
             ],
             middle: [
                 { title: '语文-中文阅读', desc: '记叙文、说明文、议论文阅读答题框架', subj: '语文', lang: 'cn', topic: '中文阅读', count: 32 },
@@ -961,7 +936,12 @@
         renderZkCards();
 
         /* ═══ 模式切换 & 侧边栏浮窗 ═══ */
+        var _currentMode = 'demo';
+        var _sidebarBound = false;
+
         function setMode(mode) {
+            if (mode === _currentMode) return;
+            _currentMode = mode;
             var btns = document.querySelectorAll('#modeToggle button');
             btns.forEach(function(b, i) { b.classList.toggle('active', (mode === 'demo' ? i === 0 : i === 1)); });
             var panel = document.getElementById('sbPanel');
@@ -972,7 +952,14 @@
                 panel.classList.remove('open');
             }
         }
-        if (new URLSearchParams(window.location.search).get('mode') === 'review') setMode('review');
+
+        document.getElementById('modeToggle').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        if (new URLSearchParams(window.location.search).get('mode') === 'review') {
+            setTimeout(function() { _currentMode = 'demo'; setMode('review'); }, 100);
+        }
 
         function renderSidebar() {
             var container = document.getElementById('sidebarContent');
@@ -981,15 +968,22 @@
             if (!changelogSrc || !sectionsSrc) return;
             container.innerHTML = buildChangelog(changelogSrc.textContent) + buildSections(sectionsSrc.textContent);
             container.querySelectorAll('.sb-hd').forEach(function(hd) {
-                hd.addEventListener('click', function() { this.parentElement.classList.toggle('op'); });
+                hd.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.parentElement.classList.toggle('op');
+                });
             });
             container.querySelectorAll('.sb-changelog-toggle').forEach(function(t) {
-                t.addEventListener('click', function() {
+                t.addEventListener('click', function(e) {
+                    e.stopPropagation();
                     this.classList.toggle('open');
                     this.nextElementSibling.classList.toggle('open');
                 });
             });
-            bindSidebarLinkage();
+            if (!_sidebarBound) {
+                bindSidebarLinkage();
+                _sidebarBound = true;
+            }
         }
 
         function buildChangelog(md) {
@@ -1030,6 +1024,7 @@
         function bindSidebarLinkage() {
             document.querySelectorAll('[data-s]').forEach(function(el) {
                 el.addEventListener('click', function(e) {
+                    if (_currentMode !== 'review') return;
                     if (e.target.closest('.sb-panel') || e.target.closest('.mode-toggle')) return;
                     var sId = this.getAttribute('data-s');
                     var target = document.querySelector('[data-sb="' + sId + '"]');
@@ -1041,16 +1036,9 @@
                     }
                 });
             });
-            document.querySelectorAll('[data-sb]').forEach(function(el) {
-                el.querySelector('.sb-hd').addEventListener('dblclick', function() {
-                    var sId = el.getAttribute('data-sb');
-                    var target = document.querySelector('[data-s="' + sId + '"]');
-                    if (target) {
-                        target.classList.add('sb-glow');
-                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        setTimeout(function() { target.classList.remove('sb-glow'); }, 2500);
-                    }
-                });
+
+            document.getElementById('sbPanel').addEventListener('click', function(e) {
+                e.stopPropagation();
             });
         }
 

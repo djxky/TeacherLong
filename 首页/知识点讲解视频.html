@@ -98,27 +98,93 @@
 
         /* ── 空状态 ── */
         .v-empty{padding:60px 20px;text-align:center;color:#a1a1aa;font-size:.8125rem;line-height:1.6}
+
+        /* ── 模式切换按钮（页面右上角，手机框外） ── */
+        .mode-toggle{position:fixed;top:16px;right:24px;z-index:9999;display:flex;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px;border:1px solid rgba(226,232,240,.8);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+        .mode-btn{padding:5px 14px;font-size:.75rem;font-weight:600;border:none;cursor:pointer;background:transparent;color:#71717a;transition:all .15s}
+        .mode-btn.active{background:#4f46e5;color:#fff}
+
+        /* ── 产品稿浮窗（页面级，手机框外） ── */
+        .sb-float{position:fixed;top:56px;right:24px;width:360px;height:680px;z-index:9998;display:flex;flex-direction:column;background:rgba(255,255,255,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:14px;border:1px solid rgba(226,232,240,.85);box-shadow:0 12px 48px rgba(0,0,0,.12);opacity:0;pointer-events:none;transition:opacity .25s;overflow:hidden;resize:both;min-width:280px;min-height:300px}
+        .sb-float.show{opacity:1;pointer-events:auto}
+        .sb-drag{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:grab;border-bottom:1px solid rgba(226,232,240,.7);flex-shrink:0;user-select:none;-webkit-user-select:none}
+        .sb-drag:active{cursor:grabbing}
+        .sb-drag-dot{width:6px;height:6px;border-radius:50%;background:#818cf8}
+        .sb-drag-title{flex:1;font-size:.8125rem;font-weight:700;color:#18181b}
+        .sb-drag-ver{font-size:.625rem;color:#a1a1aa;font-weight:600}
+        .sb-body{flex:1;overflow-y:auto;padding:0 0 12px;-webkit-overflow-scrolling:touch}
+        .sb-body::-webkit-scrollbar{width:3px}
+        .sb-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
+
+        /* changelog */
+        .sb-cl{margin:12px 14px;padding:10px 12px;background:#f8fafc;border-radius:10px;border:1px solid rgba(226,232,240,.7)}
+        .sb-cl-hd{font-size:.6875rem;font-weight:700;color:#64748b;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:4px}
+        .sb-cl-hd::before{content:'▸';font-size:8px;transition:transform .2s}
+        .sb-cl.op .sb-cl-hd::before{transform:rotate(90deg)}
+        .sb-cl-bd{display:none;font-size:.6875rem;color:#64748b;line-height:1.6}
+        .sb-cl.op .sb-cl-bd{display:block}
+        .sb-cl-bd h3{font-size:.6875rem;font-weight:700;color:#334155;margin:6px 0 2px}
+        .sb-cl-bd ul{padding-left:16px;margin:0}
+        .sb-cl-bd li{margin-bottom:2px}
+
+        /* sections */
+        .sb-sec{margin:6px 14px;border-radius:10px;border:1px solid rgba(226,232,240,.7);overflow:hidden;transition:border-color .2s}
+        .sb-sec.glow{border-color:#818cf8;box-shadow:0 0 0 2px rgba(129,140,248,.2)}
+        .sb-hd{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;transition:background .12s}
+        .sb-hd:active{background:rgba(99,102,241,.04)}
+        .sb-hd-num{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#eef2ff,#e0e7ff);color:#4f46e5;font-size:.625rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .sb-hd-title{flex:1;font-size:.75rem;font-weight:700;color:#18181b;line-height:1.3}
+        .sb-hd-arrow{color:#d4d4d8;font-size:8px;transition:transform .2s}
+        .sb-sec.op .sb-hd-arrow{transform:rotate(90deg)}
+        .sb-hd-badge{font-size:.5625rem;font-weight:700;padding:1px 6px;border-radius:4px;flex-shrink:0}
+        .sb-hd-badge.new{background:#dcfce7;color:#16a34a}
+        .sb-hd-badge.updated{background:#fef3c7;color:#d97706}
+        .sb-bd{display:none;padding:0 12px 10px;font-size:.6875rem;color:#52525b;line-height:1.7}
+        .sb-sec.op .sb-bd{display:block}
+        .sb-bd h4{font-size:.6875rem;font-weight:700;color:#3b82f6;margin:8px 0 4px}
+        .sb-bd blockquote{border-left:3px solid #3b82f6;padding:6px 10px;margin:6px 0;background:#eff6ff;border-radius:0 6px 6px 0;font-size:.6875rem;color:#1e40af}
+        .sb-bd ul,.sb-bd ol{padding-left:16px;margin:4px 0}
+        .sb-bd li{margin-bottom:2px}
+        .sb-diff-add{background:#dcfce7;color:#16a34a;padding:1px 4px;border-radius:3px;font-size:.625rem;font-weight:600}
+        .sb-diff-mod{background:#fef3c7;color:#d97706;padding:1px 4px;border-radius:3px;font-size:.625rem;font-weight:600}
+        .sb-diff-note{background:#fefce8;border-left:3px solid #eab308;padding:6px 10px;margin:6px 0;border-radius:0 6px 6px 0;font-size:.6875rem;color:#854d0e}
     </style>
 </head>
 <body>
+    <!-- 模式切换（手机框外，页面右上角） -->
+    <div class="mode-toggle" id="modeToggle">
+        <button class="mode-btn active" data-mode="demo">演示</button>
+        <button class="mode-btn" data-mode="review">过稿</button>
+    </div>
+
+    <!-- 产品稿浮窗（手机框外） -->
+    <div class="sb-float" id="sbFloat">
+        <div class="sb-drag" id="sbDrag">
+            <div class="sb-drag-dot"></div>
+            <span class="sb-drag-title">产品稿 · 知识点讲解视频</span>
+            <span class="sb-drag-ver">v1.0</span>
+        </div>
+        <div class="sb-body" id="sidebarContent"></div>
+    </div>
+
     <div class="iphone-frame" id="app" data-active-cat="new-standard">
         <div class="dynamic-island"></div>
 
         <div class="flex-1 min-h-0 flex flex-col pt-[50px]">
             <!-- 顶栏 -->
             <header class="v-topbar">
-                <button type="button" class="v-back" onclick="goBack()" aria-label="返回">
+                <button type="button" class="v-back" onclick="goBack()" aria-label="返回" data-doc="back-btn" data-prd="返回首页，跳转至首页.html" data-track="/click/videoListPage/back | 点击返回 | 无">
                     <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                 </button>
-                <span class="v-topbar-title">知识点讲解视频</span>
+                <span class="v-topbar-title" data-doc="page-title" data-prd="页面标题，根据 URL 参数 cat 动态设置（新课标重点讲/校内同步课/拓展提升课）；无参数时默认显示'知识点讲解视频'">知识点讲解视频</span>
                 <div class="v-topbar-spacer" aria-hidden="true"></div>
             </header>
 
             <!-- 学科 Tab -->
-            <div class="v-subj-bar" id="subj-bar"></div>
+            <div class="v-subj-bar" id="subj-bar" data-doc="subj-bar" data-s="1" data-prd="科目横向Tab栏，根据当前分类动态渲染可选科目；专项大招课(special-skills)时隐藏Tab栏；切换科目联动刷新介绍卡片、教材选择器和视频列表" data-track="/click/videoListPage/switchSubject | 切换科目 | subject#String"></div>
 
             <!-- 科目介绍卡片 -->
-            <div class="v-intro" id="intro-card" data-cat="new-standard">
+            <div class="v-intro" id="intro-card" data-cat="new-standard" data-doc="intro-card" data-s="2" data-prd="科目介绍卡片，渐变色背景（indigo/green/orange对应三种分类）；切换科目时标题和描述文案跟随变化；文案来自 CATEGORIES[].intro[科目] 数据">
                 <div class="v-intro-content">
                     <h3 id="intro-title"></h3>
                     <p id="intro-desc"></p>
@@ -128,19 +194,19 @@
             </div>
 
             <!-- 教材选择器（仅校内同步课展示） -->
-            <div class="v-textbook-bar hidden" id="textbook-bar">
-                <div class="v-tb-chip" id="tb-grade" onclick="openTextbookModal('grade')">
+            <div class="v-textbook-bar hidden" id="textbook-bar" data-doc="textbook-bar" data-s="3" data-prd="教材选择器，仅校内同步课(sync-course)显示；包含年级和教材版本两个筛选chip，点击弹出底部弹窗选择；年级默认取 sessionStorage 中的 gradeClass 值">
+                <div class="v-tb-chip" id="tb-grade" onclick="openTextbookModal('grade')" data-doc="tb-grade" data-prd="点击弹出年级选择弹窗，选项为一~六年级" data-track="/click/videoListPage/openGradeModal | 打开年级选择 | 无">
                     <span class="v-tb-val" id="tb-grade-val">三年级</span>
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </div>
-                <div class="v-tb-chip" id="tb-edition" onclick="openTextbookModal('edition')">
+                <div class="v-tb-chip" id="tb-edition" onclick="openTextbookModal('edition')" data-doc="tb-edition" data-prd="点击弹出教材版本选择弹窗，选项因科目而异（如数学有人教版/北师大版/苏教版）" data-track="/click/videoListPage/openEditionModal | 打开教材版本选择 | 无">
                     <span class="v-tb-val" id="tb-edition-val">人教版</span>
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </div>
             </div>
 
             <!-- 内容列表 -->
-            <div class="v-content" id="content-area"></div>
+            <div class="v-content" id="content-area" data-doc="content-area" data-s="4" data-prd="视频章节列表区域，手风琴交互：点击章节头展开/折叠视频列表；视频条目点击跳转到横屏播放页(视频播放.html)，携带 title/dur/cat/nextTitle/nextDur 参数；初中学生(七八九年级)展示 middleData 数据源"></div>
         </div>
 
         <!-- 教材选择弹窗 -->
@@ -412,6 +478,7 @@
         const subj = activeSubject[activeCat];
         const intro = (cat.intro && cat.intro[subj]) || { title: cat.title, desc: cat.desc };
         const card = $('intro-card');
+        card.style.display = '';
         card.dataset.cat = activeCat;
         $('app').dataset.activeCat = activeCat;
         $('intro-title').textContent = intro.title;
@@ -421,6 +488,11 @@
     function renderSubjBar() {
         const cat = CATEGORIES.find(c => c.id === activeCat);
         const subj = activeSubject[activeCat];
+        if (activeCat === 'special-skills') {
+            $('subj-bar').style.display = 'none';
+            return;
+        }
+        $('subj-bar').style.display = '';
         $('subj-bar').innerHTML = cat.subjects.map(s =>
             `<button class="v-subj-tab${s === subj ? ' active' : ''}" data-subj="${s}">${s}</button>`
         ).join('');
@@ -527,11 +599,24 @@
             const ci = parseInt(ep.dataset.chi);
             const vi = parseInt(ep.dataset.vi);
             const cat = CATEGORIES.find(c => c.id === activeCat);
-            const chapters = (cat.data && cat.data[activeSubject[activeCat]]) || [];
+            const isMiddle = /[七八九]年级|初[一二三]/.test(STUDENT_GRADE);
+            const dataSource = (isMiddle && cat.middleData) ? cat.middleData : cat.data;
+            const chapters = (dataSource && dataSource[activeSubject[activeCat]]) || [];
             const ch = chapters[ci];
             const v = ch && ch.videos[vi];
             if (v) {
                 const qs = new URLSearchParams({ title: v.title, dur: v.dur, cat: activeCat });
+                let nextV = null;
+                if (vi + 1 < ch.videos.length) {
+                    nextV = ch.videos[vi + 1];
+                } else if (ci + 1 < chapters.length && chapters[ci + 1].videos.length) {
+                    nextV = chapters[ci + 1].videos[0];
+                }
+                if (nextV) {
+                    qs.set('nextTitle', nextV.title);
+                    qs.set('nextDur', nextV.dur);
+                    qs.set('nextCat', activeCat);
+                }
                 window.location.href = '视频播放.html?' + qs.toString();
             }
             return;
@@ -592,6 +677,9 @@
     const urlCat = urlParams.get('cat');
     if (urlCat && CATEGORIES.find(c => c.id === urlCat)) {
         activeCat = urlCat;
+        const catObj = CATEGORIES.find(c => c.id === urlCat);
+        document.querySelector('.v-topbar-title').textContent = catObj.label;
+        document.title = catObj.label + ' - AI 龙老师';
     }
     const urlSubj = urlParams.get('subj');
     if (urlSubj) {
@@ -617,6 +705,269 @@
             if (chapterEl) chapterEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }
+    </script>
+
+    <!-- ══════════ 产品稿 Markdown 内容 ══════════ -->
+    <script type="text/markdown" id="prd-changelog">
+### v1.0 · 2026-04-08
+- [新增] 知识点讲解视频列表页（含三种分类：新课标重点讲/校内同步课/拓展提升课）
+- [新增] 科目 Tab 切换 + 科目介绍卡片
+- [新增] 章节手风琴展开 + 视频条目点击跳转横屏播放页
+- [新增] 校内同步课教材版本/年级选择器
+- [新增] 初中学段数据源自动切换(middleData)
+- [新增] URL 参数支持（cat/subj/topic 定位）
+    </script>
+
+    <script type="text/markdown" id="prd-sections">
+## 1. 页面入口与路由
+
+#### 入口来源
+- 首页视频模块卡片点击，携带 `?cat=new-standard` / `?cat=sync-course` / `?cat=special-skills`
+- 首页也可携带 `?subj=数学` 直接定位到某科目
+- 可携带 `?topic=探究性试题：阅读策略类` 自动展开对应章节并滚动定位
+
+#### URL 参数说明
+> **cat**：分类 ID（new-standard / sync-course / special-skills），决定页面标题和数据源
+> **subj**：科目名称（语文/数学/英语等），定位默认选中科目
+> **topic**：章节标题，匹配后自动展开并滚动到视图中心
+
+#### 页面标题
+- 有 cat 参数时：顶栏标题和 document.title 设为对应分类名称（如"新课标重点讲"）
+- 无 cat 参数时：默认显示"知识点讲解视频"
+
+## 2. 科目 Tab 栏
+
+#### 交互逻辑
+- 横向滚动胶囊按钮，数据来自 `CATEGORIES[].subjects`
+- 新课标重点讲：语文 / 数学 / 英语
+- 校内同步课：语文 / 数学 / 英语 / 科学 / 道法
+- 拓展提升课（special-skills）：**隐藏 Tab 栏**，直接展示视频列表
+
+#### 切换联动
+- 切换科目时同步刷新：科目介绍卡片 + 教材选择器 + 视频列表
+- 切换不重置章节展开状态（expandedChapter 按 `分类|科目` 独立存储）
+
+[!] 拓展提升课只有语文和英语两个科目，由首页入口参数 subj 决定展示哪个，用户在此页面无法切换科目
+
+## 3. 科目介绍卡片
+
+#### 视觉规范
+- 渐变色背景卡片，圆角 16px，三种主题色对应三种分类：
+  - 新课标重点讲：indigo 渐变（#3730a3 → #818cf8）
+  - 校内同步课：green 渐变（#065f46 → #34d399）
+  - 拓展提升课：orange 渐变（#9a3412 → #fb923c）
+- 装饰元素：右下角半透明圆圈
+- 文案来自 `CATEGORIES[].intro[科目]`，含标题(h3)和描述(p)
+
+#### 内容切换
+- 切换科目时标题和描述文案平滑过渡
+- 描述文字最多 3 行，超出用 `-webkit-line-clamp` 截断
+
+## 4. 教材选择器（校内同步课专属）
+
+#### 显示条件
+- 仅当 `activeCat === 'sync-course'` 时显示，其他分类隐藏
+
+#### 年级选择
+- 默认值取 `sessionStorage.getItem('gradeClass')`，提取中文部分
+- 底部弹窗展示一~六年级，选中后更新 chip 文案并刷新视频列表
+- 弹窗可点击遮罩关闭
+
+#### 教材版本选择
+- 选项因科目而异：
+  - 语文：人教版 / 部编版
+  - 数学：人教版 / 北师大版 / 苏教版
+  - 英语：人教版(PEP) / 外研版 / 译林版
+  - 科学：教科版 / 苏教版
+  - 道法：人教版
+- 各科目版本选择独立记忆
+
+[!] 当前为 demo 原型，切换年级/版本不会实际更换视频数据源，正式版需根据年级+版本组合请求后端
+
+## 5. 视频章节列表
+
+#### 手风琴交互
+- 点击章节头（v-ch-header）展开/折叠视频条目列表
+- 同一时刻同一科目只允许一个章节展开
+- 展开时章节头下方出现分割线，箭头旋转 90°
+- 展开状态按 `分类|科目` 键独立存储
+
+#### 视频条目
+- 每条显示：序号 + 标题 + 时长 + 播放小图标
+- 点击跳转到 `视频播放.html`，携带参数：
+  - `title`：当前视频标题
+  - `dur`：视频时长
+  - `cat`：当前分类 ID
+  - `nextTitle`：下一个视频标题（同章节下一条 → 下一章节首条）
+  - `nextDur`：下一个视频时长
+  - `nextCat`：下一个视频分类
+
+#### 初中学段适配
+- 当 `STUDENT_GRADE` 匹配 `七八九年级` 或 `初一二三` 时，拓展提升课使用 `middleData` 数据源
+- 其他分类不受影响
+
+> **数据口径**：初中判断使用正则 `/[七八九]年级|初[一二三]/` 匹配 `sessionStorage.gradeClass`
+
+## 6. 视频播放页联动
+
+#### 跳转方式
+- 使用 `window.location.href` 整页跳转（非弹窗/iframe）
+
+#### 返回逻辑
+- 播放页返回按钮使用 `history.back()`，回到列表页保持之前的分类和科目状态（通过浏览器历史栈）
+
+#### 下一课逻辑
+- 优先取同章节下一个视频
+- 若为章节最后一条，取下一章节的第一个视频
+- 若为所有章节的最后一个视频，不传 nextTitle（播放完成页不展示下一课卡片）
+    </script>
+
+    <!-- ══════════ 浮窗渲染 & 交互 JS ══════════ -->
+    <script>
+    (function(){
+        var mode = new URLSearchParams(window.location.search).get('mode') === 'review' ? 'review' : 'demo';
+        var sbFloat = document.getElementById('sbFloat');
+        var modeToggle = document.getElementById('modeToggle');
+
+        function setMode(m) {
+            mode = m;
+            modeToggle.querySelectorAll('.mode-btn').forEach(function(b) {
+                b.classList.toggle('active', b.dataset.mode === m);
+            });
+            if (m === 'review') {
+                sbFloat.classList.add('show');
+                renderSidebar();
+            } else {
+                sbFloat.classList.remove('show');
+            }
+        }
+
+        modeToggle.addEventListener('click', function(e) {
+            var btn = e.target.closest('.mode-btn');
+            if (btn) setMode(btn.dataset.mode);
+        });
+
+        function parseMd(text) {
+            return text
+                .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
+                .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+                .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+                .replace(/^\[!\] (.+)$/gm, '<div class="sb-diff-note">$1</div>')
+                .replace(/^\[\+\] (.+)$/gm, '<span class="sb-diff-add">[新增]</span> $1<br>')
+                .replace(/^\[~\] (.+)$/gm, '<span class="sb-diff-mod">[修改]</span> $1<br>')
+                .replace(/^\- (.+)$/gm, '<li>$1</li>')
+                .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+                .replace(/<\/ul>\s*<ul>/g, '')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/`(.+?)`/g, '<code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;font-size:.625rem">$1</code>')
+                .replace(/\n{2,}/g, '<br>');
+        }
+
+        function buildChangelog(src) {
+            if (!src) return '';
+            return '<div class="sb-cl" id="sb-changelog"><div class="sb-cl-hd" onclick="this.parentElement.classList.toggle(\'op\')">更新日志</div><div class="sb-cl-bd">' + parseMd(src) + '</div></div>';
+        }
+
+        function buildSections(src) {
+            if (!src) return '';
+            var parts = src.split(/^## (\d+)\. /m);
+            var html = '';
+            for (var i = 1; i < parts.length; i += 2) {
+                var num = parts[i];
+                var rest = parts[i + 1] || '';
+                var firstLine = rest.split('\n')[0];
+                var badge = '';
+                var title = firstLine;
+                if (/\[NEW\]/i.test(firstLine)) {
+                    badge = '<span class="sb-hd-badge new">NEW</span>';
+                    title = firstLine.replace(/\s*\[NEW\]/i, '');
+                } else if (/\[UPDATED\]/i.test(firstLine)) {
+                    badge = '<span class="sb-hd-badge updated">UPDATED</span>';
+                    title = firstLine.replace(/\s*\[UPDATED\]/i, '');
+                }
+                var body = rest.substring(rest.indexOf('\n') + 1);
+                html += '<div class="sb-sec" data-sb="' + num + '">' +
+                    '<div class="sb-hd" onclick="this.parentElement.classList.toggle(\'op\')">' +
+                    '<div class="sb-hd-num">' + num + '</div>' +
+                    '<div class="sb-hd-title">' + title.trim() + '</div>' +
+                    badge +
+                    '<span class="sb-hd-arrow">▸</span></div>' +
+                    '<div class="sb-bd">' + parseMd(body) + '</div></div>';
+            }
+            return html;
+        }
+
+        function renderSidebar() {
+            var container = document.getElementById('sidebarContent');
+            var clSrc = document.getElementById('prd-changelog');
+            var secSrc = document.getElementById('prd-sections');
+            container.innerHTML = buildChangelog(clSrc ? clSrc.textContent : '') + buildSections(secSrc ? secSrc.textContent : '');
+        }
+
+        /* 左→右联动 */
+        document.addEventListener('click', function(e) {
+            if (mode !== 'review') return;
+            var el = e.target.closest('[data-s]');
+            if (!el) return;
+            var id = el.dataset.s;
+            var sec = document.querySelector('.sb-sec[data-sb="' + id + '"]');
+            if (sec) {
+                sec.classList.add('op');
+                sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                sec.classList.add('glow');
+                setTimeout(function() { sec.classList.remove('glow'); }, 3000);
+            }
+        });
+
+        /* 右→左联动 */
+        document.addEventListener('click', function(e) {
+            if (mode !== 'review') return;
+            var sec = e.target.closest('.sb-sec[data-sb]');
+            if (!sec || e.target.closest('.sb-hd')) return;
+            var id = sec.dataset.sb;
+            var el = document.querySelector('[data-s="' + id + '"]');
+            if (el) {
+                el.style.outline = '2px solid #818cf8';
+                el.style.outlineOffset = '2px';
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(function() { el.style.outline = ''; el.style.outlineOffset = ''; }, 3000);
+            }
+        });
+
+        /* 拖拽浮窗 */
+        var drag = document.getElementById('sbDrag');
+        var isDrag = false, ox = 0, oy = 0;
+        drag.addEventListener('mousedown', function(e) {
+            isDrag = true;
+            ox = e.clientX - sbFloat.offsetLeft;
+            oy = e.clientY - sbFloat.offsetTop;
+            e.preventDefault();
+        });
+        document.addEventListener('mousemove', function(e) {
+            if (!isDrag) return;
+            sbFloat.style.left = (e.clientX - ox) + 'px';
+            sbFloat.style.top = (e.clientY - oy) + 'px';
+            sbFloat.style.right = 'auto';
+        });
+        document.addEventListener('mouseup', function() { isDrag = false; });
+
+        drag.addEventListener('touchstart', function(e) {
+            isDrag = true;
+            var t = e.touches[0];
+            ox = t.clientX - sbFloat.offsetLeft;
+            oy = t.clientY - sbFloat.offsetTop;
+        }, { passive: true });
+        document.addEventListener('touchmove', function(e) {
+            if (!isDrag) return;
+            var t = e.touches[0];
+            sbFloat.style.left = (t.clientX - ox) + 'px';
+            sbFloat.style.top = (t.clientY - oy) + 'px';
+            sbFloat.style.right = 'auto';
+        }, { passive: true });
+        document.addEventListener('touchend', function() { isDrag = false; });
+
+        setMode(mode);
+    })();
     </script>
 </body>
 </html>

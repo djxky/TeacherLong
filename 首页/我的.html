@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>AI 龙老师 - 我的</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
@@ -68,14 +69,12 @@
         .me-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         .me-scroll::-webkit-scrollbar { display: none; }
 
-        /* 姓名头部 */
         .me-header { padding: 20px 20px 20px; }
         .me-username {
             font-size: 1.75rem; font-weight: 700; color: #0f172a;
             margin: 0; letter-spacing: -0.02em; line-height: 1.2;
         }
 
-        /* 学生信息卡片 */
         .me-section { margin: 0 20px 16px; }
         .me-section-title {
             font-size: 0.6875rem; font-weight: 600; color: #94a3b8;
@@ -94,7 +93,6 @@
         }
         .me-info-row .info-right { color: #0f172a; font-weight: 500; }
 
-        /* 功能入口卡片 */
         .me-action-row {
             display: flex; align-items: center; justify-content: space-between;
             padding: 16px 20px; font-size: 0.9375rem;
@@ -114,12 +112,6 @@
         .act-icon-switch { background: rgba(99,102,241,0.08); color: #6366f1; }
         .act-icon-settings { background: rgba(100,116,139,0.08); color: #64748b; }
         .me-action-row .act-arrow { color: #cbd5e1; }
-
-        .me-protocols {
-            margin-top: auto; padding: 24px 20px 16px; text-align: center;
-            font-size: 0.6875rem; color: #a1a1aa; line-height: 1.6;
-        }
-        .me-protocols a { color: #a1a1aa; text-decoration: none; }
 
         /* ── 设置页 ── */
         .settings-panel {
@@ -170,7 +162,6 @@
             transition: background 0.2s;
         }
         .settings-row:active { background: rgba(15,23,42,0.03); }
-        .settings-row + .settings-row { border-top: 1px solid rgba(0,0,0,0.04); }
         .settings-row .sr-left {
             display: flex; align-items: center; gap: 12px; font-weight: 500;
         }
@@ -223,6 +214,116 @@
             display: flex; align-items: center; gap: 8px; border: none;
         }
         #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ── 模式切换按钮（手机框外，页面右上角） ── */
+        .mode-toggle {
+            position: fixed; top: 24px; right: 32px;
+            z-index: 900;
+            display: flex; align-items: center; gap: 0;
+            background: #ffffff; border-radius: 12px;
+            box-shadow: 0 4px 24px -4px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+            overflow: hidden; font-size: 0.8125rem; font-weight: 600;
+        }
+        .mode-toggle button {
+            padding: 10px 24px; border: none; background: transparent;
+            color: #94a3b8; cursor: pointer; font-family: inherit;
+            font-size: 0.8125rem; font-weight: 600; transition: all 0.2s;
+        }
+        .mode-toggle button.active {
+            background: #4f46e5; color: #ffffff;
+        }
+
+        /* ── 侧边栏浮窗（手机框右侧） ── */
+        .sb-panel {
+            position: fixed; top: 50%; right: 32px; width: 380px;
+            max-height: 80vh; transform: translateY(-50%) translateX(20px);
+            background: #ffffff; border-radius: 20px;
+            box-shadow: 0 24px 64px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06);
+            z-index: 800; display: flex; flex-direction: column;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+            overflow: hidden;
+        }
+        .sb-panel.open { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
+
+        .sb-drag-bar {
+            padding: 12px 16px 8px; cursor: move; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        .sb-drag-title {
+            font-size: 0.8125rem; font-weight: 700; color: #0f172a;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .sb-drag-title .sb-ver {
+            font-size: 0.5625rem; font-weight: 600; color: #4f46e5;
+            background: rgba(99,102,241,0.08); padding: 2px 8px; border-radius: 6px;
+        }
+        .sb-close {
+            width: 24px; height: 24px; border-radius: 8px; border: none;
+            background: rgba(0,0,0,0.04); color: #94a3b8; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; transition: background 0.2s;
+        }
+        .sb-close:hover { background: rgba(0,0,0,0.08); }
+
+        .sb-content {
+            flex: 1; overflow-y: auto; padding: 12px 16px 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .sb-content::-webkit-scrollbar { width: 3px; }
+        .sb-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+
+        .sb-changelog { margin-bottom: 16px; }
+        .sb-changelog-toggle {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.75rem; font-weight: 600; color: #64748b;
+            cursor: pointer; padding: 8px 0; user-select: none;
+        }
+        .sb-changelog-toggle svg { transition: transform 0.2s; }
+        .sb-changelog-toggle.open svg { transform: rotate(90deg); }
+        .sb-changelog-body {
+            display: none; padding: 0 0 0 8px;
+            border-left: 2px solid rgba(99,102,241,0.15);
+            margin-left: 4px;
+        }
+        .sb-changelog-body.open { display: block; }
+        .sb-changelog-body h3 { font-size: 0.6875rem; font-weight: 700; color: #334155; margin: 12px 0 4px; padding: 0; }
+        .sb-changelog-body ul { margin: 0; padding: 0 0 0 16px; font-size: 0.6875rem; color: #475569; line-height: 1.8; }
+
+        .sb-section { margin-bottom: 2px; }
+        .sb-hd {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 8px; border-radius: 10px; cursor: pointer;
+            font-size: 0.8125rem; font-weight: 600; color: #0f172a;
+            transition: background 0.15s; user-select: none;
+        }
+        .sb-hd:hover { background: rgba(0,0,0,0.02); }
+        .sb-hd .sb-arrow { width: 16px; height: 16px; color: #94a3b8; flex-shrink: 0; transition: transform 0.2s; }
+        .sb-section.op .sb-hd .sb-arrow { transform: rotate(90deg); }
+        .sb-hd .sb-badge-new { font-size: 0.5rem; font-weight: 700; color: #059669; background: rgba(5,150,105,0.08); padding: 1px 6px; border-radius: 4px; }
+        .sb-hd .sb-badge-updated { font-size: 0.5rem; font-weight: 700; color: #d97706; background: rgba(217,119,6,0.08); padding: 1px 6px; border-radius: 4px; }
+        .sb-bd {
+            display: none; padding: 4px 8px 12px 32px;
+            font-size: 0.75rem; color: #475569; line-height: 1.75;
+        }
+        .sb-section.op .sb-bd { display: block; }
+        .sb-bd h4 { font-size: 0.75rem; font-weight: 700; color: #2563eb; margin: 12px 0 4px; padding: 0; }
+        .sb-bd blockquote { margin: 8px 0; padding: 8px 12px; border-radius: 8px; background: rgba(37,99,235,0.04); border-left: 3px solid rgba(37,99,235,0.3); font-size: 0.6875rem; color: #334155; }
+        .sb-bd ul, .sb-bd ol { margin: 4px 0; padding-left: 16px; }
+        .sb-bd li { margin: 2px 0; }
+        .sb-bd table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.6875rem; }
+        .sb-bd th, .sb-bd td { padding: 4px 8px; border: 1px solid rgba(0,0,0,0.06); text-align: left; }
+        .sb-bd th { background: rgba(0,0,0,0.02); font-weight: 600; color: #334155; }
+        .sb-bd .diff-add { background: rgba(5,150,105,0.06); color: #065f46; padding: 2px 6px; border-radius: 4px; }
+        .sb-bd .diff-mod { background: rgba(217,119,6,0.06); color: #92400e; padding: 2px 6px; border-radius: 4px; }
+        .sb-bd .diff-note { background: rgba(234,179,8,0.06); color: #854d0e; padding: 4px 8px; border-radius: 6px; display: block; margin: 6px 0; }
+
+        [data-s].sb-glow { animation: sbGlow 2s ease-out; }
+        @keyframes sbGlow {
+            0% { box-shadow: 0 0 0 3px rgba(99,102,241,0.4); }
+            100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+        }
     </style>
 </head>
 <body>
@@ -237,22 +338,21 @@
         <div id="toast"><svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg><span id="toast-msg">操作成功</span></div>
 
         <div class="flex-1 min-h-0 flex flex-col pt-[50px]">
-            <nav class="top-nav">
+            <nav class="top-nav" data-s="1">
                 <div class="top-nav-tabs">
-                    <a class="top-nav-tab" href="首页.html">首页</a>
-                    <button class="top-nav-tab active">我的</button>
+                    <a class="top-nav-tab" href="首页.html" data-doc="nav-home" data-prd="跳转首页（独立页面 首页.html）" data-track="/click/teacherLongMyPage/home | 点击首页 | 无">首页</a>
+                    <button class="top-nav-tab active" data-doc="nav-me" data-prd="当前页面高亮态，不可点击">我的</button>
                 </div>
             </nav>
 
             <div class="me-scroll">
-                <div class="me-header">
-                    <h1 id="me-username" class="me-username">薛云腾</h1>
+                <div class="me-header" data-s="2">
+                    <h1 id="me-username" class="me-username" data-doc="me-username" data-prd="显示当前登录学生的姓名，从 localStorage 的 students 数组中读取 currentStudentIndex 对应的学生">薛云腾</h1>
                 </div>
 
-                <!-- 学生信息 -->
-                <div class="me-section">
+                <div class="me-section" data-s="3">
                     <div class="me-section-title">学生信息</div>
-                    <div class="glass-card">
+                    <div class="glass-card" data-doc="student-info-card" data-prd="展示当前学生的学校、学号、班级，纯展示不可交互，数据来源同姓名">
                         <div class="me-info-row">
                             <span class="info-left">
                                 <svg class="info-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21"/></svg>
@@ -277,10 +377,9 @@
                     </div>
                 </div>
 
-                <!-- 功能入口 -->
-                <div class="me-section">
+                <div class="me-section" data-s="4">
                     <div class="glass-card">
-                        <div class="me-action-row" onclick="goSwitchStudent()">
+                        <div class="me-action-row" onclick="goSwitchStudent()" data-doc="act-switch-student" data-prd="跳转切换学生页（独立页面 切换学生.html），展示已验证的学生列表，可选中后切换" data-track="/click/teacherLongMyPage/switchStudent | 点击切换学生 | 无">
                             <span class="act-left">
                                 <span class="act-icon act-icon-switch">
                                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
@@ -291,7 +390,7 @@
                                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                             </span>
                         </div>
-                        <div class="me-action-row" onclick="openSettings()">
+                        <div class="me-action-row" onclick="openSettings()" data-doc="act-settings" data-prd="打开设置页覆盖层，展示应用品牌信息和退出登录入口" data-track="/click/teacherLongMyPage/settings | 点击设置 | 无">
                             <span class="act-left">
                                 <span class="act-icon act-icon-settings">
                                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -305,14 +404,13 @@
                     </div>
                 </div>
 
-                <div class="me-protocols">
-                    <a href="#">《AI龙老师用户协议》</a> <a href="#">《隐私政策》</a> <a href="#">《儿童隐私保护政策》</a>
-                </div>
+
+
             </div>
         </div>
 
         <!-- ── 设置页 ── -->
-        <div id="settings-panel" class="settings-panel">
+        <div id="settings-panel" class="settings-panel" data-s="5">
             <div class="mesh-bg"></div>
             <div class="mesh-bg-2"></div>
             <div class="mesh-bg-3"></div>
@@ -321,14 +419,14 @@
 
             <div class="pt-[50px] flex-1 min-h-0 flex flex-col" style="position:relative;z-index:1;">
                 <div class="settings-top-bar">
-                    <button class="settings-back" onclick="closeSettings()">
+                    <button class="settings-back" onclick="closeSettings()" data-doc="settings-back" data-prd="关闭设置覆盖层，返回我的页面">
                         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                     </button>
                     <span class="settings-title">设置</span>
                 </div>
 
                 <div class="settings-scroll">
-                    <div class="settings-brand">
+                    <div class="settings-brand" data-doc="settings-brand" data-prd="应用品牌展示区：龙老师 IP 形象（dragon.png）+ 应用名 + 版本号，纯展示不可交互">
                         <div class="settings-mascot"><img src="dragon.png" alt="AI 龙老师"></div>
                         <p class="settings-app-name">AI 龙老师</p>
                         <span class="settings-version">v1.0.0</span>
@@ -336,7 +434,7 @@
 
                     <div class="settings-section">
                         <div class="glass-card">
-                            <div class="settings-row logout" onclick="openLogoutConfirm()">
+                            <div class="settings-row logout" onclick="openLogoutConfirm()" data-doc="settings-logout" data-prd="弹出退出确认弹窗，确认后清除 sessionStorage 和 localStorage 中的学生数据，跳转登录页" data-track="/click/teacherLongMyPage/logout | 点击退出登录 | 无">
                                 <span class="sr-left">
                                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>
                                     退出登录
@@ -356,16 +454,31 @@
         </div>
 
         <!-- 退出确认弹窗 -->
-        <div id="modal-logout" class="modal-overlay">
+        <div id="modal-logout" class="modal-overlay" data-doc="modal-logout" data-prd="退出确认二次弹窗：取消→关闭弹窗；确认退出→清除数据跳转登录页">
             <div class="modal-box">
                 <h3>确认退出登录？</h3>
                 <p>退出登录不会丢失任何数据。</p>
                 <div class="modal-actions">
                     <button class="btn-cancel" onclick="closeLogoutConfirm()">取消</button>
-                    <button class="btn-confirm-red" onclick="logout()">确认退出</button>
+                    <button class="btn-confirm-red" onclick="logout()" data-track="/click/teacherLongMyPage/confirmLogout | 确认退出登录 | 无">确认退出</button>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- ═══ 模式切换按钮（手机框外） ═══ -->
+    <div class="mode-toggle" id="modeToggle">
+        <button class="active" onclick="setMode('demo')">演示</button>
+        <button onclick="setMode('review')">过稿</button>
+    </div>
+
+    <!-- ═══ 侧边栏产品稿浮窗（手机框外） ═══ -->
+    <div class="sb-panel" id="sbPanel">
+        <div class="sb-drag-bar" id="sbDragBar">
+            <span class="sb-drag-title">产品稿 · 我的 <span class="sb-ver">v1.0</span></span>
+            <button class="sb-close" onclick="setMode('demo')">✕</button>
+        </div>
+        <div class="sb-content" id="sidebarContent"></div>
     </div>
 
     <script>
@@ -427,6 +540,278 @@
         }
 
         loadMeInfo();
+
+        /* ═══ 模式切换 & 侧边栏浮窗 ═══ */
+        var _currentMode = 'demo';
+        var _sidebarBound = false;
+
+        function setMode(mode) {
+            if (mode === _currentMode) return;
+            _currentMode = mode;
+            var btns = document.querySelectorAll('#modeToggle button');
+            btns.forEach(function(b, i) { b.classList.toggle('active', (mode === 'demo' ? i === 0 : i === 1)); });
+            var panel = document.getElementById('sbPanel');
+            if (mode === 'review') {
+                panel.classList.add('open');
+                renderSidebar();
+            } else {
+                panel.classList.remove('open');
+            }
+        }
+
+        document.getElementById('modeToggle').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        if (new URLSearchParams(window.location.search).get('mode') === 'review') {
+            setTimeout(function() { _currentMode = 'demo'; setMode('review'); }, 100);
+        }
+
+        function renderSidebar() {
+            var container = document.getElementById('sidebarContent');
+            var changelogSrc = document.getElementById('prd-changelog');
+            var sectionsSrc = document.getElementById('prd-sections');
+            if (!changelogSrc || !sectionsSrc) return;
+            container.innerHTML = buildChangelog(changelogSrc.textContent) + buildSections(sectionsSrc.textContent);
+            container.querySelectorAll('.sb-hd').forEach(function(hd) {
+                hd.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.parentElement.classList.toggle('op');
+                });
+            });
+            container.querySelectorAll('.sb-changelog-toggle').forEach(function(t) {
+                t.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('open');
+                    this.nextElementSibling.classList.toggle('open');
+                });
+            });
+            if (!_sidebarBound) {
+                bindSidebarLinkage();
+                _sidebarBound = true;
+            }
+        }
+
+        function buildChangelog(md) {
+            var html = marked.parse(md);
+            return '<div class="sb-changelog">' +
+                '<div class="sb-changelog-toggle"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> 更新日志</div>' +
+                '<div class="sb-changelog-body">' + html + '</div></div>';
+        }
+
+        function buildSections(md) {
+            var lines = md.split('\n');
+            var sections = []; var cur = null;
+            lines.forEach(function(line) {
+                var m = line.match(/^## (\d+)\.\s+(.+?)(?:\s+\[(NEW|UPDATED)\])?\s*$/);
+                if (m) {
+                    if (cur) sections.push(cur);
+                    cur = { num: m[1], title: m[2], badge: m[3] || '', lines: [] };
+                } else if (cur) {
+                    cur.lines.push(line);
+                }
+            });
+            if (cur) sections.push(cur);
+            return sections.map(function(s) {
+                var badge = '';
+                if (s.badge === 'NEW') badge = ' <span class="sb-badge-new">NEW</span>';
+                if (s.badge === 'UPDATED') badge = ' <span class="sb-badge-updated">UPDATED</span>';
+                var body = marked.parse(s.lines.join('\n'));
+                body = body.replace(/\[\+\]\s*/g, '<span class="diff-add">[+] </span>');
+                body = body.replace(/\[~\]\s*/g, '<span class="diff-mod">[~] </span>');
+                body = body.replace(/\[!\]\s*(.+?)(<br|<\/p|$)/g, '<span class="diff-note">[!] $1</span>$2');
+                return '<div class="sb-section" data-sb="' + s.num + '">' +
+                    '<div class="sb-hd"><svg class="sb-arrow" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>' +
+                    s.num + '. ' + s.title + badge + '</div>' +
+                    '<div class="sb-bd">' + body + '</div></div>';
+            }).join('');
+        }
+
+        function bindSidebarLinkage() {
+            document.querySelectorAll('[data-s]').forEach(function(el) {
+                el.addEventListener('click', function(e) {
+                    if (_currentMode !== 'review') return;
+                    if (e.target.closest('.sb-panel') || e.target.closest('.mode-toggle')) return;
+                    var sId = this.getAttribute('data-s');
+                    var target = document.querySelector('[data-sb="' + sId + '"]');
+                    if (target) {
+                        target.parentElement.classList.add('op');
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        target.style.background = 'rgba(99,102,241,0.08)';
+                        setTimeout(function() { target.style.background = ''; }, 2000);
+                    }
+                });
+            });
+
+            document.getElementById('sbPanel').addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        }
+
+        /* 浮窗拖拽 */
+        (function() {
+            var panel = document.getElementById('sbPanel');
+            var bar = document.getElementById('sbDragBar');
+            var isDragging = false, startX, startY, origX, origY;
+            bar.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                startX = e.clientX; startY = e.clientY;
+                var r = panel.getBoundingClientRect();
+                origX = r.left; origY = r.top;
+                e.preventDefault();
+            });
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                panel.style.position = 'fixed';
+                panel.style.left = (origX + e.clientX - startX) + 'px';
+                panel.style.top = (origY + e.clientY - startY) + 'px';
+                panel.style.right = 'auto';
+                panel.style.transform = 'none';
+            });
+            document.addEventListener('mouseup', function() { isDragging = false; });
+            bar.addEventListener('touchstart', function(e) {
+                isDragging = true;
+                var t = e.touches[0];
+                startX = t.clientX; startY = t.clientY;
+                var r = panel.getBoundingClientRect();
+                origX = r.left; origY = r.top;
+            }, { passive: true });
+            document.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                var t = e.touches[0];
+                panel.style.position = 'fixed';
+                panel.style.left = (origX + t.clientX - startX) + 'px';
+                panel.style.top = (origY + t.clientY - startY) + 'px';
+                panel.style.right = 'auto';
+                panel.style.transform = 'none';
+            }, { passive: true });
+            document.addEventListener('touchend', function() { isDragging = false; });
+        })();
     </script>
+
+    <!-- ═══ 产品稿 Markdown 内容 ═══ -->
+    <script type="text/markdown" id="prd-changelog">
+### v1.0 · 2026-04-08
+- [新增] 我的页面产品稿初版
+- [新增] 学生信息卡片：展示当前登录学生的学校、学号、班级
+- [新增] 功能入口：切换学生、设置
+- [新增] 设置页：品牌展示 + 退出登录
+- [新增] 切换学生流程：选中 → 确定 → 返回我的页面
+- [新增] 添加学生流程：选学校 → 输姓名/学号 → 验证 → 自动选中
+    </script>
+
+    <script type="text/markdown" id="prd-sections">
+## 1. 顶部导航栏
+
+#### 结构说明
+
+与首页共用导航栏样式，包含两部分：
+
+- **左侧 Tab**：「首页」和「我的」，文字形式切换。「我的」为当前高亮态（加粗加大），「首页」点击跳转 `首页.html`
+- 右侧无额外图标
+
+#### 交互逻辑
+
+- 「首页」为 `<a>` 标签直接跳转独立页面
+- 「我的」为当前页面，高亮态不可点击
+
+#### 布局规范
+
+- 导航栏高度 44px，左右 padding 20px
+- 我的 Tab 字号 1.25rem/700，首页 Tab 字号 1.125rem/400 + 灰色（#a1a1aa）
+
+## 2. 学生姓名
+
+#### 结构说明
+
+页面首屏最大文字区域，展示当前登录学生的姓名。
+
+#### 数据来源
+
+- 优先从 `localStorage.students[currentStudentIndex]` 读取
+- 若 `students` 数组为空，fallback 到 `sessionStorage.name`（登录验证时写入）
+- 若都为空，展示默认值「薛云腾」
+
+> 首次登录时，登录流程会将验证通过的学生信息写入 sessionStorage。我的页面初始化时自动将 sessionStorage 中的数据同步到 localStorage.students 数组，确保后续切换学生功能可用。
+
+## 3. 学生信息卡片
+
+#### 结构说明
+
+Glass 毛玻璃卡片，展示当前学生的三项基本信息：
+
+| 字段 | 图标 | 数据来源 |
+|------|------|----------|
+| 学校 | 学校建筑 | student.school |
+| 学号 | 身份证 | student.studentId |
+| 班级 | 学位帽 | student.className |
+
+#### 交互逻辑
+
+- 纯展示，不可交互
+- 数据随「切换学生」操作实时更新
+
+#### 设计规范
+
+- 卡片圆角 20px，毛玻璃背景 rgba(255,255,255,0.6) + blur(24px)
+- 每行高度 14px padding + 图标 18×18 + 标签/值
+- 行间分隔线 1px solid rgba(0,0,0,0.04)
+- 标签色 #64748b，值色 #0f172a
+
+## 4. 功能入口
+
+#### 结构说明
+
+Glass 卡片，包含两个可操作入口：
+
+| 入口 | 图标底色 | 跳转/动作 | 说明 |
+|------|----------|-----------|------|
+| 切换学生 | indigo 8% | 跳转 `切换学生.html` | 展示已验证学生列表，支持选中切换 |
+| 设置 | slate 8% | 打开设置覆盖层 | 应用品牌信息 + 退出登录 |
+
+#### 切换学生流程
+
+1. 点击「切换学生」→ 跳转 `切换学生.html`
+2. 页面展示所有已验证学生卡片（姓名、学校、学号、班级）
+3. 点击卡片可选中（单选），选中态为 indigo 边框 + 紫色勾选
+4. 导航栏右上角「+」按钮 → 跳转 `添加学生.html`
+5. 添加学生页：选择学校 → 输入姓名 → 输入学号 → 点击「验证并添加」
+6. 验证成功 → 自动添加到学生列表并选中 → 返回切换学生页
+7. 点击底部「确定」→ 写入 localStorage.currentStudentIndex → 更新 sessionStorage → 返回我的页面
+
+#### 设计规范
+
+- 图标区 32×32 圆角 10px，带浅色背景
+- 切换学生图标色 #6366f1，设置图标色 #64748b
+- 行高 16px padding，右侧灰色箭头
+
+## 5. 设置页
+
+#### 结构说明
+
+全屏覆盖层（`position: absolute; inset: 0`），覆盖在我的页面之上：
+
+- **导航栏**：返回按钮（← 箭头）+ 标题「设置」
+- **品牌区**：龙老师 IP 形象（dragon.png，80×80 圆角 24px）+ 应用名「AI 龙老师」+ 版本号 v1.0.0
+- **功能区**：退出登录（红色文字 #e11d48 + 退出图标）
+- **底部**：协议链接
+
+#### 退出登录逻辑
+
+1. 点击「退出登录」→ 弹出确认弹窗
+2. 弹窗内容：标题「确认退出登录？」+ 描述「退出登录不会丢失任何数据。」
+3. 取消 → 关闭弹窗
+4. 确认退出 → `sessionStorage.clear()` + `localStorage.removeItem('students')` + `localStorage.removeItem('currentStudentIndex')` → 跳转 `登录/index.html`
+
+#### 设计规范
+
+- 覆盖层背景色与 iphone-frame 一致的渐变（#f8fafc → #e2e8f0）+ mesh 光斑
+- 退出确认弹窗：半透明黑底遮罩 rgba(0,0,0,0.25) + blur(8px)
+- 确认按钮实色红 #e11d48，取消按钮灰色背景
+- 弹窗圆角 24px，宽度 300px
+
+[!] 设置页当前仅包含退出登录功能。后续如需添加「隐私设置」「关于我们」等入口，在退出登录上方增加新的 settings-section 卡片即可。
+    </script>
+
 </body>
 </html>
