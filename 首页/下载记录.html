@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AI 龙老师 - 下载记录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; background: #ffffff; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+
+        .iphone-frame {
+            width: 393px; height: 852px; position: relative; overflow: hidden;
+            background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 40%, #e8edf4 100%);
+            box-shadow: 0 0 0 12px #18181b, 0 0 0 14px #27272a, 0 24px 48px -12px rgba(24,24,27,0.2);
+            border-radius: 50px;
+            display: flex; flex-direction: column;
+        }
+
+        .mesh-bg {
+            position: absolute; top: -10%; left: -20%; width: 80%; height: 60%;
+            background: radial-gradient(ellipse at center, rgba(99,102,241,0.3) 0%, transparent 65%);
+            filter: blur(70px); pointer-events: none; z-index: 0;
+        }
+        .mesh-bg-2 {
+            position: absolute; top: 15%; right: -30%; width: 90%; height: 70%;
+            background: radial-gradient(ellipse at center, rgba(236,72,153,0.22) 0%, transparent 65%);
+            filter: blur(70px); pointer-events: none; z-index: 0;
+        }
+        .mesh-bg-3 {
+            position: absolute; bottom: -10%; left: -20%; width: 80%; height: 70%;
+            background: radial-gradient(ellipse at center, rgba(168,85,247,0.22) 0%, transparent 65%);
+            filter: blur(70px); pointer-events: none; z-index: 0;
+        }
+
+        .dynamic-island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 120px; height: 35px; background: linear-gradient(180deg, #27272a 0%, #18181b 100%); border-radius: 20px; z-index: 1000; pointer-events: none; }
+
+        .topbar {
+            display: flex; align-items: center; padding: 60px 16px 12px; flex-shrink: 0;
+            position: relative; z-index: 20;
+        }
+        .back-btn {
+            width: 40px; height: 40px; border-radius: 12px; border: none;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.7); cursor: pointer;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.06);
+            -webkit-tap-highlight-color: transparent;
+            transition: transform .18s cubic-bezier(0.16,1,0.3,1);
+        }
+        .back-btn:active { transform: scale(0.92); background: rgba(0,0,0,0.05); }
+        .topbar-title {
+            flex: 1; text-align: center; font-size: 1.0625rem; font-weight: 700;
+            color: #0f172a; letter-spacing: -0.02em;
+        }
+        .topbar-spacer { width: 40px; height: 40px; flex-shrink: 0; }
+
+        .scroll-area {
+            flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+            position: relative; z-index: 1;
+        }
+        .scroll-area::-webkit-scrollbar { display: none; }
+
+        .sec { padding: 0 20px; }
+
+        .paper-tabs {
+            display: flex; gap: 4px; margin-bottom: 14px;
+        }
+        .paper-tab {
+            padding: 5px 14px; font-size: 0.75rem; font-weight: 600;
+            color: #a1a1aa; background: transparent; border: none;
+            cursor: pointer; border-radius: 10px;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .paper-tab.active {
+            color: #0f172a;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.05);
+        }
+
+        .paper-recommend {
+            display: inline; font-size: 0.5625rem; font-weight: 700; padding: 1px 6px;
+            border-radius: 3px; letter-spacing: .02em; margin-right: 4px;
+            vertical-align: middle;
+        }
+        .pr-recommend { background: rgba(239,68,68,0.08); color: #ef4444; }
+        .pr-pick { background: rgba(99,102,241,0.08); color: #6366f1; }
+
+        .paper-list { display: flex; flex-direction: column; gap: 10px; padding-bottom: 24px; }
+        .paper-item {
+            position: relative; display: flex; align-items: center; gap: 14px;
+            padding: 16px; border-radius: 14px;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 2px 12px -4px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.65);
+            border: none; background: rgba(255, 255, 255, 0.55);
+            cursor: pointer; -webkit-tap-highlight-color: transparent;
+            transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .paper-item:active { transform: scale(0.97); }
+        .paper-icon {
+            width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.04);
+        }
+        .pi-chinese { background: linear-gradient(135deg, rgba(238,242,255,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #6366f1; }
+        .pi-math { background: linear-gradient(135deg, rgba(255,251,235,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #d97706; }
+        .pi-eng { background: linear-gradient(135deg, rgba(236,253,245,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #059669; }
+        .pi-sci { background: linear-gradient(135deg, rgba(236,254,255,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #0891b2; }
+        .paper-info { flex: 1; min-width: 0; }
+        .paper-title {
+            font-size: 0.8125rem; font-weight: 600; color: #0f172a;
+            margin: 0; line-height: 1.4;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .paper-row {
+            display: flex; align-items: center; gap: 8px; margin-top: 6px;
+        }
+        .paper-meta {
+            font-size: 0.625rem; color: #94a3b8;
+            display: flex; align-items: center; gap: 3px;
+        }
+        .paper-arrow { color: #d4d4d8; flex-shrink: 0; }
+
+        .empty-state {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 60px 20px; color: #a1a1aa;
+        }
+        .empty-state svg { color: #d4d4d8; margin-bottom: 12px; }
+        .empty-state p { font-size: 0.8125rem; font-weight: 500; }
+        .empty-state span { font-size: 0.6875rem; margin-top: 4px; color: #c4c4cc; }
+    </style>
+</head>
+<body>
+
+    <div class="iphone-frame" id="app-root">
+        <div class="mesh-bg"></div>
+        <div class="mesh-bg-2"></div>
+        <div class="mesh-bg-3"></div>
+        <div class="dynamic-island"></div>
+
+        <div class="topbar">
+            <button class="back-btn" onclick="history.back()" aria-label="返回">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <span class="topbar-title">下载记录</span>
+            <div class="topbar-spacer"></div>
+        </div>
+
+        <div class="scroll-area">
+            <section class="sec" style="margin-top:4px;">
+                <div class="paper-tabs" id="paperTabs">
+                    <button class="paper-tab active" data-subj="chinese">语文</button>
+                    <button class="paper-tab" data-subj="math">数学</button>
+                    <button class="paper-tab" data-subj="english">英语</button>
+                    <button class="paper-tab" data-subj="science">科学</button>
+                </div>
+                <div class="paper-list" id="paperList"></div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const DOWNLOAD_HISTORY = [
+            { id: 'cn02', title: '2024年小升初语文真题（全国卷）', subj: 'chinese', date: '2026-04-07', recommend: '精选' },
+            { id: 'ma01', title: '七年级数学期末综合测试卷', subj: 'math', date: '2026-04-06', recommend: '推荐' },
+            { id: 'en01', title: '八年级英语阅读理解专项训练', subj: 'english', date: '2026-04-05' },
+            { id: 'cn01', title: '2025年新课标全国卷语文模拟题（一）', subj: 'chinese', date: '2026-04-04', recommend: '推荐' },
+            { id: 'ma02', title: '2024年小升初数学真题精选', subj: 'math', date: '2026-04-03', recommend: '精选' },
+            { id: 'sc01', title: '九年级科学中考真题汇编', subj: 'science', date: '2026-04-02', recommend: '精选' },
+            { id: 'cn04', title: '八年级语文期末综合检测', subj: 'chinese', date: '2026-04-01' },
+            { id: 'en03', title: '七年级英语期末综合试卷', subj: 'english', date: '2026-03-30' },
+        ];
+
+        const SUBJ_LABEL = { chinese: '语文', math: '数学', english: '英语', science: '科学' };
+        const ICON_MAP = { chinese: 'pi-chinese', math: 'pi-math', english: 'pi-eng', science: 'pi-sci' };
+
+        let activeSubj = 'chinese';
+
+        function renderList() {
+            const list = document.getElementById('paperList');
+            let items = activeSubj === 'all' ? DOWNLOAD_HISTORY : DOWNLOAD_HISTORY.filter(p => p.subj === activeSubj);
+
+            if (!items.length) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+                        <p>暂无下载记录</p>
+                        <span>下载的试卷将会显示在这里</span>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = items.map(p => {
+                const icon = ICON_MAP[p.subj] || 'pi-chinese';
+                const recHtml = p.recommend
+                    ? `<span class="paper-recommend ${p.recommend === '推荐' ? 'pr-recommend' : 'pr-pick'}">${p.recommend}</span>`
+                    : '';
+                return `
+                <div class="paper-item" onclick="window.location.href='试卷详情.html?id=${p.id}&title=${encodeURIComponent(p.title)}'">
+                    <div class="paper-icon ${icon}">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <div class="paper-info">
+                        <div class="paper-title">${recHtml}${p.title}</div>
+                        <div class="paper-row">
+                            <span class="paper-meta">
+                                <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                ${p.date}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="paper-arrow"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div>
+                </div>`;
+            }).join('');
+        }
+
+        document.getElementById('paperTabs').addEventListener('click', e => {
+            const tab = e.target.closest('.paper-tab');
+            if (!tab) return;
+            document.querySelectorAll('#paperTabs .paper-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            activeSubj = tab.dataset.subj;
+            renderList();
+        });
+
+        renderList();
+    </script>
+
+</body>
+</html>

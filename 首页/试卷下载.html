@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AI 龙老师 - 试卷下载</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; background: #ffffff; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
+
+        .iphone-frame {
+            width: 393px; height: 852px; position: relative; overflow: hidden;
+            background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 40%, #e8edf4 100%);
+            box-shadow: 0 0 0 12px #18181b, 0 0 0 14px #27272a, 0 24px 48px -12px rgba(24,24,27,0.2);
+            border-radius: 50px;
+            display: flex; flex-direction: column;
+        }
+
+        .mesh-bg {
+            position: absolute; top: -10%; left: -20%; width: 80%; height: 60%;
+            background: radial-gradient(ellipse at center, rgba(99,102,241,0.3) 0%, transparent 65%);
+            filter: blur(70px); pointer-events: none; z-index: 0;
+        }
+        .mesh-bg-2 {
+            position: absolute; top: 15%; right: -30%; width: 90%; height: 70%;
+            background: radial-gradient(ellipse at center, rgba(236,72,153,0.22) 0%, transparent 65%);
+            filter: blur(70px); pointer-events: none; z-index: 0;
+        }
+        .mesh-bg-3 {
+            position: absolute; bottom: -10%; left: -20%; width: 80%; height: 70%;
+            background: radial-gradient(ellipse at center, rgba(168,85,247,0.22) 0%, transparent 65%);
+            filter: blur(70px); pointer-events: none; z-index: 0;
+        }
+
+        .dynamic-island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 120px; height: 35px; background: linear-gradient(180deg, #27272a 0%, #18181b 100%); border-radius: 20px; z-index: 1000; pointer-events: none; }
+
+        .topbar {
+            display: flex; align-items: center; padding: 60px 16px 12px; flex-shrink: 0;
+            position: relative; z-index: 20;
+        }
+        .back-btn {
+            width: 40px; height: 40px; border-radius: 12px; border: none;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.7); cursor: pointer;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.06);
+            -webkit-tap-highlight-color: transparent;
+            transition: transform .18s cubic-bezier(0.16,1,0.3,1);
+        }
+        .back-btn:active { transform: scale(0.92); background: rgba(0,0,0,0.05); }
+        .topbar-title {
+            flex: 1; text-align: center; font-size: 1.0625rem; font-weight: 700;
+            color: #0f172a; letter-spacing: -0.02em;
+        }
+        .topbar-spacer { width: 40px; height: 40px; flex-shrink: 0; }
+
+        .scroll-area {
+            flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+            position: relative; z-index: 1;
+        }
+        .scroll-area::-webkit-scrollbar { display: none; }
+
+        .sec { padding: 0 20px; }
+        .sec-hd {
+            display: flex; align-items: center; margin-bottom: 16px;
+        }
+        .sec-hd h2 {
+            font-size: 1.0625rem; font-weight: 700; color: #0f172a;
+            margin: 0; letter-spacing: -0.01em;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .sec-badge {
+            font-size: 0.5625rem; font-weight: 700; letter-spacing: 0.04em;
+            padding: 2px 8px; border-radius: 999px; margin-left: 6px;
+        }
+        .sec-badge-amber { background: rgba(245,158,11,0.08); color: #d97706; }
+
+        .paper-tabs {
+            display: flex; gap: 4px; margin-bottom: 12px;
+        }
+        .paper-tab {
+            padding: 5px 14px; font-size: 0.75rem; font-weight: 600;
+            color: #a1a1aa; background: transparent; border: none;
+            cursor: pointer; border-radius: 10px;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .paper-tab.active {
+            color: #0f172a;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.05);
+        }
+        .paper-filters {
+            display: flex; gap: 6px; margin-bottom: 12px;
+            overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap;
+        }
+        .paper-filters::-webkit-scrollbar { display: none; }
+        .paper-filter {
+            flex-shrink: 0; padding: 4px 10px; font-size: 0.625rem; font-weight: 600;
+            color: #a1a1aa; background: transparent; border: 1px solid rgba(226,232,240,0.5);
+            border-radius: 16px; cursor: pointer; transition: all .18s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .paper-filter.active {
+            color: #6366f1; background: rgba(99,102,241,0.06);
+            border-color: rgba(99,102,241,0.25);
+        }
+        .paper-recommend {
+            display: inline; font-size: 0.5625rem; font-weight: 700; padding: 1px 6px;
+            border-radius: 3px; letter-spacing: .02em; margin-right: 4px;
+            vertical-align: middle;
+        }
+        .pr-recommend { background: rgba(239,68,68,0.08); color: #ef4444; }
+        .pr-pick { background: rgba(99,102,241,0.08); color: #6366f1; }
+        .paper-list { display: flex; flex-direction: column; gap: 10px; padding-bottom: 24px; }
+        .paper-item {
+            position: relative; display: flex; align-items: center; gap: 14px;
+            padding: 16px; border-radius: 14px;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 2px 12px -4px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.65);
+            border: none; background: rgba(255, 255, 255, 0.55);
+            cursor: pointer; -webkit-tap-highlight-color: transparent;
+            transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .paper-item:active { transform: scale(0.97); }
+        .paper-icon {
+            width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.04);
+        }
+        .pi-chinese { background: linear-gradient(135deg, rgba(238,242,255,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #6366f1; }
+        .pi-math { background: linear-gradient(135deg, rgba(255,251,235,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #d97706; }
+        .pi-eng { background: linear-gradient(135deg, rgba(236,253,245,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #059669; }
+        .pi-sci { background: linear-gradient(135deg, rgba(236,254,255,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #0891b2; }
+        .paper-info { flex: 1; min-width: 0; }
+        .paper-title {
+            font-size: 0.8125rem; font-weight: 600; color: #0f172a;
+            margin: 0; line-height: 1.4;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .paper-row {
+            display: flex; align-items: center; gap: 8px; margin-top: 6px;
+        }
+        .paper-type-tag {
+            font-size: 0.5625rem; font-weight: 700;
+            padding: 2px 8px; border-radius: 4px;
+        }
+        .pt-midterm { background: rgba(37,99,235,0.08); color: #3b82f6; }
+        .pt-final { background: rgba(219,39,119,0.08); color: #ec4899; }
+        .pt-unit { background: rgba(22,163,74,0.08); color: #22c55e; }
+        .pt-mock { background: rgba(245,158,11,0.08); color: #f59e0b; }
+        .pt-real { background: rgba(139,92,246,0.08); color: #8b5cf6; }
+        .paper-dl {
+            font-size: 0.625rem; color: #64748b;
+            display: flex; align-items: center; gap: 3px;
+        }
+        .paper-arrow { color: #d4d4d8; flex-shrink: 0; }
+
+        #toast {
+            position: absolute; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background: rgba(255,255,255,0.8); color: #0f172a;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 12px 24px; border-radius: 9999px;
+            font-size: 13px; font-weight: 600; pointer-events: none; opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); z-index: 2000;
+            box-shadow: 0 12px 32px -8px rgba(0,0,0,0.08), inset 0 0 0 1px rgba(255,255,255,0.5);
+            display: flex; align-items: center; gap: 8px; border: none;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div class="iphone-frame" id="app-root">
+        <div class="mesh-bg"></div>
+        <div class="mesh-bg-2"></div>
+        <div class="mesh-bg-3"></div>
+        <div class="dynamic-island"></div>
+        <div id="toast"><svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg><span id="toast-msg">操作成功</span></div>
+
+        <div class="topbar">
+            <button class="back-btn" onclick="history.back()" aria-label="返回">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <span class="topbar-title">试卷下载</span>
+            <a href="下载记录.html" style="font-size:0.75rem;font-weight:600;color:#6366f1;text-decoration:none;white-space:nowrap;-webkit-tap-highlight-color:transparent;">下载记录</a>
+        </div>
+
+        <div class="scroll-area">
+            <section class="sec" style="margin-top:4px;">
+                <div class="paper-tabs" id="paperTabs">
+                    <button class="paper-tab active" data-subj="chinese">语文</button>
+                    <button class="paper-tab" data-subj="math">数学</button>
+                    <button class="paper-tab" data-subj="english">英语</button>
+                    <button class="paper-tab" data-subj="science">科学</button>
+                </div>
+                <div class="paper-filters" id="paperFilters">
+                    <button class="paper-filter active" data-filter="all">全部</button>
+                    <button class="paper-filter" data-filter="热门推荐">热门推荐</button>
+                    <button class="paper-filter" data-filter="小升初真题">小升初真题</button>
+                    <button class="paper-filter" data-filter="小升初模拟">小升初模拟</button>
+                    <button class="paper-filter" data-filter="期末试题">期末试题</button>
+                    <button class="paper-filter" data-filter="期中试题">期中试题</button>
+                    <button class="paper-filter" data-filter="单元测试">单元测试</button>
+                </div>
+                <div class="paper-list" id="paperList"></div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const PAPER_DATA = {
+            chinese: [
+                { id: 'cn01', title: '2025年新课标全国卷语文模拟题（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '2.3k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'cn02', title: '2024年小升初语文真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '3.1k', filter: '小升初真题', recommend: '精选' },
+                { id: 'cn03', title: '七年级语文期中综合测试卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.6k', filter: '期中试题' },
+                { id: 'cn04', title: '八年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '2.1k', filter: '期末试题', recommend: '推荐' },
+                { id: 'cn05', title: '小升初语文模拟冲刺卷（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '小升初模拟' },
+                { id: 'cn06', title: '九年级语文第三单元检测卷', type: '单元测试', typeCls: 'pt-unit', downloads: '980', filter: '单元测试' },
+                { id: 'cn07', title: '中考语文古诗文默写专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '热门推荐' },
+            ],
+            math: [
+                { id: 'ma01', title: '七年级数学期末综合测试卷', type: '期末', typeCls: 'pt-final', downloads: '1.8k', filter: '期末试题', recommend: '推荐' },
+                { id: 'ma02', title: '2024年小升初数学真题精选', type: '真题', typeCls: 'pt-real', downloads: '2.6k', filter: '小升初真题', recommend: '精选' },
+                { id: 'ma03', title: '八年级数学期中检测卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.5k', filter: '期中试题' },
+                { id: 'ma04', title: '几何证明专项模拟试题', type: '模拟题', typeCls: 'pt-mock', downloads: '1.2k', filter: '热门推荐' },
+                { id: 'ma05', title: '小升初数学模拟卷（计算综合）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '小升初模拟' },
+                { id: 'ma06', title: '九年级数学第二单元测试', type: '单元测试', typeCls: 'pt-unit', downloads: '890', filter: '单元测试' },
+            ],
+            english: [
+                { id: 'en01', title: '八年级英语阅读理解专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'en02', title: '2024年小升初英语真题卷', type: '真题', typeCls: 'pt-real', downloads: '2.0k', filter: '小升初真题', recommend: '精选' },
+                { id: 'en03', title: '七年级英语期末综合试卷', type: '期末', typeCls: 'pt-final', downloads: '1.3k', filter: '期末试题' },
+                { id: 'en04', title: '九年级英语期中模拟卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.1k', filter: '期中试题' },
+                { id: 'en05', title: '完形填空与语法填空专练', type: '模拟题', typeCls: 'pt-mock', downloads: '960', filter: '热门推荐' },
+            ],
+            science: [
+                { id: 'sc01', title: '九年级科学中考真题汇编', type: '真题', typeCls: 'pt-real', downloads: '960', filter: '热门推荐', recommend: '精选' },
+                { id: 'sc02', title: '八年级科学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '850', filter: '期末试题' },
+                { id: 'sc03', title: '力学综合单元测试卷', type: '单元测试', typeCls: 'pt-unit', downloads: '780', filter: '单元测试' },
+                { id: 'sc04', title: '七年级科学期中考试卷', type: '期中', typeCls: 'pt-midterm', downloads: '720', filter: '期中试题' },
+            ],
+        };
+
+        let activePaperSubj = 'chinese';
+        let activePaperFilter = 'all';
+
+        function renderPapers() {
+            const list = document.getElementById('paperList');
+            let items = PAPER_DATA[activePaperSubj] || [];
+            if (activePaperFilter !== 'all') {
+                items = items.filter(p => p.filter === activePaperFilter);
+            }
+            const iconMap = { chinese: 'pi-chinese', math: 'pi-math', english: 'pi-eng', science: 'pi-sci' };
+            const icon = iconMap[activePaperSubj] || 'pi-chinese';
+            if (!items.length) {
+                list.innerHTML = '<div style="text-align:center;padding:24px 0;color:#a1a1aa;font-size:.75rem;">暂无该分类试卷</div>';
+                return;
+            }
+            list.innerHTML = items.map(p => {
+                const recHtml = p.recommend
+                    ? `<span class="paper-recommend ${p.recommend === '推荐' ? 'pr-recommend' : 'pr-pick'}">${p.recommend}</span>`
+                    : '';
+                return `
+                <div class="paper-item" onclick="window.location.href='试卷详情.html?id=${p.id}&title=${encodeURIComponent(p.title)}'">
+                    <div class="paper-icon ${icon}">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <div class="paper-info">
+                        <div class="paper-title">${recHtml}${p.title}</div>
+                        <div class="paper-row">
+                            <span class="paper-dl">
+                                <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                ${p.downloads}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="paper-arrow"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div>
+                </div>`;
+            }).join('');
+        }
+
+        document.getElementById('paperTabs').addEventListener('click', e => {
+            const tab = e.target.closest('.paper-tab');
+            if (!tab) return;
+            document.querySelectorAll('#paperTabs .paper-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            activePaperSubj = tab.dataset.subj;
+            activePaperFilter = 'all';
+            document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.toggle('active', f.dataset.filter === 'all'));
+            renderPapers();
+        });
+
+        document.getElementById('paperFilters').addEventListener('click', e => {
+            const btn = e.target.closest('.paper-filter');
+            if (!btn) return;
+            document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.remove('active'));
+            btn.classList.add('active');
+            activePaperFilter = btn.dataset.filter;
+            renderPapers();
+        });
+
+        renderPapers();
+    </script>
+
+</body>
+</html>

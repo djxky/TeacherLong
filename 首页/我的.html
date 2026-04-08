@@ -427,7 +427,7 @@
 
                 <div class="settings-scroll">
                     <div class="settings-brand" data-doc="settings-brand" data-prd="应用品牌展示区：龙老师 IP 形象（dragon.png）+ 应用名 + 版本号，纯展示不可交互">
-                        <div class="settings-mascot"><img src="dragon.png" alt="AI 龙老师"></div>
+                        <div class="settings-mascot"><img src="组 7660.png" alt="AI 龙老师"></div>
                         <p class="settings-app-name">AI 龙老师</p>
                         <span class="settings-version">v1.0.0</span>
                     </div>
@@ -660,11 +660,17 @@
                 origX = r.left; origY = r.top;
                 e.preventDefault();
             });
+            function clampPos(x, y) {
+                var pw = panel.offsetWidth, ph = panel.offsetHeight;
+                var maxX = window.innerWidth - pw, maxY = window.innerHeight - 40;
+                return { x: Math.max(0, Math.min(x, maxX)), y: Math.max(0, Math.min(y, maxY)) };
+            }
             document.addEventListener('mousemove', function(e) {
                 if (!isDragging) return;
+                var p = clampPos(origX + e.clientX - startX, origY + e.clientY - startY);
                 panel.style.position = 'fixed';
-                panel.style.left = (origX + e.clientX - startX) + 'px';
-                panel.style.top = (origY + e.clientY - startY) + 'px';
+                panel.style.left = p.x + 'px';
+                panel.style.top = p.y + 'px';
                 panel.style.right = 'auto';
                 panel.style.transform = 'none';
             });
@@ -679,9 +685,10 @@
             document.addEventListener('touchmove', function(e) {
                 if (!isDragging) return;
                 var t = e.touches[0];
+                var p = clampPos(origX + t.clientX - startX, origY + t.clientY - startY);
                 panel.style.position = 'fixed';
-                panel.style.left = (origX + t.clientX - startX) + 'px';
-                panel.style.top = (origY + t.clientY - startY) + 'px';
+                panel.style.left = p.x + 'px';
+                panel.style.top = p.y + 'px';
                 panel.style.right = 'auto';
                 panel.style.transform = 'none';
             }, { passive: true });
@@ -715,11 +722,6 @@
 - 「首页」为 `<a>` 标签直接跳转独立页面
 - 「我的」为当前页面，高亮态不可点击
 
-#### 布局规范
-
-- 导航栏高度 44px，左右 padding 20px
-- 我的 Tab 字号 1.25rem/700，首页 Tab 字号 1.125rem/400 + 灰色（#a1a1aa）
-
 ## 2. 学生姓名
 
 #### 结构说明
@@ -738,7 +740,7 @@
 
 #### 结构说明
 
-Glass 毛玻璃卡片，展示当前学生的三项基本信息：
+卡片展示当前学生的三项基本信息：
 
 | 字段 | 图标 | 数据来源 |
 |------|------|----------|
@@ -751,39 +753,26 @@ Glass 毛玻璃卡片，展示当前学生的三项基本信息：
 - 纯展示，不可交互
 - 数据随「切换学生」操作实时更新
 
-#### 设计规范
-
-- 卡片圆角 20px，毛玻璃背景 rgba(255,255,255,0.6) + blur(24px)
-- 每行高度 14px padding + 图标 18×18 + 标签/值
-- 行间分隔线 1px solid rgba(0,0,0,0.04)
-- 标签色 #64748b，值色 #0f172a
-
 ## 4. 功能入口
 
 #### 结构说明
 
-Glass 卡片，包含两个可操作入口：
+卡片包含两个可操作入口：
 
-| 入口 | 图标底色 | 跳转/动作 | 说明 |
-|------|----------|-----------|------|
-| 切换学生 | indigo 8% | 跳转 `切换学生.html` | 展示已验证学生列表，支持选中切换 |
-| 设置 | slate 8% | 打开设置覆盖层 | 应用品牌信息 + 退出登录 |
+| 入口 | 跳转/动作 | 说明 |
+|------|-----------|------|
+| 切换学生 | 跳转 `切换学生.html` | 展示已验证学生列表，支持选中切换 |
+| 设置 | 打开设置覆盖层 | 应用品牌信息 + 退出登录 |
 
 #### 切换学生流程
 
 1. 点击「切换学生」→ 跳转 `切换学生.html`
 2. 页面展示所有已验证学生卡片（姓名、学校、学号、班级）
-3. 点击卡片可选中（单选），选中态为 indigo 边框 + 紫色勾选
+3. 点击卡片可选中（单选）
 4. 导航栏右上角「+」按钮 → 跳转 `添加学生.html`
 5. 添加学生页：选择学校 → 输入姓名 → 输入学号 → 点击「验证并添加」
 6. 验证成功 → 自动添加到学生列表并选中 → 返回切换学生页
 7. 点击底部「确定」→ 写入 localStorage.currentStudentIndex → 更新 sessionStorage → 返回我的页面
-
-#### 设计规范
-
-- 图标区 32×32 圆角 10px，带浅色背景
-- 切换学生图标色 #6366f1，设置图标色 #64748b
-- 行高 16px padding，右侧灰色箭头
 
 ## 5. 设置页
 
@@ -792,9 +781,9 @@ Glass 卡片，包含两个可操作入口：
 全屏覆盖层（`position: absolute; inset: 0`），覆盖在我的页面之上：
 
 - **导航栏**：返回按钮（← 箭头）+ 标题「设置」
-- **品牌区**：龙老师 IP 形象（dragon.png，80×80 圆角 24px）+ 应用名「AI 龙老师」+ 版本号 v1.0.0
-- **功能区**：退出登录（红色文字 #e11d48 + 退出图标）
-- **底部**：协议链接
+- **品牌区**：龙老师 IP 形象 + 应用名「AI 龙老师」+ 版本号 v1.0.0
+- **功能区**：退出登录入口
+- **底部**：协议链接（《AI龙老师用户协议》《隐私政策》《儿童隐私保护政策》）
 
 #### 退出登录逻辑
 
@@ -802,13 +791,6 @@ Glass 卡片，包含两个可操作入口：
 2. 弹窗内容：标题「确认退出登录？」+ 描述「退出登录不会丢失任何数据。」
 3. 取消 → 关闭弹窗
 4. 确认退出 → `sessionStorage.clear()` + `localStorage.removeItem('students')` + `localStorage.removeItem('currentStudentIndex')` → 跳转 `登录/index.html`
-
-#### 设计规范
-
-- 覆盖层背景色与 iphone-frame 一致的渐变（#f8fafc → #e2e8f0）+ mesh 光斑
-- 退出确认弹窗：半透明黑底遮罩 rgba(0,0,0,0.25) + blur(8px)
-- 确认按钮实色红 #e11d48，取消按钮灰色背景
-- 弹窗圆角 24px，宽度 300px
 
 [!] 设置页当前仅包含退出登录功能。后续如需添加「隐私设置」「关于我们」等入口，在退出登录上方增加新的 settings-section 卡片即可。
     </script>

@@ -184,7 +184,7 @@
             <div class="v-subj-bar" id="subj-bar" data-doc="subj-bar" data-s="1" data-prd="科目横向Tab栏，根据当前分类动态渲染可选科目；专项大招课(special-skills)时隐藏Tab栏；切换科目联动刷新介绍卡片、教材选择器和视频列表" data-track="/click/videoListPage/switchSubject | 切换科目 | subject#String"></div>
 
             <!-- 科目介绍卡片 -->
-            <div class="v-intro" id="intro-card" data-cat="new-standard" data-doc="intro-card" data-s="2" data-prd="科目介绍卡片，渐变色背景（indigo/green/orange对应三种分类）；切换科目时标题和描述文案跟随变化；文案来自 CATEGORIES[].intro[科目] 数据">
+            <div class="v-intro" id="intro-card" data-cat="new-standard" data-doc="intro-card" data-s="2" data-prd="科目介绍卡片，切换科目时标题和描述文案跟随变化；文案来自 CATEGORIES[].intro[科目] 数据">
                 <div class="v-intro-content">
                     <h3 id="intro-title"></h3>
                     <p id="intro-desc"></p>
@@ -751,13 +751,9 @@
 
 ## 3. 科目介绍卡片
 
-#### 视觉规范
-- 渐变色背景卡片，圆角 16px，三种主题色对应三种分类：
-  - 新课标重点讲：indigo 渐变（#3730a3 → #818cf8）
-  - 校内同步课：green 渐变（#065f46 → #34d399）
-  - 拓展提升课：orange 渐变（#9a3412 → #fb923c）
-- 装饰元素：右下角半透明圆圈
-- 文案来自 `CATEGORIES[].intro[科目]`，含标题(h3)和描述(p)
+#### 内容来源
+- 文案来自 `CATEGORIES[].intro[科目]`，含标题和描述
+- 三种分类对应不同主题风格
 
 #### 内容切换
 - 切换科目时标题和描述文案平滑过渡
@@ -943,10 +939,16 @@
             oy = e.clientY - sbFloat.offsetTop;
             e.preventDefault();
         });
+        function clampPos(x, y) {
+            var pw = sbFloat.offsetWidth, ph = sbFloat.offsetHeight;
+            var maxX = window.innerWidth - pw, maxY = window.innerHeight - 40;
+            return { x: Math.max(0, Math.min(x, maxX)), y: Math.max(0, Math.min(y, maxY)) };
+        }
         document.addEventListener('mousemove', function(e) {
             if (!isDrag) return;
-            sbFloat.style.left = (e.clientX - ox) + 'px';
-            sbFloat.style.top = (e.clientY - oy) + 'px';
+            var p = clampPos(e.clientX - ox, e.clientY - oy);
+            sbFloat.style.left = p.x + 'px';
+            sbFloat.style.top = p.y + 'px';
             sbFloat.style.right = 'auto';
         });
         document.addEventListener('mouseup', function() { isDrag = false; });
@@ -960,8 +962,9 @@
         document.addEventListener('touchmove', function(e) {
             if (!isDrag) return;
             var t = e.touches[0];
-            sbFloat.style.left = (t.clientX - ox) + 'px';
-            sbFloat.style.top = (t.clientY - oy) + 'px';
+            var p = clampPos(t.clientX - ox, t.clientY - oy);
+            sbFloat.style.left = p.x + 'px';
+            sbFloat.style.top = p.y + 'px';
             sbFloat.style.right = 'auto';
         }, { passive: true });
         document.addEventListener('touchend', function() { isDrag = false; });
