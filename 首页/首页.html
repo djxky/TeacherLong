@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>AI 龙老师 - 首页</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
@@ -399,6 +400,144 @@
         }
         .paper-arrow { color: #d4d4d8; flex-shrink: 0; }
 
+        /* ── 模式切换按钮（手机框外，页面右上角） ── */
+        .mode-toggle {
+            position: fixed; top: 24px; right: 32px;
+            z-index: 900;
+            display: flex; align-items: center; gap: 0;
+            background: #ffffff; border-radius: 12px;
+            box-shadow: 0 4px 24px -4px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+            overflow: hidden; font-size: 0.8125rem; font-weight: 600;
+        }
+        .mode-toggle button {
+            padding: 10px 24px; border: none; background: transparent;
+            color: #94a3b8; cursor: pointer; font-family: inherit;
+            font-size: 0.8125rem; font-weight: 600; transition: all 0.2s;
+        }
+        .mode-toggle button.active {
+            background: #4f46e5; color: #ffffff;
+        }
+
+        /* ── 侧边栏浮窗（手机框右侧） ── */
+        .sb-panel {
+            position: fixed; top: 50%; right: 32px; width: 380px;
+            max-height: 80vh; transform: translateY(-50%) translateX(20px);
+            background: #ffffff; border-radius: 20px;
+            box-shadow: 0 24px 64px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06);
+            z-index: 800; display: flex; flex-direction: column;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+            overflow: hidden;
+        }
+        .sb-panel.open { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
+
+        .sb-drag-bar {
+            padding: 12px 16px 8px; cursor: move; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        .sb-drag-title {
+            font-size: 0.8125rem; font-weight: 700; color: #0f172a;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .sb-drag-title .sb-ver {
+            font-size: 0.5625rem; font-weight: 600; color: #4f46e5;
+            background: rgba(99,102,241,0.08); padding: 2px 8px; border-radius: 6px;
+        }
+        .sb-close {
+            width: 24px; height: 24px; border-radius: 8px; border: none;
+            background: rgba(0,0,0,0.04); color: #94a3b8; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; transition: background 0.2s;
+        }
+        .sb-close:hover { background: rgba(0,0,0,0.08); }
+
+        .sb-content {
+            flex: 1; overflow-y: auto; padding: 12px 16px 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .sb-content::-webkit-scrollbar { width: 3px; }
+        .sb-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+
+        /* 产品稿 changelog */
+        .sb-changelog { margin-bottom: 16px; }
+        .sb-changelog-toggle {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.75rem; font-weight: 600; color: #64748b;
+            cursor: pointer; padding: 8px 0; user-select: none;
+        }
+        .sb-changelog-toggle svg { transition: transform 0.2s; }
+        .sb-changelog-toggle.open svg { transform: rotate(90deg); }
+        .sb-changelog-body {
+            display: none; padding: 0 0 0 8px;
+            border-left: 2px solid rgba(99,102,241,0.15);
+            margin-left: 4px;
+        }
+        .sb-changelog-body.open { display: block; }
+        .sb-changelog-body h3 {
+            font-size: 0.6875rem; font-weight: 700; color: #334155;
+            margin: 12px 0 4px; padding: 0;
+        }
+        .sb-changelog-body ul {
+            margin: 0; padding: 0 0 0 16px;
+            font-size: 0.6875rem; color: #475569; line-height: 1.8;
+        }
+
+        /* 产品稿折叠条目 */
+        .sb-section { margin-bottom: 2px; }
+        .sb-hd {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 8px; border-radius: 10px; cursor: pointer;
+            font-size: 0.8125rem; font-weight: 600; color: #0f172a;
+            transition: background 0.15s; user-select: none;
+        }
+        .sb-hd:hover { background: rgba(0,0,0,0.02); }
+        .sb-hd .sb-arrow {
+            width: 16px; height: 16px; color: #94a3b8; flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+        .sb-section.op .sb-hd .sb-arrow { transform: rotate(90deg); }
+        .sb-hd .sb-badge-new {
+            font-size: 0.5rem; font-weight: 700; color: #059669;
+            background: rgba(5,150,105,0.08); padding: 1px 6px; border-radius: 4px;
+        }
+        .sb-hd .sb-badge-updated {
+            font-size: 0.5rem; font-weight: 700; color: #d97706;
+            background: rgba(217,119,6,0.08); padding: 1px 6px; border-radius: 4px;
+        }
+        .sb-bd {
+            display: none; padding: 4px 8px 12px 32px;
+            font-size: 0.75rem; color: #475569; line-height: 1.75;
+        }
+        .sb-section.op .sb-bd { display: block; }
+        .sb-bd h4 {
+            font-size: 0.75rem; font-weight: 700; color: #2563eb;
+            margin: 12px 0 4px; padding: 0;
+        }
+        .sb-bd blockquote {
+            margin: 8px 0; padding: 8px 12px; border-radius: 8px;
+            background: rgba(37,99,235,0.04);
+            border-left: 3px solid rgba(37,99,235,0.3);
+            font-size: 0.6875rem; color: #334155;
+        }
+        .sb-bd ul, .sb-bd ol { margin: 4px 0; padding-left: 16px; }
+        .sb-bd li { margin: 2px 0; }
+        .sb-bd table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 0.6875rem; }
+        .sb-bd th, .sb-bd td { padding: 4px 8px; border: 1px solid rgba(0,0,0,0.06); text-align: left; }
+        .sb-bd th { background: rgba(0,0,0,0.02); font-weight: 600; color: #334155; }
+        .sb-bd .diff-add { background: rgba(5,150,105,0.06); color: #065f46; padding: 2px 6px; border-radius: 4px; }
+        .sb-bd .diff-mod { background: rgba(217,119,6,0.06); color: #92400e; padding: 2px 6px; border-radius: 4px; }
+        .sb-bd .diff-note { background: rgba(234,179,8,0.06); color: #854d0e; padding: 4px 8px; border-radius: 6px; display: block; margin: 6px 0; }
+
+        /* 联动高亮 */
+        [data-s].sb-glow {
+            animation: sbGlow 2s ease-out;
+        }
+        @keyframes sbGlow {
+            0% { box-shadow: 0 0 0 3px rgba(99,102,241,0.4); }
+            100% { box-shadow: 0 0 0 0 rgba(99,102,241,0); }
+        }
+
         /* Toast */
         #toast {
             position: absolute; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px);
@@ -431,12 +570,12 @@
             <!-- ═══════════ Tab1: 首页 ═══════════ -->
             <div id="panel-home" class="tab-panel active flex flex-col min-h-0">
                 <!-- 顶部导航 -->
-                <nav class="top-nav">
+                <nav class="top-nav" data-s="1">
                     <div class="top-nav-tabs">
-                        <button class="top-nav-tab active">首页</button>
-                        <a class="top-nav-tab" href="我的.html" style="text-decoration:none;">我的</a>
+                        <button class="top-nav-tab active" data-doc="nav-home" data-prd="当前页面高亮态，不可点击">首页</button>
+                        <a class="top-nav-tab" href="我的.html" style="text-decoration:none;" data-doc="nav-me" data-prd="跳转我的页面（独立页面 我的.html）" data-track="/click/teacherLongHomePage/me | 点击我的 | 无">我的</a>
                     </div>
-                    <div class="top-nav-icon" onclick="openHistory()" title="历史记录" aria-label="历史记录">
+                    <div class="top-nav-icon" onclick="openHistory()" title="历史记录" aria-label="历史记录" data-doc="nav-history" data-prd="跳转历史记录页（独立页面），展示作业批改和拍照答疑的历史记录" data-track="/click/teacherLongHomePage/history | 点击历史记录 | 无">
                         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
                 </nav>
@@ -444,7 +583,7 @@
                 <div class="home-scroll">
                     <div class="pb-6">
                         <!-- AI 龙老师 Hero 横幅 -->
-                        <div class="hero-banner">
+                        <div class="hero-banner" data-s="2" data-doc="hero-banner" data-prd="品牌问候区，展示 IP 形象 + 问候语，纯展示不可交互">
                             <img src="组 7660.png" alt="AI 龙老师" class="mascot-img">
                             <div class="hero-text">
                                 <h1>Hi，我是AI 龙老师</h1>
@@ -457,15 +596,15 @@
 
                         <!-- ═══ 主功能双卡 + 次级工具行 ═══ -->
                         <div class="tools-area">
-                            <div class="main-tools">
-                                <div class="main-card mc-indigo" onclick="goToCorrection('correction')">
+                            <div class="main-tools" data-s="3">
+                                <div class="main-card mc-indigo" onclick="goToCorrection('correction')" data-doc="tool-correction" data-prd="跳转拍照页（mode=correction），拍照识别作业并 AI 批改，返回批改结果" data-track="/click/teacherLongHomePage/enterAiCorrection | 点击作业批改 | 无">
                                     <div class="main-card-icon">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                     </div>
                                     <h3>作业批改</h3>
                                     <p>拍照即出批改结果</p>
                                 </div>
-                                <div class="main-card mc-amber" onclick="openAiJiangTi()">
+                                <div class="main-card mc-amber" onclick="openAiJiangTi()" data-doc="tool-photo-qa" data-prd="跳转拍照页（mode=qa），拍照后 AI 逐步解析答疑，进入苏氏问答交互" data-track="/click/teacherLongHomePage/enterPhotoQa | 点击拍照解题 | 无">
                                     <div class="main-card-icon">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                                     </div>
@@ -473,50 +612,50 @@
                                     <p>AI 逐步解析答疑</p>
                                 </div>
                             </div>
-                            <div class="minor-tools">
-                                <div class="minor-tool" onclick="openBook()">
+                            <div class="minor-tools" data-s="4">
+                                <div class="minor-tool" onclick="openBook()" data-doc="tool-wrong-book" data-prd="跳转错题本页（错题本/错题本 01.html），查看按学科分类的错题列表" data-track="/click/teacherLongHomePage/enterWrongBook | 点击错题本 | 无">
                                     <div class="minor-tool-icon mi-green">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </div>
                                     <span class="minor-tool-label">错题本</span>
                                 </div>
-                                <div class="minor-tool" onclick="openUploadWrong()">
+                                <div class="minor-tool" onclick="openUploadWrong()" data-doc="tool-upload-wrong" data-prd="跳转拍照页（mode=wrong），拍照上传错题到错题本" data-track="/click/teacherLongHomePage/enterUploadWrong | 点击上传错题 | 无">
                                     <div class="minor-tool-icon mi-orange">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                                     </div>
                                     <span class="minor-tool-label">上传错题</span>
                                 </div>
-                                <div class="minor-tool" onclick="openErrorAnalysis()">
+                                <div class="minor-tool" onclick="openErrorAnalysis()" data-doc="tool-error-analysis" data-prd="跳转拍照页（mode=wrong），拍照识别错题后 AI 分析错因，复用上传错题拍照入口" data-track="/click/teacherLongHomePage/enterErrorAnalysis | 点击错因分析 | 无">
                                     <div class="minor-tool-icon mi-amber">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                                     </div>
                                     <span class="minor-tool-label">错因分析</span>
                                 </div>
-                                <div class="minor-tool" onclick="openEssayCorrection()">
+                                <div class="minor-tool" onclick="openEssayCorrection()" data-doc="tool-essay" data-prd="即将上线。跳转作文批改页面，拍照上传作文后 AI 给出批改建议和评分" data-track="/click/teacherLongHomePage/enterEssayCorrection | 点击作文批改 | 无">
                                     <div class="minor-tool-icon mi-rose">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                     </div>
                                     <span class="minor-tool-label">作文批改</span>
                                 </div>
-                                <div class="minor-tool" onclick="openPaperExplain()">
+                                <div class="minor-tool" onclick="openPaperExplain()" data-doc="tool-paper-explain" data-prd="即将上线。试卷讲解功能，拍照上传试卷后 AI 逐题讲解" data-track="/click/teacherLongHomePage/enterPaperExplain | 点击试卷讲解 | 无">
                                     <div class="minor-tool-icon mi-blue">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     </div>
                                     <span class="minor-tool-label">试卷讲解</span>
                                 </div>
-                                <div class="minor-tool" onclick="openErase()">
+                                <div class="minor-tool" onclick="openErase()" data-doc="tool-erase" data-prd="跳转试卷擦除页（试卷擦除/试卷擦除.html），拍照后自动擦除试卷上的手写笔迹" data-track="/click/teacherLongHomePage/enterErase | 点击试卷擦除 | 无">
                                     <div class="minor-tool-icon mi-purple">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </div>
                                     <span class="minor-tool-label">试卷擦除</span>
                                 </div>
-                                <div class="minor-tool" onclick="openRealExam()">
+                                <div class="minor-tool" onclick="openRealExam()" data-doc="tool-real-exam" data-prd="即将上线。根据用户年级动态显示：小学→小升初真题，初中（七八九年级）→中考真题" data-track="/click/teacherLongHomePage/enterRealExam | 点击真题入口 | 无">
                                     <div class="minor-tool-icon mi-teal">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
                                     </div>
                                     <span class="minor-tool-label" id="realExamLabel">小升初真题</span>
                                 </div>
-                                <div class="minor-tool" onclick="openExamPapers()">
+                                <div class="minor-tool" onclick="openExamPapers()" data-doc="tool-paper-download" data-prd="即将上线。跳转试卷下载列表页，可按学科和试卷类型筛选下载" data-track="/click/teacherLongHomePage/enterExamPapers | 点击试卷下载 | 无">
                                     <div class="minor-tool-icon mi-blue">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                     </div>
@@ -526,7 +665,7 @@
                         </div>
 
                         <!-- ═══ 视频课堂专区 ═══ -->
-                        <section class="vz-section">
+                        <section class="vz-section" data-s="5">
                             <div class="vz-header">
                                 <h2>
                                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -536,7 +675,7 @@
                             </div>
 
                             <!-- Featured: 新课标重点讲 -->
-                            <div class="vz-featured card-press" onclick="openKnowledgeVideos('new-standard')">
+                            <div class="vz-featured card-press" onclick="openKnowledgeVideos('new-standard')" data-doc="video-new-standard" data-prd="跳转知识点讲解视频页（cat=new-standard），展示新课标重点讲的语数英三科视频目录" data-track="/click/teacherLongHomePage/enterVideo | 点击视频课堂入口 | category#STRING：category：课程体系__new-standard-新课标重点讲">
                                 <div class="vf-glow"></div>
                                 <div class="vf-badge">
                                     <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -553,7 +692,7 @@
 
                             <!-- 2小卡并排 -->
                             <div class="vz-pair">
-                                <div class="vz-mini vz-mini-green card-press" onclick="openKnowledgeVideos('sync-course')">
+                                <div class="vz-mini vz-mini-green card-press" onclick="openKnowledgeVideos('sync-course')" data-doc="video-sync-course" data-prd="跳转知识点讲解视频页（cat=sync-course），与教材同步，默认匹配用户年级对应版本" data-track="/click/teacherLongHomePage/enterVideo | 点击视频课堂入口 | category#STRING：category：课程体系__sync-course-校内同步课">
                                     <div class="vz-mini-icon">
                                         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
                                     </div>
@@ -565,7 +704,7 @@
                                         <span class="vm-tag">英语</span>
                                     </div>
                                 </div>
-                                <div class="vz-mini vz-mini-orange card-press" onclick="openKnowledgeVideos('special-skills')">
+                                <div class="vz-mini vz-mini-orange card-press" onclick="openKnowledgeVideos('special-skills')" data-doc="video-special-skills" data-prd="跳转知识点讲解视频页（cat=special-skills），语文和英语阅读写作专项提升" data-track="/click/teacherLongHomePage/enterVideo | 点击视频课堂入口 | category#STRING：category：课程体系__special-skills-专项大招课">
                                     <div class="vz-mini-icon">
                                         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
                                     </div>
@@ -589,7 +728,7 @@
                         </section>
 
                         <!-- ═══ 精品试卷 ═══ -->
-                        <section class="feed-section" style="margin-bottom: 8px;">
+                        <section class="feed-section" style="margin-bottom: 8px;" data-s="6">
                             <div class="feed-header">
                                 <h2>
                                     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -611,6 +750,21 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- ═══ 模式切换按钮（手机框外） ═══ -->
+    <div class="mode-toggle" id="modeToggle">
+        <button class="active" onclick="setMode('demo')">演示</button>
+        <button onclick="setMode('review')">过稿</button>
+    </div>
+
+    <!-- ═══ 侧边栏产品稿浮窗（手机框外） ═══ -->
+    <div class="sb-panel" id="sbPanel">
+        <div class="sb-drag-bar" id="sbDragBar">
+            <span class="sb-drag-title">产品稿 · 首页 <span class="sb-ver">v1.0</span></span>
+            <button class="sb-close" onclick="setMode('demo')">✕</button>
+        </div>
+        <div class="sb-content" id="sidebarContent"></div>
     </div>
 
     <script>
@@ -796,6 +950,328 @@
             const isMiddleSchool = /[七八九]年级|初[一二三]/.test(grade);
             label.textContent = isMiddleSchool ? '中考真题' : '小升初真题';
         })();
+
+        /* ═══ 模式切换 & 侧边栏浮窗 ═══ */
+        function setMode(mode) {
+            var btns = document.querySelectorAll('#modeToggle button');
+            btns.forEach(function(b, i) { b.classList.toggle('active', (mode === 'demo' ? i === 0 : i === 1)); });
+            var panel = document.getElementById('sbPanel');
+            if (mode === 'review') {
+                panel.classList.add('open');
+                renderSidebar();
+            } else {
+                panel.classList.remove('open');
+            }
+        }
+        if (new URLSearchParams(window.location.search).get('mode') === 'review') setMode('review');
+
+        function renderSidebar() {
+            var container = document.getElementById('sidebarContent');
+            var changelogSrc = document.getElementById('prd-changelog');
+            var sectionsSrc = document.getElementById('prd-sections');
+            if (!changelogSrc || !sectionsSrc) return;
+            container.innerHTML = buildChangelog(changelogSrc.textContent) + buildSections(sectionsSrc.textContent);
+            container.querySelectorAll('.sb-hd').forEach(function(hd) {
+                hd.addEventListener('click', function() { this.parentElement.classList.toggle('op'); });
+            });
+            container.querySelectorAll('.sb-changelog-toggle').forEach(function(t) {
+                t.addEventListener('click', function() {
+                    this.classList.toggle('open');
+                    this.nextElementSibling.classList.toggle('open');
+                });
+            });
+            bindSidebarLinkage();
+        }
+
+        function buildChangelog(md) {
+            var html = marked.parse(md);
+            return '<div class="sb-changelog">' +
+                '<div class="sb-changelog-toggle"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> 更新日志</div>' +
+                '<div class="sb-changelog-body">' + html + '</div></div>';
+        }
+
+        function buildSections(md) {
+            var lines = md.split('\n');
+            var sections = []; var cur = null;
+            lines.forEach(function(line) {
+                var m = line.match(/^## (\d+)\.\s+(.+?)(?:\s+\[(NEW|UPDATED)\])?\s*$/);
+                if (m) {
+                    if (cur) sections.push(cur);
+                    cur = { num: m[1], title: m[2], badge: m[3] || '', lines: [] };
+                } else if (cur) {
+                    cur.lines.push(line);
+                }
+            });
+            if (cur) sections.push(cur);
+            return sections.map(function(s) {
+                var badge = '';
+                if (s.badge === 'NEW') badge = ' <span class="sb-badge-new">NEW</span>';
+                if (s.badge === 'UPDATED') badge = ' <span class="sb-badge-updated">UPDATED</span>';
+                var body = marked.parse(s.lines.join('\n'));
+                body = body.replace(/\[\+\]\s*/g, '<span class="diff-add">[+] </span>');
+                body = body.replace(/\[~\]\s*/g, '<span class="diff-mod">[~] </span>');
+                body = body.replace(/\[!\]\s*(.+?)(<br|<\/p|$)/g, '<span class="diff-note">[!] $1</span>$2');
+                return '<div class="sb-section" data-sb="' + s.num + '">' +
+                    '<div class="sb-hd"><svg class="sb-arrow" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>' +
+                    s.num + '. ' + s.title + badge + '</div>' +
+                    '<div class="sb-bd">' + body + '</div></div>';
+            }).join('');
+        }
+
+        function bindSidebarLinkage() {
+            document.querySelectorAll('[data-s]').forEach(function(el) {
+                el.addEventListener('click', function(e) {
+                    if (e.target.closest('.sb-panel') || e.target.closest('.mode-toggle')) return;
+                    var sId = this.getAttribute('data-s');
+                    var target = document.querySelector('[data-sb="' + sId + '"]');
+                    if (target) {
+                        target.parentElement.classList.add('op');
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        target.style.background = 'rgba(99,102,241,0.08)';
+                        setTimeout(function() { target.style.background = ''; }, 2000);
+                    }
+                });
+            });
+            document.querySelectorAll('[data-sb]').forEach(function(el) {
+                el.querySelector('.sb-hd').addEventListener('dblclick', function() {
+                    var sId = el.getAttribute('data-sb');
+                    var target = document.querySelector('[data-s="' + sId + '"]');
+                    if (target) {
+                        target.classList.add('sb-glow');
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        setTimeout(function() { target.classList.remove('sb-glow'); }, 2500);
+                    }
+                });
+            });
+        }
+
+        /* 浮窗拖拽 */
+        (function() {
+            var panel = document.getElementById('sbPanel');
+            var bar = document.getElementById('sbDragBar');
+            var isDragging = false, startX, startY, origX, origY;
+            bar.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                startX = e.clientX; startY = e.clientY;
+                var r = panel.getBoundingClientRect();
+                origX = r.left; origY = r.top;
+                e.preventDefault();
+            });
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+                panel.style.position = 'fixed';
+                panel.style.left = (origX + e.clientX - startX) + 'px';
+                panel.style.top = (origY + e.clientY - startY) + 'px';
+                panel.style.right = 'auto';
+            });
+            document.addEventListener('mouseup', function() { isDragging = false; });
+            bar.addEventListener('touchstart', function(e) {
+                isDragging = true;
+                var t = e.touches[0];
+                startX = t.clientX; startY = t.clientY;
+                var r = panel.getBoundingClientRect();
+                origX = r.left; origY = r.top;
+            }, { passive: true });
+            document.addEventListener('touchmove', function(e) {
+                if (!isDragging) return;
+                var t = e.touches[0];
+                panel.style.position = 'fixed';
+                panel.style.left = (origX + t.clientX - startX) + 'px';
+                panel.style.top = (origY + t.clientY - startY) + 'px';
+                panel.style.right = 'auto';
+            }, { passive: true });
+            document.addEventListener('touchend', function() { isDragging = false; });
+        })();
     </script>
+
+    <!-- ═══ 产品稿 Markdown 内容 ═══ -->
+    <script type="text/markdown" id="prd-changelog">
+### v1.0 · 2026-04-03
+- [新增] 首页产品稿初版
+- [新增] 主功能双卡：作业批改、拍照解题
+- [新增] 次级工具栏 8 项：错题本、上传错题、错因分析、作文批改、试卷讲解、试卷擦除、小升初/中考真题、试卷下载
+- [新增] 视频课堂专区：三种课程体系入口 + 学科 Tab 课程网格
+- [新增] 精品试卷专区：学科 Tab + 试卷列表
+    </script>
+
+    <script type="text/markdown" id="prd-sections">
+## 1. 顶部导航栏
+
+#### 结构说明
+
+页面顶部导航栏包含两部分：
+
+- **左侧 Tab**：「首页」和「我的」，文字形式切换。首页为当前页面高亮态（加粗加大），我的点击后跳转独立页面 `我的.html`
+- **右侧图标**：历史记录入口（时钟图标），点击跳转历史记录页面
+
+#### 交互逻辑
+
+- 「我的」为 `<a>` 标签直接跳转，非 Tab 面板切换（页面已拆分为独立 HTML）
+- 历史记录展示作业批改和拍照答疑的历史记录列表，支持按类型筛选
+
+#### 布局规范
+
+- 导航栏高度 44px，左右 padding 20px
+- 首页 Tab 字号 1.25rem/700，我的 Tab 字号 1.125rem/400 + 灰色（#a1a1aa）
+- 历史记录图标 36×36 圆形热区
+
+## 2. AI 龙老师问候区
+
+#### 结构说明
+
+品牌 IP 问候区，不可交互，纯展示用途：
+
+- **左侧**：AI 龙老师 IP 形象图（68×68 圆形头像）
+- **右侧**：问候文案
+  - 标题：「Hi，我是AI 龙老师」，紫色渐变色
+  - 副标题：闪电图标 + 「学习有疑问，尽管找我」
+
+#### 设计说明
+
+- 无背景卡片、无边框，直接融入页面底色
+- IP 图片使用 `组 7660.png`，后续替换为正式 IP 形象资源
+- 文案固定，不随用户信息变化
+
+> 这是品牌展示区，不承载功能逻辑。设计上追求简洁、亲切的第一印象。
+
+## 3. 主功能双卡
+
+#### 结构说明
+
+双列等宽卡片，是首页最核心的两个功能入口：
+
+| 卡片 | 名称 | 描述 | 跳转 | 配色 |
+|------|------|------|------|------|
+| 左 | 作业批改 | 拍照即出批改结果 | `作业批改.html?mode=correction` | indigo 紫蓝 |
+| 右 | 拍照解题 | AI 逐步解析答疑 | `作业批改.html?mode=qa` | amber 琥珀 |
+
+#### 交互逻辑
+
+- 两个入口共用同一拍照页面 `作业批改.html`，通过 URL 参数 `mode` 区分功能模式
+- 作业批改（mode=correction）：拍照后识别题目并返回批改结果，标记对错
+- 拍照解题（mode=qa）：拍照后 AI 逐步解析答题过程，进入苏氏问答交互页
+- 点击时同步写入 `sessionStorage.cameraMode`，拍照页读取决定识别逻辑
+
+#### 卡片规范
+
+- 圆角 20px，padding 18px 16px
+- 图标区 40×40 圆角 12px，白色半透背景
+- 标题字号 0.9375rem/700，描述字号 0.6875rem/灰色
+- 毛玻璃效果 + 柔和渐变底色
+
+## 4. 次级工具栏
+
+#### 结构说明
+
+4 列网格布局（grid），两行共 8 个工具入口。每个工具包含圆角图标 + 底部文字标签。
+
+| 序号 | 名称 | 跳转目标 | 状态 | 说明 |
+|------|------|----------|------|------|
+| 1 | 错题本 | `错题本/错题本 01.html` | 已上线 | 查看按学科分类的错题列表 |
+| 2 | 上传错题 | `作业批改.html?mode=wrong` | 已上线 | 拍照上传错题到错题本 |
+| 3 | 错因分析 | `作业批改.html?mode=wrong` | 已上线 | 拍照识别错题后 AI 分析错因，复用上传错题拍照入口 |
+| 4 | 作文批改 | 即将上线 | 待开发 | 拍照上传作文后 AI 给出批改建议和评分 |
+| 5 | 试卷讲解 | 即将上线 | 待开发 | 拍照上传试卷后 AI 逐题讲解 |
+| 6 | 试卷擦除 | `试卷擦除/试卷擦除.html` | 已上线 | 拍照后自动擦除试卷上的手写笔迹 |
+| 7 | 小升初真题 / 中考真题 | 即将上线 | 待开发 | 真题资源专区 |
+| 8 | 试卷下载 | 即将上线 | 待开发 | 按学科和类型筛选下载试卷 |
+
+#### 交互逻辑
+
+- **错因分析**：入口交互与上传错题共用拍照页（mode=wrong），但结果页增加错因分析模块，展示 AI 对错误原因的诊断
+- **小升初真题 / 中考真题**：根据用户当前年级动态显示文案
+  - 小学阶段（三~六年级）→ 显示「小升初真题」
+  - 初中阶段（七/八/九年级、初一/初二/初三）→ 显示「中考真题」
+  - 判断逻辑：`/[七八九]年级|初[一二三]/.test(grade)`，默认年级从 `sessionStorage.gradeClass` 读取
+- **未上线功能**：点击后显示 Toast 提示「XX（即将上线）」
+
+#### 布局规范
+
+- 4 列等宽 grid，行间距 12px
+- 图标区 44×44 圆角 14px，白色半透背景
+- 标签字号 0.6875rem/500，颜色 #475569
+- 配色：绿/橙/琥珀/玫红/蓝/紫/青绿/蓝
+
+[!] 错因分析当前复用上传错题的拍照入口（mode=wrong），后续若需独立模式需新增 mode 枚举值。
+
+## 5. 视频课堂专区
+
+#### 结构说明
+
+视频课堂分为两层结构：
+
+**第一层：课程体系入口（1 大 + 2 小卡片）**
+
+| 卡片 | 名称 | 副标题 | 学科 | 类型 |
+|------|------|--------|------|------|
+| 大卡 | 新课标重点讲 | 紧扣新课标考点，重点题型逐个突破 | 语文/数学/英语 | 重磅推荐 |
+| 小卡左 | 校内同步课 | 与教材同步 | 语文/数学/英语 | — |
+| 小卡右 | 专项大招课 | 阅读写作提升 | 语文/英语 | — |
+
+所有卡片点击后跳转 `知识点讲解视频.html?cat={category}`，进入手风琴展开式的视频目录页。
+
+**第二层：按学科浏览课程网格**
+
+- 顶部 Tab：语文 | 数学 | 英语 | 科学 | 道法
+- Tab 切换后渲染双列课程卡片网格
+- 每张课程卡片包含：
+  - 彩色封面 + 播放按钮（32×32 圆形白底）
+  - 课程标题（最多两行，超出省略）
+  - 标签（新课标 / 同步课 / 大招课）+ 学习进度
+- 课程卡片点击后跳转对应 category 的视频目录
+
+#### 数据结构
+
+课程数据由 JS 对象 `COURSE_DATA` 定义，按学科分组：
+- `title`：课程标题
+- `tag`：课程体系标签（新课标 / 同步课 / 大招课）
+- `tagCls`：标签样式类名
+- `lessons`：总课时数
+- `done`：已学课时数（0 = 显示"N节课"，全部完成 = "已学完"，部分完成 = "已学X/Y节"）
+- `cover`：封面配色类名
+- `cat`：跳转 category 参数
+
+#### 交互逻辑
+
+- Tab 点击事件委托在容器 `#vzCourseTabs` 上，切换 active 类并调用 `renderVzCourses(subj)` 重新渲染网格
+- 课程卡片点击跳转 `知识点讲解视频.html?cat={cat}`
+
+> 校内同步课默认匹配用户已选年级对应的教材版本，避免每次让用户重新选择。
+
+## 6. 精品试卷
+
+#### 结构说明
+
+精品试卷以列表形式展示，支持按学科筛选：
+
+- **顶部 Tab**：语文 | 数学 | 英语 | 科学
+- **列表项结构**：每行包含学科图标 + 试卷标题 + 类型标签 + 下载量 + 右箭头
+
+#### 试卷类型
+
+| 类型 | 标签色 | 说明 |
+|------|--------|------|
+| 期中 | 蓝色 | 期中考试试卷 |
+| 期末 | 粉色 | 期末考试试卷 |
+| 单元测试 | 绿色 | 单元检测试卷 |
+| 模拟题 | 橙色 | 模拟考试试卷 |
+
+#### 数据结构
+
+试卷数据由 JS 对象 `PAPER_DATA` 定义，按学科分组：
+- `title`：试卷名称
+- `type`：试卷类型（期中/期末/单元测试/模拟题）
+- `typeCls`：类型标签样式类名
+- `downloads`：下载量展示文案
+
+#### 交互逻辑
+
+- Tab 切换渲染对应学科的试卷列表
+- 每个试卷项点击后触发 `openExamPapers()` → 当前显示 Toast（即将上线），后续跳转试卷详情/下载页
+- 学科图标根据当前 Tab 学科自动匹配配色
+
+[!] 精品试卷当前为静态 mock 数据，上线后需对接后端试卷资源接口，支持分页加载和搜索。
+    </script>
+
 </body>
 </html>

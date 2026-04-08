@@ -36,15 +36,6 @@
         .v-hero-decor{position:absolute;right:-12px;bottom:-18px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.08);z-index:1;pointer-events:none}
         .v-hero-decor2{position:absolute;right:50px;bottom:30px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.06);z-index:1;pointer-events:none}
 
-        /* ── 分类选择器（横滑胶囊） ── */
-        .v-cat-bar{display:flex;gap:8px;padding:12px 20px 6px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
-        .v-cat-bar::-webkit-scrollbar{display:none}
-        .v-cat-pill{flex-shrink:0;padding:8px 16px;border-radius:999px;font-size:.8125rem;font-weight:600;cursor:pointer;border:1.5px solid rgba(226,232,240,.8);background:rgba(255,255,255,.88);color:#52525b;transition:all .2s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
-        .v-cat-pill:active{transform:scale(.97)}
-        .v-cat-pill.active[data-cat="new-standard"]{background:#4f46e5;color:#fff;border-color:#4f46e5;box-shadow:0 4px 16px rgba(79,70,229,.35)}
-        .v-cat-pill.active[data-cat="sync-course"]{background:#059669;color:#fff;border-color:#059669;box-shadow:0 4px 16px rgba(5,150,105,.35)}
-        .v-cat-pill.active[data-cat="special-skills"]{background:#ea580c;color:#fff;border-color:#ea580c;box-shadow:0 4px 16px rgba(234,88,12,.35)}
-
         /* ── 学科 Tab ── */
         .v-subj-bar{display:flex;gap:6px;padding:10px 20px 6px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
         .v-subj-bar::-webkit-scrollbar{display:none}
@@ -157,9 +148,6 @@
                 <div class="v-hero-decor"></div>
                 <div class="v-hero-decor2"></div>
             </div>
-
-            <!-- 分类胶囊 -->
-            <div class="v-cat-bar" id="cat-bar"></div>
 
             <!-- 学科 Tab -->
             <div class="v-subj-bar" id="subj-bar"></div>
@@ -389,12 +377,6 @@
     /* ══════════ 渲染 ══════════ */
     const $ = id => document.getElementById(id);
 
-    function renderCatBar() {
-        $('cat-bar').innerHTML = CATEGORIES.map(c =>
-            `<div class="v-cat-pill${c.id === activeCat ? ' active' : ''}" data-cat="${c.id}">${c.label}</div>`
-        ).join('');
-    }
-
     function renderHero() {
         const cat = CATEGORIES.find(c => c.id === activeCat);
         const hero = $('hero');
@@ -488,7 +470,6 @@
     }
 
     function renderAll() {
-        renderCatBar();
         renderHero();
         renderSubjBar();
         renderTextbookBar();
@@ -497,13 +478,6 @@
 
     /* ══════════ 交互 ══════════ */
     function goBack() { window.location.href = '首页.html'; }
-
-    $('cat-bar').addEventListener('click', e => {
-        const pill = e.target.closest('.v-cat-pill');
-        if (!pill) return;
-        activeCat = pill.dataset.cat;
-        renderAll();
-    });
 
     $('subj-bar').addEventListener('click', e => {
         const tab = e.target.closest('.v-subj-tab');
