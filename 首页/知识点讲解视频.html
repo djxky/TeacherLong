@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>知识点讲解视频 - AI 龙老师</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter','Noto Sans SC',sans-serif;background:#f4f4f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
+        .iphone-frame{width:393px;height:852px;position:relative;overflow:hidden;background:#f5f3ff;box-shadow:0 0 0 12px #18181b,0 0 0 14px #27272a,0 24px 48px -12px rgba(24,24,27,.2);border-radius:50px;display:flex;flex-direction:column}
+        .dynamic-island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:120px;height:35px;background:linear-gradient(180deg,#27272a,#18181b);border-radius:20px;z-index:1000;pointer-events:none}
+
+        /* ── 顶栏 ── */
+        .v-topbar{min-height:44px;padding:4px 8px 4px 4px;display:flex;align-items:center;gap:4px;flex-shrink:0;position:relative;z-index:20}
+        .v-back{width:40px;height:40px;border-radius:10px;border:none;background:0 0;display:flex;align-items:center;justify-content:center;color:#52525b;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+        .v-back:active{background:rgba(0,0,0,.05)}
+        .v-topbar-title{flex:1;text-align:center;font-size:1.0625rem;font-weight:700;color:#18181b;letter-spacing:-.02em}
+        .v-topbar-spacer{width:40px;height:40px;flex-shrink:0;pointer-events:none}
+
+        /* ── Hero 区 ── */
+        .v-hero{position:relative;margin:0 20px 4px;border-radius:20px;padding:24px 20px 20px;overflow:hidden;color:#fff;flex-shrink:0;transition:all .4s cubic-bezier(.4,0,.2,1)}
+        .v-hero::before{content:'';position:absolute;inset:0;z-index:0}
+        .v-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.18) 0%,transparent 55%);z-index:1;pointer-events:none;border-radius:20px}
+        .v-hero[data-cat="new-standard"]{background:linear-gradient(145deg,#3730a3 0%,#4f46e5 30%,#6366f1 60%,#818cf8 100%)}
+        .v-hero[data-cat="new-standard"]::before{background:radial-gradient(circle at 85% 20%,rgba(129,140,248,.5),transparent 55%),radial-gradient(circle at 15% 80%,rgba(99,102,241,.3),transparent 45%)}
+        .v-hero[data-cat="sync-course"]{background:linear-gradient(145deg,#065f46 0%,#059669 30%,#10b981 60%,#34d399 100%)}
+        .v-hero[data-cat="sync-course"]::before{background:radial-gradient(circle at 85% 20%,rgba(52,211,153,.5),transparent 55%),radial-gradient(circle at 15% 80%,rgba(16,185,129,.3),transparent 45%)}
+        .v-hero[data-cat="special-skills"]{background:linear-gradient(145deg,#9a3412 0%,#ea580c 30%,#f97316 60%,#fb923c 100%)}
+        .v-hero[data-cat="special-skills"]::before{background:radial-gradient(circle at 85% 20%,rgba(251,146,60,.5),transparent 55%),radial-gradient(circle at 15% 80%,rgba(249,115,22,.3),transparent 45%)}
+        .v-hero-content{position:relative;z-index:2}
+        .v-hero-badge{display:inline-flex;align-items:center;gap:5px;font-size:.625rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:rgba(255,255,255,.2);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:4px 10px;border-radius:999px;margin-bottom:10px}
+        .v-hero h2{font-size:1.375rem;font-weight:800;line-height:1.3;letter-spacing:-.03em}
+        .v-hero p{font-size:.75rem;opacity:.88;margin-top:6px;line-height:1.5}
+        .v-hero-decor{position:absolute;right:-12px;bottom:-18px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.08);z-index:1;pointer-events:none}
+        .v-hero-decor2{position:absolute;right:50px;bottom:30px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.06);z-index:1;pointer-events:none}
+
+        /* ── 分类选择器（横滑胶囊） ── */
+        .v-cat-bar{display:flex;gap:8px;padding:12px 20px 6px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
+        .v-cat-bar::-webkit-scrollbar{display:none}
+        .v-cat-pill{flex-shrink:0;padding:8px 16px;border-radius:999px;font-size:.8125rem;font-weight:600;cursor:pointer;border:1.5px solid rgba(226,232,240,.8);background:rgba(255,255,255,.88);color:#52525b;transition:all .2s;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+        .v-cat-pill:active{transform:scale(.97)}
+        .v-cat-pill.active[data-cat="new-standard"]{background:#4f46e5;color:#fff;border-color:#4f46e5;box-shadow:0 4px 16px rgba(79,70,229,.35)}
+        .v-cat-pill.active[data-cat="sync-course"]{background:#059669;color:#fff;border-color:#059669;box-shadow:0 4px 16px rgba(5,150,105,.35)}
+        .v-cat-pill.active[data-cat="special-skills"]{background:#ea580c;color:#fff;border-color:#ea580c;box-shadow:0 4px 16px rgba(234,88,12,.35)}
+
+        /* ── 学科 Tab ── */
+        .v-subj-bar{display:flex;gap:6px;padding:10px 20px 6px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
+        .v-subj-bar::-webkit-scrollbar{display:none}
+        .v-subj-tab{flex-shrink:0;padding:6px 14px;border-radius:10px;font-size:.8125rem;font-weight:600;cursor:pointer;color:#71717a;background:transparent;transition:all .2s;border:none;-webkit-tap-highlight-color:transparent}
+        .v-subj-tab:active{transform:scale(.97)}
+        .v-subj-tab.active{background:rgba(0,0,0,.06);color:#18181b}
+
+        /* ── 教材选择器（校内同步课专属） ── */
+        .v-textbook-bar{display:flex;align-items:center;gap:8px;padding:6px 20px 2px;flex-shrink:0}
+        .v-textbook-bar.hidden{display:none}
+        .v-tb-chip{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:10px;font-size:.75rem;font-weight:600;color:#52525b;background:rgba(255,255,255,.88);border:1px solid rgba(226,232,240,.85);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s}
+        .v-tb-chip:active{background:rgba(226,232,240,.5)}
+        .v-tb-chip svg{width:14px;height:14px;color:#a1a1aa}
+        .v-tb-chip .v-tb-val{color:#18181b}
+
+        /* ── 内容滚动区 ── */
+        .v-content{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:8px}
+        .v-content::-webkit-scrollbar{display:none}
+
+        /* ── 章节手风琴 ── */
+        .v-chapter{margin:0 20px 10px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:16px;border:1px solid rgba(226,232,240,.85);box-shadow:0 4px 20px rgba(0,0,0,.04);overflow:hidden}
+        .v-ch-header{display:flex;align-items:center;gap:12px;padding:14px 14px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s}
+        .v-ch-header:active{background:rgba(99,102,241,.04)}
+        .v-chapter.is-open .v-ch-header{border-bottom:1px solid rgba(226,232,240,.7)}
+        .v-ch-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.125rem}
+        .v-hero[data-cat="new-standard"] ~ .v-content .v-ch-icon,
+        [data-active-cat="new-standard"] .v-ch-icon{background:linear-gradient(135deg,rgba(99,102,241,.14),rgba(139,92,246,.1));color:#6366f1}
+        [data-active-cat="sync-course"] .v-ch-icon{background:linear-gradient(135deg,rgba(16,185,129,.14),rgba(5,150,105,.1));color:#059669}
+        [data-active-cat="special-skills"] .v-ch-icon{background:linear-gradient(135deg,rgba(249,115,22,.14),rgba(234,88,12,.1));color:#ea580c}
+        .v-ch-body{flex:1;min-width:0}
+        .v-ch-title{font-size:.875rem;font-weight:700;color:#18181b;line-height:1.35}
+        .v-ch-meta{font-size:.6875rem;color:#a1a1aa;margin-top:4px}
+        .v-ch-arrow{color:#d4d4d8;flex-shrink:0;transition:transform .25s ease}
+        .v-chapter.is-open .v-ch-arrow{transform:rotate(90deg)}
+
+        .v-ch-expand{display:none;padding:10px 10px 6px}
+        .v-chapter.is-open .v-ch-expand{display:block}
+
+        /* 播放器内嵌 */
+        .v-player{border-radius:12px;overflow:hidden;background:#0f0f12;position:relative;aspect-ratio:16/9;margin-bottom:12px;box-shadow:0 6px 20px -8px rgba(15,15,18,.35)}
+        .v-player-poster{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+        [data-active-cat="new-standard"] .v-player-poster{background:linear-gradient(145deg,#1e1b4b,#312e81 40%,#4c1d95)}
+        [data-active-cat="sync-course"] .v-player-poster{background:linear-gradient(145deg,#064e3b,#065f46 40%,#047857)}
+        [data-active-cat="special-skills"] .v-player-poster{background:linear-gradient(145deg,#7c2d12,#9a3412 40%,#c2410c)}
+        .v-player-poster::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.12),transparent 55%)}
+        .v-play-btn{position:relative;z-index:2;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.95);border:none;display:flex;align-items:center;justify-content:center;color:#6366f1;cursor:pointer;box-shadow:0 8px 28px rgba(0,0,0,.25);transition:transform .15s}
+        [data-active-cat="sync-course"] .v-play-btn{color:#059669}
+        [data-active-cat="special-skills"] .v-play-btn{color:#ea580c}
+        .v-play-btn:active{transform:scale(.92)}
+        .v-now-label{position:absolute;bottom:8px;left:10px;right:10px;z-index:2;font-size:.75rem;font-weight:600;color:rgba(255,255,255,.92);text-shadow:0 1px 6px rgba(0,0,0,.5);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+        /* 视频条目 */
+        .v-ep{margin-bottom:6px;background:rgba(255,255,255,.95);border-radius:10px;padding:10px 10px;border:1px solid rgba(226,232,240,.9);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s,border-color .15s;-webkit-tap-highlight-color:transparent}
+        .v-ep:active{transform:scale(.99)}
+        .v-ep.active{border-color:rgba(99,102,241,.4);background:linear-gradient(135deg,rgba(99,102,241,.07),rgba(139,92,246,.04))}
+        [data-active-cat="sync-course"] .v-ep.active{border-color:rgba(16,185,129,.4);background:linear-gradient(135deg,rgba(16,185,129,.07),rgba(5,150,105,.04))}
+        [data-active-cat="special-skills"] .v-ep.active{border-color:rgba(249,115,22,.4);background:linear-gradient(135deg,rgba(249,115,22,.07),rgba(234,88,12,.04))}
+        .v-ep-num{width:24px;height:24px;border-radius:6px;background:#f4f4f5;color:#71717a;font-size:.6875rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .v-ep.active .v-ep-num{background:#6366f1;color:#fff}
+        [data-active-cat="sync-course"] .v-ep.active .v-ep-num{background:#059669}
+        [data-active-cat="special-skills"] .v-ep.active .v-ep-num{background:#ea580c}
+        .v-ep-info{flex:1;min-width:0}
+        .v-ep-title{font-size:.8125rem;font-weight:600;color:#18181b;line-height:1.35}
+        .v-ep-dur{font-size:.625rem;color:#a1a1aa;margin-top:2px}
+
+        /* ── 教材弹窗 ── */
+        .v-modal-overlay{position:absolute;inset:0;z-index:500;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center}
+        .v-modal-overlay.open{display:flex}
+        .v-modal-sheet{width:100%;background:#fff;border-radius:20px 20px 0 0;max-height:70%;display:flex;flex-direction:column;box-shadow:0 -12px 48px rgba(0,0,0,.15)}
+        .v-modal-handle{width:40px;height:4px;border-radius:999px;background:#d4d4d8;margin:10px auto 0}
+        .v-modal-head{padding:14px 20px 10px;display:flex;align-items:center;justify-content:space-between}
+        .v-modal-head h3{font-size:1rem;font-weight:700;color:#18181b}
+        .v-modal-close{width:32px;height:32px;border-radius:999px;border:none;background:#f4f4f5;color:#71717a;display:flex;align-items:center;justify-content:center;cursor:pointer}
+        .v-modal-body{flex:1;overflow-y:auto;padding:0 20px 24px;-webkit-overflow-scrolling:touch}
+        .v-modal-body::-webkit-scrollbar{display:none}
+        .v-modal-label{font-size:.75rem;font-weight:600;color:#71717a;margin:14px 0 8px}
+        .v-modal-options{display:flex;flex-wrap:wrap;gap:8px}
+        .v-modal-opt{padding:8px 16px;border-radius:10px;font-size:.8125rem;font-weight:600;color:#52525b;background:#f4f4f5;border:1.5px solid transparent;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
+        .v-modal-opt:active{transform:scale(.97)}
+        .v-modal-opt.selected{background:rgba(99,102,241,.1);color:#4f46e5;border-color:rgba(99,102,241,.4)}
+
+        /* ── 空状态 ── */
+        .v-empty{padding:60px 20px;text-align:center;color:#a1a1aa;font-size:.8125rem;line-height:1.6}
+    </style>
+</head>
+<body>
+    <div class="iphone-frame" id="app" data-active-cat="new-standard">
+        <div class="dynamic-island"></div>
+
+        <div class="flex-1 min-h-0 flex flex-col pt-[50px]">
+            <!-- 顶栏 -->
+            <header class="v-topbar">
+                <button type="button" class="v-back" onclick="goBack()" aria-label="返回">
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <span class="v-topbar-title">知识点讲解视频</span>
+                <div class="v-topbar-spacer" aria-hidden="true"></div>
+            </header>
+
+            <!-- Hero 区 -->
+            <div class="v-hero" id="hero" data-cat="new-standard">
+                <div class="v-hero-content">
+                    <div class="v-hero-badge" id="hero-badge">
+                        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        <span id="hero-badge-text">精选课程</span>
+                    </div>
+                    <h2 id="hero-title">新课标重点讲</h2>
+                    <p id="hero-desc">紧扣新课标考点，重点题型逐个突破</p>
+                </div>
+                <div class="v-hero-decor"></div>
+                <div class="v-hero-decor2"></div>
+            </div>
+
+            <!-- 分类胶囊 -->
+            <div class="v-cat-bar" id="cat-bar"></div>
+
+            <!-- 学科 Tab -->
+            <div class="v-subj-bar" id="subj-bar"></div>
+
+            <!-- 教材选择器（仅校内同步课展示） -->
+            <div class="v-textbook-bar hidden" id="textbook-bar">
+                <div class="v-tb-chip" id="tb-grade" onclick="openTextbookModal('grade')">
+                    <span class="v-tb-val" id="tb-grade-val">三年级</span>
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </div>
+                <div class="v-tb-chip" id="tb-edition" onclick="openTextbookModal('edition')">
+                    <span class="v-tb-val" id="tb-edition-val">人教版</span>
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </div>
+            </div>
+
+            <!-- 内容列表 -->
+            <div class="v-content" id="content-area"></div>
+        </div>
+
+        <!-- 教材选择弹窗 -->
+        <div class="v-modal-overlay" id="tb-modal">
+            <div class="v-modal-sheet">
+                <div class="v-modal-handle"></div>
+                <div class="v-modal-head">
+                    <h3 id="tb-modal-title">选择年级</h3>
+                    <button class="v-modal-close" onclick="closeTextbookModal()">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <div class="v-modal-body" id="tb-modal-body"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    /* ══════════ 数据层 ══════════ */
+    const STUDENT_GRADE = sessionStorage.getItem('gradeClass') || '三年级';
+    const STUDENT_GRADE_NUM = parseInt(STUDENT_GRADE) || 3;
+
+    const CATEGORIES = [
+        {
+            id: 'new-standard',
+            label: '新课标重点讲',
+            badge: '精选课程',
+            title: '新课标重点讲',
+            desc: '紧扣新课标考点，重点题型逐个突破',
+            subjects: ['语文', '数学', '英语'],
+            data: {
+                '语文': [
+                    { title: '探究性试题：阅读策略类', meta: '4 个视频', videos: [
+                        { title: '信息提取与整合', dur: '09:22' },
+                        { title: '观点辨析与评价', dur: '11:05' },
+                        { title: '跨文本比较阅读', dur: '08:48' },
+                        { title: '真题实战演练', dur: '12:30' }
+                    ]},
+                    { title: '整本书阅读：方法与策略', meta: '3 个视频', videos: [
+                        { title: '阅读计划的制定', dur: '07:15' },
+                        { title: '人物关系梳理法', dur: '10:20' },
+                        { title: '读后感写作技巧', dur: '09:40' }
+                    ]},
+                    { title: '非连续性文本阅读', meta: '3 个视频', videos: [
+                        { title: '图表信息提取', dur: '08:10' },
+                        { title: '说明文结构分析', dur: '09:55' },
+                        { title: '综合分析训练', dur: '10:30' }
+                    ]}
+                ],
+                '数学': [
+                    { title: '探究性试题：几何与空间', meta: '3 个视频', videos: [
+                        { title: '平面图形面积推导', dur: '10:15' },
+                        { title: '立体图形展开与拼合', dur: '11:30' },
+                        { title: '综合探究题精讲', dur: '12:00' }
+                    ]},
+                    { title: '数据分析与统计', meta: '3 个视频', videos: [
+                        { title: '统计图的选择与分析', dur: '09:20' },
+                        { title: '平均数与中位数', dur: '08:45' },
+                        { title: '可能性与概率初步', dur: '10:10' }
+                    ]}
+                ],
+                '英语': [
+                    { title: '探究性试题：语篇理解', meta: '3 个视频', videos: [
+                        { title: '主旨大意快速定位', dur: '08:30' },
+                        { title: '推理判断技巧', dur: '09:50' },
+                        { title: '词义猜测策略', dur: '07:45' }
+                    ]},
+                    { title: '情景交际与写作', meta: '2 个视频', videos: [
+                        { title: '日常情景对话', dur: '08:20' },
+                        { title: '看图写话方法', dur: '09:10' }
+                    ]}
+                ]
+            }
+        },
+        {
+            id: 'sync-course',
+            label: '校内同步课',
+            badge: '教材同步',
+            title: '校内同步课',
+            desc: '与校内教材同步，系统查漏补缺',
+            subjects: ['语文', '数学', '英语', '科学', '道法'],
+            needsTextbook: true,
+            editions: {
+                '语文': ['人教版', '部编版'],
+                '数学': ['人教版', '北师大版', '苏教版'],
+                '英语': ['人教版(PEP)', '外研版', '译林版'],
+                '科学': ['教科版', '苏教版'],
+                '道法': ['人教版']
+            },
+            grades: ['一年级', '二年级', '三年级', '四年级', '五年级', '六年级'],
+            data: {
+                '语文': [
+                    { title: '第一单元  大青树下的小学', meta: '3 个视频', videos: [
+                        { title: '《大青树下的小学》精讲', dur: '10:20' },
+                        { title: '《花的学校》精讲', dur: '09:15' },
+                        { title: '《不懂就问》拓展阅读', dur: '07:40' }
+                    ]},
+                    { title: '第二单元  秋天的雨', meta: '3 个视频', videos: [
+                        { title: '《古诗三首》逐句赏析', dur: '12:30' },
+                        { title: '《铺满金色巴掌的水泥道》', dur: '09:00' },
+                        { title: '《秋天的雨》精读', dur: '10:45' }
+                    ]},
+                    { title: '第三单元  童话世界', meta: '3 个视频', videos: [
+                        { title: '《卖火柴的小女孩》精讲', dur: '11:20' },
+                        { title: '《那一定会很好》', dur: '08:30' },
+                        { title: '《在牛肚子里旅行》', dur: '09:55' }
+                    ]}
+                ],
+                '数学': [
+                    { title: '第一单元  时、分、秒', meta: '2 个视频', videos: [
+                        { title: '认识秒与时间单位换算', dur: '08:40' },
+                        { title: '经过时间的计算', dur: '09:30' }
+                    ]},
+                    { title: '第二单元  万以内的加减法', meta: '3 个视频', videos: [
+                        { title: '笔算加法（进位）', dur: '10:20' },
+                        { title: '笔算减法（退位）', dur: '10:15' },
+                        { title: '估算与验算', dur: '08:55' }
+                    ]},
+                    { title: '第三单元  测量', meta: '2 个视频', videos: [
+                        { title: '毫米和分米', dur: '09:10' },
+                        { title: '千米和吨', dur: '10:00' }
+                    ]}
+                ],
+                '英语': [
+                    { title: 'Unit 1  Hello!', meta: '2 个视频', videos: [
+                        { title: 'Part A  Let\'s talk & learn', dur: '09:20' },
+                        { title: 'Part B  核心句型与练习', dur: '10:05' }
+                    ]},
+                    { title: 'Unit 2  Colours', meta: '2 个视频', videos: [
+                        { title: 'Part A  颜色词汇与对话', dur: '08:50' },
+                        { title: 'Part B  综合训练', dur: '09:30' }
+                    ]}
+                ],
+                '科学': [
+                    { title: '第一单元  水', meta: '2 个视频', videos: [
+                        { title: '水到哪里去了', dur: '08:15' },
+                        { title: '水沸腾了', dur: '09:00' }
+                    ]},
+                    { title: '第二单元  空气', meta: '2 个视频', videos: [
+                        { title: '感受空气', dur: '07:50' },
+                        { title: '空气能占据空间吗', dur: '08:40' }
+                    ]}
+                ],
+                '道法': [
+                    { title: '第一单元  快乐学习', meta: '2 个视频', videos: [
+                        { title: '学习伴我成长', dur: '08:10' },
+                        { title: '我学习 我快乐', dur: '07:55' }
+                    ]}
+                ]
+            }
+        },
+        {
+            id: 'special-skills',
+            label: '专项大招课',
+            badge: '技能突破',
+            title: '专项大招课',
+            desc: '阅读写作专项提升，掌握核心大招',
+            subjects: ['语文', '英语'],
+            data: {
+                '语文': [
+                    { title: '阅读理解高分大招', meta: '4 个视频', videos: [
+                        { title: '概括段意三步法', dur: '09:30' },
+                        { title: '修辞手法辨析与作用', dur: '10:15' },
+                        { title: '人物描写分析套路', dur: '11:00' },
+                        { title: '开放性题目答题框架', dur: '08:45' }
+                    ]},
+                    { title: '作文提分秘籍', meta: '3 个视频', videos: [
+                        { title: '审题立意不跑偏', dur: '09:20' },
+                        { title: '开头结尾出彩法', dur: '10:30' },
+                        { title: '细节描写让文章生动', dur: '11:15' }
+                    ]},
+                    { title: '古诗文阅读攻略', meta: '2 个视频', videos: [
+                        { title: '课内古诗词默写高频考点', dur: '08:40' },
+                        { title: '文言文断句与翻译', dur: '10:50' }
+                    ]}
+                ],
+                '英语': [
+                    { title: '阅读理解实战技巧', meta: '3 个视频', videos: [
+                        { title: '首尾句定位主旨', dur: '08:55' },
+                        { title: '排除干扰项技巧', dur: '09:40' },
+                        { title: '完形填空答题法', dur: '10:20' }
+                    ]},
+                    { title: '英语写作模板', meta: '2 个视频', videos: [
+                        { title: '信件/邮件写作框架', dur: '09:10' },
+                        { title: '看图说话高分句型', dur: '08:35' }
+                    ]}
+                ]
+            }
+        }
+    ];
+
+    /* ══════════ 状态 ══════════ */
+    let activeCat = 'new-standard';
+    let activeSubject = {};
+    let expandedChapter = {};
+    let selectedVideo = {};
+    let syncGrade = STUDENT_GRADE.replace(/[^\u4e00-\u9fa5]/g, '') || '三年级';
+    let syncEdition = {};
+
+    CATEGORIES.forEach(c => {
+        activeSubject[c.id] = c.subjects[0];
+        if (c.needsTextbook) {
+            Object.keys(c.editions).forEach(subj => {
+                syncEdition[subj] = c.editions[subj][0];
+            });
+        }
+    });
+
+    /* ══════════ 渲染 ══════════ */
+    const $ = id => document.getElementById(id);
+
+    function renderCatBar() {
+        $('cat-bar').innerHTML = CATEGORIES.map(c =>
+            `<div class="v-cat-pill${c.id === activeCat ? ' active' : ''}" data-cat="${c.id}">${c.label}</div>`
+        ).join('');
+    }
+
+    function renderHero() {
+        const cat = CATEGORIES.find(c => c.id === activeCat);
+        const hero = $('hero');
+        hero.dataset.cat = activeCat;
+        $('app').dataset.activeCat = activeCat;
+        $('hero-badge-text').textContent = cat.badge;
+        $('hero-title').textContent = cat.title;
+        $('hero-desc').textContent = cat.desc;
+    }
+
+    function renderSubjBar() {
+        const cat = CATEGORIES.find(c => c.id === activeCat);
+        const subj = activeSubject[activeCat];
+        $('subj-bar').innerHTML = cat.subjects.map(s =>
+            `<button class="v-subj-tab${s === subj ? ' active' : ''}" data-subj="${s}">${s}</button>`
+        ).join('');
+    }
+
+    function renderTextbookBar() {
+        const cat = CATEGORIES.find(c => c.id === activeCat);
+        const bar = $('textbook-bar');
+        if (!cat.needsTextbook) {
+            bar.classList.add('hidden');
+            return;
+        }
+        bar.classList.remove('hidden');
+        const subj = activeSubject[activeCat];
+        $('tb-grade-val').textContent = syncGrade;
+        $('tb-edition-val').textContent = syncEdition[subj] || '人教版';
+    }
+
+    function renderContent() {
+        const cat = CATEGORIES.find(c => c.id === activeCat);
+        const subj = activeSubject[activeCat];
+        const chapters = (cat.data && cat.data[subj]) || [];
+        const area = $('content-area');
+
+        if (!chapters.length) {
+            area.innerHTML = '<div class="v-empty">该学科视频即将上线，敬请期待</div>';
+            return;
+        }
+
+        const key = activeCat + '|' + subj;
+
+        area.innerHTML = chapters.map((ch, ci) => {
+            const chKey = key + '|' + ci;
+            const isOpen = expandedChapter[key] === ci;
+            const vid = selectedVideo[chKey] ?? 0;
+            const currentV = ch.videos[vid];
+
+            const eps = ch.videos.map((v, vi) => `
+                <div class="v-ep${vi === vid ? ' active' : ''}" data-chi="${ci}" data-vi="${vi}">
+                    <div class="v-ep-num">${vi + 1}</div>
+                    <div class="v-ep-info">
+                        <p class="v-ep-title">${v.title}</p>
+                        <p class="v-ep-dur">${v.dur}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            return `
+                <div class="v-chapter${isOpen ? ' is-open' : ''}" data-chi="${ci}">
+                    <div class="v-ch-header" role="button" tabindex="0" aria-expanded="${isOpen}">
+                        <div class="v-ch-icon">
+                            <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="v-ch-body">
+                            <p class="v-ch-title">${ch.title}</p>
+                            <p class="v-ch-meta">${ch.meta}</p>
+                        </div>
+                        <div class="v-ch-arrow">
+                            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </div>
+                    </div>
+                    <div class="v-ch-expand">
+                        <div class="v-player">
+                            <div class="v-player-poster">
+                                <button type="button" class="v-play-btn" data-chi="${ci}" aria-label="播放">
+                                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                </button>
+                                <p class="v-now-label">${currentV ? currentV.title : ''}</p>
+                            </div>
+                        </div>
+                        ${eps}
+                    </div>
+                </div>`;
+        }).join('');
+    }
+
+    function renderAll() {
+        renderCatBar();
+        renderHero();
+        renderSubjBar();
+        renderTextbookBar();
+        renderContent();
+    }
+
+    /* ══════════ 交互 ══════════ */
+    function goBack() { window.location.href = '首页.html'; }
+
+    $('cat-bar').addEventListener('click', e => {
+        const pill = e.target.closest('.v-cat-pill');
+        if (!pill) return;
+        activeCat = pill.dataset.cat;
+        renderAll();
+    });
+
+    $('subj-bar').addEventListener('click', e => {
+        const tab = e.target.closest('.v-subj-tab');
+        if (!tab) return;
+        activeSubject[activeCat] = tab.dataset.subj;
+        renderSubjBar();
+        renderTextbookBar();
+        renderContent();
+    });
+
+    $('content-area').addEventListener('click', e => {
+        const hdr = e.target.closest('.v-ch-header');
+        if (hdr) {
+            const chapter = hdr.closest('.v-chapter');
+            const ci = parseInt(chapter.dataset.chi);
+            const key = activeCat + '|' + activeSubject[activeCat];
+            expandedChapter[key] = expandedChapter[key] === ci ? null : ci;
+            const chKey = key + '|' + ci;
+            if (selectedVideo[chKey] == null) selectedVideo[chKey] = 0;
+            renderContent();
+            return;
+        }
+        const ep = e.target.closest('.v-ep');
+        if (ep) {
+            const ci = parseInt(ep.dataset.chi);
+            const vi = parseInt(ep.dataset.vi);
+            const key = activeCat + '|' + activeSubject[activeCat];
+            const chKey = key + '|' + ci;
+            selectedVideo[chKey] = vi;
+            renderContent();
+            return;
+        }
+        const play = e.target.closest('.v-play-btn');
+        if (play) {
+            const ci = parseInt(play.dataset.chi);
+            const cat = CATEGORIES.find(c => c.id === activeCat);
+            const chapters = cat.data[activeSubject[activeCat]] || [];
+            const ch = chapters[ci];
+            const key = activeCat + '|' + activeSubject[activeCat] + '|' + ci;
+            const vi = selectedVideo[key] ?? 0;
+            const v = ch && ch.videos[vi];
+            if (v) alert('演示原型：将在此处拉起真实播放器\n\n当前选中：' + v.title);
+        }
+    });
+
+    /* ── 教材弹窗 ── */
+    let tbModalType = 'grade';
+
+    function openTextbookModal(type) {
+        tbModalType = type;
+        const modal = $('tb-modal');
+        const cat = CATEGORIES.find(c => c.id === activeCat);
+        const subj = activeSubject[activeCat];
+
+        if (type === 'grade') {
+            $('tb-modal-title').textContent = '选择年级';
+            $('tb-modal-body').innerHTML = `
+                <p class="v-modal-label">年级</p>
+                <div class="v-modal-options">${cat.grades.map(g =>
+                    `<div class="v-modal-opt${g === syncGrade ? ' selected' : ''}" data-val="${g}">${g}</div>`
+                ).join('')}</div>`;
+        } else {
+            const editions = cat.editions[subj] || ['人教版'];
+            const cur = syncEdition[subj] || editions[0];
+            $('tb-modal-title').textContent = '选择教材版本';
+            $('tb-modal-body').innerHTML = `
+                <p class="v-modal-label">教材版本</p>
+                <div class="v-modal-options">${editions.map(e =>
+                    `<div class="v-modal-opt${e === cur ? ' selected' : ''}" data-val="${e}">${e}</div>`
+                ).join('')}</div>`;
+        }
+        modal.classList.add('open');
+    }
+
+    function closeTextbookModal() {
+        $('tb-modal').classList.remove('open');
+    }
+
+    $('tb-modal').addEventListener('click', e => {
+        if (e.target === $('tb-modal')) { closeTextbookModal(); return; }
+        const opt = e.target.closest('.v-modal-opt');
+        if (!opt) return;
+        const val = opt.dataset.val;
+        if (tbModalType === 'grade') {
+            syncGrade = val;
+        } else {
+            const subj = activeSubject[activeCat];
+            syncEdition[subj] = val;
+        }
+        closeTextbookModal();
+        renderTextbookBar();
+        renderContent();
+    });
+
+    /* ══════════ 初始化 ══════════ */
+    const urlCat = new URLSearchParams(window.location.search).get('cat');
+    if (urlCat && CATEGORIES.find(c => c.id === urlCat)) {
+        activeCat = urlCat;
+    }
+    renderAll();
+    </script>
+</body>
+</html>

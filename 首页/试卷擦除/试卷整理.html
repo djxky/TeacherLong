@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AI 龙老师 - 试卷整理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif; 
+            background-color: #E5E7EB; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        
+        /* === iPhone 16 机身模拟 === */
+        .iphone-frame {
+            width: 393px; 
+            height: 852px; 
+            background-color: #F0F2F5; 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 0 0 0 12px #333, 0 0 0 13px #555, 0 20px 50px rgba(0,0,0,0.3);
+            border-radius: 50px;
+        }
+        .dynamic-island {
+            position: absolute; 
+            top: 11px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 120px; 
+            height: 35px; 
+            background: #000; 
+            border-radius: 20px; 
+            z-index: 1000; 
+            pointer-events: none;
+        }
+        
+        /* 小程序右上角按钮 */
+        .miniprogram-header {
+            position: absolute;
+            top: 50px;
+            right: 16px;
+            width: 87px;
+            height: 32px;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+            padding-right: 4px;
+        }
+        .miniprogram-btn {
+            width: 28px;
+            height: 28px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .miniprogram-btn:active {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .miniprogram-btn::before {
+            content: '';
+            width: 3px;
+            height: 3px;
+            background: #000;
+            border-radius: 50%;
+            box-shadow: 0 -5px 0 #000, 0 5px 0 #000;
+            opacity: 0.6;
+        }
+        .miniprogram-btn-close {
+            width: 28px;
+            height: 28px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .miniprogram-btn-close:active {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .miniprogram-btn-close::before {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: transparent;
+            border: 1.5px solid #000;
+            border-radius: 2px;
+            opacity: 0.6;
+        }
+
+        /* 页面容器 */
+        .page-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            background-color: #F6F7F9;
+        }
+        #page-organize {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* 任务项样式 */
+        .task-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: relative;
+            transition: transform 0.3s;
+        }
+        .task-thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .task-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .task-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1E293B;
+            margin-bottom: 4px;
+        }
+        .task-time {
+            font-size: 12px;
+            color: #94A3B8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .new-badge {
+            background: #EF4444;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* 编辑模式样式 */
+        .edit-mode .task-item {
+            transform: translateX(0);
+            transition: transform 0.3s;
+        }
+        .edit-mode .task-checkbox {
+            opacity: 1;
+            transform: translateX(0);
+            transition: all 0.3s;
+        }
+        .task-checkbox {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            transform: translateX(-20px);
+            width: 24px;
+            height: 24px;
+            border: 2px solid #94a3b8;
+            border-radius: 50%;
+            background: white;
+            opacity: 0;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .task-checkbox.checked {
+            background: #2563EB;
+            border-color: #2563EB;
+        }
+        .task-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* 操作栏 - 固定在底部 */
+        .action-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 12px 16px;
+            padding-bottom: 12px;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+            z-index: 60;
+            box-sizing: border-box;
+        }
+        .edit-mode .action-bar {
+            transform: translateY(0);
+        }
+        /* 编辑模式下，调整main的padding，避免内容被操作栏遮挡 */
+        .edit-mode #main-content {
+            padding-bottom: 80px;
+        }
+
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-frame" id="app-root">
+        <div class="dynamic-island"></div>
+        <div class="miniprogram-header">
+            <div class="miniprogram-btn" onclick="showMiniprogramMenu()"></div>
+            <div class="miniprogram-btn-close" onclick="closeMiniprogram()"></div>
+        </div>
+
+        <!-- 试卷整理页面 -->
+        <div id="page-organize" class="page-container flex flex-col">
+            <header class="bg-white sticky top-0 z-30 shadow-sm pt-[90px] pb-0">
+                <div class="px-4 pb-3 flex justify-between items-center">
+                    <div class="flex items-center gap-1">
+                        <button onclick="goBack()" class="p-2 -ml-1 active:opacity-60">
+                            <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </button>
+                        <h1 class="text-lg font-bold text-slate-800">试卷整理</h1>
+                    </div>
+                    <button id="edit-mode-btn" onclick="toggleEditMode()" class="text-sm text-slate-400 active:text-slate-600">
+                        <span id="edit-mode-text">管理</span>
+                    </button>
+                </div>
+            </header>
+
+            <main class="flex-1 overflow-y-auto no-scrollbar px-4 py-4" id="main-content">
+                <div id="task-list" class="space-y-3">
+                    <!-- 任务列表将动态渲染在这里 -->
+                </div>
+                <div id="empty-state" class="hidden flex flex-col items-center justify-center py-20 text-center">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <p class="text-slate-400 text-sm">暂无试卷</p>
+                </div>
+            </main>
+
+            <!-- 操作栏 - 固定在底部 -->
+            <div class="action-bar">
+                <div class="flex items-center justify-between">
+                    <button onclick="selectAllTasks()" class="px-4 py-2 text-blue-600 font-medium">全选</button>
+                    <button onclick="deleteSelectedTasks()" class="px-4 py-2 bg-red-500 text-white rounded-lg font-medium active:bg-red-600">删除</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast 提示 -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script>
+        // 全局状态
+        let isEditMode = false;
+        let historyTasks = [];
+
+        // 从URL参数或localStorage获取任务数据（模拟）
+        function loadTasks() {
+            // 模拟从父页面传递的数据，实际应该从localStorage或URL参数获取
+            historyTasks = [
+                { id: 1, type: 'paper', title: '数学初二上学期', date: '2026-01-27 17:55', thumbnail: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=200&h=200&fit=crop', isNew: true },
+                { id: 2, type: 'paper', title: '数学初一上学期', date: '2026-01-27 17:29', thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=200&h=200&fit=crop', isNew: true },
+                { id: 3, type: 'workbook', title: '英语练习册 Unit 5', date: '2026-01-27 17:11', thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=200&h=200&fit=crop', isNew: true },
+                { id: 4, type: 'paper', title: '物理初二上学期', date: '2026-01-26 15:30', thumbnail: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=200&h=200&fit=crop', isNew: false },
+            ];
+            
+            // 尝试从localStorage获取
+            const savedTasks = localStorage.getItem('historyTasks');
+            if (savedTasks) {
+                try {
+                    historyTasks = JSON.parse(savedTasks);
+                } catch (e) {
+                    console.error('Failed to parse tasks from localStorage', e);
+                }
+            }
+        }
+
+        // 保存任务到localStorage
+        function saveTasks() {
+            localStorage.setItem('historyTasks', JSON.stringify(historyTasks));
+        }
+
+        // 页面初始化
+        function initPage() {
+            loadTasks();
+            renderTaskList();
+            // 直接进入编辑模式
+            enterEditMode();
+        }
+
+        // 进入编辑模式
+        function enterEditMode() {
+            isEditMode = true;
+            const organizePage = document.getElementById('page-organize');
+            const editText = document.getElementById('edit-mode-text');
+            organizePage.classList.add('edit-mode');
+            editText.textContent = '完成';
+        }
+
+        // 渲染任务列表
+        function renderTaskList() {
+            const taskList = document.getElementById('task-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (historyTasks.length === 0) {
+                taskList.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            taskList.innerHTML = '';
+            
+            // 按时间倒序展示
+            historyTasks.forEach(task => {
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item';
+                taskItem.dataset.taskId = task.id;
+                
+                const dateStr = task.date.split(' ')[0];
+                const timeStr = task.date.split(' ')[1];
+                
+                taskItem.innerHTML = `
+                    <div class="task-checkbox" onclick="event.stopPropagation(); toggleTaskSelect(this)"></div>
+                    <img src="${task.thumbnail}" class="task-thumbnail" alt="${task.title}">
+                    <div class="task-content">
+                        <div>
+                            <div class="task-title">${task.title} ${dateStr}</div>
+                            <div class="task-time">
+                                ${task.date}
+                                ${task.isNew ? '<span class="new-badge">NEW</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                taskList.appendChild(taskItem);
+            });
+        }
+
+        // 编辑模式切换（点击完成返回）
+        function toggleEditMode() {
+            const organizePage = document.getElementById('page-organize');
+            const editText = document.getElementById('edit-mode-text');
+            
+            if (isEditMode) {
+                // 点击"完成"，返回我的试卷页面
+                goBack();
+            } else {
+                // 点击"管理"，进入编辑模式（虽然页面加载时已经自动进入）
+                isEditMode = true;
+                organizePage.classList.add('edit-mode');
+                editText.textContent = '完成';
+            }
+        }
+
+        function exitEditMode() {
+            isEditMode = false;
+            const organizePage = document.getElementById('page-organize');
+            const editText = document.getElementById('edit-mode-text');
+            organizePage.classList.remove('edit-mode');
+            editText.textContent = '管理';
+            
+            document.querySelectorAll('.task-checkbox.checked').forEach(cb => {
+                cb.classList.remove('checked');
+            });
+        }
+
+        // 任务选择
+        function toggleTaskSelect(checkbox) {
+            checkbox.classList.toggle('checked');
+        }
+
+        function selectAllTasks() {
+            document.querySelectorAll('.task-checkbox').forEach(cb => {
+                cb.classList.add('checked');
+            });
+        }
+
+        function deleteSelectedTasks() {
+            const selected = document.querySelectorAll('.task-checkbox.checked');
+            if (selected.length === 0) {
+                showToast('请先选择要删除的试卷');
+                return;
+            }
+            
+            const deletedIds = [];
+            selected.forEach(cb => {
+                const taskItem = cb.closest('.task-item');
+                if (taskItem) {
+                    const taskId = parseInt(taskItem.dataset.taskId);
+                    deletedIds.push(taskId);
+                    
+                    taskItem.style.transition = 'opacity 0.3s, transform 0.3s';
+                    taskItem.style.opacity = '0';
+                    taskItem.style.transform = 'scale(0.8)';
+                    setTimeout(() => {
+                        taskItem.remove();
+                        // 从数组中删除
+                        historyTasks = historyTasks.filter(t => t.id !== taskId);
+                        saveTasks();
+                    }, 300);
+                }
+            });
+            
+            showToast('删除成功');
+            
+            // 清除选中状态，但保持在编辑模式
+            document.querySelectorAll('.task-checkbox.checked').forEach(cb => {
+                cb.classList.remove('checked');
+            });
+            
+            // 检查是否还有任务
+            if (historyTasks.length === 0) {
+                document.getElementById('empty-state').classList.remove('hidden');
+            }
+        }
+
+        // 返回上一页
+        function goBack() {
+            window.location.href = '试卷擦除.html';
+        }
+
+        // 小程序菜单
+        function showMiniprogramMenu() {
+            showToast('小程序菜单');
+        }
+        
+        function closeMiniprogram() {
+            goBack();
+        }
+
+        // Toast 提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

@@ -48,12 +48,8 @@
                         <span id="display-student-id" class="text-sm font-medium text-slate-800">—</span>
                     </div>
                     <div class="info-row">
-                        <span class="text-sm text-slate-500">学校</span>
-                        <span id="display-school" class="text-sm font-medium text-slate-800">龙岗实验学校</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="text-sm text-slate-500">班级</span>
-                        <span id="display-class" class="text-sm font-medium text-slate-800">八年级 7 班</span>
+                        <span class="text-sm text-slate-500">年级</span>
+                        <span id="display-class" class="text-sm font-medium text-slate-800">初一(3)班</span>
                     </div>
                 </div>
 
@@ -72,7 +68,7 @@
         function logout() {
             sessionStorage.removeItem('loggedIn');
             sessionStorage.removeItem('studentId');
-            window.location.href = '../登录/index.html';
+            window.location.href = '登录/index.html';
         }
 
         function initPage() {
@@ -80,7 +76,7 @@
             if (studentId) {
                 document.getElementById('display-student-id').textContent = studentId;
             }
-            // 姓名、学校、班级可从 sessionStorage 或接口扩展，此处使用默认展示
+            // 姓名、年级可从 sessionStorage 或接口扩展，此处使用默认展示
         }
 
         document.addEventListener('DOMContentLoaded', initPage);
