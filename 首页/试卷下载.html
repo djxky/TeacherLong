@@ -108,6 +108,73 @@
             color: #6366f1; background: rgba(99,102,241,0.06);
             border-color: rgba(99,102,241,0.25);
         }
+
+        .grade-picker {
+            position: relative; flex-shrink: 0;
+        }
+        .grade-btn {
+            display: flex; align-items: center; gap: 3px;
+            padding: 4px 10px; font-size: 0.625rem; font-weight: 600;
+            color: #6366f1; background: rgba(99,102,241,0.06);
+            border: 1px solid rgba(99,102,241,0.25);
+            border-radius: 16px; cursor: pointer;
+            font-family: inherit;
+            -webkit-tap-highlight-color: transparent;
+            transition: all .18s;
+        }
+        .grade-btn svg {
+            transition: transform .2s;
+        }
+        .grade-btn.open svg {
+            transform: rotate(180deg);
+        }
+        .grade-popup {
+            position: absolute; top: calc(100% + 6px); left: 0;
+            width: 200px; padding: 8px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-radius: 14px;
+            box-shadow: 0 8px 32px -4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.6);
+            z-index: 100;
+            opacity: 0; pointer-events: none;
+            transform: translateY(-4px);
+            transition: all .18s cubic-bezier(0.16,1,0.3,1);
+        }
+        .grade-popup.open {
+            opacity: 1; pointer-events: auto;
+            transform: translateY(0);
+        }
+        .semester-toggle {
+            display: flex; gap: 4px; margin-bottom: 8px;
+            background: rgba(0,0,0,0.03); border-radius: 8px; padding: 3px;
+        }
+        .semester-btn {
+            flex: 1; padding: 5px 0; font-size: 0.625rem; font-weight: 600;
+            color: #94a3b8; background: transparent; border: none; border-radius: 6px;
+            cursor: pointer; font-family: inherit;
+            -webkit-tap-highlight-color: transparent;
+            transition: all .15s;
+        }
+        .semester-btn.active {
+            color: #0f172a; background: #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .grade-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+        }
+        .grade-option {
+            padding: 7px 0; text-align: center;
+            font-size: 0.6875rem; font-weight: 500; color: #475569;
+            border: none; background: transparent; border-radius: 8px;
+            cursor: pointer; font-family: inherit;
+            -webkit-tap-highlight-color: transparent;
+            transition: background .12s;
+        }
+        .grade-option:active { background: rgba(99,102,241,0.08); }
+        .grade-option.active {
+            color: #6366f1; font-weight: 700;
+            background: rgba(99,102,241,0.06);
+        }
         .paper-recommend {
             display: inline; font-size: 0.5625rem; font-weight: 700; padding: 1px 6px;
             border-radius: 3px; letter-spacing: .02em; margin-right: 4px;
@@ -198,8 +265,14 @@
                     <button class="paper-tab" data-subj="science">科学</button>
                 </div>
                 <div class="paper-filters" id="paperFilters">
-                    <button class="paper-filter active" data-filter="all">全部</button>
-                    <button class="paper-filter" data-filter="热门推荐">热门推荐</button>
+                    <div class="grade-picker" id="gradePicker">
+                        <button class="grade-btn" id="gradeBtn">
+                            <span id="gradeBtnText">七年级</span>
+                            <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div class="grade-popup" id="gradePopup"></div>
+                    </div>
+                    <button class="paper-filter active" data-filter="热门推荐">热门推荐</button>
                     <button class="paper-filter" data-filter="小升初真题">小升初真题</button>
                     <button class="paper-filter" data-filter="小升初模拟">小升初模拟</button>
                     <button class="paper-filter" data-filter="期末试题">期末试题</button>
@@ -212,48 +285,254 @@
     </div>
 
     <script>
+        const GRADES = ['一年级', '二年级', '三年级', '四年级', '五年级', '六年级', '七年级', '八年级', '九年级'];
+        const SEMESTERS = ['上学期', '下学期'];
+
         const PAPER_DATA = {
             chinese: [
-                { id: 'cn01', title: '2025年新课标全国卷语文模拟题（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '2.3k', filter: '热门推荐', recommend: '推荐' },
-                { id: 'cn02', title: '2024年小升初语文真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '3.1k', filter: '小升初真题', recommend: '精选' },
-                { id: 'cn03', title: '七年级语文期中综合测试卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.6k', filter: '期中试题' },
-                { id: 'cn04', title: '八年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '2.1k', filter: '期末试题', recommend: '推荐' },
-                { id: 'cn05', title: '小升初语文模拟冲刺卷（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '小升初模拟' },
-                { id: 'cn06', title: '九年级语文第三单元检测卷', type: '单元测试', typeCls: 'pt-unit', downloads: '980', filter: '单元测试' },
-                { id: 'cn07', title: '中考语文古诗文默写专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '热门推荐' },
+                { id: 'cn01', title: '一年级语文拼音与识字专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.2k', filter: '热门推荐', recommend: '推荐', grade: '一年级', semester: '上学期' },
+                { id: 'cn02', title: '一年级语文期中综合测试', type: '期中', typeCls: 'pt-midterm', downloads: '860', filter: '期中试题', grade: '一年级', semester: '上学期' },
+                { id: 'cn03', title: '一年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '950', filter: '期末试题', grade: '一年级', semester: '上学期' },
+                { id: 'cn04', title: '一年级语文看图说话训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.0k', filter: '热门推荐', grade: '一年级', semester: '下学期' },
+                { id: 'cn05', title: '一年级语文期末综合测试', type: '期末', typeCls: 'pt-final', downloads: '920', filter: '期末试题', grade: '一年级', semester: '下学期' },
+                { id: 'cn06', title: '二年级语文阅读与写话专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.1k', filter: '热门推荐', recommend: '推荐', grade: '二年级', semester: '上学期' },
+                { id: 'cn07', title: '二年级语文期中综合测试', type: '期中', typeCls: 'pt-midterm', downloads: '780', filter: '期中试题', grade: '二年级', semester: '上学期' },
+                { id: 'cn08', title: '二年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '890', filter: '期末试题', grade: '二年级', semester: '上学期' },
+                { id: 'cn09', title: '二年级语文看图写话专项', type: '模拟题', typeCls: 'pt-mock', downloads: '950', filter: '热门推荐', grade: '二年级', semester: '下学期' },
+                { id: 'cn10', title: '二年级语文期末综合测试', type: '期末', typeCls: 'pt-final', downloads: '870', filter: '期末试题', grade: '二年级', semester: '下学期' },
+                { id: 'cn11', title: '三年级语文看图写话训练', type: '模拟题', typeCls: 'pt-mock', downloads: '650', filter: '热门推荐', grade: '三年级', semester: '上学期' },
+                { id: 'cn12', title: '三年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '720', filter: '期末试题', grade: '三年级', semester: '上学期' },
+                { id: 'cn13', title: '三年级语文阅读理解入门', type: '模拟题', typeCls: 'pt-mock', downloads: '680', filter: '热门推荐', grade: '三年级', semester: '下学期' },
+                { id: 'cn14', title: '三年级语文期末冲刺卷', type: '期末', typeCls: 'pt-final', downloads: '700', filter: '期末试题', grade: '三年级', semester: '下学期' },
+                { id: 'cn15', title: '四年级语文看图写话专练', type: '模拟题', typeCls: 'pt-mock', downloads: '760', filter: '热门推荐', grade: '四年级', semester: '上学期' },
+                { id: 'cn16', title: '四年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '880', filter: '期末试题', grade: '四年级', semester: '上学期' },
+                { id: 'cn17', title: '四年级语文阅读理解专项', type: '模拟题', typeCls: 'pt-mock', downloads: '800', filter: '热门推荐', grade: '四年级', semester: '下学期' },
+                { id: 'cn18', title: '四年级语文期末冲刺卷', type: '期末', typeCls: 'pt-final', downloads: '850', filter: '期末试题', grade: '四年级', semester: '下学期' },
+                { id: 'cn19', title: '五年级语文阅读理解专项', type: '模拟题', typeCls: 'pt-mock', downloads: '1.0k', filter: '热门推荐', grade: '五年级', semester: '上学期' },
+                { id: 'cn20', title: '五年级语文期中综合测试', type: '期中', typeCls: 'pt-midterm', downloads: '950', filter: '期中试题', grade: '五年级', semester: '上学期' },
+                { id: 'cn21', title: '五年级语文期末综合测试卷', type: '期末', typeCls: 'pt-final', downloads: '1.2k', filter: '期末试题', grade: '五年级', semester: '上学期' },
+                { id: 'cn22', title: '五年级语文作文训练专项', type: '模拟题', typeCls: 'pt-mock', downloads: '960', filter: '热门推荐', grade: '五年级', semester: '下学期' },
+                { id: 'cn23', title: '五年级语文期末冲刺卷', type: '期末', typeCls: 'pt-final', downloads: '1.1k', filter: '期末试题', grade: '五年级', semester: '下学期' },
+                { id: 'cn24', title: '六年级语文阅读与写作专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.3k', filter: '热门推荐', grade: '六年级', semester: '上学期' },
+                { id: 'cn25', title: '六年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '1.4k', filter: '期末试题', grade: '六年级', semester: '上学期' },
+                { id: 'cn26', title: '2024年小升初语文真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '3.1k', filter: '小升初真题', recommend: '精选', grade: '六年级', semester: '下学期' },
+                { id: 'cn27', title: '2023年小升初语文真题精选', type: '真题', typeCls: 'pt-real', downloads: '2.5k', filter: '小升初真题', grade: '六年级', semester: '下学期' },
+                { id: 'cn28', title: '小升初语文模拟冲刺卷（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '小升初模拟', grade: '六年级', semester: '下学期' },
+                { id: 'cn29', title: '小升初语文模拟冲刺卷（二）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.6k', filter: '小升初模拟', grade: '六年级', semester: '下学期' },
+                { id: 'cn30', title: '六年级语文总复习专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '热门推荐', recommend: '推荐', grade: '六年级', semester: '下学期' },
+                { id: 'cn31', title: '七年级语文新课标重点模拟题', type: '模拟题', typeCls: 'pt-mock', downloads: '2.3k', filter: '热门推荐', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'cn32', title: '七年级语文阅读理解专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.9k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'cn33', title: '七年级语文期中综合测试卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.6k', filter: '期中试题', grade: '七年级', semester: '上学期' },
+                { id: 'cn34', title: '七年级语文期末综合测试卷', type: '期末', typeCls: 'pt-final', downloads: '1.9k', filter: '期末试题', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'cn35', title: '七年级语文第一单元检测', type: '单元测试', typeCls: 'pt-unit', downloads: '1.1k', filter: '单元测试', grade: '七年级', semester: '上学期' },
+                { id: 'cn36', title: '七年级语文古诗文理解与默写', type: '模拟题', typeCls: 'pt-mock', downloads: '1.7k', filter: '热门推荐', grade: '七年级', semester: '下学期' },
+                { id: 'cn37', title: '七年级语文期中模拟检测', type: '期中', typeCls: 'pt-midterm', downloads: '1.3k', filter: '期中试题', grade: '七年级', semester: '下学期' },
+                { id: 'cn38', title: '七年级语文期末冲刺卷', type: '期末', typeCls: 'pt-final', downloads: '1.5k', filter: '期末试题', grade: '七年级', semester: '下学期' },
+                { id: 'cn39', title: '七年级语文第四单元检测', type: '单元测试', typeCls: 'pt-unit', downloads: '980', filter: '单元测试', grade: '七年级', semester: '下学期' },
+                { id: 'cn40', title: '八年级语文名著阅读专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.0k', filter: '热门推荐', recommend: '推荐', grade: '八年级', semester: '上学期' },
+                { id: 'cn41', title: '八年级语文文言文阅读精练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '热门推荐', grade: '八年级', semester: '上学期' },
+                { id: 'cn42', title: '八年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '2.1k', filter: '期末试题', recommend: '推荐', grade: '八年级', semester: '上学期' },
+                { id: 'cn43', title: '八年级语文期中综合测试', type: '期中', typeCls: 'pt-midterm', downloads: '1.4k', filter: '期中试题', grade: '八年级', semester: '上学期' },
+                { id: 'cn44', title: '八年级语文议论文写作训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '热门推荐', grade: '八年级', semester: '下学期' },
+                { id: 'cn45', title: '八年级语文期末冲刺卷', type: '期末', typeCls: 'pt-final', downloads: '1.7k', filter: '期末试题', grade: '八年级', semester: '下学期' },
+                { id: 'cn46', title: '八年级语文第四单元检测', type: '单元测试', typeCls: 'pt-unit', downloads: '870', filter: '单元测试', grade: '八年级', semester: '下学期' },
+                { id: 'cn47', title: '九年级语文中考模拟卷（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '3.2k', filter: '热门推荐', recommend: '推荐', grade: '九年级', semester: '上学期' },
+                { id: 'cn48', title: '九年级语文古诗文默写专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '热门推荐', grade: '九年级', semester: '上学期' },
+                { id: 'cn49', title: '九年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '1.6k', filter: '期末试题', grade: '九年级', semester: '上学期' },
+                { id: 'cn50', title: '九年级语文期中测试卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.2k', filter: '期中试题', grade: '九年级', semester: '上学期' },
+                { id: 'cn51', title: '九年级语文中考真题汇编（2024）', type: '真题', typeCls: 'pt-real', downloads: '2.8k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '下学期' },
+                { id: 'cn52', title: '九年级语文中考冲刺模拟卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.5k', filter: '热门推荐', grade: '九年级', semester: '下学期' },
+                { id: 'cn53', title: '九年级语文第三单元检测卷', type: '单元测试', typeCls: 'pt-unit', downloads: '980', filter: '单元测试', grade: '九年级', semester: '下学期' },
             ],
             math: [
-                { id: 'ma01', title: '七年级数学期末综合测试卷', type: '期末', typeCls: 'pt-final', downloads: '1.8k', filter: '期末试题', recommend: '推荐' },
-                { id: 'ma02', title: '2024年小升初数学真题精选', type: '真题', typeCls: 'pt-real', downloads: '2.6k', filter: '小升初真题', recommend: '精选' },
-                { id: 'ma03', title: '八年级数学期中检测卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.5k', filter: '期中试题' },
-                { id: 'ma04', title: '几何证明专项模拟试题', type: '模拟题', typeCls: 'pt-mock', downloads: '1.2k', filter: '热门推荐' },
-                { id: 'ma05', title: '小升初数学模拟卷（计算综合）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '小升初模拟' },
-                { id: 'ma06', title: '九年级数学第二单元测试', type: '单元测试', typeCls: 'pt-unit', downloads: '890', filter: '单元测试' },
+                { id: 'ma01', title: '一年级数学10以内加减法专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.1k', filter: '热门推荐', recommend: '推荐', grade: '一年级', semester: '上学期' },
+                { id: 'ma02', title: '一年级数学期末综合测试', type: '期末', typeCls: 'pt-final', downloads: '880', filter: '期末试题', grade: '一年级', semester: '上学期' },
+                { id: 'ma03', title: '一年级数学20以内加减法', type: '模拟题', typeCls: 'pt-mock', downloads: '1.0k', filter: '热门推荐', grade: '一年级', semester: '下学期' },
+                { id: 'ma04', title: '一年级数学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '860', filter: '期末试题', grade: '一年级', semester: '下学期' },
+                { id: 'ma05', title: '二年级数学100以内加减法', type: '模拟题', typeCls: 'pt-mock', downloads: '980', filter: '热门推荐', recommend: '推荐', grade: '二年级', semester: '上学期' },
+                { id: 'ma06', title: '二年级数学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '850', filter: '期末试题', grade: '二年级', semester: '上学期' },
+                { id: 'ma07', title: '二年级数学乘法口诀专练', type: '模拟题', typeCls: 'pt-mock', downloads: '920', filter: '热门推荐', grade: '二年级', semester: '下学期' },
+                { id: 'ma08', title: '二年级数学期末综合测试', type: '期末', typeCls: 'pt-final', downloads: '830', filter: '期末试题', grade: '二年级', semester: '下学期' },
+                { id: 'ma09', title: '三年级数学乘除法专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '650', filter: '热门推荐', grade: '三年级', semester: '上学期' },
+                { id: 'ma10', title: '三年级数学期末综合测试', type: '期末', typeCls: 'pt-final', downloads: '700', filter: '期末试题', grade: '三年级', semester: '上学期' },
+                { id: 'ma11', title: '三年级数学面积与周长', type: '模拟题', typeCls: 'pt-mock', downloads: '680', filter: '热门推荐', grade: '三年级', semester: '下学期' },
+                { id: 'ma12', title: '四年级数学口算速算专练', type: '模拟题', typeCls: 'pt-mock', downloads: '780', filter: '热门推荐', grade: '四年级', semester: '上学期' },
+                { id: 'ma13', title: '四年级数学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '850', filter: '期末试题', grade: '四年级', semester: '上学期' },
+                { id: 'ma14', title: '四年级数学小数运算专练', type: '模拟题', typeCls: 'pt-mock', downloads: '760', filter: '热门推荐', grade: '四年级', semester: '下学期' },
+                { id: 'ma15', title: '五年级数学应用题专练', type: '模拟题', typeCls: 'pt-mock', downloads: '920', filter: '热门推荐', grade: '五年级', semester: '上学期' },
+                { id: 'ma16', title: '五年级数学期末综合测试', type: '期末', typeCls: 'pt-final', downloads: '1.0k', filter: '期末试题', grade: '五年级', semester: '上学期' },
+                { id: 'ma17', title: '五年级数学分数运算专练', type: '模拟题', typeCls: 'pt-mock', downloads: '880', filter: '热门推荐', grade: '五年级', semester: '下学期' },
+                { id: 'ma18', title: '六年级数学计算能力专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.1k', filter: '热门推荐', grade: '六年级', semester: '上学期' },
+                { id: 'ma19', title: '六年级数学期末综合测试', type: '期末', typeCls: 'pt-final', downloads: '1.2k', filter: '期末试题', grade: '六年级', semester: '上学期' },
+                { id: 'ma20', title: '2024年小升初数学真题精选', type: '真题', typeCls: 'pt-real', downloads: '2.6k', filter: '小升初真题', recommend: '精选', grade: '六年级', semester: '下学期' },
+                { id: 'ma21', title: '2023年小升初数学真题汇编', type: '真题', typeCls: 'pt-real', downloads: '2.2k', filter: '小升初真题', grade: '六年级', semester: '下学期' },
+                { id: 'ma22', title: '小升初数学模拟卷（计算综合）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '小升初模拟', grade: '六年级', semester: '下学期' },
+                { id: 'ma23', title: '小升初数学模拟卷（应用题）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.3k', filter: '小升初模拟', grade: '六年级', semester: '下学期' },
+                { id: 'ma24', title: '六年级数学总复习专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '热门推荐', recommend: '推荐', grade: '六年级', semester: '下学期' },
+                { id: 'ma25', title: '七年级数学有理数综合训练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.1k', filter: '热门推荐', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'ma26', title: '七年级数学一元一次方程专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'ma27', title: '七年级数学期末综合测试卷', type: '期末', typeCls: 'pt-final', downloads: '1.8k', filter: '期末试题', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'ma28', title: '七年级数学期中综合检测', type: '期中', typeCls: 'pt-midterm', downloads: '1.3k', filter: '期中试题', grade: '七年级', semester: '上学期' },
+                { id: 'ma29', title: '七年级数学第一单元检测', type: '单元测试', typeCls: 'pt-unit', downloads: '1.0k', filter: '单元测试', grade: '七年级', semester: '上学期' },
+                { id: 'ma30', title: '七年级数学几何初步专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '热门推荐', grade: '七年级', semester: '下学期' },
+                { id: 'ma31', title: '七年级数学期末冲刺卷', type: '期末', typeCls: 'pt-final', downloads: '1.4k', filter: '期末试题', grade: '七年级', semester: '下学期' },
+                { id: 'ma32', title: '七年级数学第四单元检测', type: '单元测试', typeCls: 'pt-unit', downloads: '960', filter: '单元测试', grade: '七年级', semester: '下学期' },
+                { id: 'ma33', title: '八年级数学全等三角形专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.9k', filter: '热门推荐', recommend: '推荐', grade: '八年级', semester: '上学期' },
+                { id: 'ma34', title: '八年级数学一次函数综合训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.7k', filter: '热门推荐', grade: '八年级', semester: '上学期' },
+                { id: 'ma35', title: '八年级数学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '1.6k', filter: '期末试题', grade: '八年级', semester: '上学期' },
+                { id: 'ma36', title: '八年级数学期中检测卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.5k', filter: '期中试题', grade: '八年级', semester: '上学期' },
+                { id: 'ma37', title: '八年级数学反比例函数专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '热门推荐', grade: '八年级', semester: '下学期' },
+                { id: 'ma38', title: '八年级数学期末冲刺卷', type: '期末', typeCls: 'pt-final', downloads: '1.5k', filter: '期末试题', grade: '八年级', semester: '下学期' },
+                { id: 'ma39', title: '九年级数学二次函数专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.4k', filter: '热门推荐', recommend: '推荐', grade: '九年级', semester: '上学期' },
+                { id: 'ma40', title: '九年级数学中考压轴题精练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.0k', filter: '热门推荐', grade: '九年级', semester: '上学期' },
+                { id: 'ma41', title: '九年级数学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '1.5k', filter: '期末试题', grade: '九年级', semester: '上学期' },
+                { id: 'ma42', title: '九年级数学中考真题（2024）', type: '真题', typeCls: 'pt-real', downloads: '3.0k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '下学期' },
+                { id: 'ma43', title: '九年级数学中考冲刺模拟卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.2k', filter: '热门推荐', grade: '九年级', semester: '下学期' },
             ],
             english: [
-                { id: 'en01', title: '八年级英语阅读理解专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '热门推荐', recommend: '推荐' },
-                { id: 'en02', title: '2024年小升初英语真题卷', type: '真题', typeCls: 'pt-real', downloads: '2.0k', filter: '小升初真题', recommend: '精选' },
-                { id: 'en03', title: '七年级英语期末综合试卷', type: '期末', typeCls: 'pt-final', downloads: '1.3k', filter: '期末试题' },
-                { id: 'en04', title: '九年级英语期中模拟卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.1k', filter: '期中试题' },
-                { id: 'en05', title: '完形填空与语法填空专练', type: '模拟题', typeCls: 'pt-mock', downloads: '960', filter: '热门推荐' },
+                { id: 'en01', title: '一年级英语字母与单词专练', type: '模拟题', typeCls: 'pt-mock', downloads: '680', filter: '热门推荐', grade: '一年级', semester: '上学期' },
+                { id: 'en02', title: '一年级英语期末综合测试', type: '期末', typeCls: 'pt-final', downloads: '620', filter: '期末试题', grade: '一年级', semester: '上学期' },
+                { id: 'en03', title: '二年级英语日常对话专练', type: '模拟题', typeCls: 'pt-mock', downloads: '720', filter: '热门推荐', grade: '二年级', semester: '上学期' },
+                { id: 'en04', title: '二年级英语期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '650', filter: '期末试题', grade: '二年级', semester: '上学期' },
+                { id: 'en05', title: '三年级英语期末综合测试', type: '期末', typeCls: 'pt-final', downloads: '580', filter: '期末试题', grade: '三年级', semester: '上学期' },
+                { id: 'en06', title: '三年级英语听力与词汇专练', type: '模拟题', typeCls: 'pt-mock', downloads: '620', filter: '热门推荐', grade: '三年级', semester: '下学期' },
+                { id: 'en07', title: '四年级英语期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '680', filter: '期末试题', grade: '四年级', semester: '上学期' },
+                { id: 'en08', title: '四年级英语阅读理解入门', type: '模拟题', typeCls: 'pt-mock', downloads: '720', filter: '热门推荐', grade: '四年级', semester: '下学期' },
+                { id: 'en09', title: '五年级英语词汇与句型专练', type: '模拟题', typeCls: 'pt-mock', downloads: '760', filter: '热门推荐', grade: '五年级', semester: '上学期' },
+                { id: 'en10', title: '五年级英语期末综合测试', type: '期末', typeCls: 'pt-final', downloads: '880', filter: '期末试题', grade: '五年级', semester: '上学期' },
+                { id: 'en11', title: '五年级英语阅读理解专练', type: '模拟题', typeCls: 'pt-mock', downloads: '800', filter: '热门推荐', grade: '五年级', semester: '下学期' },
+                { id: 'en12', title: '六年级英语听力与口语专练', type: '模拟题', typeCls: 'pt-mock', downloads: '960', filter: '热门推荐', grade: '六年级', semester: '上学期' },
+                { id: 'en13', title: '六年级英语期末综合测试', type: '期末', typeCls: 'pt-final', downloads: '1.1k', filter: '期末试题', grade: '六年级', semester: '上学期' },
+                { id: 'en14', title: '2024年小升初英语真题卷', type: '真题', typeCls: 'pt-real', downloads: '2.0k', filter: '小升初真题', recommend: '精选', grade: '六年级', semester: '下学期' },
+                { id: 'en15', title: '2023年小升初英语真题精选', type: '真题', typeCls: 'pt-real', downloads: '1.7k', filter: '小升初真题', grade: '六年级', semester: '下学期' },
+                { id: 'en16', title: '小升初英语模拟冲刺卷', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '小升初模拟', grade: '六年级', semester: '下学期' },
+                { id: 'en17', title: '六年级英语总复习专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.2k', filter: '热门推荐', recommend: '推荐', grade: '六年级', semester: '下学期' },
+                { id: 'en18', title: '七年级英语阅读理解精练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '热门推荐', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'en19', title: '七年级英语完形填空专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'en20', title: '七年级英语期末综合试卷', type: '期末', typeCls: 'pt-final', downloads: '1.3k', filter: '期末试题', grade: '七年级', semester: '上学期' },
+                { id: 'en21', title: '七年级英语期中测试卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.1k', filter: '期中试题', grade: '七年级', semester: '上学期' },
+                { id: 'en22', title: '七年级英语语法填空专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.3k', filter: '热门推荐', grade: '七年级', semester: '下学期' },
+                { id: 'en23', title: '七年级英语期末冲刺卷', type: '期末', typeCls: 'pt-final', downloads: '1.2k', filter: '期末试题', grade: '七年级', semester: '下学期' },
+                { id: 'en24', title: '七年级英语第一单元检测', type: '单元测试', typeCls: 'pt-unit', downloads: '890', filter: '单元测试', grade: '七年级', semester: '上学期' },
+                { id: 'en25', title: '八年级英语阅读理解专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '热门推荐', recommend: '推荐', grade: '八年级', semester: '上学期' },
+                { id: 'en26', title: '八年级英语写作高分范文训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.3k', filter: '热门推荐', grade: '八年级', semester: '上学期' },
+                { id: 'en27', title: '八年级英语期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '1.4k', filter: '期末试题', grade: '八年级', semester: '上学期' },
+                { id: 'en28', title: '八年级英语期中综合测试', type: '期中', typeCls: 'pt-midterm', downloads: '1.2k', filter: '期中试题', grade: '八年级', semester: '上学期' },
+                { id: 'en29', title: '八年级英语听力专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.1k', filter: '热门推荐', grade: '八年级', semester: '下学期' },
+                { id: 'en30', title: '八年级英语期末冲刺卷', type: '期末', typeCls: 'pt-final', downloads: '1.3k', filter: '期末试题', grade: '八年级', semester: '下学期' },
+                { id: 'en31', title: '九年级英语中考听力模拟训练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.2k', filter: '热门推荐', recommend: '推荐', grade: '九年级', semester: '上学期' },
+                { id: 'en32', title: '九年级英语期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '1.3k', filter: '期末试题', grade: '九年级', semester: '上学期' },
+                { id: 'en33', title: '九年级英语中考真题（2024）', type: '真题', typeCls: 'pt-real', downloads: '2.8k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '下学期' },
+                { id: 'en34', title: '九年级英语中考冲刺模拟卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.0k', filter: '热门推荐', grade: '九年级', semester: '下学期' },
             ],
             science: [
-                { id: 'sc01', title: '九年级科学中考真题汇编', type: '真题', typeCls: 'pt-real', downloads: '960', filter: '热门推荐', recommend: '精选' },
-                { id: 'sc02', title: '八年级科学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '850', filter: '期末试题' },
-                { id: 'sc03', title: '力学综合单元测试卷', type: '单元测试', typeCls: 'pt-unit', downloads: '780', filter: '单元测试' },
-                { id: 'sc04', title: '七年级科学期中考试卷', type: '期中', typeCls: 'pt-midterm', downloads: '720', filter: '期中试题' },
+                { id: 'sc01', title: '七年级科学生物观察实验专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.2k', filter: '热门推荐', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'sc02', title: '七年级科学物质与变化专项', type: '模拟题', typeCls: 'pt-mock', downloads: '1.0k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'sc03', title: '七年级科学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '950', filter: '期末试题', grade: '七年级', semester: '上学期' },
+                { id: 'sc04', title: '七年级科学期中考试卷', type: '期中', typeCls: 'pt-midterm', downloads: '720', filter: '期中试题', grade: '七年级', semester: '上学期' },
+                { id: 'sc05', title: '七年级科学第一单元检测', type: '单元测试', typeCls: 'pt-unit', downloads: '650', filter: '单元测试', grade: '七年级', semester: '上学期' },
+                { id: 'sc06', title: '七年级科学地球与宇宙专练', type: '模拟题', typeCls: 'pt-mock', downloads: '880', filter: '热门推荐', grade: '七年级', semester: '下学期' },
+                { id: 'sc07', title: '七年级科学期末冲刺卷', type: '期末', typeCls: 'pt-final', downloads: '900', filter: '期末试题', grade: '七年级', semester: '下学期' },
+                { id: 'sc08', title: '八年级科学力学综合训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.3k', filter: '热门推荐', recommend: '推荐', grade: '八年级', semester: '上学期' },
+                { id: 'sc09', title: '八年级科学电学基础专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.1k', filter: '热门推荐', grade: '八年级', semester: '上学期' },
+                { id: 'sc10', title: '八年级科学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '850', filter: '期末试题', grade: '八年级', semester: '上学期' },
+                { id: 'sc11', title: '八年级科学期中测试卷', type: '期中', typeCls: 'pt-midterm', downloads: '780', filter: '期中试题', grade: '八年级', semester: '上学期' },
+                { id: 'sc12', title: '八年级科学光学与声学专练', type: '模拟题', typeCls: 'pt-mock', downloads: '950', filter: '热门推荐', grade: '八年级', semester: '下学期' },
+                { id: 'sc13', title: '八年级科学期末冲刺卷', type: '期末', typeCls: 'pt-final', downloads: '820', filter: '期末试题', grade: '八年级', semester: '下学期' },
+                { id: 'sc14', title: '八年级科学第四单元检测', type: '单元测试', typeCls: 'pt-unit', downloads: '680', filter: '单元测试', grade: '八年级', semester: '下学期' },
+                { id: 'sc15', title: '九年级科学中考真题汇编（2024）', type: '真题', typeCls: 'pt-real', downloads: '2.5k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '上学期' },
+                { id: 'sc16', title: '九年级科学中考模拟卷（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '热门推荐', grade: '九年级', semester: '上学期' },
+                { id: 'sc17', title: '九年级科学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '1.2k', filter: '期末试题', grade: '九年级', semester: '上学期' },
+                { id: 'sc18', title: '九年级科学化学综合专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '热门推荐', grade: '九年级', semester: '下学期' },
+                { id: 'sc19', title: '九年级科学中考冲刺模拟卷', type: '模拟题', typeCls: 'pt-mock', downloads: '1.6k', filter: '热门推荐', grade: '九年级', semester: '下学期' },
+                { id: 'sc20', title: '九年级科学期中测试卷', type: '期中', typeCls: 'pt-midterm', downloads: '950', filter: '期中试题', grade: '九年级', semester: '上学期' },
             ],
         };
 
-        let activePaperSubj = 'chinese';
-        let activePaperFilter = 'all';
+        let activeGrade = sessionStorage.getItem('gradeClass') || '七年级';
+        if (!GRADES.includes(activeGrade)) activeGrade = '七年级';
+        let activeSemester = '上学期';
 
+        let activePaperSubj = 'chinese';
+        let activePaperFilter = '热门推荐';
+
+        /* ── 年级选择器 ── */
+        const gradeBtn = document.getElementById('gradeBtn');
+        const gradeBtnText = document.getElementById('gradeBtnText');
+        const gradePopup = document.getElementById('gradePopup');
+
+        function updateBtnText() {
+            const short = activeSemester === '上学期' ? '上' : '下';
+            gradeBtnText.textContent = activeGrade + short;
+        }
+
+        function renderGradePopup() {
+            updateBtnText();
+            gradePopup.innerHTML =
+                `<div class="semester-toggle">` +
+                    SEMESTERS.map(s =>
+                        `<button class="semester-btn${s === activeSemester ? ' active' : ''}" data-sem="${s}">${s}</button>`
+                    ).join('') +
+                `</div>` +
+                `<div class="grade-grid">` +
+                    GRADES.map(g =>
+                        `<button class="grade-option${g === activeGrade ? ' active' : ''}" data-grade="${g}">${g}</button>`
+                    ).join('') +
+                `</div>`;
+        }
+
+        function toggleGradePopup() {
+            const isOpen = gradePopup.classList.contains('open');
+            if (isOpen) {
+                gradePopup.classList.remove('open');
+                gradeBtn.classList.remove('open');
+            } else {
+                renderGradePopup();
+                gradePopup.classList.add('open');
+                gradeBtn.classList.add('open');
+            }
+        }
+
+        gradeBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            toggleGradePopup();
+        });
+
+        gradePopup.addEventListener('click', e => {
+            e.stopPropagation();
+            const semBtn = e.target.closest('.semester-btn');
+            if (semBtn) {
+                activeSemester = semBtn.dataset.sem;
+                renderGradePopup();
+                activePaperFilter = '热门推荐';
+                document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.toggle('active', f.dataset.filter === '热门推荐'));
+                renderPapers();
+                return;
+            }
+            const opt = e.target.closest('.grade-option');
+            if (!opt) return;
+            activeGrade = opt.dataset.grade;
+            updateBtnText();
+            gradePopup.classList.remove('open');
+            gradeBtn.classList.remove('open');
+            activePaperFilter = '热门推荐';
+            document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.toggle('active', f.dataset.filter === '热门推荐'));
+            renderPapers();
+        });
+
+        document.addEventListener('click', () => {
+            gradePopup.classList.remove('open');
+            gradeBtn.classList.remove('open');
+        });
+
+        renderGradePopup();
+
+        /* ── 试卷渲染 ── */
         function renderPapers() {
             const list = document.getElementById('paperList');
             let items = PAPER_DATA[activePaperSubj] || [];
-            if (activePaperFilter !== 'all') {
-                items = items.filter(p => p.filter === activePaperFilter);
-            }
+            items = items.filter(p => p.grade === activeGrade && p.semester === activeSemester);
+            items = items.filter(p => p.filter === activePaperFilter);
             const iconMap = { chinese: 'pi-chinese', math: 'pi-math', english: 'pi-eng', science: 'pi-sci' };
             const icon = iconMap[activePaperSubj] || 'pi-chinese';
             if (!items.length) {
@@ -289,8 +568,8 @@
             document.querySelectorAll('#paperTabs .paper-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             activePaperSubj = tab.dataset.subj;
-            activePaperFilter = 'all';
-            document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.toggle('active', f.dataset.filter === 'all'));
+            activePaperFilter = '热门推荐';
+            document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.toggle('active', f.dataset.filter === '热门推荐'));
             renderPapers();
         });
 

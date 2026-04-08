@@ -9,95 +9,100 @@
     <style>
         *{box-sizing:border-box;margin:0;padding:0}
         body{font-family:'Inter','Noto Sans SC',sans-serif;background:#f4f4f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
-        .iphone-frame{width:393px;height:852px;position:relative;overflow:hidden;background:#f5f3ff;box-shadow:0 0 0 12px #18181b,0 0 0 14px #27272a,0 24px 48px -12px rgba(24,24,27,.2);border-radius:50px;display:flex;flex-direction:column}
+        .iphone-frame{width:393px;height:852px;position:relative;overflow:hidden;background:linear-gradient(175deg,#f8fafc 0%,#f1f5f9 50%,#e8edf4 100%);box-shadow:0 0 0 12px #18181b,0 0 0 14px #27272a,0 24px 48px -12px rgba(24,24,27,.2);border-radius:50px;display:flex;flex-direction:column}
         .dynamic-island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:120px;height:35px;background:linear-gradient(180deg,#27272a,#18181b);border-radius:20px;z-index:1000;pointer-events:none}
 
         /* ── 顶栏 ── */
         .v-topbar{min-height:44px;padding:4px 8px 4px 4px;display:flex;align-items:center;gap:4px;flex-shrink:0;position:relative;z-index:20}
-        .v-back{width:40px;height:40px;border-radius:10px;border:none;background:0 0;display:flex;align-items:center;justify-content:center;color:#52525b;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+        .v-back{width:40px;height:40px;border-radius:12px;border:none;background:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;color:#52525b;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
         .v-back:active{background:rgba(0,0,0,.05)}
         .v-topbar-title{flex:1;text-align:center;font-size:1.0625rem;font-weight:700;color:#18181b;letter-spacing:-.02em}
         .v-topbar-spacer{width:40px;height:40px;flex-shrink:0;pointer-events:none}
 
         /* ── 学科 Tab ── */
-        .v-subj-bar{display:flex;gap:6px;padding:6px 20px 4px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
+        .v-subj-bar{display:flex;gap:4px;padding:8px 20px 6px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
         .v-subj-bar::-webkit-scrollbar{display:none}
-        .v-subj-tab{flex-shrink:0;padding:6px 14px;border-radius:10px;font-size:.8125rem;font-weight:600;cursor:pointer;color:#71717a;background:transparent;transition:all .2s;border:none;-webkit-tap-highlight-color:transparent}
+        .v-subj-tab{flex-shrink:0;padding:7px 16px;border-radius:20px;font-size:.8125rem;font-weight:600;cursor:pointer;color:#94a3b8;background:transparent;transition:all .2s;border:none;-webkit-tap-highlight-color:transparent}
         .v-subj-tab:active{transform:scale(.97)}
-        .v-subj-tab.active{background:rgba(0,0,0,.06);color:#18181b}
+        .v-subj-tab.active{background:rgba(255,255,255,.75);color:#0f172a;box-shadow:0 1px 6px rgba(0,0,0,.05);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 
-        /* ── 科目介绍卡片 ── */
-        .v-intro{position:relative;margin:6px 20px 2px;border-radius:16px;padding:18px 18px 16px;overflow:hidden;color:#fff;flex-shrink:0;transition:all .35s cubic-bezier(.4,0,.2,1)}
-        .v-intro::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15) 0%,transparent 55%);border-radius:16px;pointer-events:none}
+        /* ── 科目介绍卡片（含课程设置） ── */
+        .v-intro{position:relative;margin:6px 20px 12px;border-radius:16px;padding:18px 18px 16px;overflow:hidden;color:#fff;flex-shrink:0;transition:all .35s cubic-bezier(.4,0,.2,1)}
+        .v-intro::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12) 0%,transparent 55%);border-radius:16px;pointer-events:none}
         .v-intro[data-cat="new-standard"]{background:linear-gradient(145deg,#3730a3 0%,#4f46e5 35%,#6366f1 65%,#818cf8 100%)}
         .v-intro[data-cat="sync-course"]{background:linear-gradient(145deg,#065f46 0%,#059669 35%,#10b981 65%,#34d399 100%)}
         .v-intro[data-cat="special-skills"]{background:linear-gradient(145deg,#9a3412 0%,#ea580c 35%,#f97316 65%,#fb923c 100%)}
         .v-intro-content{position:relative;z-index:2}
-        .v-intro h3{font-size:1.0625rem;font-weight:800;line-height:1.3;letter-spacing:-.02em;margin-bottom:6px}
-        .v-intro p{font-size:.75rem;opacity:.88;line-height:1.65;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-        .v-intro-decor{position:absolute;right:-10px;bottom:-14px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.07);z-index:1;pointer-events:none}
-        .v-intro-decor2{position:absolute;right:42px;bottom:24px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.05);z-index:1;pointer-events:none}
+        .v-intro h3{font-size:1rem;font-weight:800;line-height:1.3;letter-spacing:-.02em;margin-bottom:5px}
+        .v-intro p{font-size:.6875rem;opacity:.82;line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .v-intro-decor{position:absolute;right:-10px;bottom:-14px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.06);z-index:1;pointer-events:none}
+        .v-intro-decor2{position:absolute;right:42px;bottom:24px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.04);z-index:1;pointer-events:none}
 
-        /* ── 教材选择器（校内同步课专属） ── */
-        .v-textbook-bar{display:flex;align-items:center;gap:8px;padding:6px 20px 2px;flex-shrink:0}
-        .v-textbook-bar.hidden{display:none}
-        .v-tb-chip{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:10px;font-size:.75rem;font-weight:600;color:#52525b;background:rgba(255,255,255,.88);border:1px solid rgba(226,232,240,.85);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s}
-        .v-tb-chip:active{background:rgba(226,232,240,.5)}
-        .v-tb-chip svg{width:14px;height:14px;color:#a1a1aa}
-        .v-tb-chip .v-tb-val{color:#18181b}
+        /* 卡片内课程设置条 */
+        .v-intro-settings{display:none;position:relative;z-index:2;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.18)}
+        .v-intro.has-settings .v-intro-settings{display:flex}
+        .v-intro-settings-btn{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s;color:rgba(255,255,255,.95);font-size:.6875rem;font-weight:600}
+        .v-intro-settings-btn:active{background:rgba(255,255,255,.25)}
+        .v-intro-settings-btn svg{width:12px;height:12px;opacity:.7;flex-shrink:0}
 
         /* ── 内容滚动区 ── */
-        .v-content{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:8px}
+        .v-content{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-top:4px}
         .v-content::-webkit-scrollbar{display:none}
 
         /* ── 章节手风琴 ── */
-        .v-chapter{margin:0 20px 10px;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:16px;border:1px solid rgba(226,232,240,.85);box-shadow:0 4px 20px rgba(0,0,0,.04);overflow:hidden}
-        .v-ch-header{display:flex;align-items:center;gap:12px;padding:14px 14px 12px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s}
-        .v-ch-header:active{background:rgba(99,102,241,.04)}
-        .v-chapter.is-open .v-ch-header{border-bottom:1px solid rgba(226,232,240,.7)}
-        .v-ch-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.125rem}
-        [data-active-cat="new-standard"] .v-ch-icon{background:linear-gradient(135deg,rgba(99,102,241,.14),rgba(139,92,246,.1));color:#6366f1}
-        [data-active-cat="sync-course"] .v-ch-icon{background:linear-gradient(135deg,rgba(16,185,129,.14),rgba(5,150,105,.1));color:#059669}
-        [data-active-cat="special-skills"] .v-ch-icon{background:linear-gradient(135deg,rgba(249,115,22,.14),rgba(234,88,12,.1));color:#ea580c}
+        .v-chapter{margin:0 20px 8px;background:rgba(255,255,255,.7);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:14px;border:1px solid rgba(255,255,255,.6);box-shadow:0 2px 12px rgba(0,0,0,.03);overflow:hidden}
+        .v-ch-header{display:flex;align-items:center;gap:12px;padding:13px 14px 11px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s}
+        .v-ch-header:active{background:rgba(0,0,0,.02)}
+        .v-chapter.is-open .v-ch-header{border-bottom:1px solid rgba(226,232,240,.5)}
+        .v-ch-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.125rem}
+        [data-active-cat="new-standard"] .v-ch-icon{background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(139,92,246,.08));color:#6366f1}
+        [data-active-cat="sync-course"] .v-ch-icon{background:linear-gradient(135deg,rgba(16,185,129,.12),rgba(5,150,105,.08));color:#059669}
+        [data-active-cat="special-skills"] .v-ch-icon{background:linear-gradient(135deg,rgba(249,115,22,.12),rgba(234,88,12,.08));color:#ea580c}
         .v-ch-body{flex:1;min-width:0}
-        .v-ch-title{font-size:.875rem;font-weight:700;color:#18181b;line-height:1.35}
-        .v-ch-meta{font-size:.6875rem;color:#a1a1aa;margin-top:4px}
-        .v-ch-arrow{color:#d4d4d8;flex-shrink:0;transition:transform .25s ease}
+        .v-ch-title{font-size:.8125rem;font-weight:700;color:#0f172a;line-height:1.35}
+        .v-ch-meta{font-size:.625rem;color:#94a3b8;margin-top:3px}
+        .v-ch-arrow{color:#cbd5e1;flex-shrink:0;transition:transform .25s ease}
         .v-chapter.is-open .v-ch-arrow{transform:rotate(90deg)}
 
-        .v-ch-expand{display:none;padding:10px 10px 6px}
+        .v-ch-expand{display:none;padding:8px 10px 6px}
         .v-chapter.is-open .v-ch-expand{display:block}
 
         /* 视频条目 */
-        .v-ep{margin-bottom:6px;background:rgba(255,255,255,.95);border-radius:10px;padding:10px 10px;border:1px solid rgba(226,232,240,.9);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s,border-color .15s;-webkit-tap-highlight-color:transparent}
-        .v-ep:active{transform:scale(.99)}
-        .v-ep-num{width:24px;height:24px;border-radius:6px;background:#f4f4f5;color:#71717a;font-size:.6875rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .v-ep{margin-bottom:5px;background:rgba(255,255,255,.85);border-radius:10px;padding:10px 12px;border:1px solid rgba(226,232,240,.5);display:flex;align-items:center;gap:10px;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
+        .v-ep:active{transform:scale(.99);background:rgba(241,245,249,.9)}
+        .v-ep-num{width:22px;height:22px;border-radius:6px;background:#f1f5f9;color:#94a3b8;font-size:.625rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
         .v-ep-info{flex:1;min-width:0}
-        .v-ep-title{font-size:.8125rem;font-weight:600;color:#18181b;line-height:1.35}
-        .v-ep-dur{font-size:.625rem;color:#a1a1aa;margin-top:2px}
-        .v-ep-play-icon{flex-shrink:0;color:#c7c7cc;transition:color .15s}
+        .v-ep-title{font-size:.75rem;font-weight:600;color:#1e293b;line-height:1.35}
+        .v-ep-dur{font-size:.5625rem;color:#94a3b8;margin-top:2px}
+        .v-ep-play-icon{flex-shrink:0;color:#d4d4d8;transition:color .15s}
         .v-ep:active .v-ep-play-icon{color:#6366f1}
         [data-active-cat="sync-course"] .v-ep:active .v-ep-play-icon{color:#059669}
         [data-active-cat="special-skills"] .v-ep:active .v-ep-play-icon{color:#ea580c}
 
-        /* ── 教材弹窗 ── */
-        .v-modal-overlay{position:absolute;inset:0;z-index:500;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center}
+        /* ── 课程设置弹窗 ── */
+        .v-modal-overlay{position:absolute;inset:0;z-index:500;background:rgba(0,0,0,.4);display:none;align-items:flex-end;justify-content:center}
         .v-modal-overlay.open{display:flex}
-        .v-modal-sheet{width:100%;background:#fff;border-radius:20px 20px 0 0;max-height:70%;display:flex;flex-direction:column;box-shadow:0 -12px 48px rgba(0,0,0,.15)}
-        .v-modal-handle{width:40px;height:4px;border-radius:999px;background:#d4d4d8;margin:10px auto 0}
+        .v-modal-sheet{width:100%;background:#fff;border-radius:20px 20px 0 0;max-height:70%;display:flex;flex-direction:column;box-shadow:0 -12px 48px rgba(0,0,0,.12)}
+        .v-modal-handle{width:40px;height:4px;border-radius:999px;background:#e2e8f0;margin:10px auto 0}
         .v-modal-head{padding:14px 20px 10px;display:flex;align-items:center;justify-content:space-between}
-        .v-modal-head h3{font-size:1rem;font-weight:700;color:#18181b}
-        .v-modal-close{width:32px;height:32px;border-radius:999px;border:none;background:#f4f4f5;color:#71717a;display:flex;align-items:center;justify-content:center;cursor:pointer}
-        .v-modal-body{flex:1;overflow-y:auto;padding:0 20px 24px;-webkit-overflow-scrolling:touch}
+        .v-modal-head h3{font-size:1rem;font-weight:700;color:#0f172a}
+        .v-modal-close{width:32px;height:32px;border-radius:999px;border:none;background:#f1f5f9;color:#64748b;display:flex;align-items:center;justify-content:center;cursor:pointer}
+        .v-modal-close:active{background:#e2e8f0}
+        .v-modal-body{flex:1;overflow-y:auto;padding:0 20px 16px;-webkit-overflow-scrolling:touch}
         .v-modal-body::-webkit-scrollbar{display:none}
-        .v-modal-label{font-size:.75rem;font-weight:600;color:#71717a;margin:14px 0 8px}
+        .v-modal-label{font-size:.6875rem;font-weight:700;color:#94a3b8;margin:16px 0 8px;text-transform:uppercase;letter-spacing:.05em}
+        .v-modal-label:first-child{margin-top:6px}
         .v-modal-options{display:flex;flex-wrap:wrap;gap:8px}
-        .v-modal-opt{padding:8px 16px;border-radius:10px;font-size:.8125rem;font-weight:600;color:#52525b;background:#f4f4f5;border:1.5px solid transparent;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
+        .v-modal-opt{padding:8px 16px;border-radius:10px;font-size:.8125rem;font-weight:600;color:#64748b;background:#f8fafc;border:1.5px solid #e2e8f0;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
         .v-modal-opt:active{transform:scale(.97)}
-        .v-modal-opt.selected{background:rgba(99,102,241,.1);color:#4f46e5;border-color:rgba(99,102,241,.4)}
+        .v-modal-opt.selected{background:rgba(99,102,241,.08);color:#4f46e5;border-color:rgba(99,102,241,.35)}
+
+        .v-modal-footer{padding:12px 20px 24px;flex-shrink:0}
+        .v-modal-confirm{width:100%;padding:13px 0;border:none;border-radius:14px;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;font-size:.9375rem;font-weight:700;cursor:pointer;transition:transform .1s;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 16px -4px rgba(99,102,241,.4)}
+        .v-modal-confirm:active{transform:scale(.98)}
 
         /* ── 空状态 ── */
-        .v-empty{padding:60px 20px;text-align:center;color:#a1a1aa;font-size:.8125rem;line-height:1.6}
+        .v-empty{padding:60px 20px;text-align:center;color:#94a3b8;font-size:.8125rem;line-height:1.6}
 
         /* ── 模式切换按钮（页面右上角，手机框外） ── */
         .mode-toggle{position:fixed;top:16px;right:24px;z-index:9999;display:flex;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px;border:1px solid rgba(226,232,240,.8);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)}
@@ -183,43 +188,41 @@
             <!-- 学科 Tab -->
             <div class="v-subj-bar" id="subj-bar" data-doc="subj-bar" data-s="1" data-prd="科目横向Tab栏，根据当前分类动态渲染可选科目；专项大招课(special-skills)时隐藏Tab栏；切换科目联动刷新介绍卡片、教材选择器和视频列表" data-track="/click/videoListPage/switchSubject | 切换科目 | subject#String"></div>
 
-            <!-- 科目介绍卡片 -->
-            <div class="v-intro" id="intro-card" data-cat="new-standard" data-doc="intro-card" data-s="2" data-prd="科目介绍卡片，切换科目时标题和描述文案跟随变化；文案来自 CATEGORIES[].intro[科目] 数据">
+            <!-- 科目介绍卡片（含课程设置入口） -->
+            <div class="v-intro" id="intro-card" data-cat="new-standard" data-doc="intro-card" data-s="2" data-prd="科目介绍卡片，切换科目时标题和描述文案跟随变化；校内同步课时底部展示课程设置入口（年级·教材版本·学期），点击弹出设置弹窗">
                 <div class="v-intro-content">
                     <h3 id="intro-title"></h3>
                     <p id="intro-desc"></p>
                 </div>
+                <div class="v-intro-settings" id="intro-settings">
+                    <div class="v-intro-settings-btn" onclick="openTextbookModal()">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span id="tb-settings-label"></span>
+                        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                </div>
                 <div class="v-intro-decor"></div>
                 <div class="v-intro-decor2"></div>
-            </div>
-
-            <!-- 教材选择器（仅校内同步课展示） -->
-            <div class="v-textbook-bar hidden" id="textbook-bar" data-doc="textbook-bar" data-s="3" data-prd="教材选择器，仅校内同步课(sync-course)显示；包含年级和教材版本两个筛选chip，点击弹出底部弹窗选择；年级默认取 sessionStorage 中的 gradeClass 值">
-                <div class="v-tb-chip" id="tb-grade" onclick="openTextbookModal('grade')" data-doc="tb-grade" data-prd="点击弹出年级选择弹窗，选项为一~六年级" data-track="/click/videoListPage/openGradeModal | 打开年级选择 | 无">
-                    <span class="v-tb-val" id="tb-grade-val">三年级</span>
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                </div>
-                <div class="v-tb-chip" id="tb-edition" onclick="openTextbookModal('edition')" data-doc="tb-edition" data-prd="点击弹出教材版本选择弹窗，选项因科目而异（如数学有人教版/北师大版/苏教版）" data-track="/click/videoListPage/openEditionModal | 打开教材版本选择 | 无">
-                    <span class="v-tb-val" id="tb-edition-val">人教版</span>
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                </div>
             </div>
 
             <!-- 内容列表 -->
             <div class="v-content" id="content-area" data-doc="content-area" data-s="4" data-prd="视频章节列表区域，手风琴交互：点击章节头展开/折叠视频列表；视频条目点击跳转到横屏播放页(视频播放.html)，携带 title/dur/cat/nextTitle/nextDur 参数；初中学生(七八九年级)展示 middleData 数据源"></div>
         </div>
 
-        <!-- 教材选择弹窗 -->
+        <!-- 课程设置弹窗 -->
         <div class="v-modal-overlay" id="tb-modal">
             <div class="v-modal-sheet">
                 <div class="v-modal-handle"></div>
                 <div class="v-modal-head">
-                    <h3 id="tb-modal-title">选择年级</h3>
+                    <h3>课程设置</h3>
                     <button class="v-modal-close" onclick="closeTextbookModal()">
                         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
                 <div class="v-modal-body" id="tb-modal-body"></div>
+                <div class="v-modal-footer">
+                    <button class="v-modal-confirm" onclick="confirmSettings()">确定</button>
+                </div>
             </div>
         </div>
     </div>
@@ -237,6 +240,13 @@
             title: '新课标重点讲',
             desc: '紧扣新课标考点，重点题型逐个突破',
             subjects: ['语文', '数学', '英语'],
+            needsTextbook: true,
+            grades: ['一年级', '二年级', '三年级', '四年级', '五年级', '六年级'],
+            editions: {
+                '语文': ['人教版', '部编版'],
+                '数学': ['人教版', '北师大版', '苏教版'],
+                '英语': ['人教版(PEP)', '外研版', '译林版']
+            },
             intro: {
                 '语文': { title: '新课标语文重点讲', desc: '聚焦新课标核心素养，融入情境化、任务驱动等新理念，深度融合新教材，紧扣最新命题趋势，精准剖析十大新考法解题策略，助力学生快速掌握新题型，全面提升语文综合能力。' },
                 '数学': { title: '新课标数学重点讲', desc: '紧扣新课标数学核心素养，聚焦几何直观、数据分析与数学建模，系统梳理重难点知识，突破典型考题解题策略，培养数学思维，提前适应新考法。' },
@@ -377,6 +387,12 @@
             title: '拓展提升课',
             desc: '1200+专题精讲，拓展提升',
             subjects: ['语文', '英语'],
+            needsTextbook: true,
+            grades: ['一年级', '二年级', '三年级', '四年级', '五年级', '六年级'],
+            editions: {
+                '语文': ['人教版', '部编版'],
+                '英语': ['人教版(PEP)', '外研版', '译林版']
+            },
             intro: {
                 '语文': { title: '语文专项大招', desc: '针对阅读理解、作文写作、古诗文三大失分重灾区，逐一拆解高分答题框架与实战技巧，掌握核心大招，快速突破语文薄弱环节。' },
                 '英语': { title: '英语专项大招', desc: '聚焦阅读理解与写作两大核心板块，精讲解题策略与高分模板，帮助学生建立系统答题思维，高效提升英语应试能力。' },
@@ -460,6 +476,8 @@
     let expandedChapter = {};
     let syncGrade = STUDENT_GRADE.replace(/[^\u4e00-\u9fa5]/g, '') || '三年级';
     let syncEdition = {};
+    let syncSemester = '上学期';
+    let tempGrade, tempEdition, tempSemester;
 
     CATEGORIES.forEach(c => {
         activeSubject[c.id] = c.subjects[0];
@@ -500,15 +518,15 @@
 
     function renderTextbookBar() {
         const cat = CATEGORIES.find(c => c.id === activeCat);
-        const bar = $('textbook-bar');
+        const intro = $('intro-card');
         if (!cat.needsTextbook) {
-            bar.classList.add('hidden');
+            intro.classList.remove('has-settings');
             return;
         }
-        bar.classList.remove('hidden');
+        intro.classList.add('has-settings');
         const subj = activeSubject[activeCat];
-        $('tb-grade-val').textContent = syncGrade;
-        $('tb-edition-val').textContent = syncEdition[subj] || '人教版';
+        const edition = syncEdition[subj] || '人教版';
+        $('tb-settings-label').textContent = edition + ' · ' + syncGrade + ' · ' + syncSemester;
     }
 
     function renderContent() {
@@ -623,53 +641,61 @@
         }
     });
 
-    /* ── 教材弹窗 ── */
-    let tbModalType = 'grade';
+    /* ── 课程设置弹窗 ── */
+    const SEMESTERS = ['上学期', '下学期'];
 
-    function openTextbookModal(type) {
-        tbModalType = type;
-        const modal = $('tb-modal');
+    function openTextbookModal() {
         const cat = CATEGORIES.find(c => c.id === activeCat);
         const subj = activeSubject[activeCat];
+        const editions = cat.editions[subj] || ['人教版'];
+        const curEdition = syncEdition[subj] || editions[0];
 
-        if (type === 'grade') {
-            $('tb-modal-title').textContent = '选择年级';
-            $('tb-modal-body').innerHTML = `
-                <p class="v-modal-label">年级</p>
-                <div class="v-modal-options">${cat.grades.map(g =>
-                    `<div class="v-modal-opt${g === syncGrade ? ' selected' : ''}" data-val="${g}">${g}</div>`
-                ).join('')}</div>`;
-        } else {
-            const editions = cat.editions[subj] || ['人教版'];
-            const cur = syncEdition[subj] || editions[0];
-            $('tb-modal-title').textContent = '选择教材版本';
-            $('tb-modal-body').innerHTML = `
-                <p class="v-modal-label">教材版本</p>
-                <div class="v-modal-options">${editions.map(e =>
-                    `<div class="v-modal-opt${e === cur ? ' selected' : ''}" data-val="${e}">${e}</div>`
-                ).join('')}</div>`;
-        }
-        modal.classList.add('open');
+        tempGrade = syncGrade;
+        tempEdition = curEdition;
+        tempSemester = syncSemester;
+
+        $('tb-modal-body').innerHTML = `
+            <p class="v-modal-label">教材版本</p>
+            <div class="v-modal-options" data-group="edition">${editions.map(e =>
+                `<div class="v-modal-opt${e === tempEdition ? ' selected' : ''}" data-val="${e}">${e}</div>`
+            ).join('')}</div>
+            <p class="v-modal-label">年级</p>
+            <div class="v-modal-options" data-group="grade">${cat.grades.map(g =>
+                `<div class="v-modal-opt${g === tempGrade ? ' selected' : ''}" data-val="${g}">${g}</div>`
+            ).join('')}</div>
+            <p class="v-modal-label">学期</p>
+            <div class="v-modal-options" data-group="semester">${SEMESTERS.map(s =>
+                `<div class="v-modal-opt${s === tempSemester ? ' selected' : ''}" data-val="${s}">${s}</div>`
+            ).join('')}</div>`;
+
+        $('tb-modal').classList.add('open');
     }
 
     function closeTextbookModal() {
         $('tb-modal').classList.remove('open');
     }
 
+    function confirmSettings() {
+        syncGrade = tempGrade;
+        syncEdition[activeSubject[activeCat]] = tempEdition;
+        syncSemester = tempSemester;
+        closeTextbookModal();
+        renderTextbookBar();
+        renderContent();
+    }
+
     $('tb-modal').addEventListener('click', e => {
         if (e.target === $('tb-modal')) { closeTextbookModal(); return; }
         const opt = e.target.closest('.v-modal-opt');
         if (!opt) return;
-        const val = opt.dataset.val;
-        if (tbModalType === 'grade') {
-            syncGrade = val;
-        } else {
-            const subj = activeSubject[activeCat];
-            syncEdition[subj] = val;
-        }
-        closeTextbookModal();
-        renderTextbookBar();
-        renderContent();
+        const group = opt.closest('.v-modal-options');
+        if (!group) return;
+        const gType = group.dataset.group;
+        group.querySelectorAll('.v-modal-opt').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        if (gType === 'grade') tempGrade = opt.dataset.val;
+        else if (gType === 'edition') tempEdition = opt.dataset.val;
+        else if (gType === 'semester') tempSemester = opt.dataset.val;
     });
 
     /* ══════════ 初始化 ══════════ */
@@ -759,26 +785,23 @@
 - 切换科目时标题和描述文案平滑过渡
 - 描述文字最多 3 行，超出用 `-webkit-line-clamp` 截断
 
-## 4. 教材选择器（校内同步课专属）
+## 4. 课程设置（校内同步课专属）
 
 #### 显示条件
 - 仅当 `activeCat === 'sync-course'` 时显示，其他分类隐藏
 
-#### 年级选择
-- 默认值取 `sessionStorage.getItem('gradeClass')`，提取中文部分
-- 底部弹窗展示一~六年级，选中后更新 chip 文案并刷新视频列表
-- 弹窗可点击遮罩关闭
+#### 入口
+- 集成在科目介绍卡片底部，半透明胶囊按钮，展示「人教版 · 三年级 · 上学期」
+- 点击弹出底部弹窗，包含教材版本、年级、学期三个选项组
 
-#### 教材版本选择
-- 选项因科目而异：
-  - 语文：人教版 / 部编版
-  - 数学：人教版 / 北师大版 / 苏教版
-  - 英语：人教版(PEP) / 外研版 / 译林版
-  - 科学：教科版 / 苏教版
-  - 道法：人教版
-- 各科目版本选择独立记忆
+#### 弹窗内容
+- **年级**：默认取 `sessionStorage.getItem('gradeClass')`，一~六年级可选
+- **教材版本**：选项因科目而异（语文：人教版/部编版，数学：人教版/北师大版/苏教版 等），各科目独立记忆
+- **学期**：上学期 / 下学期
+- 弹窗内选择为临时状态，点击「确定」按钮后生效并刷新视频列表
+- 点击遮罩可关闭弹窗（不保存更改）
 
-[!] 当前为 demo 原型，切换年级/版本不会实际更换视频数据源，正式版需根据年级+版本组合请求后端
+[!] 当前为 demo 原型，切换年级/版本/学期不会实际更换视频数据源，正式版需根据年级+版本+学期组合请求后端
 
 ## 5. 视频章节列表
 
