@@ -344,6 +344,46 @@
                         { title: '看图说话高分句型', dur: '08:35' }
                     ]}
                 ]
+            },
+            middleData: {
+                '语文': [
+                    { title: '中文阅读', meta: '6 个视频', videos: [
+                        { title: '记叙文阅读·人物形象分析', dur: '10:30' },
+                        { title: '记叙文阅读·情节梳理与概括', dur: '09:45' },
+                        { title: '说明文阅读·说明方法辨析', dur: '11:20' },
+                        { title: '说明文阅读·信息提取与整合', dur: '10:05' },
+                        { title: '议论文阅读·论点论据论证', dur: '12:15' },
+                        { title: '议论文阅读·补写论据与反驳', dur: '10:40' }
+                    ]},
+                    { title: '中文写作', meta: '5 个视频', videos: [
+                        { title: '审题立意·材料作文破题法', dur: '11:30' },
+                        { title: '结构布局·总分总与并列式', dur: '10:15' },
+                        { title: '语言锤炼·修辞与句式变换', dur: '09:50' },
+                        { title: '开头结尾·凤头豹尾技巧', dur: '10:25' },
+                        { title: '素材积累·热点话题与经典案例', dur: '08:40' }
+                    ]},
+                    { title: '名著专项', meta: '4 个视频', videos: [
+                        { title: '《骆驼祥子》人物与主题', dur: '12:00' },
+                        { title: '《西游记》情节梳理与考点', dur: '11:30' },
+                        { title: '《朝花夕拾》篇目精讲', dur: '10:45' },
+                        { title: '《钢铁是怎样炼成的》主题分析', dur: '11:15' }
+                    ]}
+                ],
+                '英语': [
+                    { title: '语法专项', meta: '5 个视频', videos: [
+                        { title: '时态系统·一般/进行/完成', dur: '12:30' },
+                        { title: '从句入门·宾语从句', dur: '11:00' },
+                        { title: '定语从句·关系代词与关系副词', dur: '11:45' },
+                        { title: '非谓语动词·不定式与动名词', dur: '10:20' },
+                        { title: '被动语态·结构与用法', dur: '09:55' }
+                    ]},
+                    { title: '题型技巧', meta: '4 个视频', videos: [
+                        { title: '完形填空·上下文线索法', dur: '10:40' },
+                        { title: '阅读理解·主旨推断与细节定位', dur: '11:50' },
+                        { title: '语法填空·词性转换与固定搭配', dur: '10:15' },
+                        { title: '书面表达·高分框架与万能句型', dur: '12:10' }
+                    ]}
+                ]
             }
         }
     ];
@@ -402,7 +442,9 @@
     function renderContent() {
         const cat = CATEGORIES.find(c => c.id === activeCat);
         const subj = activeSubject[activeCat];
-        const chapters = (cat.data && cat.data[subj]) || [];
+        const isMiddle = /[七八九]年级|初[一二三]/.test(STUDENT_GRADE);
+        const dataSource = (isMiddle && cat.middleData) ? cat.middleData : cat.data;
+        const chapters = (dataSource && dataSource[subj]) || [];
         const area = $('content-area');
 
         if (!chapters.length) {
@@ -546,11 +588,35 @@
     });
 
     /* ══════════ 初始化 ══════════ */
-    const urlCat = new URLSearchParams(window.location.search).get('cat');
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlCat = urlParams.get('cat');
     if (urlCat && CATEGORIES.find(c => c.id === urlCat)) {
         activeCat = urlCat;
     }
+    const urlSubj = urlParams.get('subj');
+    if (urlSubj) {
+        const cat = CATEGORIES.find(c => c.id === activeCat);
+        if (cat && cat.subjects.includes(urlSubj)) {
+            activeSubject[activeCat] = urlSubj;
+        }
+    }
     renderAll();
+
+    const urlTopic = urlParams.get('topic');
+    if (urlTopic) {
+        const cat = CATEGORIES.find(c => c.id === activeCat);
+        const isMiddle = /[七八九]年级|初[一二三]/.test(STUDENT_GRADE);
+        const dataSource = (isMiddle && cat.middleData) ? cat.middleData : cat.data;
+        const subj = activeSubject[activeCat];
+        const chapters = (dataSource && dataSource[subj]) || [];
+        const idx = chapters.findIndex(ch => ch.title === urlTopic);
+        if (idx >= 0) {
+            expandedChapter[activeCat + '|' + subj] = idx;
+            renderContent();
+            const chapterEl = document.querySelector(`.v-chapter[data-chi="${idx}"]`);
+            if (chapterEl) chapterEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
     </script>
 </body>
 </html>

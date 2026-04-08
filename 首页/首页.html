@@ -334,6 +334,37 @@
             font-size: 0.5625rem; color: #64748b;
         }
 
+        /* ── 专项大招课模块 ── */
+        .zk-section { padding: 0 20px; margin-top: 32px; }
+        .zk-header { display: flex; align-items: center; margin-bottom: 14px; }
+        .zk-header h2 {
+            font-size: 1.125rem; font-weight: 700; color: #0f172a;
+            margin: 0; letter-spacing: -0.01em;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .zk-header-sub { font-size: 0.6875rem; font-weight: 600; color: #a1a1aa; margin-left: 8px; letter-spacing: .02em; }
+        .zk-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .zk-card {
+            display: flex; align-items: center; gap: 0;
+            padding: 12px 10px 12px 0; border-radius: 12px;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.04), inset 0 0 0 1px rgba(255,255,255,0.7);
+            cursor: pointer; transition: transform .12s;
+            -webkit-tap-highlight-color: transparent; overflow: hidden;
+        }
+        .zk-card:active { transform: scale(0.97); }
+        .zk-card:last-child:nth-child(odd) { grid-column: 1 / -1; }
+        .zk-bar {
+            width: 3px; align-self: stretch; border-radius: 0 3px 3px 0; flex-shrink: 0; margin-right: 10px;
+        }
+        .zk-bar-cn { background: linear-gradient(180deg, #f59e0b, #ef4444); }
+        .zk-bar-en { background: linear-gradient(180deg, #3b82f6, #6366f1); }
+        .zk-body { flex: 1; min-width: 0; }
+        .zk-title { font-size: 0.8125rem; font-weight: 700; color: #0f172a; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .zk-desc { font-size: 0.625rem; color: #94a3b8; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .zk-arrow { flex-shrink: 0; color: #d4d4d8; margin-left: 4px; }
+
         /* ── 内容推荐横滑区 ── */
         .feed-section { margin-top: 32px; }
         .feed-header {
@@ -717,14 +748,18 @@
                                 </div>
                             </div>
 
-                            <div class="vz-course-tabs" id="vzCourseTabs">
-                                <button class="vz-course-tab active" data-subj="chinese">语文</button>
-                                <button class="vz-course-tab" data-subj="math">数学</button>
-                                <button class="vz-course-tab" data-subj="english">英语</button>
-                                <button class="vz-course-tab" data-subj="science">科学</button>
-                                <button class="vz-course-tab" data-subj="politics">道法</button>
+                        </section>
+
+                        <!-- ═══ 专项大招课 ═══ -->
+                        <section class="zk-section" data-s="5.5">
+                            <div class="zk-header" data-doc="zk-header" data-prd="专项大招课模块标题，展示专项秒解课程入口" data-track="/expose/teacherLongHomePage/zkSection | 曝光专项大招课模块 | 无">
+                                <h2>
+                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                    专项大招课
+                                </h2>
+                                <span class="zk-header-sub">专项秒解</span>
                             </div>
-                            <div class="vz-course-grid" id="vzCourseGrid"></div>
+                            <div class="zk-cards" id="zkCards"></div>
                         </section>
 
                         <!-- ═══ 精品试卷 ═══ -->
@@ -821,68 +856,6 @@
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
 
-        const COURSE_DATA = {
-            chinese: [
-                { title: '探究性试题：阅读策略类', tag: '新课标', tagCls: 'vct-new', lessons: 6, done: 2, cover: 'vc-indigo', cat: 'new-standard' },
-                { title: '记叙文阅读理解·高频考点', tag: '同步课', tagCls: 'vct-sync', lessons: 8, done: 5, cover: 'vc-green', cat: 'sync-course' },
-                { title: '作文提分大招·审题与立意', tag: '拓展课', tagCls: 'vct-special', lessons: 5, done: 0, cover: 'vc-amber', cat: 'special-skills' },
-                { title: '古诗文鉴赏与默写', tag: '同步课', tagCls: 'vct-sync', lessons: 7, done: 3, cover: 'vc-green', cat: 'sync-course' },
-            ],
-            math: [
-                { title: '有理数运算与应用', tag: '同步课', tagCls: 'vct-sync', lessons: 8, done: 4, cover: 'vc-green', cat: 'sync-course' },
-                { title: '几何证明专项突破', tag: '新课标', tagCls: 'vct-new', lessons: 6, done: 1, cover: 'vc-indigo', cat: 'new-standard' },
-                { title: '一元二次方程·综合提高', tag: '同步课', tagCls: 'vct-sync', lessons: 9, done: 0, cover: 'vc-green', cat: 'sync-course' },
-                { title: '函数图像与性质', tag: '新课标', tagCls: 'vct-new', lessons: 5, done: 3, cover: 'vc-indigo', cat: 'new-standard' },
-            ],
-            english: [
-                { title: '阅读理解高分技巧', tag: '拓展课', tagCls: 'vct-special', lessons: 5, done: 2, cover: 'vc-amber', cat: 'special-skills' },
-                { title: '语法填空·时态专练', tag: '同步课', tagCls: 'vct-sync', lessons: 7, done: 7, cover: 'vc-green', cat: 'sync-course' },
-                { title: '写作模板与万能句型', tag: '拓展课', tagCls: 'vct-special', lessons: 4, done: 0, cover: 'vc-amber', cat: 'special-skills' },
-                { title: '完形填空解题策略', tag: '新课标', tagCls: 'vct-new', lessons: 6, done: 1, cover: 'vc-indigo', cat: 'new-standard' },
-            ],
-            science: [
-                { title: '力学基础·牛顿运动定律', tag: '同步课', tagCls: 'vct-sync', lessons: 8, done: 6, cover: 'vc-green', cat: 'sync-course' },
-                { title: '化学方程式配平与计算', tag: '同步课', tagCls: 'vct-sync', lessons: 6, done: 0, cover: 'vc-cyan', cat: 'sync-course' },
-                { title: '电学实验专项突破', tag: '新课标', tagCls: 'vct-new', lessons: 5, done: 2, cover: 'vc-indigo', cat: 'new-standard' },
-            ],
-            politics: [
-                { title: '法治意识与法律常识', tag: '同步课', tagCls: 'vct-sync', lessons: 6, done: 3, cover: 'vc-rose', cat: 'sync-course' },
-                { title: '社会主义核心价值观', tag: '同步课', tagCls: 'vct-sync', lessons: 5, done: 0, cover: 'vc-rose', cat: 'sync-course' },
-                { title: '权利与义务·重点归纳', tag: '新课标', tagCls: 'vct-new', lessons: 4, done: 1, cover: 'vc-indigo', cat: 'new-standard' },
-            ],
-        };
-
-        function renderVzCourses(subj) {
-            const grid = document.getElementById('vzCourseGrid');
-            const items = COURSE_DATA[subj] || [];
-            grid.innerHTML = items.map(c => {
-                const label = c.done === 0 ? `${c.lessons}节课` : (c.done >= c.lessons ? '已学完' : `已学${c.done}/${c.lessons}节`);
-                return `
-                <div class="vz-course-card" onclick="openKnowledgeVideos('${c.cat}')">
-                    <div class="vz-course-cover ${c.cover}">
-                        <div class="vz-course-play-btn">
-                            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                        </div>
-                    </div>
-                    <div class="vz-course-body">
-                        <div class="vz-course-title">${c.title}</div>
-                        <div class="vz-course-meta">
-                            <span class="vz-course-tag ${c.tagCls}">${c.tag}</span>
-                            <span class="vz-course-lessons">${label}</span>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        document.getElementById('vzCourseTabs').addEventListener('click', e => {
-            const tab = e.target.closest('.vz-course-tab');
-            if (!tab) return;
-            document.querySelectorAll('#vzCourseTabs .vz-course-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            renderVzCourses(tab.dataset.subj);
-        });
-
         const PAPER_DATA = {
             chinese: [
                 { title: '2025年新课标全国卷语文模拟题（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '2.3k' },
@@ -944,9 +917,48 @@
             renderPapers(tab.dataset.subj);
         });
 
-        renderVzCourses('chinese');
         renderPapers('chinese');
 
+        /* ═══ 专项大招课卡片 ═══ */
+        const ZK_DATA = {
+            primary: [
+                { title: '古诗名篇', desc: '生动讲解 情景联想', subj: '语文', lang: 'cn', count: 24 },
+                { title: '语法提升专项', desc: '语法提升 系统精讲', subj: '英语', lang: 'en', count: 18 },
+            ],
+            middle: [
+                { title: '语文-中文阅读', desc: '记叙文、说明文、议论文阅读答题框架', subj: '语文', lang: 'cn', topic: '中文阅读', count: 32 },
+                { title: '语文-中文写作', desc: '审题立意、结构布局、语言锤炼', subj: '语文', lang: 'cn', topic: '中文写作', count: 28 },
+                { title: '语文-名著专项', desc: '必读名著考点精讲与真题演练', subj: '语文', lang: 'cn', topic: '名著专项', count: 20 },
+                { title: '英语-语法专项', desc: '时态、从句、非谓语系统梳理', subj: '英语', lang: 'en', topic: '语法专项', count: 26 },
+                { title: '英语-题型技巧', desc: '完形、阅读、写作高分技巧', subj: '英语', lang: 'en', topic: '题型技巧', count: 22 },
+            ]
+        };
+
+        function renderZkCards() {
+            const grade = sessionStorage.getItem('gradeClass') || '七年级';
+            const isMiddle = /[七八九]年级|初[一二三]/.test(grade);
+            const cards = isMiddle ? ZK_DATA.middle : ZK_DATA.primary;
+            const container = document.getElementById('zkCards');
+            container.innerHTML = cards.map(c => {
+                const barCls = c.lang === 'cn' ? 'zk-bar-cn' : 'zk-bar-en';
+                const params = new URLSearchParams({ cat: 'special-skills', subj: c.subj });
+                if (c.topic) params.set('topic', c.topic);
+                return `
+                <div class="zk-card" onclick="window.location.href='知识点讲解视频.html?${params.toString()}'"
+                     data-doc="zk-${c.topic || c.subj}" data-prd="点击跳转专项大招课·${c.title}"
+                     data-track="/click/teacherLongHomePage/enterZk | 点击专项大招课 | topic#STRING：topic：${c.title}">
+                    <div class="zk-bar ${barCls}"></div>
+                    <div class="zk-body">
+                        <div class="zk-title">${c.title}</div>
+                        <div class="zk-desc">${c.desc}</div>
+                    </div>
+                    <div class="zk-arrow">
+                        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        renderZkCards();
 
         /* ═══ 模式切换 & 侧边栏浮窗 ═══ */
         function setMode(mode) {
