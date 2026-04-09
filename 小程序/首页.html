@@ -189,13 +189,6 @@
             display: flex; align-items: center; gap: 6px;
         }
         .sec-hd h2 svg { color: #64748b; }
-        .sec-badge {
-            font-size: 0.5625rem; font-weight: 700; letter-spacing: 0.04em;
-            padding: 2px 8px; border-radius: 999px; margin-left: 6px;
-        }
-        .sec-badge-indigo { background: rgba(99,102,241,0.08); color: #6366f1; }
-        .sec-badge-amber { background: rgba(245,158,11,0.08); color: #d97706; }
-        .sec-sub { font-size: 0.6875rem; font-weight: 600; color: #a1a1aa; margin-left: 8px; letter-spacing: .02em; }
 
         /* ── 视频课堂卡片 ── */
         .vz-featured {
@@ -348,15 +341,6 @@
         .paper-row {
             display: flex; align-items: center; gap: 8px; margin-top: 6px;
         }
-        .paper-type-tag {
-            font-size: 0.5625rem; font-weight: 700;
-            padding: 2px 8px; border-radius: 4px;
-        }
-        .pt-midterm { background: rgba(37,99,235,0.08); color: #3b82f6; }
-        .pt-final { background: rgba(219,39,119,0.08); color: #ec4899; }
-        .pt-unit { background: rgba(22,163,74,0.08); color: #22c55e; }
-        .pt-mock { background: rgba(245,158,11,0.08); color: #f59e0b; }
-        .pt-real { background: rgba(139,92,246,0.08); color: #8b5cf6; }
         .paper-dl {
             font-size: 0.625rem; color: #64748b;
             display: flex; align-items: center; gap: 3px;
@@ -547,7 +531,7 @@
                     <div class="pb-6">
                         <!-- AI 龙老师 Hero 横幅 -->
                         <div class="hero-banner" data-s="2" data-doc="hero-banner" data-prd="品牌问候区，展示 IP 形象 + 问候语，纯展示不可交互">
-                            <img src="组 7660.png" alt="AI 龙老师" class="mascot-img">
+                            <img src="assets/logo.png" alt="AI 龙老师" class="mascot-img">
                             <div class="hero-text">
                                 <h1>Hi，我是AI 龙老师</h1>
                                 <p>
@@ -576,7 +560,7 @@
                                 </div>
                             </div>
                             <div class="minor-tools" data-s="4">
-                                <div class="minor-tool" onclick="openBook()" data-doc="tool-wrong-book" data-prd="跳转错题本页（错题本/错题本 01.html），查看按学科分类的错题列表" data-track="/click/teacherLongHomePage/enterWrongBook | 点击错题本 | 无">
+                                <div class="minor-tool" onclick="openBook()" data-doc="tool-wrong-book" data-prd="跳转错题本页（错题本/错题本.html），查看按学科分类的错题列表" data-track="/click/teacherLongHomePage/enterWrongBook | 点击错题本 | 无">
                                     <div class="minor-tool-icon mi-green">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </div>
@@ -594,7 +578,7 @@
                                     </div>
                                     <span class="minor-tool-label">错因分析</span>
                                 </div>
-                                <div class="minor-tool" onclick="openErase()" data-doc="tool-erase" data-prd="跳转试卷擦除页（试卷擦除/试卷擦除.html），拍照后自动擦除试卷上的手写笔迹" data-track="/click/teacherLongHomePage/enterErase | 点击试卷擦除 | 无">
+                                <div class="minor-tool" onclick="openErase()" data-doc="tool-erase" data-prd="跳转试卷擦除页（试卷/试卷擦除.html），拍照后自动擦除试卷上的手写笔迹" data-track="/click/teacherLongHomePage/enterErase | 点击试卷擦除 | 无">
                                     <div class="minor-tool-icon mi-purple">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                     </div>
@@ -634,7 +618,6 @@
                                     <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     视频课堂
                                 </h2>
-                                <span class="sec-badge sec-badge-indigo">HOT</span>
                             </div>
 
                             <!-- Featured: 新课标重点讲 -->
@@ -684,12 +667,11 @@
 
                         <!-- ═══ 专项大招课 ═══ -->
                         <section class="sec" data-s="5.5">
-                            <div class="sec-hd" data-doc="zk-header" data-prd="专项大招课模块标题，展示专项秒解课程入口" data-track="/expose/teacherLongHomePage/zkSection | 曝光专项大招课模块 | 无">
+                            <div class="sec-hd" data-doc="zk-header" data-prd="专项大招课模块标题，展示专项课程入口" data-track="/expose/teacherLongHomePage/zkSection | 曝光专项大招课模块 | 无">
                                 <h2>
                                     <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                                     专项大招课
                                 </h2>
-                                <span class="sec-sub">专项秒解</span>
                             </div>
                             <div class="zk-cards" id="zkCards"></div>
                         </section>
@@ -701,7 +683,6 @@
                                     <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                     精品试卷
                                 </h2>
-                                <span class="sec-badge sec-badge-amber">精选</span>
                             </div>
                             <div class="paper-tabs" id="paperTabs">
                                 <button class="paper-tab active" data-subj="chinese">语文</button>
@@ -710,8 +691,7 @@
                                 <button class="paper-tab" data-subj="science">科学</button>
                             </div>
                             <div class="paper-filters" id="paperFilters">
-                                <button class="paper-filter active" data-filter="all">全部</button>
-                                <button class="paper-filter" data-filter="热门推荐">热门推荐</button>
+                                <button class="paper-filter active" data-filter="热门推荐">热门推荐</button>
                                 <button class="paper-filter" data-filter="小升初真题">小升初真题</button>
                                 <button class="paper-filter" data-filter="小升初模拟">小升初模拟</button>
                                 <button class="paper-filter" data-filter="期末试题">期末试题</button>
@@ -720,7 +700,7 @@
                             </div>
                             <div class="paper-list" id="paperList"></div>
                             <div style="text-align:center;margin-top:16px;">
-                                <button onclick="window.location.href='试卷下载.html'" style="
+                                <button onclick="window.location.href='试卷/试卷下载.html'" style="
                                     display:inline-flex;align-items:center;gap:4px;
                                     padding:8px 28px;border-radius:999px;border:1px solid rgba(99,102,241,0.2);
                                     background:rgba(99,102,241,0.04);color:#6366f1;
@@ -760,24 +740,21 @@
     <script>
         function goToCorrection(mode) {
             sessionStorage.setItem('cameraMode', mode);
-            window.location.href = '作业批改.html?mode=' + mode;
+            window.location.href = '作业/作业批改.html?mode=' + mode;
         }
         function openAiJiangTi() {
             sessionStorage.setItem('cameraMode', 'qa');
-            window.location.href = '作业批改.html?mode=qa';
+            window.location.href = '作业/作业批改.html?mode=qa';
         }
         function openBook() {
-            window.location.href = '错题本/错题本 01.html';
+            window.location.href = '错题本/错题本.html';
         }
         function openUploadWrong() {
             sessionStorage.setItem('cameraMode', 'wrong');
-            window.location.href = '作业批改.html?mode=wrong';
+            window.location.href = '作业/作业批改.html?mode=wrong';
         }
         function openErase() {
-            window.location.href = '试卷擦除/试卷擦除.html';
-        }
-        function openEssayCorrection() {
-            showToast('作文批改（已下线）');
+            window.location.href = '试卷/试卷擦除.html';
         }
         function openPaperExplain() {
             showToast('试卷讲解（即将上线）');
@@ -786,13 +763,13 @@
             showToast('错因分析（即将上线）');
         }
         function openRealExam(type) {
-            window.location.href = '试卷列表.html?type=' + type;
+            window.location.href = '试卷/试卷列表.html?type=' + type;
         }
         function openExamPapers() {
-            window.location.href = '试卷下载.html';
+            window.location.href = '试卷/试卷下载.html';
         }
         function openKnowledgeVideos(cat) {
-            const url = cat ? '知识点讲解视频.html?cat=' + cat : '知识点讲解视频.html';
+            const url = cat ? '视频/知识点讲解.html?cat=' + cat : '视频/知识点讲解.html';
             window.location.href = url;
         }
         function openHistory() {
@@ -809,30 +786,64 @@
         const PAPER_DATA = {
             chinese: [
                 { id: 'cn01', title: '2025年新课标全国卷语文模拟题（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '2.3k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'cn07', title: '中考语文古诗文默写专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '热门推荐' },
+                { id: 'cn08', title: '六年级语文阅读理解专项突破', type: '模拟题', typeCls: 'pt-mock', downloads: '3.5k', filter: '热门推荐', recommend: '精选' },
+                { id: 'cn09', title: '小学语文必背古诗75首默写卷', type: '模拟题', typeCls: 'pt-mock', downloads: '4.2k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'cn10', title: '五年级语文阅读与写作综合卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.8k', filter: '热门推荐' },
+                { id: 'cn11', title: '2025年中考语文模拟冲刺卷', type: '模拟题', typeCls: 'pt-mock', downloads: '3.9k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'cn12', title: '四年级语文课内阅读精选练习', type: '模拟题', typeCls: 'pt-mock', downloads: '1.9k', filter: '热门推荐' },
+                { id: 'cn13', title: '名著阅读常考知识点汇总卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.6k', filter: '热门推荐', recommend: '精选' },
+                { id: 'cn14', title: '三年级语文看图写话专项练习', type: '模拟题', typeCls: 'pt-mock', downloads: '2.1k', filter: '热门推荐' },
+                { id: 'cn15', title: '语文基础知识（字词句）综合卷', type: '模拟题', typeCls: 'pt-mock', downloads: '1.7k', filter: '热门推荐' },
                 { id: 'cn02', title: '2024年小升初语文真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '3.1k', filter: '小升初真题', recommend: '精选' },
                 { id: 'cn03', title: '七年级语文期中综合测试卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.6k', filter: '期中试题' },
                 { id: 'cn04', title: '八年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '2.1k', filter: '期末试题', recommend: '推荐' },
                 { id: 'cn05', title: '小升初语文模拟冲刺卷（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '小升初模拟' },
                 { id: 'cn06', title: '九年级语文第三单元检测卷', type: '单元测试', typeCls: 'pt-unit', downloads: '980', filter: '单元测试' },
-                { id: 'cn07', title: '中考语文古诗文默写专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '热门推荐' },
             ],
             math: [
+                { id: 'ma04', title: '几何证明专项模拟试题', type: '模拟题', typeCls: 'pt-mock', downloads: '1.2k', filter: '热门推荐' },
+                { id: 'ma07', title: '六年级数学计算能力提升卷', type: '模拟题', typeCls: 'pt-mock', downloads: '3.6k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'ma08', title: '小学数学应用题分类专练', type: '模拟题', typeCls: 'pt-mock', downloads: '4.1k', filter: '热门推荐', recommend: '精选' },
+                { id: 'ma09', title: '五年级数学分数与小数综合卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.5k', filter: '热门推荐' },
+                { id: 'ma10', title: '2025年中考数学压轴题专练', type: '模拟题', typeCls: 'pt-mock', downloads: '3.8k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'ma11', title: '四年级数学图形与几何专项', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '热门推荐' },
+                { id: 'ma12', title: '三年级数学乘除法口算速算卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.9k', filter: '热门推荐', recommend: '精选' },
+                { id: 'ma13', title: '初中数学函数综合专题训练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.2k', filter: '热门推荐' },
+                { id: 'ma14', title: '数学思维拓展·奥数入门练习', type: '模拟题', typeCls: 'pt-mock', downloads: '1.6k', filter: '热门推荐' },
+                { id: 'ma15', title: '小学数学易错题精选100题', type: '模拟题', typeCls: 'pt-mock', downloads: '3.3k', filter: '热门推荐', recommend: '推荐' },
                 { id: 'ma01', title: '七年级数学期末综合测试卷', type: '期末', typeCls: 'pt-final', downloads: '1.8k', filter: '期末试题', recommend: '推荐' },
                 { id: 'ma02', title: '2024年小升初数学真题精选', type: '真题', typeCls: 'pt-real', downloads: '2.6k', filter: '小升初真题', recommend: '精选' },
                 { id: 'ma03', title: '八年级数学期中检测卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.5k', filter: '期中试题' },
-                { id: 'ma04', title: '几何证明专项模拟试题', type: '模拟题', typeCls: 'pt-mock', downloads: '1.2k', filter: '热门推荐' },
                 { id: 'ma05', title: '小升初数学模拟卷（计算综合）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '小升初模拟' },
                 { id: 'ma06', title: '九年级数学第二单元测试', type: '单元测试', typeCls: 'pt-unit', downloads: '890', filter: '单元测试' },
             ],
             english: [
                 { id: 'en01', title: '八年级英语阅读理解专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'en05', title: '完形填空与语法填空专练', type: '模拟题', typeCls: 'pt-mock', downloads: '960', filter: '热门推荐' },
+                { id: 'en06', title: '小学英语常用句型与对话练习', type: '模拟题', typeCls: 'pt-mock', downloads: '3.2k', filter: '热门推荐', recommend: '精选' },
+                { id: 'en07', title: '六年级英语语法总复习专项卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.7k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'en08', title: '五年级英语阅读理解精选20篇', type: '模拟题', typeCls: 'pt-mock', downloads: '2.4k', filter: '热门推荐' },
+                { id: 'en09', title: '2025年中考英语听力模拟训练', type: '模拟题', typeCls: 'pt-mock', downloads: '3.5k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'en10', title: '四年级英语单词拼写与句型卷', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '热门推荐' },
+                { id: 'en11', title: '初中英语书面表达高分范文卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.1k', filter: '热门推荐', recommend: '精选' },
+                { id: 'en12', title: '三年级英语字母与自然拼读练习', type: '模拟题', typeCls: 'pt-mock', downloads: '2.9k', filter: '热门推荐' },
+                { id: 'en13', title: '英语时态综合练习（现在/过去/将来）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.6k', filter: '热门推荐' },
                 { id: 'en02', title: '2024年小升初英语真题卷', type: '真题', typeCls: 'pt-real', downloads: '2.0k', filter: '小升初真题', recommend: '精选' },
                 { id: 'en03', title: '七年级英语期末综合试卷', type: '期末', typeCls: 'pt-final', downloads: '1.3k', filter: '期末试题' },
                 { id: 'en04', title: '九年级英语期中模拟卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.1k', filter: '期中试题' },
-                { id: 'en05', title: '完形填空与语法填空专练', type: '模拟题', typeCls: 'pt-mock', downloads: '960', filter: '热门推荐' },
             ],
             science: [
                 { id: 'sc01', title: '九年级科学中考真题汇编', type: '真题', typeCls: 'pt-real', downloads: '960', filter: '热门推荐', recommend: '精选' },
+                { id: 'sc05', title: '八年级物理力学综合专练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.3k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'sc06', title: '七年级生物上册知识点检测卷', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '热门推荐' },
+                { id: 'sc07', title: '九年级化学元素与化合物专练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.1k', filter: '热门推荐', recommend: '精选' },
+                { id: 'sc08', title: '八年级科学电学实验专题', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '热门推荐' },
+                { id: 'sc09', title: '中考科学实验探究题精选', type: '模拟题', typeCls: 'pt-mock', downloads: '2.7k', filter: '热门推荐', recommend: '推荐' },
+                { id: 'sc10', title: '七年级科学植物与动物分类卷', type: '模拟题', typeCls: 'pt-mock', downloads: '1.3k', filter: '热门推荐' },
+                { id: 'sc11', title: '八年级科学光学与声学专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.6k', filter: '热门推荐' },
+                { id: 'sc12', title: '九年级科学酸碱盐综合检测', type: '模拟题', typeCls: 'pt-mock', downloads: '2.0k', filter: '热门推荐', recommend: '精选' },
+                { id: 'sc13', title: '科学计算题专项训练（密度/压强/浮力）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.9k', filter: '热门推荐' },
                 { id: 'sc02', title: '八年级科学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '850', filter: '期末试题' },
                 { id: 'sc03', title: '力学综合单元测试卷', type: '单元测试', typeCls: 'pt-unit', downloads: '780', filter: '单元测试' },
                 { id: 'sc04', title: '七年级科学期中考试卷', type: '期中', typeCls: 'pt-midterm', downloads: '720', filter: '期中试题' },
@@ -840,7 +851,7 @@
         };
 
         let activePaperSubj = 'chinese';
-        let activePaperFilter = 'all';
+        let activePaperFilter = '热门推荐';
 
         function renderPapers() {
             const list = document.getElementById('paperList');
@@ -859,7 +870,7 @@
                     ? `<span class="paper-recommend ${p.recommend === '推荐' ? 'pr-recommend' : 'pr-pick'}">${p.recommend}</span>`
                     : '';
                 return `
-                <div class="paper-item" onclick="window.location.href='试卷详情.html?id=${p.id}&title=${encodeURIComponent(p.title)}'">
+                <div class="paper-item" onclick="window.location.href='试卷/试卷详情.html?id=${p.id}&title=${encodeURIComponent(p.title)}'">
                     <div class="paper-icon ${icon}">
                         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     </div>
@@ -868,7 +879,7 @@
                         <div class="paper-row">
                             <span class="paper-dl">
                                 <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                ${p.downloads}
+                                ${p.downloads}人下载
                             </span>
                         </div>
                     </div>
@@ -883,8 +894,8 @@
             document.querySelectorAll('#paperTabs .paper-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             activePaperSubj = tab.dataset.subj;
-            activePaperFilter = 'all';
-            document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.toggle('active', f.dataset.filter === 'all'));
+            activePaperFilter = '热门推荐';
+            document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.toggle('active', f.dataset.filter === '热门推荐'));
             renderPapers();
         });
 
@@ -927,7 +938,7 @@
                 const params = new URLSearchParams({ cat: 'special-skills', subj: c.subj });
                 if (c.topic) params.set('topic', c.topic);
                 return `
-                <div class="zk-card" onclick="window.location.href='知识点讲解视频.html?${params.toString()}'"
+                <div class="zk-card" onclick="window.location.href='视频/知识点讲解.html?${params.toString()}'"
                      data-doc="zk-${c.topic || c.subj}" data-prd="点击跳转专项大招课·${c.title}"
                      data-track="/click/teacherLongHomePage/enterZk | 点击专项大招课 | topic#STRING：topic：${c.title}">
                     <div class="zk-bar ${barCls}"></div>
@@ -1136,7 +1147,7 @@
 
 #### 说明
 
-- IP 图片使用 `组 7660.png`，后续替换为正式 IP 形象资源
+- IP 图片使用 `assets/logo.png`，后续替换为正式 IP 形象资源
 - 文案固定，不随用户信息变化
 
 > 这是品牌展示区，不承载功能逻辑。
@@ -1149,12 +1160,12 @@
 
 | 卡片 | 名称 | 描述 | 跳转 |
 |------|------|------|------|
-| 左 | 作业批改 | 拍照即出批改结果 | `作业批改.html?mode=correction` |
-| 右 | 拍照解题 | AI 逐步解析答疑 | `作业批改.html?mode=qa` |
+| 左 | 作业批改 | 拍照即出批改结果 | `作业/作业批改.html?mode=correction` |
+| 右 | 拍照解题 | AI 逐步解析答疑 | `作业/作业批改.html?mode=qa` |
 
 #### 交互逻辑
 
-- 两个入口共用同一拍照页面 `作业批改.html`，通过 URL 参数 `mode` 区分功能模式
+- 两个入口共用同一拍照页面 `作业/作业批改.html`，通过 URL 参数 `mode` 区分功能模式
 - 作业批改（mode=correction）：拍照后识别题目并返回批改结果，标记对错
 - 拍照解题（mode=qa）：拍照后 AI 逐步解析答题过程，进入苏氏问答交互页
 - 点击时同步写入 `sessionStorage.cameraMode`，拍照页读取决定识别逻辑
@@ -1167,14 +1178,14 @@
 
 | 序号 | 名称 | 跳转目标 | 状态 | 说明 |
 |------|------|----------|------|------|
-| 1 | 错题本 | `错题本/错题本 01.html` | 已上线 | 查看按学科分类的错题列表 |
-| 2 | 上传错题 | `作业批改.html?mode=wrong` | 已上线 | 拍照上传错题到错题本 |
-| 3 | 错因分析 | `作业批改.html?mode=wrong` | 已上线 | 拍照识别错题后 AI 分析错因，复用上传错题拍照入口 |
-| 4 | 试卷擦除 | `试卷擦除/试卷擦除.html` | 已上线 | 拍照后自动擦除试卷上的手写笔迹 |
-| 5 | 试卷下载 | `试卷下载.html` | 已上线 | 按学科和类型筛选下载试卷 |
+| 1 | 错题本 | `错题本/错题本.html` | 已上线 | 查看按学科分类的错题列表 |
+| 2 | 上传错题 | `作业/作业批改.html?mode=wrong` | 已上线 | 拍照上传错题到错题本 |
+| 3 | 错因分析 | `作业/作业批改.html?mode=wrong` | 已上线 | 拍照识别错题后 AI 分析错因，复用上传错题拍照入口 |
+| 4 | 试卷擦除 | `试卷/试卷擦除.html` | 已上线 | 拍照后自动擦除试卷上的手写笔迹 |
+| 5 | 试卷下载 | `试卷/试卷下载.html` | 已上线 | 按学科和类型筛选下载试卷 |
 | 6 | 试卷讲解 | 即将上线 | 待开发 | 拍照上传试卷后 AI 逐题讲解 |
-| 7 | 小升初真题 | `试卷列表.html?type=primary` | 已上线 | 历年小升初真题资源专区 |
-| 8 | 中考真题 | `试卷列表.html?type=middle` | 已上线 | 历年中考真题资源专区 |
+| 7 | 小升初真题 | `试卷/试卷列表.html?type=primary` | 已上线 | 历年小升初真题资源专区 |
+| 8 | 中考真题 | `试卷/试卷列表.html?type=middle` | 已上线 | 历年中考真题资源专区 |
 
 #### 交互逻辑
 
@@ -1192,13 +1203,13 @@
 
 | 卡片 | 名称 | 副标题 | 学科 | 跳转 |
 |------|------|--------|------|------|
-| 大卡 | 新课标重点讲 | 紧扣新课标考点，重点题型逐个突破 | 语文/数学/英语 | `知识点讲解视频.html?cat=new-standard` |
-| 小卡左 | 校内同步课 | 与教材同步 | 语文/数学/英语 | `知识点讲解视频.html?cat=sync-course` |
-| 小卡右 | 拓展提升课 | 1200+专题精讲 | 语文/英语 | `知识点讲解视频.html?cat=special-skills` |
+| 大卡 | 新课标重点讲 | 紧扣新课标考点，重点题型逐个突破 | 语文/数学/英语 | `视频/知识点讲解.html?cat=new-standard` |
+| 小卡左 | 校内同步课 | 与教材同步 | 语文/数学/英语 | `视频/知识点讲解.html?cat=sync-course` |
+| 小卡右 | 拓展提升课 | 1200+专题精讲 | 语文/英语 | `视频/知识点讲解.html?cat=special-skills` |
 
 #### 交互逻辑
 
-- 所有卡片点击后跳转 `知识点讲解视频.html?cat={category}`，进入手风琴展开式的视频目录页
+- 所有卡片点击后跳转 `视频/知识点讲解.html?cat={category}`，进入手风琴展开式的视频目录页
 
 > 校内同步课默认匹配用户已选年级对应的教材版本，避免每次让用户重新选择。
 
@@ -1231,8 +1242,8 @@
 #### 交互逻辑
 
 - Tab 切换渲染对应学科的试卷列表
-- 每个试卷项点击后跳转 `试卷详情.html?id={id}&title={title}`，展示试卷预览和下载入口
-- 底部「查看全部」按钮跳转 `试卷下载.html`
+- 每个试卷项点击后跳转 `试卷/试卷详情.html?id={id}&title={title}`，展示试卷预览和下载入口
+- 底部「查看全部」按钮跳转 `试卷/试卷下载.html`
 
 [!] 精品试卷当前为静态 mock 数据，上线后需对接后端试卷资源接口，支持分页加载和搜索。
     </script>

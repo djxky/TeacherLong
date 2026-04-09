@@ -433,7 +433,7 @@
             setTimeout(function() {
                 document.getElementById('scan-state').classList.add('hidden');
                 if (currentMode === 'wrong') { showWrongRecognize(); return; }
-                if (currentMode === 'erase') { window.location.href = '试卷擦除/试卷擦除.html'; return; }
+                if (currentMode === 'erase') { window.location.href = '../试卷/试卷擦除.html'; return; }
                 document.getElementById('result-state').classList.remove('hidden');
                 if (currentMode === 'correction') { if (questionsData.length === 0) initQuestionsData(); }
                 else { updateDetailContent('qa'); openDetail(); }
@@ -551,7 +551,7 @@
                     return;
                 }
                 if (currentMode === 'erase') {
-                    window.location.href = '试卷擦除/试卷擦除.html';
+                    window.location.href = '../试卷/试卷擦除.html';
                     return;
                 }
                 
@@ -566,7 +566,7 @@
         }
 
         function closeCamera() {
-            window.location.href = '首页.html';
+            window.location.href = '../首页.html';
         }
 
         // === 录错题：智能识别页（图3）===
@@ -611,7 +611,7 @@
             }
             showToast('已加入错题本，共 ' + n + ' 道');
             setTimeout(() => {
-                window.location.href = '错题本/错题本 01.html';
+                window.location.href = '../错题本/错题本.html';
             }, 1200);
         }
 
@@ -691,7 +691,7 @@
             const analysis = analysisEl ? analysisEl.innerText : '';
             sessionStorage.setItem('aiQuestion', question);
             sessionStorage.setItem('aiAnalysis', analysis);
-            window.location.href = '拍照检查作业/ai 讲题.html';
+            window.location.href = 'ai讲题.html';
         }
 
         // 统一按钮逻辑：无论是批改还是答疑，按钮都一致

@@ -8,8 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         *{box-sizing:border-box;margin:0;padding:0}
-        body{font-family:'Inter','Noto Sans SC',sans-serif;background:#f4f4f5;display:flex;align-items:center;justify-content:center;min-height:100vh}
-        .iphone-frame{width:393px;height:852px;position:relative;overflow:hidden;background:linear-gradient(175deg,#f8fafc 0%,#f1f5f9 50%,#e8edf4 100%);box-shadow:0 0 0 12px #18181b,0 0 0 14px #27272a,0 24px 48px -12px rgba(24,24,27,.2);border-radius:50px;display:flex;flex-direction:column}
+        body{font-family:'Inter','Noto Sans SC',sans-serif;background:#ffffff;display:flex;align-items:center;justify-content:center;min-height:100vh}
+        .iphone-frame{width:393px;height:852px;position:relative;overflow:hidden;background:linear-gradient(160deg,#f8fafc 0%,#f1f5f9 40%,#e8edf4 100%);box-shadow:0 0 0 12px #18181b,0 0 0 14px #27272a,0 24px 48px -12px rgba(24,24,27,.2);border-radius:50px;display:flex;flex-direction:column}
+        .mesh-bg{position:absolute;top:-10%;left:-20%;width:80%;height:60%;background:radial-gradient(ellipse at center,rgba(99,102,241,0.3) 0%,transparent 65%);filter:blur(70px);pointer-events:none;z-index:0}
+        .mesh-bg-2{position:absolute;top:15%;right:-30%;width:90%;height:70%;background:radial-gradient(ellipse at center,rgba(236,72,153,0.22) 0%,transparent 65%);filter:blur(70px);pointer-events:none;z-index:0}
+        .mesh-bg-3{position:absolute;bottom:-10%;left:-20%;width:80%;height:70%;background:radial-gradient(ellipse at center,rgba(168,85,247,0.22) 0%,transparent 65%);filter:blur(70px);pointer-events:none;z-index:0}
         .dynamic-island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:120px;height:35px;background:linear-gradient(180deg,#27272a,#18181b);border-radius:20px;z-index:1000;pointer-events:none}
 
         /* ── 顶栏 ── */
@@ -173,6 +176,9 @@
     </div>
 
     <div class="iphone-frame" id="app" data-active-cat="new-standard">
+        <div class="mesh-bg"></div>
+        <div class="mesh-bg-2"></div>
+        <div class="mesh-bg-3"></div>
         <div class="dynamic-island"></div>
 
         <div class="flex-1 min-h-0 flex flex-col pt-[50px]">
@@ -526,7 +532,9 @@
         intro.classList.add('has-settings');
         const subj = activeSubject[activeCat];
         const edition = syncEdition[subj] || '人教版';
-        $('tb-settings-label').textContent = edition + ' · ' + syncGrade + ' · ' + syncSemester;
+        $('tb-settings-label').textContent = activeCat === 'special-skills'
+            ? edition + ' · ' + syncGrade
+            : edition + ' · ' + syncGrade + ' · ' + syncSemester;
     }
 
     function renderContent() {
@@ -590,7 +598,7 @@
     }
 
     /* ══════════ 交互 ══════════ */
-    function goBack() { window.location.href = '首页.html'; }
+    function goBack() { window.location.href = '../首页.html'; }
 
     $('subj-bar').addEventListener('click', e => {
         const tab = e.target.closest('.v-subj-tab');
@@ -663,10 +671,10 @@
             <div class="v-modal-options" data-group="grade">${cat.grades.map(g =>
                 `<div class="v-modal-opt${g === tempGrade ? ' selected' : ''}" data-val="${g}">${g}</div>`
             ).join('')}</div>
-            <p class="v-modal-label">学期</p>
+            ${activeCat !== 'special-skills' ? `<p class="v-modal-label">学期</p>
             <div class="v-modal-options" data-group="semester">${SEMESTERS.map(s =>
                 `<div class="v-modal-opt${s === tempSemester ? ' selected' : ''}" data-val="${s}">${s}</div>`
-            ).join('')}</div>`;
+            ).join('')}</div>` : ''}`;
 
         $('tb-modal').classList.add('open');
     }

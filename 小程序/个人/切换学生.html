@@ -12,13 +12,13 @@
 
         .iphone-frame {
             width: 393px; height: 852px; position: relative; overflow: hidden;
-            background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
+            background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 40%, #e8edf4 100%);
             box-shadow: 0 0 0 12px #18181b, 0 0 0 14px #27272a, 0 24px 48px -12px rgba(24,24,27,0.2);
             border-radius: 50px;
         }
-        .mesh-bg { position: absolute; top: -10%; left: -20%; width: 80%; height: 60%; background: radial-gradient(ellipse at center, rgba(99,102,241,0.45) 0%, transparent 65%); filter: blur(60px); pointer-events: none; z-index: 0; }
-        .mesh-bg-2 { position: absolute; top: 15%; right: -30%; width: 90%; height: 70%; background: radial-gradient(ellipse at center, rgba(236,72,153,0.35) 0%, transparent 65%); filter: blur(60px); pointer-events: none; z-index: 0; }
-        .mesh-bg-3 { position: absolute; bottom: -10%; left: -20%; width: 80%; height: 70%; background: radial-gradient(ellipse at center, rgba(168,85,247,0.35) 0%, transparent 65%); filter: blur(60px); pointer-events: none; z-index: 0; }
+        .mesh-bg { position: absolute; top: -10%; left: -20%; width: 80%; height: 60%; background: radial-gradient(ellipse at center, rgba(99,102,241,0.3) 0%, transparent 65%); filter: blur(70px); pointer-events: none; z-index: 0; }
+        .mesh-bg-2 { position: absolute; top: 15%; right: -30%; width: 90%; height: 70%; background: radial-gradient(ellipse at center, rgba(236,72,153,0.22) 0%, transparent 65%); filter: blur(70px); pointer-events: none; z-index: 0; }
+        .mesh-bg-3 { position: absolute; bottom: -10%; left: -20%; width: 80%; height: 70%; background: radial-gradient(ellipse at center, rgba(168,85,247,0.22) 0%, transparent 65%); filter: blur(70px); pointer-events: none; z-index: 0; }
         .dynamic-island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 120px; height: 35px; background: linear-gradient(180deg, #27272a 0%, #18181b 100%); border-radius: 20px; z-index: 1000; pointer-events: none; }
 
         .page-bar {
@@ -104,6 +104,47 @@
         }
         .empty-state svg { margin: 0 auto 12px; color: #cbd5e1; }
 
+        .student-card-unbind {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 0.6875rem; font-weight: 500; color: #94a3b8;
+            background: none; border: none; cursor: pointer;
+            padding: 4px 8px; border-radius: 8px;
+            transition: all 0.15s; margin-top: 10px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .student-card-unbind:active { color: #e11d48; background: rgba(225,29,72,0.06); }
+
+        .student-count {
+            font-size: 0.6875rem; color: #94a3b8; font-weight: 500;
+            padding: 0 4px 8px; text-align: right;
+        }
+
+        .modal-overlay {
+            position: absolute; inset: 0; z-index: 500;
+            background: rgba(0,0,0,0.25); display: none;
+            align-items: center; justify-content: center; padding: 32px;
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: rgba(255,255,255,0.95); border-radius: 24px; padding: 28px 24px 20px;
+            width: 100%; max-width: 300px; text-align: center;
+            box-shadow: 0 24px 64px -12px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(255,255,255,0.8);
+            backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px); border: none;
+        }
+        .modal-box h3 { font-size: 1.0625rem; font-weight: 700; color: #0f172a; margin: 0; }
+        .modal-box p { font-size: 0.8125rem; color: #64748b; margin: 10px 0 0; line-height: 1.5; }
+        .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+        .modal-actions button {
+            flex: 1; padding: 13px; border-radius: 14px; font-size: 0.9375rem;
+            font-weight: 600; cursor: pointer; border: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .modal-actions button:active { transform: scale(0.96); }
+        .btn-cancel { color: #475569; background: rgba(0,0,0,0.04); }
+        .btn-confirm-red { color: #fff; background: #e11d48; }
+
         #toast {
             position: absolute; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px);
             background: rgba(255,255,255,0.8); color: #0f172a;
@@ -143,10 +184,24 @@
                 <button class="btn-confirm" onclick="confirmSwitch()">确定</button>
             </div>
         </div>
+
+        <!-- 解除绑定确认弹窗 -->
+        <div id="modal-unbind" class="modal-overlay">
+            <div class="modal-box">
+                <h3>确认解除绑定？</h3>
+                <p id="unbind-desc">解除绑定后，该学生将从列表中移除。</p>
+                <div class="modal-actions">
+                    <button class="btn-cancel" onclick="closeUnbindModal()">取消</button>
+                    <button class="btn-confirm-red" onclick="confirmUnbind()">解除绑定</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
+        var MAX_STUDENTS = 10;
         var selectedIndex = parseInt(localStorage.getItem('currentStudentIndex') || '0', 10);
+        var unbindTargetIndex = -1;
 
         function getStudents() {
             try { return JSON.parse(localStorage.getItem('students')) || []; } catch(e) { return []; }
@@ -165,7 +220,9 @@
 
             if (selectedIndex >= list.length) selectedIndex = 0;
 
-            container.innerHTML = list.map(function(s, i) {
+            var countHtml = '<div class="student-count">已绑定 ' + list.length + ' / ' + MAX_STUDENTS + ' 个学生</div>';
+
+            container.innerHTML = countHtml + list.map(function(s, i) {
                 var isSelected = i === selectedIndex;
                 return '<div class="student-card' + (isSelected ? ' selected' : '') + '" onclick="selectStudent(' + i + ')">' +
                     '<div class="student-card-header">' +
@@ -175,10 +232,14 @@
                         '</span>' +
                     '</div>' +
                     '<div class="student-card-info">' +
-                        '<div class="student-card-field"><div class="field-label">学校</div><div class="field-value">' + s.school + '</div></div>' +
-                        '<div class="student-card-field"><div class="field-label">学号</div><div class="field-value">' + s.studentId + '</div></div>' +
-                        '<div class="student-card-field"><div class="field-label">班级</div><div class="field-value">' + s.className + '</div></div>' +
+                        '<div class="student-card-field"><div class="field-label">学校</div><div class="field-value">' + (s.school || '') + '</div></div>' +
+                        '<div class="student-card-field"><div class="field-label">学号</div><div class="field-value">' + (s.studentId || '') + '</div></div>' +
+                        '<div class="student-card-field"><div class="field-label">班级</div><div class="field-value">' + (s.className || '') + '</div></div>' +
                     '</div>' +
+                    '<button class="student-card-unbind" onclick="event.stopPropagation();openUnbindModal(' + i + ')">' +
+                        '<svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.181 8.68a4.503 4.503 0 011.903 6.405m-9.768-2.782L3.56 14.06a4.5 4.5 0 006.364 6.365l.636-.636m5.96-5.96l1.757-1.757a4.5 4.5 0 00-6.364-6.365l-.636.636m8.728 8.728a4.5 4.5 0 01-6.364 0M3.515 3.515a4.5 4.5 0 016.364 0"/></svg>' +
+                        '解除绑定' +
+                    '</button>' +
                 '</div>';
             }).join('');
         }
@@ -188,20 +249,61 @@
             renderList();
         }
 
+        function openUnbindModal(idx) {
+            unbindTargetIndex = idx;
+            var list = getStudents();
+            var name = list[idx] ? list[idx].name : '';
+            document.getElementById('unbind-desc').textContent = '解除绑定后，「' + name + '」将从列表中移除。';
+            document.getElementById('modal-unbind').classList.add('open');
+        }
+
+        function closeUnbindModal() {
+            document.getElementById('modal-unbind').classList.remove('open');
+            unbindTargetIndex = -1;
+        }
+
+        function confirmUnbind() {
+            if (unbindTargetIndex < 0) return;
+            var list = getStudents();
+            var name = list[unbindTargetIndex] ? list[unbindTargetIndex].name : '';
+            list.splice(unbindTargetIndex, 1);
+            localStorage.setItem('students', JSON.stringify(list));
+
+            if (selectedIndex === unbindTargetIndex) {
+                selectedIndex = 0;
+            } else if (selectedIndex > unbindTargetIndex) {
+                selectedIndex--;
+            }
+            if (list.length > 0 && selectedIndex >= list.length) selectedIndex = 0;
+            localStorage.setItem('currentStudentIndex', String(selectedIndex));
+
+            closeUnbindModal();
+            renderList();
+            showToast('已解除「' + name + '」的绑定');
+        }
+
         function confirmSwitch() {
             var list = getStudents();
             if (list.length === 0) { showToast('请先添加学生'); return; }
             localStorage.setItem('currentStudentIndex', String(selectedIndex));
             var s = list[selectedIndex];
             sessionStorage.setItem('name', s.name);
-            sessionStorage.setItem('school', s.school);
-            sessionStorage.setItem('gradeClass', s.className);
+            sessionStorage.setItem('school', s.school || '');
+            sessionStorage.setItem('gradeClass', s.className || '');
             showToast('已切换到 ' + s.name);
-            setTimeout(function() { window.location.href = '我的.html'; }, 600);
+            setTimeout(function() { window.location.href = '../我的.html'; }, 600);
         }
 
-        function goAddStudent() { window.location.href = '添加学生.html'; }
-        function goBack() { window.location.href = '我的.html'; }
+        function goAddStudent() {
+            var list = getStudents();
+            if (list.length >= MAX_STUDENTS) {
+                showToast('最多绑定 ' + MAX_STUDENTS + ' 个学生');
+                return;
+            }
+            window.location.href = '添加学生.html';
+        }
+
+        function goBack() { window.location.href = '../我的.html'; }
 
         function showToast(msg) {
             var toast = document.getElementById('toast');
