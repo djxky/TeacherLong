@@ -51,7 +51,7 @@
         .wx-capsule-divider { width: 0.5px; height: 18px; background: rgba(0,0,0,0.12); }
 
         .topbar {
-            display: flex; align-items: center; padding: 60px 100px 12px 16px; flex-shrink: 0;
+            display: flex; align-items: center; padding: 60px 16px 12px; flex-shrink: 0;
             position: relative; z-index: 20;
         }
         .back-btn {
@@ -65,8 +65,10 @@
         }
         .back-btn:active { transform: scale(0.92); background: rgba(0,0,0,0.05); }
         .topbar-title {
-            flex: 1; text-align: center; font-size: 1.0625rem; font-weight: 700;
+            position: absolute; left: 0; right: 0; text-align: center;
+            font-size: 1.0625rem; font-weight: 700;
             color: #0f172a; letter-spacing: -0.02em;
+            pointer-events: none;
         }
         .topbar-spacer { width: 40px; height: 40px; flex-shrink: 0; }
 
@@ -127,7 +129,7 @@
         .paper-title {
             font-size: 0.8125rem; font-weight: 600; color: #0f172a;
             margin: 0; line-height: 1.4;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-height: 2.8em; overflow: hidden;
         }
         .paper-row {
             display: flex; align-items: center; gap: 8px; margin-top: 6px;
@@ -183,14 +185,16 @@
 
     <script>
         const DOWNLOAD_HISTORY = [
-            { id: 'cn02', title: '2024年小升初语文真题（全国卷）', subj: 'chinese', date: '2026-04-07', recommend: '精选' },
-            { id: 'ma01', title: '七年级数学期末综合测试卷', subj: 'math', date: '2026-04-06', recommend: '推荐' },
-            { id: 'en01', title: '八年级英语阅读理解专项训练', subj: 'english', date: '2026-04-05' },
-            { id: 'cn01', title: '2025年新课标全国卷语文模拟题（一）', subj: 'chinese', date: '2026-04-04', recommend: '推荐' },
-            { id: 'ma02', title: '2024年小升初数学真题精选', subj: 'math', date: '2026-04-03', recommend: '精选' },
-            { id: 'sc01', title: '九年级科学中考真题汇编', subj: 'science', date: '2026-04-02', recommend: '精选' },
-            { id: 'cn04', title: '八年级语文期末综合检测', subj: 'chinese', date: '2026-04-01' },
-            { id: 'en03', title: '七年级英语期末综合试卷', subj: 'english', date: '2026-03-30' },
+            { id: 'cn02', title: '2025-2026学年人教版六年级语文小升初真题卷（全国通用版）', subj: 'chinese', date: '2026-04-07', recommend: '精选' },
+            { id: 'ma01', title: '2025-2026学年北师大版七年级数学上册期末综合测试卷', subj: 'math', date: '2026-04-06', recommend: '推荐' },
+            { id: 'en01', title: '2025-2026学年外研版八年级英语上册阅读理解专项训练', subj: 'english', date: '2026-04-05' },
+            { id: 'cn01', title: '2025年新课标全国卷语文模拟题（一）：阅读理解+写作', subj: 'chinese', date: '2026-04-04', recommend: '推荐' },
+            { id: 'ma02', title: '2025-2026学年西师版（新课标版）六年级数学小升初真题精选', subj: 'math', date: '2026-04-03', recommend: '精选' },
+            { id: 'sc01', title: '2025-2026学年浙教版九年级科学中考真题汇编（含实验探究）', subj: 'science', date: '2026-04-02', recommend: '精选' },
+            { id: 'cn04', title: '2025-2026学年部编版八年级语文上册期末综合检测卷', subj: 'chinese', date: '2026-04-01' },
+            { id: 'en03', title: '2025-2026学年人教版七年级英语下册期末综合试卷', subj: 'english', date: '2026-03-30' },
+            { id: 'ma03', title: '2025-2026学年苏教版五年级数学下册期中检测卷', subj: 'math', date: '2026-03-28' },
+            { id: 'cn05', title: '2025-2026学年人教版三年级语文下册第三单元测试卷', subj: 'chinese', date: '2026-03-25' },
         ];
 
         const SUBJ_LABEL = { chinese: '语文', math: '数学', english: '英语', science: '科学' };

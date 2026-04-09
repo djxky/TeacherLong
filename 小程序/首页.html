@@ -326,6 +326,69 @@
             color: #6366f1; background: rgba(99,102,241,0.06);
             border-color: rgba(99,102,241,0.25);
         }
+        .grade-picker {
+            position: relative; flex-shrink: 0;
+        }
+        .grade-btn {
+            display: flex; align-items: center; gap: 3px;
+            padding: 4px 10px; font-size: 0.625rem; font-weight: 600;
+            color: #6366f1; background: rgba(99,102,241,0.06);
+            border: 1px solid rgba(99,102,241,0.25);
+            border-radius: 16px; cursor: pointer;
+            font-family: inherit;
+            -webkit-tap-highlight-color: transparent;
+            transition: all .18s;
+        }
+        .grade-btn svg { transition: transform .2s; }
+        .grade-btn.open svg { transform: rotate(180deg); }
+        .grade-popup {
+            position: absolute; top: calc(100% + 6px); left: 0;
+            width: 200px; padding: 8px;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border-radius: 14px;
+            box-shadow: 0 8px 32px -4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.6);
+            z-index: 100;
+            opacity: 0; pointer-events: none;
+            transform: translateY(-4px);
+            transition: all .18s cubic-bezier(0.16,1,0.3,1);
+        }
+        .grade-popup.open {
+            opacity: 1; pointer-events: auto;
+            transform: translateY(0);
+        }
+        .semester-toggle {
+            display: flex; gap: 4px; margin-bottom: 8px;
+            background: rgba(0,0,0,0.03); border-radius: 8px; padding: 3px;
+        }
+        .semester-btn {
+            flex: 1; padding: 5px 0; font-size: 0.625rem; font-weight: 600;
+            color: #94a3b8; background: transparent; border: none; border-radius: 6px;
+            cursor: pointer; font-family: inherit;
+            -webkit-tap-highlight-color: transparent;
+            transition: all .15s;
+        }
+        .semester-btn.active {
+            color: #0f172a; background: #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .grade-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+        }
+        .grade-option {
+            padding: 7px 0; text-align: center;
+            font-size: 0.6875rem; font-weight: 500; color: #475569;
+            border: none; background: transparent; border-radius: 8px;
+            cursor: pointer; font-family: inherit;
+            -webkit-tap-highlight-color: transparent;
+            transition: background .12s;
+        }
+        .grade-option:active { background: rgba(99,102,241,0.08); }
+        .grade-option.active {
+            color: #6366f1; font-weight: 700;
+            background: rgba(99,102,241,0.06);
+        }
+
         .paper-recommend {
             display: inline; font-size: 0.5625rem; font-weight: 700; padding: 1px 6px;
             border-radius: 3px; letter-spacing: .02em; margin-right: 4px;
@@ -351,7 +414,7 @@
         .paper-title {
             font-size: 0.8125rem; font-weight: 600; color: #0f172a;
             margin: 0; line-height: 1.4;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-height: 2.8em; overflow: hidden;
         }
         .paper-row {
             display: flex; align-items: center; gap: 8px; margin-top: 6px;
@@ -684,11 +747,18 @@
 
                         <!-- ═══ 专项大招课 ═══ -->
                         <section class="sec" data-s="5.5">
-                            <div class="sec-hd" data-doc="zk-header" data-prd="专项大招课模块标题，展示专项课程入口" data-track="/expose/teacherLongHomePage/zkSection | 曝光专项大招课模块 | 无">
+                            <div class="sec-hd" style="justify-content:space-between;" data-doc="zk-header" data-prd="专项大招课模块标题，展示专项课程入口" data-track="/expose/teacherLongHomePage/zkSection | 曝光专项大招课模块 | 无">
                                 <h2>
                                     <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                                     专项大招课
                                 </h2>
+                                <div class="grade-picker" id="zkGradePicker">
+                                    <button class="grade-btn" id="zkGradeBtn">
+                                        <span id="zkGradeBtnText">七年级</span>
+                                        <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                                    </button>
+                                    <div class="grade-popup" id="zkGradePopup"></div>
+                                </div>
                             </div>
                             <div class="zk-cards" id="zkCards"></div>
                         </section>
@@ -708,6 +778,13 @@
                                 <button class="paper-tab" data-subj="science">科学</button>
                             </div>
                             <div class="paper-filters" id="paperFilters">
+                                <div class="grade-picker" id="gradePicker">
+                                    <button class="grade-btn" id="gradeBtn">
+                                        <span id="gradeBtnText">七年级</span>
+                                        <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                                    </button>
+                                    <div class="grade-popup" id="gradePopup"></div>
+                                </div>
                                 <button class="paper-filter active" data-filter="热门推荐">热门推荐</button>
                                 <button class="paper-filter" data-filter="小升初真题">小升初真题</button>
                                 <button class="paper-filter" data-filter="小升初模拟">小升初模拟</button>
@@ -800,79 +877,250 @@
             setTimeout(() => toast.classList.remove('show'), 2000);
         }
 
+        const GRADES = ['一年级','二年级','三年级','四年级','五年级','六年级','七年级','八年级','九年级'];
+        const SEMESTERS = ['上学期','下学期'];
+
         const PAPER_DATA = {
             chinese: [
-                { id: 'cn01', title: '2025年新课标全国卷语文模拟题（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '2.3k', filter: '热门推荐', recommend: '推荐' },
-                { id: 'cn07', title: '中考语文古诗文默写专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '热门推荐' },
-                { id: 'cn08', title: '六年级语文阅读理解专项突破', type: '模拟题', typeCls: 'pt-mock', downloads: '3.5k', filter: '热门推荐', recommend: '精选' },
-                { id: 'cn09', title: '小学语文必背古诗75首默写卷', type: '模拟题', typeCls: 'pt-mock', downloads: '4.2k', filter: '热门推荐', recommend: '推荐' },
-                { id: 'cn10', title: '五年级语文阅读与写作综合卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.8k', filter: '热门推荐' },
-                { id: 'cn11', title: '2025年中考语文模拟冲刺卷', type: '模拟题', typeCls: 'pt-mock', downloads: '3.9k', filter: '热门推荐', recommend: '推荐' },
-                { id: 'cn12', title: '四年级语文课内阅读精选练习', type: '模拟题', typeCls: 'pt-mock', downloads: '1.9k', filter: '热门推荐' },
-                { id: 'cn13', title: '名著阅读常考知识点汇总卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.6k', filter: '热门推荐', recommend: '精选' },
-                { id: 'cn14', title: '三年级语文看图写话专项练习', type: '模拟题', typeCls: 'pt-mock', downloads: '2.1k', filter: '热门推荐' },
-                { id: 'cn15', title: '语文基础知识（字词句）综合卷', type: '模拟题', typeCls: 'pt-mock', downloads: '1.7k', filter: '热门推荐' },
-                { id: 'cn02', title: '2024年小升初语文真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '3.1k', filter: '小升初真题', recommend: '精选' },
-                { id: 'cn03', title: '七年级语文期中综合测试卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.6k', filter: '期中试题' },
-                { id: 'cn04', title: '八年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '2.1k', filter: '期末试题', recommend: '推荐' },
-                { id: 'cn05', title: '小升初语文模拟冲刺卷（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '小升初模拟' },
-                { id: 'cn06', title: '九年级语文第三单元检测卷', type: '单元测试', typeCls: 'pt-unit', downloads: '980', filter: '单元测试' },
+                { id: 'cn01', title: '2025-2026学年部编版一年级语文上册拼音与识字专项检测卷', downloads: '1.2k', filter: '热门推荐', recommend: '推荐', grade: '一年级', semester: '上学期' },
+                { id: 'cn02', title: '2025-2026学年人教版一年级语文上册期末综合检测卷', downloads: '950', filter: '期末试题', grade: '一年级', semester: '上学期' },
+                { id: 'cn03', title: '2025-2026学年部编版一年级语文下册看图说话专项训练卷', downloads: '1.0k', filter: '热门推荐', grade: '一年级', semester: '下学期' },
+                { id: 'cn04', title: '2025-2026学年部编版二年级语文上册阅读与写话专项训练', downloads: '1.1k', filter: '热门推荐', recommend: '推荐', grade: '二年级', semester: '上学期' },
+                { id: 'cn05', title: '2025-2026学年人教版二年级语文上册期末综合检测卷', downloads: '890', filter: '期末试题', grade: '二年级', semester: '上学期' },
+                { id: 'cn06', title: '2025-2026学年部编版二年级语文下册看图写话专项训练', downloads: '950', filter: '热门推荐', grade: '二年级', semester: '下学期' },
+                { id: 'cn07', title: '2025-2026学年部编版三年级语文上册课内阅读理解专练', downloads: '650', filter: '热门推荐', grade: '三年级', semester: '上学期' },
+                { id: 'cn08', title: '2025-2026学年人教版三年级语文上册期末综合检测卷', downloads: '720', filter: '期末试题', grade: '三年级', semester: '上学期' },
+                { id: 'cn09', title: '2025-2026学年部编版三年级语文下册阅读理解入门专练', downloads: '680', filter: '热门推荐', grade: '三年级', semester: '下学期' },
+                { id: 'cn10', title: '2025-2026学年部编版四年级语文上册课内阅读精选练习卷', downloads: '1.9k', filter: '热门推荐', grade: '四年级', semester: '上学期' },
+                { id: 'cn11', title: '2025-2026学年人教版四年级语文上册期末综合检测卷', downloads: '880', filter: '期末试题', grade: '四年级', semester: '上学期' },
+                { id: 'cn12', title: '2025-2026学年部编版四年级语文下册阅读理解专项突破', downloads: '800', filter: '热门推荐', grade: '四年级', semester: '下学期' },
+                { id: 'cn13', title: '2025-2026学年部编版五年级语文上册阅读与写作综合卷', downloads: '2.8k', filter: '热门推荐', recommend: '推荐', grade: '五年级', semester: '上学期' },
+                { id: 'cn14', title: '2025-2026学年人教版五年级语文上册期中综合测试卷', downloads: '950', filter: '期中试题', grade: '五年级', semester: '上学期' },
+                { id: 'cn15', title: '2025-2026学年人教版五年级语文上册期末综合测试卷', downloads: '1.2k', filter: '期末试题', grade: '五年级', semester: '上学期' },
+                { id: 'cn16', title: '2025-2026学年部编版五年级语文下册作文训练专项卷', downloads: '960', filter: '热门推荐', grade: '五年级', semester: '下学期' },
+                { id: 'cn17', title: '2025-2026学年部编版六年级语文上册阅读理解专项突破', downloads: '3.5k', filter: '热门推荐', recommend: '精选', grade: '六年级', semester: '上学期' },
+                { id: 'cn18', title: '2025-2026学年人教版六年级语文上册期末综合检测卷', downloads: '1.4k', filter: '期末试题', grade: '六年级', semester: '上学期' },
+                { id: 'cn19', title: '2025-2026学年部编版小学语文必背古诗75首默写检测卷', downloads: '4.2k', filter: '热门推荐', recommend: '推荐', grade: '六年级', semester: '下学期' },
+                { id: 'cn20', title: '2024年人教版小升初语文真题卷（全国通用版）', downloads: '3.1k', filter: '小升初真题', recommend: '精选', grade: '六年级', semester: '下学期' },
+                { id: 'cn21', title: '2025-2026学年部编版六年级语文小升初模拟冲刺卷（一）', downloads: '1.8k', filter: '小升初模拟', grade: '六年级', semester: '下学期' },
+                { id: 'cn22', title: '2025-2026学年部编版六年级语文下册总复习综合专练', downloads: '1.5k', filter: '热门推荐', recommend: '推荐', grade: '六年级', semester: '下学期' },
+                { id: 'cn23', title: '2025-2026学年部编版七年级语文上册新课标重点模拟题', downloads: '2.3k', filter: '热门推荐', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'cn24', title: '2025-2026学年人教版七年级语文上册阅读理解专项训练', downloads: '1.9k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'cn25', title: '2025-2026学年部编版七年级语文上册古诗文默写与赏析卷', downloads: '2.1k', filter: '热门推荐', recommend: '精选', grade: '七年级', semester: '上学期' },
+                { id: 'cn26', title: '2025-2026学年人教版七年级语文上册记叙文写作专项训练', downloads: '1.6k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'cn27', title: '2025-2026学年部编版七年级语文上册文言文阅读精选练习', downloads: '1.8k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'cn28', title: '2025-2026学年人教版七年级语文上册基础知识（字词句）综合卷', downloads: '1.5k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'cn29', title: '2025-2026学年部编版七年级语文上册名著阅读常考知识点卷', downloads: '2.0k', filter: '热门推荐', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'cn30', title: '2025-2026学年人教版七年级语文上册课内外阅读对比训练', downloads: '1.4k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'cn31', title: '2025-2026学年部编版七年级语文上册现代文阅读理解专练', downloads: '1.7k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'cn32', title: '2025-2026学年人教版七年级语文上册综合能力模拟检测卷', downloads: '1.3k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'cn33', title: '2025-2026学年人教版七年级语文上册期中综合测试卷', downloads: '1.6k', filter: '期中试题', grade: '七年级', semester: '上学期' },
+                { id: 'cn34', title: '2025-2026学年部编版七年级语文上册期末综合测试卷', downloads: '1.9k', filter: '期末试题', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'cn35', title: '2025-2026学年人教版七年级语文上册第一单元检测卷', downloads: '1.1k', filter: '单元测试', grade: '七年级', semester: '上学期' },
+                { id: 'cn36', title: '2025-2026学年部编版七年级语文下册古诗文理解与默写', downloads: '1.7k', filter: '热门推荐', grade: '七年级', semester: '下学期' },
+                { id: 'cn37', title: '2025-2026学年人教版七年级语文下册期末冲刺检测卷', downloads: '1.5k', filter: '期末试题', grade: '七年级', semester: '下学期' },
+                { id: 'cn38', title: '2025-2026学年部编版八年级语文上册名著阅读专项训练', downloads: '2.0k', filter: '热门推荐', recommend: '推荐', grade: '八年级', semester: '上学期' },
+                { id: 'cn39', title: '2025-2026学年人教版八年级语文上册文言文阅读精练卷', downloads: '1.8k', filter: '热门推荐', grade: '八年级', semester: '上学期' },
+                { id: 'cn40', title: '2025-2026学年部编版八年级语文上册期末综合检测卷', downloads: '2.1k', filter: '期末试题', recommend: '推荐', grade: '八年级', semester: '上学期' },
+                { id: 'cn41', title: '2025-2026学年人教版八年级语文上册期中综合测试卷', downloads: '1.4k', filter: '期中试题', grade: '八年级', semester: '上学期' },
+                { id: 'cn42', title: '2025-2026学年部编版八年级语文下册议论文写作训练卷', downloads: '1.5k', filter: '热门推荐', grade: '八年级', semester: '下学期' },
+                { id: 'cn43', title: '2025-2026学年部编版九年级语文上册中考模拟卷（一）', downloads: '3.2k', filter: '热门推荐', recommend: '推荐', grade: '九年级', semester: '上学期' },
+                { id: 'cn44', title: '2025-2026学年人教版九年级语文上册古诗文默写专练', downloads: '1.4k', filter: '热门推荐', grade: '九年级', semester: '上学期' },
+                { id: 'cn45', title: '2025-2026学年部编版九年级语文上册名著常考知识点汇总卷', downloads: '2.6k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '上学期' },
+                { id: 'cn46', title: '2025-2026学年人教版九年级语文上册期末综合检测卷', downloads: '1.6k', filter: '期末试题', grade: '九年级', semester: '上学期' },
+                { id: 'cn47', title: '2025年部编版九年级语文中考模拟冲刺卷（全国通用）', downloads: '3.9k', filter: '热门推荐', recommend: '推荐', grade: '九年级', semester: '下学期' },
+                { id: 'cn48', title: '2024年人教版九年级语文中考真题汇编（含答案解析）', downloads: '2.8k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '下学期' },
             ],
             math: [
-                { id: 'ma04', title: '几何证明专项模拟试题', type: '模拟题', typeCls: 'pt-mock', downloads: '1.2k', filter: '热门推荐' },
-                { id: 'ma07', title: '六年级数学计算能力提升卷', type: '模拟题', typeCls: 'pt-mock', downloads: '3.6k', filter: '热门推荐', recommend: '推荐' },
-                { id: 'ma08', title: '小学数学应用题分类专练', type: '模拟题', typeCls: 'pt-mock', downloads: '4.1k', filter: '热门推荐', recommend: '精选' },
-                { id: 'ma09', title: '五年级数学分数与小数综合卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.5k', filter: '热门推荐' },
-                { id: 'ma10', title: '2025年中考数学压轴题专练', type: '模拟题', typeCls: 'pt-mock', downloads: '3.8k', filter: '热门推荐', recommend: '推荐' },
-                { id: 'ma11', title: '四年级数学图形与几何专项', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '热门推荐' },
-                { id: 'ma12', title: '三年级数学乘除法口算速算卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.9k', filter: '热门推荐', recommend: '精选' },
-                { id: 'ma13', title: '初中数学函数综合专题训练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.2k', filter: '热门推荐' },
-                { id: 'ma14', title: '数学思维拓展·奥数入门练习', type: '模拟题', typeCls: 'pt-mock', downloads: '1.6k', filter: '热门推荐' },
-                { id: 'ma15', title: '小学数学易错题精选100题', type: '模拟题', typeCls: 'pt-mock', downloads: '3.3k', filter: '热门推荐', recommend: '推荐' },
-                { id: 'ma01', title: '七年级数学期末综合测试卷', type: '期末', typeCls: 'pt-final', downloads: '1.8k', filter: '期末试题', recommend: '推荐' },
-                { id: 'ma02', title: '2024年小升初数学真题精选', type: '真题', typeCls: 'pt-real', downloads: '2.6k', filter: '小升初真题', recommend: '精选' },
-                { id: 'ma03', title: '八年级数学期中检测卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.5k', filter: '期中试题' },
-                { id: 'ma05', title: '小升初数学模拟卷（计算综合）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '小升初模拟' },
-                { id: 'ma06', title: '九年级数学第二单元测试', type: '单元测试', typeCls: 'pt-unit', downloads: '890', filter: '单元测试' },
+                { id: 'ma01', title: '2025-2026学年人教版一年级数学上册10以内加减法专练', downloads: '1.1k', filter: '热门推荐', recommend: '推荐', grade: '一年级', semester: '上学期' },
+                { id: 'ma02', title: '2025-2026学年人教版一年级数学上册期末综合测试卷', downloads: '880', filter: '期末试题', grade: '一年级', semester: '上学期' },
+                { id: 'ma03', title: '2025-2026学年北师大版一年级数学下册20以内加减法卷', downloads: '1.0k', filter: '热门推荐', grade: '一年级', semester: '下学期' },
+                { id: 'ma04', title: '2025-2026学年西师版（新课标版）二年级数学上册100以内加减法', downloads: '980', filter: '热门推荐', recommend: '推荐', grade: '二年级', semester: '上学期' },
+                { id: 'ma05', title: '2025-2026学年人教版二年级数学上册期末综合检测卷', downloads: '850', filter: '期末试题', grade: '二年级', semester: '上学期' },
+                { id: 'ma06', title: '2025-2026学年北师大版二年级数学下册乘法口诀专练卷', downloads: '920', filter: '热门推荐', grade: '二年级', semester: '下学期' },
+                { id: 'ma07', title: '2025-2026学年人教版三年级数学上册乘除法口算速算卷', downloads: '2.9k', filter: '热门推荐', recommend: '精选', grade: '三年级', semester: '上学期' },
+                { id: 'ma08', title: '2025-2026学年苏教版三年级数学上册期末综合测试卷', downloads: '700', filter: '期末试题', grade: '三年级', semester: '上学期' },
+                { id: 'ma09', title: '2025-2026学年北师大版三年级数学下册面积与周长专练', downloads: '680', filter: '热门推荐', grade: '三年级', semester: '下学期' },
+                { id: 'ma10', title: '2025-2026学年人教版四年级数学上册图形与几何专项训练', downloads: '1.8k', filter: '热门推荐', grade: '四年级', semester: '上学期' },
+                { id: 'ma11', title: '2025-2026学年西师版四年级数学上册期末综合检测卷', downloads: '850', filter: '期末试题', grade: '四年级', semester: '上学期' },
+                { id: 'ma12', title: '2025-2026学年人教版四年级数学下册小数运算专练卷', downloads: '760', filter: '热门推荐', grade: '四年级', semester: '下学期' },
+                { id: 'ma13', title: '2025-2026学年北师大版五年级数学上册分数与小数综合卷', downloads: '2.5k', filter: '热门推荐', grade: '五年级', semester: '上学期' },
+                { id: 'ma14', title: '2025-2026学年人教版五年级数学上册应用题分类专练卷', downloads: '4.1k', filter: '热门推荐', recommend: '精选', grade: '五年级', semester: '上学期' },
+                { id: 'ma15', title: '2025-2026学年苏教版五年级数学上册期末综合测试卷', downloads: '1.0k', filter: '期末试题', grade: '五年级', semester: '上学期' },
+                { id: 'ma16', title: '2025-2026学年人教版五年级数学下册分数四则运算专练', downloads: '880', filter: '热门推荐', grade: '五年级', semester: '下学期' },
+                { id: 'ma17', title: '2025-2026学年人教版六年级数学上册计算能力提升卷', downloads: '3.6k', filter: '热门推荐', recommend: '推荐', grade: '六年级', semester: '上学期' },
+                { id: 'ma18', title: '2025-2026学年北师大版六年级数学上册期末综合测试卷', downloads: '1.2k', filter: '期末试题', grade: '六年级', semester: '上学期' },
+                { id: 'ma19', title: '2024年人教版小升初数学真题卷（全国通用精选版）', downloads: '2.6k', filter: '小升初真题', recommend: '精选', grade: '六年级', semester: '下学期' },
+                { id: 'ma20', title: '2025-2026学年西师版（新课标版）六年级数学小升初模拟卷', downloads: '1.5k', filter: '小升初模拟', grade: '六年级', semester: '下学期' },
+                { id: 'ma21', title: '2025-2026学年人教版小学数学易错题精选100题汇编', downloads: '3.3k', filter: '热门推荐', recommend: '推荐', grade: '六年级', semester: '下学期' },
+                { id: 'ma22', title: '2025-2026学年人教版七年级数学上册有理数综合训练卷', downloads: '2.1k', filter: '热门推荐', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'ma23', title: '2025-2026学年北师大版七年级数学上册一元一次方程专练', downloads: '1.8k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'ma24', title: '2025-2026学年人教版七年级数学上册整式加减运算检测卷', downloads: '1.6k', filter: '热门推荐', recommend: '精选', grade: '七年级', semester: '上学期' },
+                { id: 'ma25', title: '2025-2026学年苏教版七年级数学上册几何图形初步认识卷', downloads: '1.4k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'ma26', title: '2025-2026学年人教版七年级数学上册数轴与绝对值专项', downloads: '1.5k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'ma27', title: '2025-2026学年北师大版七年级数学上册应用题综合训练卷', downloads: '1.3k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'ma28', title: '2025-2026学年人教版七年级数学上册计算能力达标检测卷', downloads: '1.7k', filter: '热门推荐', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'ma29', title: '2025-2026学年西师版七年级数学上册角与线段综合专练', downloads: '1.2k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'ma30', title: '2025-2026学年人教版七年级数学上册易错题精选检测卷', downloads: '1.9k', filter: '热门推荐', recommend: '精选', grade: '七年级', semester: '上学期' },
+                { id: 'ma31', title: '2025-2026学年北师大版七年级数学上册综合能力模拟卷', downloads: '1.1k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'ma32', title: '2025-2026学年人教版七年级数学上册期末综合测试卷', downloads: '1.8k', filter: '期末试题', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'ma33', title: '2025-2026学年北师大版七年级数学上册期中综合检测卷', downloads: '1.3k', filter: '期中试题', grade: '七年级', semester: '上学期' },
+                { id: 'ma34', title: '2025-2026学年人教版七年级数学下册几何初步专项训练', downloads: '1.5k', filter: '热门推荐', grade: '七年级', semester: '下学期' },
+                { id: 'ma35', title: '2025-2026学年人教版八年级数学上册全等三角形专练卷', downloads: '1.9k', filter: '热门推荐', recommend: '推荐', grade: '八年级', semester: '上学期' },
+                { id: 'ma36', title: '2025-2026学年北师大版八年级数学上册一次函数综合训练', downloads: '1.7k', filter: '热门推荐', grade: '八年级', semester: '上学期' },
+                { id: 'ma37', title: '2025-2026学年人教版八年级数学上册期末综合检测卷', downloads: '1.6k', filter: '期末试题', grade: '八年级', semester: '上学期' },
+                { id: 'ma38', title: '2025-2026学年苏教版八年级数学上册期中综合检测卷', downloads: '1.5k', filter: '期中试题', grade: '八年级', semester: '上学期' },
+                { id: 'ma39', title: '2025-2026学年人教版九年级数学上册二次函数专项训练', downloads: '2.4k', filter: '热门推荐', recommend: '推荐', grade: '九年级', semester: '上学期' },
+                { id: 'ma40', title: '2025年人教版中考数学压轴题专练（含解题思路）', downloads: '3.8k', filter: '热门推荐', recommend: '推荐', grade: '九年级', semester: '上学期' },
+                { id: 'ma41', title: '2025-2026学年北师大版九年级数学下册几何证明专项卷', downloads: '1.2k', filter: '热门推荐', grade: '九年级', semester: '下学期' },
+                { id: 'ma42', title: '2025年人教版九年级数学中考冲刺模拟卷（全国通用）', downloads: '2.2k', filter: '热门推荐', grade: '九年级', semester: '下学期' },
             ],
             english: [
-                { id: 'en01', title: '八年级英语阅读理解专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '热门推荐', recommend: '推荐' },
-                { id: 'en05', title: '完形填空与语法填空专练', type: '模拟题', typeCls: 'pt-mock', downloads: '960', filter: '热门推荐' },
-                { id: 'en06', title: '小学英语常用句型与对话练习', type: '模拟题', typeCls: 'pt-mock', downloads: '3.2k', filter: '热门推荐', recommend: '精选' },
-                { id: 'en07', title: '六年级英语语法总复习专项卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.7k', filter: '热门推荐', recommend: '推荐' },
-                { id: 'en08', title: '五年级英语阅读理解精选20篇', type: '模拟题', typeCls: 'pt-mock', downloads: '2.4k', filter: '热门推荐' },
-                { id: 'en09', title: '2025年中考英语听力模拟训练', type: '模拟题', typeCls: 'pt-mock', downloads: '3.5k', filter: '热门推荐', recommend: '推荐' },
-                { id: 'en10', title: '四年级英语单词拼写与句型卷', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '热门推荐' },
-                { id: 'en11', title: '初中英语书面表达高分范文卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.1k', filter: '热门推荐', recommend: '精选' },
-                { id: 'en12', title: '三年级英语字母与自然拼读练习', type: '模拟题', typeCls: 'pt-mock', downloads: '2.9k', filter: '热门推荐' },
-                { id: 'en13', title: '英语时态综合练习（现在/过去/将来）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.6k', filter: '热门推荐' },
-                { id: 'en02', title: '2024年小升初英语真题卷', type: '真题', typeCls: 'pt-real', downloads: '2.0k', filter: '小升初真题', recommend: '精选' },
-                { id: 'en03', title: '七年级英语期末综合试卷', type: '期末', typeCls: 'pt-final', downloads: '1.3k', filter: '期末试题' },
-                { id: 'en04', title: '九年级英语期中模拟卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.1k', filter: '期中试题' },
+                { id: 'en01', title: '2025-2026学年人教版（PEP）一年级英语上册字母与单词专练', downloads: '680', filter: '热门推荐', grade: '一年级', semester: '上学期' },
+                { id: 'en02', title: '2025-2026学年人教版（PEP）一年级英语上册期末综合测试卷', downloads: '620', filter: '期末试题', grade: '一年级', semester: '上学期' },
+                { id: 'en03', title: '2025-2026学年外研版二年级英语上册日常对话专项训练卷', downloads: '720', filter: '热门推荐', grade: '二年级', semester: '上学期' },
+                { id: 'en04', title: '2025-2026学年人教版（PEP）二年级英语上册期末综合检测卷', downloads: '650', filter: '期末试题', grade: '二年级', semester: '上学期' },
+                { id: 'en05', title: '2025-2026学年译林版三年级英语上册字母与自然拼读练习卷', downloads: '2.9k', filter: '热门推荐', grade: '三年级', semester: '上学期' },
+                { id: 'en06', title: '2025-2026学年人教版（PEP）三年级英语上册期末综合测试卷', downloads: '580', filter: '期末试题', grade: '三年级', semester: '上学期' },
+                { id: 'en07', title: '2025-2026学年外研版四年级英语上册单词拼写与句型检测卷', downloads: '1.8k', filter: '热门推荐', grade: '四年级', semester: '上学期' },
+                { id: 'en08', title: '2025-2026学年人教版（PEP）四年级英语下册阅读理解入门卷', downloads: '720', filter: '热门推荐', grade: '四年级', semester: '下学期' },
+                { id: 'en09', title: '2025-2026学年译林版五年级英语上册阅读理解精选20篇', downloads: '2.4k', filter: '热门推荐', grade: '五年级', semester: '上学期' },
+                { id: 'en10', title: '2025-2026学年人教版（PEP）五年级英语上册期末综合测试卷', downloads: '880', filter: '期末试题', grade: '五年级', semester: '上学期' },
+                { id: 'en11', title: '2025-2026学年人教版（PEP）六年级英语上册语法总复习专项卷', downloads: '2.7k', filter: '热门推荐', recommend: '推荐', grade: '六年级', semester: '上学期' },
+                { id: 'en12', title: '2025-2026学年外研版六年级英语上册常用句型与对话练习', downloads: '3.2k', filter: '热门推荐', recommend: '精选', grade: '六年级', semester: '上学期' },
+                { id: 'en13', title: '2024年人教版小升初英语真题卷（全国通用版）', downloads: '2.0k', filter: '小升初真题', recommend: '精选', grade: '六年级', semester: '下学期' },
+                { id: 'en14', title: '2025-2026学年人教版（PEP）六年级英语下册总复习综合卷', downloads: '1.2k', filter: '热门推荐', recommend: '推荐', grade: '六年级', semester: '下学期' },
+                { id: 'en15', title: '2025-2026学年人教版七年级英语上册阅读理解精练（含答案）', downloads: '1.8k', filter: '热门推荐', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'en16', title: '2025-2026学年外研版七年级英语上册完形填空专项训练卷', downloads: '1.5k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'en17', title: '2025-2026学年人教版七年级英语上册语法填空与单选专练', downloads: '1.6k', filter: '热门推荐', recommend: '精选', grade: '七年级', semester: '上学期' },
+                { id: 'en18', title: '2025-2026学年译林版七年级英语上册词汇拼写专项检测卷', downloads: '1.3k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'en19', title: '2025-2026学年人教版七年级英语上册听力理解模拟训练卷', downloads: '1.4k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'en20', title: '2025-2026学年外研版七年级英语上册书面表达写作训练卷', downloads: '1.2k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'en21', title: '2025-2026学年人教版七年级英语上册时态综合练习（一般现在时）', downloads: '1.7k', filter: '热门推荐', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'en22', title: '2025-2026学年译林版七年级英语上册情景交际与补全对话卷', downloads: '1.1k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'en23', title: '2025-2026学年人教版七年级英语上册课文知识点综合检测卷', downloads: '1.5k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'en24', title: '2025-2026学年外研版七年级英语上册综合能力模拟检测卷', downloads: '1.0k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'en25', title: '2025-2026学年人教版七年级英语上册期末综合试卷', downloads: '1.3k', filter: '期末试题', grade: '七年级', semester: '上学期' },
+                { id: 'en26', title: '2025-2026学年外研版七年级英语下册语法填空综合专练', downloads: '1.3k', filter: '热门推荐', grade: '七年级', semester: '下学期' },
+                { id: 'en27', title: '2025-2026学年人教版八年级英语上册阅读理解专项训练卷', downloads: '1.5k', filter: '热门推荐', recommend: '推荐', grade: '八年级', semester: '上学期' },
+                { id: 'en28', title: '2025-2026学年外研版八年级英语上册完形填空与语法填空卷', downloads: '960', filter: '热门推荐', grade: '八年级', semester: '上学期' },
+                { id: 'en29', title: '2025-2026学年人教版八年级英语上册期末综合检测卷', downloads: '1.4k', filter: '期末试题', grade: '八年级', semester: '上学期' },
+                { id: 'en30', title: '2025-2026学年人教版八年级英语下册书面表达高分范文卷', downloads: '2.1k', filter: '热门推荐', recommend: '精选', grade: '八年级', semester: '下学期' },
+                { id: 'en31', title: '2025-2026学年人教版九年级英语上册中考听力模拟训练', downloads: '3.5k', filter: '热门推荐', recommend: '推荐', grade: '九年级', semester: '上学期' },
+                { id: 'en32', title: '2025-2026学年外研版九年级英语上册时态综合练习卷', downloads: '1.6k', filter: '热门推荐', grade: '九年级', semester: '上学期' },
+                { id: 'en33', title: '2025年人教版九年级英语中考听力模拟冲刺卷（全国通用）', downloads: '3.5k', filter: '热门推荐', recommend: '推荐', grade: '九年级', semester: '下学期' },
+                { id: 'en34', title: '2025-2026学年外研版九年级英语下册期中综合模拟卷', downloads: '1.1k', filter: '期中试题', grade: '九年级', semester: '下学期' },
             ],
             science: [
-                { id: 'sc01', title: '九年级科学中考真题汇编', type: '真题', typeCls: 'pt-real', downloads: '960', filter: '热门推荐', recommend: '精选' },
-                { id: 'sc05', title: '八年级物理力学综合专练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.3k', filter: '热门推荐', recommend: '推荐' },
-                { id: 'sc06', title: '七年级生物上册知识点检测卷', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '热门推荐' },
-                { id: 'sc07', title: '九年级化学元素与化合物专练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.1k', filter: '热门推荐', recommend: '精选' },
-                { id: 'sc08', title: '八年级科学电学实验专题', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '热门推荐' },
-                { id: 'sc09', title: '中考科学实验探究题精选', type: '模拟题', typeCls: 'pt-mock', downloads: '2.7k', filter: '热门推荐', recommend: '推荐' },
-                { id: 'sc10', title: '七年级科学植物与动物分类卷', type: '模拟题', typeCls: 'pt-mock', downloads: '1.3k', filter: '热门推荐' },
-                { id: 'sc11', title: '八年级科学光学与声学专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.6k', filter: '热门推荐' },
-                { id: 'sc12', title: '九年级科学酸碱盐综合检测', type: '模拟题', typeCls: 'pt-mock', downloads: '2.0k', filter: '热门推荐', recommend: '精选' },
-                { id: 'sc13', title: '科学计算题专项训练（密度/压强/浮力）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.9k', filter: '热门推荐' },
-                { id: 'sc02', title: '八年级科学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '850', filter: '期末试题' },
-                { id: 'sc03', title: '力学综合单元测试卷', type: '单元测试', typeCls: 'pt-unit', downloads: '780', filter: '单元测试' },
-                { id: 'sc04', title: '七年级科学期中考试卷', type: '期中', typeCls: 'pt-midterm', downloads: '720', filter: '期中试题' },
+                { id: 'sc01', title: '2025-2026学年浙教版七年级科学上册生物知识点检测卷', downloads: '1.8k', filter: '热门推荐', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'sc02', title: '2025-2026学年教科版七年级科学上册植物与动物分类检测卷', downloads: '1.3k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'sc03', title: '2025-2026学年浙教版七年级科学上册物质的特性专项训练', downloads: '1.5k', filter: '热门推荐', recommend: '精选', grade: '七年级', semester: '上学期' },
+                { id: 'sc04', title: '2025-2026学年人教版七年级科学上册地球与宇宙综合检测卷', downloads: '1.2k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'sc05', title: '2025-2026学年教科版七年级科学上册科学探究方法专练卷', downloads: '1.0k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'sc06', title: '2025-2026学年浙教版七年级科学上册水和溶液综合检测卷', downloads: '1.4k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'sc07', title: '2025-2026学年人教版七年级科学上册生态系统与环境专练', downloads: '1.1k', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'sc08', title: '2025-2026学年教科版七年级科学上册显微镜观察实验报告卷', downloads: '950', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'sc09', title: '2025-2026学年浙教版七年级科学上册温度与物态变化专练', downloads: '1.3k', filter: '热门推荐', recommend: '推荐', grade: '七年级', semester: '上学期' },
+                { id: 'sc10', title: '2025-2026学年人教版七年级科学上册综合能力模拟检测卷', downloads: '880', filter: '热门推荐', grade: '七年级', semester: '上学期' },
+                { id: 'sc11', title: '2025-2026学年浙教版七年级科学上册期中综合考试卷', downloads: '720', filter: '期中试题', grade: '七年级', semester: '上学期' },
+                { id: 'sc12', title: '2025-2026学年教科版七年级科学上册期末综合检测卷', downloads: '950', filter: '期末试题', grade: '七年级', semester: '上学期' },
+                { id: 'sc13', title: '2025-2026学年浙教版七年级科学下册地球与宇宙专项训练', downloads: '880', filter: '热门推荐', grade: '七年级', semester: '下学期' },
+                { id: 'sc14', title: '2025-2026学年浙教版八年级科学上册力学综合专项训练卷', downloads: '2.3k', filter: '热门推荐', recommend: '推荐', grade: '八年级', semester: '上学期' },
+                { id: 'sc15', title: '2025-2026学年教科版八年级科学上册电学实验专题检测卷', downloads: '1.5k', filter: '热门推荐', grade: '八年级', semester: '上学期' },
+                { id: 'sc16', title: '2025-2026学年浙教版八年级科学上册期末综合检测卷', downloads: '850', filter: '期末试题', grade: '八年级', semester: '上学期' },
+                { id: 'sc17', title: '2025-2026学年教科版八年级科学下册光学与声学综合专练', downloads: '1.6k', filter: '热门推荐', grade: '八年级', semester: '下学期' },
+                { id: 'sc18', title: '2025-2026学年浙教版九年级科学上册中考真题分类汇编', downloads: '960', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '上学期' },
+                { id: 'sc19', title: '2025-2026学年教科版九年级科学上册化学元素与化合物卷', downloads: '2.1k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '上学期' },
+                { id: 'sc20', title: '2025年浙教版中考科学实验探究题精选（含评分标准）', downloads: '2.7k', filter: '热门推荐', recommend: '推荐', grade: '九年级', semester: '上学期' },
+                { id: 'sc21', title: '2025-2026学年浙教版九年级科学下册酸碱盐综合检测卷', downloads: '2.0k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '下学期' },
+                { id: 'sc22', title: '2025年教科版中考科学计算题专项训练（密度/压强/浮力）', downloads: '1.9k', filter: '热门推荐', grade: '九年级', semester: '下学期' },
             ],
         };
 
+        let activeGrade = sessionStorage.getItem('gradeClass') || '七年级';
+        if (!GRADES.includes(activeGrade)) activeGrade = '七年级';
+        let activeSemester = '上学期';
         let activePaperSubj = 'chinese';
         let activePaperFilter = '热门推荐';
+
+        const gradeBtn = document.getElementById('gradeBtn');
+        const gradeBtnText = document.getElementById('gradeBtnText');
+        const gradePopup = document.getElementById('gradePopup');
+
+        function updateGradeBtnText() {
+            const short = activeSemester === '上学期' ? '上' : '下';
+            gradeBtnText.textContent = activeGrade + short;
+        }
+
+        function renderGradePopup() {
+            updateGradeBtnText();
+            gradePopup.innerHTML =
+                '<div class="semester-toggle">' +
+                    SEMESTERS.map(s =>
+                        '<button class="semester-btn' + (s === activeSemester ? ' active' : '') + '" data-sem="' + s + '">' + s + '</button>'
+                    ).join('') +
+                '</div>' +
+                '<div class="grade-grid">' +
+                    GRADES.map(g =>
+                        '<button class="grade-option' + (g === activeGrade ? ' active' : '') + '" data-grade="' + g + '">' + g + '</button>'
+                    ).join('') +
+                '</div>';
+        }
+
+        function toggleGradePopup() {
+            const isOpen = gradePopup.classList.contains('open');
+            if (isOpen) {
+                gradePopup.classList.remove('open');
+                gradeBtn.classList.remove('open');
+            } else {
+                renderGradePopup();
+                gradePopup.classList.add('open');
+                gradeBtn.classList.add('open');
+            }
+        }
+
+        gradeBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            toggleGradePopup();
+        });
+
+        gradePopup.addEventListener('click', e => {
+            e.stopPropagation();
+            const semBtn = e.target.closest('.semester-btn');
+            if (semBtn) {
+                activeSemester = semBtn.dataset.sem;
+                renderGradePopup();
+                activePaperFilter = '热门推荐';
+                document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.toggle('active', f.dataset.filter === '热门推荐'));
+                renderPapers();
+                return;
+            }
+            const opt = e.target.closest('.grade-option');
+            if (!opt) return;
+            activeGrade = opt.dataset.grade;
+            updateGradeBtnText();
+            gradePopup.classList.remove('open');
+            gradeBtn.classList.remove('open');
+            activePaperFilter = '热门推荐';
+            document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.toggle('active', f.dataset.filter === '热门推荐'));
+            renderPapers();
+        });
+
+        document.addEventListener('click', () => {
+            gradePopup.classList.remove('open');
+            gradeBtn.classList.remove('open');
+            if (typeof zkGradePopup !== 'undefined') {
+                zkGradePopup.classList.remove('open');
+                zkGradeBtn.classList.remove('open');
+            }
+        });
+
+        renderGradePopup();
 
         function renderPapers() {
             const list = document.getElementById('paperList');
             let items = PAPER_DATA[activePaperSubj] || [];
+            items = items.filter(p => p.grade === activeGrade && p.semester === activeSemester);
             if (activePaperFilter !== 'all') {
                 items = items.filter(p => p.filter === activePaperFilter);
             }
@@ -945,9 +1193,51 @@
             ]
         };
 
+        let zkActiveGrade = sessionStorage.getItem('gradeClass') || '七年级';
+        if (!GRADES.includes(zkActiveGrade)) zkActiveGrade = '七年级';
+
+        const zkGradeBtn = document.getElementById('zkGradeBtn');
+        const zkGradeBtnText = document.getElementById('zkGradeBtnText');
+        const zkGradePopup = document.getElementById('zkGradePopup');
+
+        function renderZkGradePopup() {
+            zkGradeBtnText.textContent = zkActiveGrade;
+            zkGradePopup.innerHTML =
+                '<div class="grade-grid">' +
+                    GRADES.map(g =>
+                        '<button class="grade-option' + (g === zkActiveGrade ? ' active' : '') + '" data-grade="' + g + '">' + g + '</button>'
+                    ).join('') +
+                '</div>';
+        }
+
+        zkGradeBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            const isOpen = zkGradePopup.classList.contains('open');
+            if (isOpen) {
+                zkGradePopup.classList.remove('open');
+                zkGradeBtn.classList.remove('open');
+            } else {
+                renderZkGradePopup();
+                zkGradePopup.classList.add('open');
+                zkGradeBtn.classList.add('open');
+            }
+        });
+
+        zkGradePopup.addEventListener('click', e => {
+            e.stopPropagation();
+            const opt = e.target.closest('.grade-option');
+            if (!opt) return;
+            zkActiveGrade = opt.dataset.grade;
+            zkGradeBtnText.textContent = zkActiveGrade;
+            zkGradePopup.classList.remove('open');
+            zkGradeBtn.classList.remove('open');
+            renderZkCards();
+        });
+
+        renderZkGradePopup();
+
         function renderZkCards() {
-            const grade = sessionStorage.getItem('gradeClass') || '七年级';
-            const isMiddle = /[七八九]年级|初[一二三]/.test(grade);
+            const isMiddle = /[七八九]年级|初[一二三]/.test(zkActiveGrade);
             const cards = isMiddle ? ZK_DATA.middle : ZK_DATA.primary;
             const container = document.getElementById('zkCards');
             container.innerHTML = cards.map(c => {

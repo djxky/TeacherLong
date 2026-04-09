@@ -34,7 +34,7 @@
         .wx-capsule-divider { width: 0.5px; height: 18px; background: rgba(0,0,0,0.12); }
 
         .topbar {
-            display: flex; align-items: center; padding: 0 100px 0 16px; height: 44px; flex-shrink: 0;
+            display: flex; align-items: center; padding: 0 16px; height: 44px; flex-shrink: 0;
             position: relative; z-index: 20;
         }
         .back-btn {
@@ -48,8 +48,10 @@
         }
         .back-btn:active { transform: scale(0.92); background: rgba(0,0,0,0.05); }
         .topbar-title {
-            flex: 1; text-align: center; font-size: 1.0625rem; font-weight: 700;
+            position: absolute; left: 0; right: 0; text-align: center;
+            font-size: 1.0625rem; font-weight: 700;
             color: #0f172a; letter-spacing: -0.02em;
+            pointer-events: none;
         }
         .topbar-spacer { width: 40px; height: 40px; flex-shrink: 0; }
 

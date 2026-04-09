@@ -31,7 +31,7 @@
         .wx-capsule-divider { width: 0.5px; height: 18px; background: rgba(0,0,0,0.12); }
 
         .page-bar {
-            height: 44px; padding: 0 100px 0 16px; display: flex; align-items: center; gap: 8px;
+            height: 44px; padding: 0 16px; display: flex; align-items: center; gap: 8px;
             flex-shrink: 0; position: relative; z-index: 20;
         }
         .page-back {
@@ -41,7 +41,11 @@
             transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .page-back:active { transform: scale(0.92); background: rgba(0,0,0,0.03); }
-        .page-title { font-size: 1.125rem; font-weight: 600; color: #18181b; }
+        .page-title {
+            position: absolute; left: 0; right: 0; text-align: center;
+            font-size: 1.125rem; font-weight: 600; color: #18181b;
+            pointer-events: none;
+        }
 
         .form-scroll {
             flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 8px 20px 20px;
