@@ -112,74 +112,47 @@
         /* ── 空状态 ── */
         .v-empty{padding:60px 20px;text-align:center;color:#94a3b8;font-size:.8125rem;line-height:1.6}
 
-        /* ── 模式切换按钮（页面右上角，手机框外） ── */
-        .mode-toggle{position:fixed;top:16px;right:24px;z-index:9999;display:flex;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:8px;border:1px solid rgba(226,232,240,.8);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-        .mode-btn{padding:5px 14px;font-size:.75rem;font-weight:600;border:none;cursor:pointer;background:transparent;color:#71717a;transition:all .15s}
-        .mode-btn.active{background:#4f46e5;color:#fff}
-
-        /* ── 产品稿浮窗（页面级，手机框外） ── */
-        .sb-float{position:fixed;top:56px;right:24px;width:360px;height:680px;z-index:9998;display:flex;flex-direction:column;background:rgba(255,255,255,.97);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:14px;border:1px solid rgba(226,232,240,.85);box-shadow:0 12px 48px rgba(0,0,0,.12);opacity:0;pointer-events:none;transition:opacity .25s;overflow:hidden;resize:both;min-width:280px;min-height:300px}
-        .sb-float.show{opacity:1;pointer-events:auto}
-        .sb-drag{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:grab;border-bottom:1px solid rgba(226,232,240,.7);flex-shrink:0;user-select:none;-webkit-user-select:none}
-        .sb-drag:active{cursor:grabbing}
-        .sb-drag-dot{width:6px;height:6px;border-radius:50%;background:#818cf8}
-        .sb-drag-title{flex:1;font-size:.8125rem;font-weight:700;color:#18181b}
-        .sb-drag-ver{font-size:.625rem;color:#a1a1aa;font-weight:600}
-        .sb-body{flex:1;overflow-y:auto;padding:0 0 12px;-webkit-overflow-scrolling:touch}
-        .sb-body::-webkit-scrollbar{width:3px}
-        .sb-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
-
-        /* changelog */
-        .sb-cl{margin:12px 14px;padding:10px 12px;background:#f8fafc;border-radius:10px;border:1px solid rgba(226,232,240,.7)}
-        .sb-cl-hd{font-size:.6875rem;font-weight:700;color:#64748b;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:4px}
-        .sb-cl-hd::before{content:'▸';font-size:8px;transition:transform .2s}
-        .sb-cl.op .sb-cl-hd::before{transform:rotate(90deg)}
-        .sb-cl-bd{display:none;font-size:.6875rem;color:#64748b;line-height:1.6}
-        .sb-cl.op .sb-cl-bd{display:block}
-        .sb-cl-bd h3{font-size:.6875rem;font-weight:700;color:#334155;margin:6px 0 2px}
-        .sb-cl-bd ul{padding-left:16px;margin:0}
-        .sb-cl-bd li{margin-bottom:2px}
-
-        /* sections */
-        .sb-sec{margin:6px 14px;border-radius:10px;border:1px solid rgba(226,232,240,.7);overflow:hidden;transition:border-color .2s}
-        .sb-sec.glow{border-color:#818cf8;box-shadow:0 0 0 2px rgba(129,140,248,.2)}
-        .sb-hd{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;transition:background .12s}
-        .sb-hd:active{background:rgba(99,102,241,.04)}
-        .sb-hd-num{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,#eef2ff,#e0e7ff);color:#4f46e5;font-size:.625rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-        .sb-hd-title{flex:1;font-size:.75rem;font-weight:700;color:#18181b;line-height:1.3}
-        .sb-hd-arrow{color:#d4d4d8;font-size:8px;transition:transform .2s}
-        .sb-sec.op .sb-hd-arrow{transform:rotate(90deg)}
-        .sb-hd-badge{font-size:.5625rem;font-weight:700;padding:1px 6px;border-radius:4px;flex-shrink:0}
-        .sb-hd-badge.new{background:#dcfce7;color:#16a34a}
-        .sb-hd-badge.updated{background:#fef3c7;color:#d97706}
-        .sb-bd{display:none;padding:0 12px 10px;font-size:.6875rem;color:#52525b;line-height:1.7}
-        .sb-sec.op .sb-bd{display:block}
-        .sb-bd h4{font-size:.6875rem;font-weight:700;color:#3b82f6;margin:8px 0 4px}
-        .sb-bd blockquote{border-left:3px solid #3b82f6;padding:6px 10px;margin:6px 0;background:#eff6ff;border-radius:0 6px 6px 0;font-size:.6875rem;color:#1e40af}
-        .sb-bd ul,.sb-bd ol{padding-left:16px;margin:4px 0}
-        .sb-bd li{margin-bottom:2px}
-        .sb-diff-add{background:#dcfce7;color:#16a34a;padding:1px 4px;border-radius:3px;font-size:.625rem;font-weight:600}
-        .sb-diff-mod{background:#fef3c7;color:#d97706;padding:1px 4px;border-radius:3px;font-size:.625rem;font-weight:600}
-        .sb-diff-note{background:#fefce8;border-left:3px solid #eab308;padding:6px 10px;margin:6px 0;border-radius:0 6px 6px 0;font-size:.6875rem;color:#854d0e}
+        .mode-toggle { position: fixed; top: 24px; right: 32px; z-index: 900; display: flex; align-items: center; gap: 0; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 24px -4px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06); overflow: hidden; font-size: 0.8125rem; font-weight: 600; }
+        .mode-toggle button { padding: 10px 24px; border: none; background: transparent; color: #94a3b8; cursor: pointer; font-family: inherit; font-size: 0.8125rem; font-weight: 600; transition: all 0.2s; }
+        .mode-toggle button.active { background: #4f46e5; color: #ffffff; }
+        .sb-panel { position: fixed; top: 50%; right: 32px; width: 380px; max-height: 80vh; transform: translateY(-50%) translateX(20px); background: #ffffff; border-radius: 20px; box-shadow: 0 24px 64px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06); z-index: 800; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity 0.3s, transform 0.3s; overflow: hidden; }
+        .sb-panel.open { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
+        .sb-drag-bar { padding: 12px 16px 8px; cursor: move; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(0,0,0,0.04); }
+        .sb-drag-title { font-size: 0.8125rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+        .sb-drag-title .sb-ver { font-size: 0.5625rem; font-weight: 600; color: #4f46e5; background: rgba(99,102,241,0.08); padding: 2px 8px; border-radius: 6px; }
+        .sb-close { width: 24px; height: 24px; border-radius: 8px; border: none; background: rgba(0,0,0,0.04); color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; transition: background 0.2s; }
+        .sb-close:hover { background: rgba(0,0,0,0.08); }
+        .sb-content { flex: 1; overflow-y: auto; padding: 12px 16px 20px; -webkit-overflow-scrolling: touch; }
+        .sb-content::-webkit-scrollbar { width: 3px; }
+        .sb-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+        .sb-changelog { margin-bottom: 16px; }
+        .sb-changelog-toggle { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: #64748b; cursor: pointer; padding: 8px 0; user-select: none; }
+        .sb-changelog-toggle svg { transition: transform 0.2s; }
+        .sb-changelog-toggle.open svg { transform: rotate(90deg); }
+        .sb-changelog-body { display: none; padding: 0 0 0 8px; border-left: 2px solid rgba(99,102,241,0.15); margin-left: 4px; }
+        .sb-changelog-body.open { display: block; }
+        .sb-changelog-body h3 { font-size: 0.6875rem; font-weight: 700; color: #334155; margin: 12px 0 4px; padding: 0; }
+        .sb-changelog-body ul { margin: 0; padding: 0 0 0 16px; font-size: 0.6875rem; color: #475569; line-height: 1.8; }
+        .sb-section { margin-bottom: 2px; }
+        .sb-hd { display: flex; align-items: center; gap: 8px; padding: 10px 8px; border-radius: 10px; cursor: pointer; font-size: 0.8125rem; font-weight: 600; color: #0f172a; transition: background 0.15s; user-select: none; }
+        .sb-hd:hover { background: rgba(0,0,0,0.02); }
+        .sb-hd .sb-arrow { width: 16px; height: 16px; color: #94a3b8; flex-shrink: 0; transition: transform 0.2s; }
+        .sb-section.op .sb-hd .sb-arrow { transform: rotate(90deg); }
+        .sb-hd .sb-badge-new { font-size: 0.5rem; font-weight: 700; color: #059669; background: rgba(5,150,105,0.08); padding: 1px 6px; border-radius: 4px; }
+        .sb-hd .sb-badge-updated { font-size: 0.5rem; font-weight: 700; color: #d97706; background: rgba(217,119,6,0.08); padding: 1px 6px; border-radius: 4px; }
+        .sb-bd { display: none; padding: 4px 8px 12px 32px; font-size: 0.75rem; color: #475569; line-height: 1.75; }
+        .sb-section.op .sb-bd { display: block; }
+        .sb-bd h4 { font-size: 0.75rem; font-weight: 700; color: #2563eb; margin: 12px 0 4px; padding: 0; }
+        .sb-bd blockquote { margin: 8px 0; padding: 8px 12px; border-radius: 8px; background: rgba(37,99,235,0.04); border-left: 3px solid rgba(37,99,235,0.3); font-size: 0.6875rem; color: #334155; }
+        .sb-bd ul, .sb-bd ol { margin: 4px 0; padding-left: 16px; }
+        .sb-bd li { margin: 2px 0; }
+        .sb-bd .diff-add { background: rgba(5,150,105,0.06); color: #065f46; padding: 2px 6px; border-radius: 4px; }
+        .sb-bd .diff-mod { background: rgba(217,119,6,0.06); color: #92400e; padding: 2px 6px; border-radius: 4px; }
+        .sb-bd .diff-note { background: rgba(234,179,8,0.06); color: #854d0e; padding: 4px 8px; border-radius: 6px; display: block; margin: 6px 0; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-    <!-- 模式切换（手机框外，页面右上角） -->
-    <div class="mode-toggle" id="modeToggle">
-        <button class="mode-btn active" data-mode="demo">演示</button>
-        <button class="mode-btn" data-mode="review">过稿</button>
-    </div>
-
-    <!-- 产品稿浮窗（手机框外） -->
-    <div class="sb-float" id="sbFloat">
-        <div class="sb-drag" id="sbDrag">
-            <div class="sb-drag-dot"></div>
-            <span class="sb-drag-title">产品稿 · 知识点讲解视频</span>
-            <span class="sb-drag-ver">v1.0</span>
-        </div>
-        <div class="sb-body" id="sidebarContent"></div>
-    </div>
-
     <div class="iphone-frame" id="app" data-active-cat="new-standard">
         <div class="mesh-bg"></div>
         <div class="mesh-bg-2"></div>
@@ -241,6 +214,21 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- 模式切换（手机框外） -->
+    <div class="mode-toggle" id="modeToggle">
+        <button class="active" onclick="setMode('demo')">演示</button>
+        <button onclick="setMode('review')">过稿</button>
+    </div>
+
+    <!-- 产品稿侧边栏浮窗（手机框外） -->
+    <div class="sb-panel" id="sbPanel">
+        <div class="sb-drag-bar" id="sbDragBar">
+            <div class="sb-drag-title">产品稿 · 知识点讲解 <span class="sb-ver">v1.0</span></div>
+            <button class="sb-close" onclick="setMode('demo')">✕</button>
+        </div>
+        <div class="sb-content" id="sidebarContent"></div>
     </div>
 
     <script>
@@ -753,264 +741,138 @@
 
     <!-- ══════════ 产品稿 Markdown 内容 ══════════ -->
     <script type="text/markdown" id="prd-changelog">
-### v1.0 · 2026-04-08
-- [新增] 知识点讲解视频列表页（含三种分类：新课标重点讲/校内同步课/拓展提升课）
-- [新增] 科目 Tab 切换 + 科目介绍卡片
-- [新增] 章节手风琴展开 + 视频条目点击跳转横屏播放页
-- [新增] 校内同步课教材版本/年级选择器
-- [新增] 初中学段数据源自动切换(middleData)
-- [新增] URL 参数支持（cat/subj/topic 定位）
+### v1.0 · 2026-04-03
+- [新增] 知识点讲解视频产品稿初版
+- [新增] 三种课程类别：新课标重点讲、校内同步课、拓展提升课
+- [新增] 手风琴章节视频目录
+- [新增] 设置弹窗（教材版本/年级/学期）
     </script>
 
     <script type="text/markdown" id="prd-sections">
-## 1. 页面入口与路由
+## 1. 页面概述
 
-#### 入口来源
-- 首页视频模块卡片点击，携带 `?cat=new-standard` / `?cat=sync-course` / `?cat=special-skills`
-- 首页也可携带 `?subj=数学` 直接定位到某科目
-- 可携带 `?topic=探究性试题：阅读策略类` 自动展开对应章节并滚动定位
+知识点讲解视频目录页，按手风琴结构展示各章节的视频列表。支持三种课程类别切换，页面标题根据 URL 参数 `cat` 动态变化。
 
-#### URL 参数说明
-> **cat**：分类 ID（new-standard / sync-course / special-skills），决定页面标题和数据源
-> **subj**：科目名称（语文/数学/英语等），定位默认选中科目
-> **topic**：章节标题，匹配后自动展开并滚动到视图中心
+## 2. 课程类别
 
-#### 页面标题
-- 有 cat 参数时：顶栏标题和 document.title 设为对应分类名称（如"新课标重点讲"）
-- 无 cat 参数时：默认显示"知识点讲解视频"
+#### 三种课程
 
-## 2. 科目 Tab 栏
+| 类别 | cat 参数 | 学科 |
+|------|----------|------|
+| 新课标重点讲 | new-standard | 语文/数学/英语 |
+| 校内同步课 | sync-course | 语文/数学/英语 |
+| 拓展提升课 | special-skills | 语文/英语 |
 
 #### 交互逻辑
-- 横向滚动胶囊按钮，数据来自 `CATEGORIES[].subjects`
-- 新课标重点讲：语文 / 数学 / 英语
-- 校内同步课：语文 / 数学 / 英语 / 科学 / 道法
-- 拓展提升课（special-skills）：**隐藏 Tab 栏**，直接展示视频列表
 
-#### 切换联动
-- 切换科目时同步刷新：科目介绍卡片 + 教材选择器 + 视频列表
-- 切换不重置章节展开状态（expandedChapter 按 `分类|科目` 独立存储）
+- 通过 URL 参数 `cat` 决定当前展示的课程类别
+- 拓展提升课不显示学科切换 Tab（直接展示专项课程列表）
 
-[!] 拓展提升课只有语文和英语两个科目，由首页入口参数 subj 决定展示哪个，用户在此页面无法切换科目
+## 3. 科目介绍卡片与设置
 
-## 3. 科目介绍卡片
+#### 结构说明
 
-#### 内容来源
-- 文案来自 `CATEGORIES[].intro[科目]`，含标题和描述
-- 三种分类对应不同主题风格
+顶部展示当前课程的介绍卡片，包含课程名称、描述和设置入口（齿轮图标）
 
-#### 内容切换
-- 切换科目时标题和描述文案平滑过渡
-- 描述文字最多 3 行，超出用 `-webkit-line-clamp` 截断
+#### 设置弹窗
 
-## 4. 课程设置（校内同步课专属）
+点击设置入口弹出设置弹窗，可切换：
+1. 教材版本（人教版/北师大版/苏教版）
+2. 年级（一年级至九年级）
+3. 学期（上学期/下学期）
 
-#### 显示条件
-- 仅当 `activeCat === 'sync-course'` 时显示，其他分类隐藏
+设置变更后刷新视频目录内容，设置对所有三种课程类别生效
 
-#### 入口
-- 集成在科目介绍卡片底部，半透明胶囊按钮，展示「人教版 · 三年级 · 上学期」
-- 点击弹出底部弹窗，包含教材版本、年级、学期三个选项组
+## 4. 学科切换 Tab
 
-#### 弹窗内容
-- **年级**：默认取 `sessionStorage.getItem('gradeClass')`，一~六年级可选
-- **教材版本**：选项因科目而异（语文：人教版/部编版，数学：人教版/北师大版/苏教版 等），各科目独立记忆
-- **学期**：上学期 / 下学期
-- 弹窗内选择为临时状态，点击「确定」按钮后生效并刷新视频列表
-- 点击遮罩可关闭弹窗（不保存更改）
+#### 交互逻辑
 
-[!] 当前为 demo 原型，切换年级/版本/学期不会实际更换视频数据源，正式版需根据年级+版本+学期组合请求后端
+1. 新课标重点讲和校内同步课显示学科 Tab：语文、数学、英语
+2. 拓展提升课不显示学科 Tab
+3. 点击切换后渲染对应学科的章节和视频目录
 
-## 5. 视频章节列表
+## 5. 手风琴章节视频目录
 
-#### 手风琴交互
-- 点击章节头（v-ch-header）展开/折叠视频条目列表
-- 同一时刻同一科目只允许一个章节展开
-- 展开时章节头下方出现分割线，箭头旋转 90°
-- 展开状态按 `分类|科目` 键独立存储
+#### 结构说明
 
-#### 视频条目
-- 每条显示：序号 + 标题 + 时长 + 播放小图标
-- 点击跳转到 `视频播放.html`，携带参数：
-  - `title`：当前视频标题
-  - `dur`：视频时长
-  - `cat`：当前分类 ID
-  - `nextTitle`：下一个视频标题（同章节下一条 → 下一章节首条）
-  - `nextDur`：下一个视频时长
-  - `nextCat`：下一个视频分类
+按章节分组的可折叠视频列表，每个章节包含标题和视频条目。
 
-#### 初中学段适配
-- 当 `STUDENT_GRADE` 匹配 `七八九年级` 或 `初一二三` 时，拓展提升课使用 `middleData` 数据源
-- 其他分类不受影响
+#### 交互逻辑
 
-> **数据口径**：初中判断使用正则 `/[七八九]年级|初[一二三]/` 匹配 `sessionStorage.gradeClass`
+1. 点击章节标题展开/收起该章节的视频列表
+2. 每个视频条目显示：视频标题、时长
+3. 点击视频条目跳转 `视频播放.html?title={title}&dur={dur}&cat={cat}`，进入全屏横屏播放
 
-## 6. 视频播放页联动
+> 视频数据为前端 mock，上线后需对接视频资源接口。
 
-#### 跳转方式
-- 使用 `window.location.href` 整页跳转（非弹窗/iframe）
+## 6. 底部「上次观看」浮条
 
-#### 返回逻辑
-- 播放页返回按钮使用 `history.back()`，回到列表页保持之前的分类和科目状态（通过浏览器历史栈）
+#### 交互逻辑
 
-#### 下一课逻辑
-- 优先取同章节下一个视频
-- 若为章节最后一条，取下一章节的第一个视频
-- 若为所有章节的最后一个视频，不传 nextTitle（播放完成页不展示下一课卡片）
+若用户有上次播放记录（localStorage），页面底部显示「继续观看：{视频标题}」浮条。点击浮条直接跳转上次播放的视频。
     </script>
 
     <!-- ══════════ 浮窗渲染 & 交互 JS ══════════ -->
     <script>
-    (function(){
-        var mode = new URLSearchParams(window.location.search).get('mode') === 'review' ? 'review' : 'demo';
-        var sbFloat = document.getElementById('sbFloat');
-        var modeToggle = document.getElementById('modeToggle');
-
-        function setMode(m) {
-            mode = m;
-            modeToggle.querySelectorAll('.mode-btn').forEach(function(b) {
-                b.classList.toggle('active', b.dataset.mode === m);
-            });
-            if (m === 'review') {
-                sbFloat.classList.add('show');
-                renderSidebar();
-            } else {
-                sbFloat.classList.remove('show');
-            }
-        }
-
-        modeToggle.addEventListener('click', function(e) {
-            var btn = e.target.closest('.mode-btn');
-            if (btn) setMode(btn.dataset.mode);
+    var _currentMode = 'demo';
+    function setMode(mode) {
+        if (mode === _currentMode) return;
+        _currentMode = mode;
+        var btns = document.querySelectorAll('#modeToggle button');
+        btns.forEach(function(b, i) { b.classList.toggle('active', (mode === 'demo' ? i === 0 : i === 1)); });
+        var panel = document.getElementById('sbPanel');
+        if (mode === 'review') { panel.classList.add('open'); renderSidebar(); } else { panel.classList.remove('open'); }
+    }
+    document.getElementById('modeToggle').addEventListener('click', function(e) { e.stopPropagation(); });
+    if (new URLSearchParams(window.location.search).get('mode') === 'review') {
+        setTimeout(function() { _currentMode = 'demo'; setMode('review'); }, 100);
+    }
+    function renderSidebar() {
+        var container = document.getElementById('sidebarContent');
+        var changelogSrc = document.getElementById('prd-changelog');
+        var sectionsSrc = document.getElementById('prd-sections');
+        if (!changelogSrc || !sectionsSrc) return;
+        container.innerHTML = buildChangelog(changelogSrc.textContent) + buildSections(sectionsSrc.textContent);
+        container.querySelectorAll('.sb-hd').forEach(function(hd) {
+            hd.addEventListener('click', function(e) { e.stopPropagation(); this.parentElement.classList.toggle('op'); });
         });
-
-        function parseMd(text) {
-            return text
-                .replace(/^#### (.+)$/gm, '<h4>$1</h4>')
-                .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-                .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
-                .replace(/^\[!\] (.+)$/gm, '<div class="sb-diff-note">$1</div>')
-                .replace(/^\[\+\] (.+)$/gm, '<span class="sb-diff-add">[新增]</span> $1<br>')
-                .replace(/^\[~\] (.+)$/gm, '<span class="sb-diff-mod">[修改]</span> $1<br>')
-                .replace(/^\- (.+)$/gm, '<li>$1</li>')
-                .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
-                .replace(/<\/ul>\s*<ul>/g, '')
-                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-                .replace(/`(.+?)`/g, '<code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;font-size:.625rem">$1</code>')
-                .replace(/\n{2,}/g, '<br>');
-        }
-
-        function buildChangelog(src) {
-            if (!src) return '';
-            return '<div class="sb-cl" id="sb-changelog"><div class="sb-cl-hd" onclick="this.parentElement.classList.toggle(\'op\')">更新日志</div><div class="sb-cl-bd">' + parseMd(src) + '</div></div>';
-        }
-
-        function buildSections(src) {
-            if (!src) return '';
-            var parts = src.split(/^## (\d+)\. /m);
-            var html = '';
-            for (var i = 1; i < parts.length; i += 2) {
-                var num = parts[i];
-                var rest = parts[i + 1] || '';
-                var firstLine = rest.split('\n')[0];
-                var badge = '';
-                var title = firstLine;
-                if (/\[NEW\]/i.test(firstLine)) {
-                    badge = '<span class="sb-hd-badge new">NEW</span>';
-                    title = firstLine.replace(/\s*\[NEW\]/i, '');
-                } else if (/\[UPDATED\]/i.test(firstLine)) {
-                    badge = '<span class="sb-hd-badge updated">UPDATED</span>';
-                    title = firstLine.replace(/\s*\[UPDATED\]/i, '');
-                }
-                var body = rest.substring(rest.indexOf('\n') + 1);
-                html += '<div class="sb-sec" data-sb="' + num + '">' +
-                    '<div class="sb-hd" onclick="this.parentElement.classList.toggle(\'op\')">' +
-                    '<div class="sb-hd-num">' + num + '</div>' +
-                    '<div class="sb-hd-title">' + title.trim() + '</div>' +
-                    badge +
-                    '<span class="sb-hd-arrow">▸</span></div>' +
-                    '<div class="sb-bd">' + parseMd(body) + '</div></div>';
-            }
-            return html;
-        }
-
-        function renderSidebar() {
-            var container = document.getElementById('sidebarContent');
-            var clSrc = document.getElementById('prd-changelog');
-            var secSrc = document.getElementById('prd-sections');
-            container.innerHTML = buildChangelog(clSrc ? clSrc.textContent : '') + buildSections(secSrc ? secSrc.textContent : '');
-        }
-
-        /* 左→右联动 */
-        document.addEventListener('click', function(e) {
-            if (mode !== 'review') return;
-            var el = e.target.closest('[data-s]');
-            if (!el) return;
-            var id = el.dataset.s;
-            var sec = document.querySelector('.sb-sec[data-sb="' + id + '"]');
-            if (sec) {
-                sec.classList.add('op');
-                sec.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                sec.classList.add('glow');
-                setTimeout(function() { sec.classList.remove('glow'); }, 3000);
-            }
+        container.querySelectorAll('.sb-changelog-toggle').forEach(function(t) {
+            t.addEventListener('click', function(e) { e.stopPropagation(); this.classList.toggle('open'); this.nextElementSibling.classList.toggle('open'); });
         });
-
-        /* 右→左联动 */
-        document.addEventListener('click', function(e) {
-            if (mode !== 'review') return;
-            var sec = e.target.closest('.sb-sec[data-sb]');
-            if (!sec || e.target.closest('.sb-hd')) return;
-            var id = sec.dataset.sb;
-            var el = document.querySelector('[data-s="' + id + '"]');
-            if (el) {
-                el.style.outline = '2px solid #818cf8';
-                el.style.outlineOffset = '2px';
-                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                setTimeout(function() { el.style.outline = ''; el.style.outlineOffset = ''; }, 3000);
-            }
+    }
+    function buildChangelog(md) {
+        var html = marked.parse(md);
+        return '<div class="sb-changelog"><div class="sb-changelog-toggle"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> 更新日志</div><div class="sb-changelog-body">' + html + '</div></div>';
+    }
+    function buildSections(md) {
+        var lines = md.split('\n'); var sections = []; var cur = null;
+        lines.forEach(function(line) {
+            var m = line.match(/^## (\d+)\.\s+(.+?)(?:\s+\[(NEW|UPDATED)\])?\s*$/);
+            if (m) { if (cur) sections.push(cur); cur = { num: m[1], title: m[2], badge: m[3] || '', lines: [] }; }
+            else if (cur) { cur.lines.push(line); }
         });
-
-        /* 拖拽浮窗 */
-        var drag = document.getElementById('sbDrag');
-        var isDrag = false, ox = 0, oy = 0;
-        drag.addEventListener('mousedown', function(e) {
-            isDrag = true;
-            ox = e.clientX - sbFloat.offsetLeft;
-            oy = e.clientY - sbFloat.offsetTop;
-            e.preventDefault();
-        });
-        function clampPos(x, y) {
-            var pw = sbFloat.offsetWidth, ph = sbFloat.offsetHeight;
-            var maxX = window.innerWidth - pw, maxY = window.innerHeight - 40;
-            return { x: Math.max(0, Math.min(x, maxX)), y: Math.max(0, Math.min(y, maxY)) };
-        }
-        document.addEventListener('mousemove', function(e) {
-            if (!isDrag) return;
-            var p = clampPos(e.clientX - ox, e.clientY - oy);
-            sbFloat.style.left = p.x + 'px';
-            sbFloat.style.top = p.y + 'px';
-            sbFloat.style.right = 'auto';
-        });
-        document.addEventListener('mouseup', function() { isDrag = false; });
-
-        drag.addEventListener('touchstart', function(e) {
-            isDrag = true;
-            var t = e.touches[0];
-            ox = t.clientX - sbFloat.offsetLeft;
-            oy = t.clientY - sbFloat.offsetTop;
-        }, { passive: true });
-        document.addEventListener('touchmove', function(e) {
-            if (!isDrag) return;
-            var t = e.touches[0];
-            var p = clampPos(t.clientX - ox, t.clientY - oy);
-            sbFloat.style.left = p.x + 'px';
-            sbFloat.style.top = p.y + 'px';
-            sbFloat.style.right = 'auto';
-        }, { passive: true });
-        document.addEventListener('touchend', function() { isDrag = false; });
-
-        setMode(mode);
+        if (cur) sections.push(cur);
+        return sections.map(function(s) {
+            var badge = '';
+            if (s.badge === 'NEW') badge = ' <span class="sb-badge-new">NEW</span>';
+            if (s.badge === 'UPDATED') badge = ' <span class="sb-badge-updated">UPDATED</span>';
+            var body = marked.parse(s.lines.join('\n'));
+            body = body.replace(/\[\+\]\s*/g, '<span class="diff-add">[+] </span>');
+            body = body.replace(/\[~\]\s*/g, '<span class="diff-mod">[~] </span>');
+            body = body.replace(/\[!\]\s*(.+?)(<br|<\/p|$)/g, '<span class="diff-note">[!] $1</span>$2');
+            return '<div class="sb-section" data-sb="' + s.num + '"><div class="sb-hd"><svg class="sb-arrow" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>' + s.num + '. ' + s.title + badge + '</div><div class="sb-bd">' + body + '</div></div>';
+        }).join('');
+    }
+    (function() {
+        var panel = document.getElementById('sbPanel'); var bar = document.getElementById('sbDragBar');
+        var isDragging = false, startX, startY, origX, origY;
+        function clampPos(x, y) { var pw = panel.offsetWidth, ph = panel.offsetHeight; return { x: Math.max(0, Math.min(x, window.innerWidth - pw)), y: Math.max(0, Math.min(y, window.innerHeight - ph)) }; }
+        bar.addEventListener('mousedown', function(e) { isDragging = true; startX = e.clientX; startY = e.clientY; var r = panel.getBoundingClientRect(); origX = r.left; origY = r.top; });
+        document.addEventListener('mousemove', function(e) { if (!isDragging) return; var p = clampPos(origX + e.clientX - startX, origY + e.clientY - startY); panel.style.position = 'fixed'; panel.style.transform = 'none'; panel.style.left = p.x + 'px'; panel.style.top = p.y + 'px'; panel.style.right = 'auto'; });
+        document.addEventListener('mouseup', function() { isDragging = false; });
+        bar.addEventListener('touchstart', function(e) { isDragging = true; var t = e.touches[0]; startX = t.clientX; startY = t.clientY; var r = panel.getBoundingClientRect(); origX = r.left; origY = r.top; }, { passive: true });
+        document.addEventListener('touchmove', function(e) { if (!isDragging) return; var t = e.touches[0]; var p = clampPos(origX + t.clientX - startX, origY + t.clientY - startY); panel.style.position = 'fixed'; panel.style.transform = 'none'; panel.style.left = p.x + 'px'; panel.style.top = p.y + 'px'; panel.style.right = 'auto'; }, { passive: true });
+        document.addEventListener('touchend', function() { isDragging = false; });
     })();
     </script>
 </body>

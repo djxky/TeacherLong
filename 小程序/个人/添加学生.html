@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>添加学生 - AI 龙老师</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
@@ -212,6 +213,67 @@
             display: flex; align-items: center; gap: 8px; border: none;
         }
         #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ── 模式切换按钮（手机框外，页面右上角） ── */
+        .mode-toggle {
+            position: fixed; top: 24px; right: 32px; z-index: 900;
+            display: flex; align-items: center; gap: 0;
+            background: #ffffff; border-radius: 12px;
+            box-shadow: 0 4px 24px -4px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+            overflow: hidden; font-size: 0.8125rem; font-weight: 600;
+        }
+        .mode-toggle button {
+            padding: 10px 24px; border: none; background: transparent;
+            color: #94a3b8; cursor: pointer; font-family: inherit;
+            font-size: 0.8125rem; font-weight: 600; transition: all 0.2s;
+        }
+        .mode-toggle button.active { background: #4f46e5; color: #ffffff; }
+        .sb-panel {
+            position: fixed; top: 50%; right: 32px; width: 380px;
+            max-height: 80vh; transform: translateY(-50%) translateX(20px);
+            background: #ffffff; border-radius: 20px;
+            box-shadow: 0 24px 64px -12px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06);
+            z-index: 800; display: flex; flex-direction: column;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s; overflow: hidden;
+        }
+        .sb-panel.open { opacity: 1; pointer-events: auto; transform: translateY(-50%) translateX(0); }
+        .sb-drag-bar {
+            padding: 12px 16px 8px; cursor: move; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+        }
+        .sb-drag-title { font-size: 0.8125rem; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 6px; }
+        .sb-drag-title .sb-ver { font-size: 0.5625rem; font-weight: 600; color: #4f46e5; background: rgba(99,102,241,0.08); padding: 2px 8px; border-radius: 6px; }
+        .sb-close { width: 24px; height: 24px; border-radius: 8px; border: none; background: rgba(0,0,0,0.04); color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; transition: background 0.2s; }
+        .sb-close:hover { background: rgba(0,0,0,0.08); }
+        .sb-content { flex: 1; overflow-y: auto; padding: 12px 16px 20px; -webkit-overflow-scrolling: touch; }
+        .sb-content::-webkit-scrollbar { width: 3px; }
+        .sb-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+        .sb-changelog { margin-bottom: 16px; }
+        .sb-changelog-toggle { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: #64748b; cursor: pointer; padding: 8px 0; user-select: none; }
+        .sb-changelog-toggle svg { transition: transform 0.2s; }
+        .sb-changelog-toggle.open svg { transform: rotate(90deg); }
+        .sb-changelog-body { display: none; padding: 0 0 0 8px; border-left: 2px solid rgba(99,102,241,0.15); margin-left: 4px; }
+        .sb-changelog-body.open { display: block; }
+        .sb-changelog-body h3 { font-size: 0.6875rem; font-weight: 700; color: #334155; margin: 12px 0 4px; padding: 0; }
+        .sb-changelog-body ul { margin: 0; padding: 0 0 0 16px; font-size: 0.6875rem; color: #475569; line-height: 1.8; }
+        .sb-section { margin-bottom: 2px; }
+        .sb-hd { display: flex; align-items: center; gap: 8px; padding: 10px 8px; border-radius: 10px; cursor: pointer; font-size: 0.8125rem; font-weight: 600; color: #0f172a; transition: background 0.15s; user-select: none; }
+        .sb-hd:hover { background: rgba(0,0,0,0.02); }
+        .sb-hd .sb-arrow { width: 16px; height: 16px; color: #94a3b8; flex-shrink: 0; transition: transform 0.2s; }
+        .sb-section.op .sb-hd .sb-arrow { transform: rotate(90deg); }
+        .sb-hd .sb-badge-new { font-size: 0.5rem; font-weight: 700; color: #059669; background: rgba(5,150,105,0.08); padding: 1px 6px; border-radius: 4px; }
+        .sb-hd .sb-badge-updated { font-size: 0.5rem; font-weight: 700; color: #d97706; background: rgba(217,119,6,0.08); padding: 1px 6px; border-radius: 4px; }
+        .sb-bd { display: none; padding: 4px 8px 12px 32px; font-size: 0.75rem; color: #475569; line-height: 1.75; }
+        .sb-section.op .sb-bd { display: block; }
+        .sb-bd h4 { font-size: 0.75rem; font-weight: 700; color: #2563eb; margin: 12px 0 4px; padding: 0; }
+        .sb-bd blockquote { margin: 8px 0; padding: 8px 12px; border-radius: 8px; background: rgba(37,99,235,0.04); border-left: 3px solid rgba(37,99,235,0.3); font-size: 0.6875rem; color: #334155; }
+        .sb-bd ul, .sb-bd ol { margin: 4px 0; padding-left: 16px; }
+        .sb-bd li { margin: 2px 0; }
+        .sb-bd .diff-add { background: rgba(5,150,105,0.06); color: #065f46; padding: 2px 6px; border-radius: 4px; }
+        .sb-bd .diff-mod { background: rgba(217,119,6,0.06); color: #92400e; padding: 2px 6px; border-radius: 4px; }
+        .sb-bd .diff-note { background: rgba(234,179,8,0.06); color: #854d0e; padding: 4px 8px; border-radius: 6px; display: block; margin: 6px 0; }
     </style>
 </head>
 <body>
@@ -303,6 +365,18 @@
                 <div class="picker-list" id="school-list"></div>
             </div>
         </div>
+    </div>
+
+    <div class="mode-toggle" id="modeToggle">
+        <button class="active" onclick="setMode('demo')">演示</button>
+        <button onclick="setMode('review')">过稿</button>
+    </div>
+    <div class="sb-panel" id="sbPanel">
+        <div class="sb-drag-bar" id="sbDragBar">
+            <span class="sb-drag-title">产品稿 · 添加学生 <span class="sb-ver">v1.0</span></span>
+            <button class="sb-close" onclick="setMode('demo')">✕</button>
+        </div>
+        <div class="sb-content" id="sidebarContent"></div>
     </div>
 
     <script>
@@ -434,6 +508,99 @@
             toast.classList.add('show');
             setTimeout(function() { toast.classList.remove('show'); }, 2000);
         }
+    </script>
+
+    <script type="text/markdown" id="prd-changelog">
+### v1.0 — 2026-04-09
+- 初始版本
+    </script>
+
+    <script type="text/markdown" id="prd-sections">
+## 1. 页面概述
+
+添加学生页面，用于用户绑定新的学生到账号下，需填写学校、姓名、学号并完成验证。
+
+## 2. 信息填写
+
+#### 交互逻辑
+
+1. 选择学校：点击弹出学校选择器，支持搜索，选择后回填
+2. 学生姓名：必填项，文本输入
+3. 学号：必填项，数字输入
+
+## 3. 验证并添加
+
+#### 交互逻辑
+
+1. 点击「验证并添加」按钮，校验三项必填
+2. 通过后模拟 1.5 秒加载，显示验证结果
+3. 验证成功：将学生信息存入 localStorage，自动切换到该学生，提示「添加成功，已切换到 XX」，1.2 秒后跳转切换学生页面
+
+[!] 每个用户最多绑定 10 个学生，达到上限后无法继续添加。
+[!] 学校列表当前为龙岗区学校 mock 数据。
+    </script>
+
+    <script>
+    var _currentMode = 'demo';
+    function setMode(mode) {
+        if (mode === _currentMode) return;
+        _currentMode = mode;
+        var btns = document.querySelectorAll('#modeToggle button');
+        btns.forEach(function(b, i) { b.classList.toggle('active', (mode === 'demo' ? i === 0 : i === 1)); });
+        var panel = document.getElementById('sbPanel');
+        if (mode === 'review') { panel.classList.add('open'); renderSidebar(); } else { panel.classList.remove('open'); }
+    }
+    document.getElementById('modeToggle').addEventListener('click', function(e) { e.stopPropagation(); });
+    if (new URLSearchParams(window.location.search).get('mode') === 'review') {
+        setTimeout(function() { _currentMode = 'demo'; setMode('review'); }, 100);
+    }
+    function renderSidebar() {
+        var container = document.getElementById('sidebarContent');
+        var changelogSrc = document.getElementById('prd-changelog');
+        var sectionsSrc = document.getElementById('prd-sections');
+        if (!changelogSrc || !sectionsSrc) return;
+        container.innerHTML = buildChangelog(changelogSrc.textContent) + buildSections(sectionsSrc.textContent);
+        container.querySelectorAll('.sb-hd').forEach(function(hd) {
+            hd.addEventListener('click', function(e) { e.stopPropagation(); this.parentElement.classList.toggle('op'); });
+        });
+        container.querySelectorAll('.sb-changelog-toggle').forEach(function(t) {
+            t.addEventListener('click', function(e) { e.stopPropagation(); this.classList.toggle('open'); this.nextElementSibling.classList.toggle('open'); });
+        });
+    }
+    function buildChangelog(md) {
+        var html = marked.parse(md);
+        return '<div class="sb-changelog"><div class="sb-changelog-toggle"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> 更新日志</div><div class="sb-changelog-body">' + html + '</div></div>';
+    }
+    function buildSections(md) {
+        var lines = md.split('\n'); var sections = []; var cur = null;
+        lines.forEach(function(line) {
+            var m = line.match(/^## (\d+)\.\s+(.+?)(?:\s+\[(NEW|UPDATED)\])?\s*$/);
+            if (m) { if (cur) sections.push(cur); cur = { num: m[1], title: m[2], badge: m[3] || '', lines: [] }; }
+            else if (cur) { cur.lines.push(line); }
+        });
+        if (cur) sections.push(cur);
+        return sections.map(function(s) {
+            var badge = '';
+            if (s.badge === 'NEW') badge = ' <span class="sb-badge-new">NEW</span>';
+            if (s.badge === 'UPDATED') badge = ' <span class="sb-badge-updated">UPDATED</span>';
+            var body = marked.parse(s.lines.join('\n'));
+            body = body.replace(/\[\+\]\s*/g, '<span class="diff-add">[+] </span>');
+            body = body.replace(/\[~\]\s*/g, '<span class="diff-mod">[~] </span>');
+            body = body.replace(/\[!\]\s*(.+?)(<br|<\/p|$)/g, '<span class="diff-note">[!] $1</span>$2');
+            return '<div class="sb-section" data-sb="' + s.num + '"><div class="sb-hd"><svg class="sb-arrow" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>' + s.num + '. ' + s.title + badge + '</div><div class="sb-bd">' + body + '</div></div>';
+        }).join('');
+    }
+    (function() {
+        var panel = document.getElementById('sbPanel'); var bar = document.getElementById('sbDragBar');
+        var isDragging = false, startX, startY, origX, origY;
+        function clampPos(x, y) { var pw = panel.offsetWidth, ph = panel.offsetHeight; return { x: Math.max(0, Math.min(x, window.innerWidth - pw)), y: Math.max(0, Math.min(y, window.innerHeight - ph)) }; }
+        bar.addEventListener('mousedown', function(e) { isDragging = true; startX = e.clientX; startY = e.clientY; var r = panel.getBoundingClientRect(); origX = r.left; origY = r.top; });
+        document.addEventListener('mousemove', function(e) { if (!isDragging) return; var p = clampPos(origX + e.clientX - startX, origY + e.clientY - startY); panel.style.position = 'fixed'; panel.style.transform = 'none'; panel.style.left = p.x + 'px'; panel.style.top = p.y + 'px'; panel.style.right = 'auto'; });
+        document.addEventListener('mouseup', function() { isDragging = false; });
+        bar.addEventListener('touchstart', function(e) { isDragging = true; var t = e.touches[0]; startX = t.clientX; startY = t.clientY; var r = panel.getBoundingClientRect(); origX = r.left; origY = r.top; }, { passive: true });
+        document.addEventListener('touchmove', function(e) { if (!isDragging) return; var t = e.touches[0]; var p = clampPos(origX + t.clientX - startX, origY + t.clientY - startY); panel.style.position = 'fixed'; panel.style.transform = 'none'; panel.style.left = p.x + 'px'; panel.style.top = p.y + 'px'; panel.style.right = 'auto'; }, { passive: true });
+        document.addEventListener('touchend', function() { isDragging = false; });
+    })();
     </script>
 </body>
 </html>
