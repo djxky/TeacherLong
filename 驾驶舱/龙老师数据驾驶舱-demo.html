@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>龙岗区教育局 AI 龙老师 数据驾驶舱</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <style>
+    :root{--bg:#080b18;--card:#0e1228;--bdr:#1e2448;--accent:#a78bfa;--struct:#7c5cfc;--blue:#818cf8;--purple:#a78bfa;--gold:#eab308;--green:#22c55e;--t1:#e2e8f0;--t2:#94a3b8;--t3:#505882;--num:'JetBrains Mono','SF Mono','Fira Code',ui-monospace,monospace;--ease:cubic-bezier(.22,1,.36,1);--s:1}
+    *{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;overflow:hidden}
+    body{font-family:-apple-system,'PingFang SC','Noto Sans SC','Helvetica Neue',sans-serif;background:var(--bg);color:var(--t1);font-size:calc(14px*var(--s));background-image:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(124,92,252,.06) 0%,transparent 70%)}
+    @media(min-width:1440px){:root{--s:1.15}}@media(min-width:1680px){:root{--s:1.3}}@media(min-width:1920px){:root{--s:1.45}}@media(min-width:2560px){:root{--s:1.8}}
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(124,92,252,.3);border-radius:10px}
+    #M{height:100vh;display:flex;flex-direction:column;padding:calc(12px*var(--s)) calc(16px*var(--s));position:relative}
+    #M::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.015) 2px,rgba(0,0,0,.015) 4px);pointer-events:none;z-index:9999}
+    .pg-c{position:absolute;width:calc(20px*var(--s));height:calc(20px*var(--s));pointer-events:none;z-index:1}.pg-c.tl{top:calc(6px*var(--s));left:calc(6px*var(--s));border-top:2px solid rgba(124,92,252,.25);border-left:2px solid rgba(124,92,252,.25)}.pg-c.br{bottom:calc(6px*var(--s));right:calc(6px*var(--s));border-bottom:2px solid rgba(124,92,252,.25);border-right:2px solid rgba(124,92,252,.25)}
+
+    /* floating mode toggle — bottom-right, subtle */
+    .float-mo{position:fixed;bottom:calc(16px*var(--s));right:calc(16px*var(--s));z-index:150;display:flex;border:1px solid rgba(124,92,252,.15);border-radius:calc(20px*var(--s));overflow:hidden;background:rgba(8,11,24,.6);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 2px 10px rgba(0,0,0,.3);opacity:.55;transition:opacity .25s,box-shadow .25s}
+    .float-mo:hover{opacity:1;box-shadow:0 4px 16px rgba(0,0,0,.5)}
+    .float-mo button{padding:calc(4px*var(--s)) calc(10px*var(--s));font-size:calc(10px*var(--s));cursor:pointer;background:transparent;color:var(--t3);border:none;font-family:inherit;transition:all .15s}
+    .float-mo button.on{background:rgba(124,92,252,.15);color:var(--accent);font-weight:600}
+
+    .hd{display:flex;align-items:center;gap:calc(10px*var(--s));flex-shrink:0;margin-bottom:calc(6px*var(--s));flex-wrap:wrap}
+    .hd-title{flex:1;text-align:center;font-size:calc(17px*var(--s));font-weight:700;letter-spacing:3px;color:#fff}
+    .hd-title em{font-style:normal;color:var(--gold);text-shadow:0 0 12px rgba(234,179,8,.3)}
+    .hd-line{height:1px;background:linear-gradient(to right,transparent,var(--struct),var(--accent),var(--struct),transparent);flex-shrink:0}
+    /* date range picker — unified box */
+    .date-range{display:flex;align-items:center;flex-shrink:0;border:1px solid var(--bdr);border-radius:calc(6px*var(--s));overflow:hidden;background:rgba(14,18,40,.5)}
+    .dr-presets{display:flex;border-right:1px solid var(--bdr)}
+    .dr-presets button{padding:calc(4px*var(--s)) calc(9px*var(--s));font-size:calc(10px*var(--s));cursor:pointer;background:transparent;color:var(--t3);border:none;font-family:inherit;transition:all .15s;white-space:nowrap}
+    .dr-presets button+button{border-left:1px solid var(--bdr)}
+    .dr-presets button.on{background:rgba(124,92,252,.12);color:var(--accent);font-weight:600}
+    .dr-presets button:hover:not(.on){color:var(--t2)}
+    .date-range input[type="date"]{background:transparent;border:none;color:var(--t1);font-family:var(--num);font-size:calc(10px*var(--s));padding:calc(3px*var(--s)) calc(6px*var(--s));outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;width:calc(100px*var(--s))}
+    .date-range input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.6) sepia(.3) hue-rotate(200deg);cursor:pointer;opacity:.5;width:calc(10px*var(--s));height:calc(10px*var(--s))}
+    .date-range input[type="date"]::-webkit-calendar-picker-indicator:hover{opacity:1}
+    .date-range .dr-sep{font-size:calc(10px*var(--s));color:var(--t3);padding:0 calc(1px*var(--s))}
+    /* school overlay time-sel */
+    .time-sel{display:flex;border:1px solid var(--bdr);border-radius:calc(6px*var(--s));overflow:hidden;flex-shrink:0}
+    .time-sel button{padding:calc(4px*var(--s)) calc(12px*var(--s));font-size:calc(11px*var(--s));cursor:pointer;background:transparent;color:var(--t2);border:none;font-family:inherit;transition:all .15s;white-space:nowrap}
+    .time-sel button.on{background:rgba(124,92,252,.12);color:var(--accent);font-weight:600}
+    .time-sel button+button{border-left:1px solid var(--bdr)}
+
+    .kpi-row{display:flex;flex-shrink:0;margin-bottom:calc(8px*var(--s));gap:calc(6px*var(--s))}
+    .kpi-card{flex:1;background:linear-gradient(180deg,rgba(14,18,40,.7),rgba(14,18,40,.3));border:1px solid rgba(124,92,252,.1);border-radius:calc(8px*var(--s));padding:calc(10px*var(--s)) calc(14px*var(--s)) calc(8px*var(--s));text-align:center;position:relative;overflow:hidden;cursor:default}
+    .kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(124,92,252,.25),transparent)}
+    .kpi-card .kl{font-size:calc(10px*var(--s));color:var(--t3);margin-bottom:calc(3px*var(--s));letter-spacing:.5px;font-weight:500}
+    .kpi-card .kv{font-size:calc(26px*var(--s));font-weight:800;color:#fff;line-height:1.15;font-family:var(--num);font-variant-numeric:tabular-nums}
+    .kpi-card .kv .ku{font-size:calc(12px*var(--s));font-weight:400;color:var(--t2);margin-left:2px}
+
+    .body{flex:1;display:grid;grid-template-columns:23% 1fr 28%;gap:calc(8px*var(--s));min-height:0;overflow:hidden}
+    .col{display:flex;flex-direction:column;gap:calc(6px*var(--s));min-height:0;min-width:0;overflow:hidden}
+    .card{background:linear-gradient(180deg,rgba(14,18,40,.92),rgba(10,14,30,.88));border-radius:calc(8px*var(--s));padding:calc(10px*var(--s));border:1px solid rgba(124,92,252,.1);transition:border-color .3s,box-shadow .4s;display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;position:relative;box-shadow:0 2px 12px rgba(0,0,0,.4)}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(124,92,252,.18),transparent);pointer-events:none;z-index:1}
+    .card:hover{border-color:rgba(124,92,252,.22);box-shadow:0 4px 20px rgba(0,0,0,.5),0 0 15px rgba(124,92,252,.04)}
+    .card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:calc(6px*var(--s));flex-shrink:0;gap:calc(6px*var(--s));overflow:hidden}
+    .card-h h3{font-size:calc(13px*var(--s));font-weight:700;color:#fff;display:flex;align-items:center;gap:calc(5px*var(--s));white-space:nowrap}
+    .card-h h3::before{content:'';width:calc(3px*var(--s));height:calc(14px*var(--s));background:var(--struct);border-radius:2px;flex-shrink:0}
+    .card-h h3 .ic{width:calc(14px*var(--s));height:calc(14px*var(--s));flex-shrink:0;display:inline-flex}
+    .card-h h3 .ic svg{width:100%;height:100%;stroke:var(--struct);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .card-h .tag{font-size:calc(10px*var(--s));color:var(--t2);background:rgba(255,255,255,.04);padding:calc(2px*var(--s)) calc(6px*var(--s));border-radius:calc(4px*var(--s));white-space:nowrap;flex-shrink:0;border:1px solid rgba(255,255,255,.04)}
+    .card-h .tools{display:flex;align-items:center;gap:calc(4px*var(--s));flex-shrink:0}
+    .exp-btn{padding:calc(2px*var(--s)) calc(8px*var(--s));font-size:calc(10px*var(--s));cursor:pointer;background:rgba(255,255,255,.04);color:var(--t2);border:1px solid rgba(255,255,255,.06);border-radius:calc(4px*var(--s));font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:calc(3px*var(--s));white-space:nowrap}
+    .exp-btn:hover{background:rgba(124,92,252,.1);color:var(--accent);border-color:rgba(124,92,252,.2)}
+    .exp-btn svg{width:calc(10px*var(--s));height:calc(10px*var(--s));stroke:currentColor;stroke-width:2;fill:none}
+    .tab-sw{display:flex;border:1px solid var(--bdr);border-radius:calc(5px*var(--s));overflow:hidden;flex-shrink:0}
+    .tab-btn{padding:calc(2px*var(--s)) calc(10px*var(--s));font-size:calc(11px*var(--s));cursor:pointer;background:transparent;color:var(--t3);border:none;font-family:inherit;font-weight:600;transition:color .15s,background .15s}
+    .tab-btn.on{background:rgba(124,92,252,.15);color:var(--accent)}
+    .sum-list{display:flex;flex-direction:column;gap:calc(2px*var(--s))}
+    .sl-row{display:flex;align-items:center;justify-content:space-between;padding:calc(3px*var(--s)) calc(6px*var(--s));border-radius:calc(4px*var(--s));transition:background .15s}
+    .sl-row:hover{background:rgba(124,92,252,.04)}
+    .sl-row .sl-dot{width:calc(4px*var(--s));height:calc(4px*var(--s));border-radius:50%;flex-shrink:0;margin-right:calc(5px*var(--s))}
+    .sl-row .sl-name{font-size:calc(11px*var(--s));color:var(--t2);display:flex;align-items:center;flex:1}
+    .sl-row .sl-val{font-size:calc(13px*var(--s));font-weight:700;color:#fff;font-family:var(--num);white-space:nowrap}
+    .sl-row .sl-u{font-size:calc(10px*var(--s));font-weight:400;color:var(--t3);margin-left:1px}
+    .sh-cell{text-align:center;padding:calc(8px*var(--s)) calc(4px*var(--s));border-radius:calc(6px*var(--s));background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);transition:border-color .2s}
+    .sh-cell:hover{border-color:rgba(124,92,252,.15)}
+    .sh-cell .hc-val{font-size:calc(20px*var(--s));font-weight:800;color:var(--accent);font-family:var(--num);line-height:1.2}
+    .sh-cell .hc-unit{font-size:calc(11px*var(--s));color:var(--t3);margin-left:1px}
+    .sh-cell .hc-label{font-size:calc(10px*var(--s));color:var(--t2);margin-top:calc(3px*var(--s))}
+
+    .rank-dual{display:grid;grid-template-columns:1fr 1fr;gap:calc(6px*var(--s));flex:1;min-height:0;overflow:hidden;position:relative}
+    .rank-dual::before{content:'';position:absolute;left:50%;top:10%;height:80%;width:1px;background:linear-gradient(180deg,transparent,rgba(124,92,252,.15),transparent);transform:translateX(-50%)}
+    .rank-col{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+    .rank-col .rank-hd{display:flex;align-items:center;gap:calc(4px*var(--s));margin-bottom:calc(4px*var(--s));flex-shrink:0}
+    .rank-col .rank-hd h4{font-size:calc(12px*var(--s));font-weight:700;color:#fff;display:flex;align-items:center;gap:calc(5px*var(--s));white-space:nowrap}
+    .rank-col .rank-hd h4::before{content:'';width:calc(2px*var(--s));height:calc(12px*var(--s));background:var(--struct);border-radius:1px;flex-shrink:0}
+    .sch{display:flex;align-items:center;gap:calc(5px*var(--s));padding:calc(4px*var(--s)) calc(6px*var(--s));border-radius:calc(6px*var(--s));transition:background .2s,transform .2s;cursor:pointer}
+    .sch:hover{background:rgba(124,92,252,.06);transform:translateX(2px)}
+    .sch .s-rank{width:calc(16px*var(--s));height:calc(16px*var(--s));border-radius:50%;font-size:calc(10px*var(--s));font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .sch .s-name{flex:1;min-width:0;font-size:calc(11px*var(--s));color:var(--t1);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sch .s-val{font-size:calc(13px*var(--s));font-weight:700;color:var(--accent);font-family:var(--num);flex-shrink:0}
+    .sch .s-unit{font-size:calc(10px*var(--s));font-weight:400;color:var(--t3);margin-left:1px}
+
+    .feed-v{position:absolute;left:calc(10px*var(--s));bottom:calc(20px*var(--s));max-height:35%;overflow:hidden;pointer-events:none;z-index:2;mask-image:linear-gradient(to bottom,transparent 0%,#000 15%,#000 85%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 15%,#000 85%,transparent 100%)}
+    .feed-v-track{display:flex;flex-direction:column;gap:calc(5px*var(--s));animation:scroll-feed-v 50s linear 1 forwards}
+    .feed-v-item{background:rgba(14,18,40,.88);backdrop-filter:blur(6px);border:1px solid rgba(124,92,252,.12);border-left:3px solid var(--accent);border-radius:calc(3px*var(--s));padding:calc(4px*var(--s)) calc(8px*var(--s));font-size:calc(10px*var(--s));color:var(--t2);display:flex;align-items:center;gap:calc(4px*var(--s));white-space:nowrap}
+    .feed-dot{width:calc(5px*var(--s));height:calc(5px*var(--s));border-radius:50%;background:var(--accent);flex-shrink:0;animation:pulse-glow 2s infinite}
+    .feed-school{color:var(--accent);font-weight:600}
+    @keyframes scroll-feed-v{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}
+    @keyframes pulse-glow{0%{box-shadow:0 0 0 0 rgba(167,139,250,.7)}70%{box-shadow:0 0 0 calc(6px*var(--s)) rgba(167,139,250,0)}100%{box-shadow:0 0 0 0 rgba(167,139,250,0)}}
+
+    /* ── school overlay ── */
+    .so{position:fixed;inset:0;z-index:100;background:var(--bg);opacity:0;pointer-events:none;transition:opacity .3s var(--ease);display:flex;flex-direction:column;overflow:hidden;background-image:radial-gradient(ellipse 50% 40% at 50% 20%,rgba(124,92,252,.05) 0%,transparent 70%)}
+    .so.open{opacity:1;pointer-events:auto}
+    .so-hd{display:flex;align-items:center;gap:calc(10px*var(--s));padding:calc(10px*var(--s)) calc(20px*var(--s));flex-shrink:0;border-bottom:1px solid rgba(124,92,252,.1)}
+    .so-back{width:calc(28px*var(--s));height:calc(28px*var(--s));border-radius:calc(6px*var(--s));background:rgba(124,92,252,.1);border:1px solid rgba(124,92,252,.2);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:calc(13px*var(--s));transition:all .15s;flex-shrink:0}
+    .so-back:hover{background:rgba(124,92,252,.2)}
+    .so-name{font-size:calc(16px*var(--s));font-weight:700;color:#fff;flex:1;letter-spacing:1px}
+    .so-kpi{display:flex;gap:calc(6px*var(--s));padding:calc(8px*var(--s)) calc(20px*var(--s));flex-shrink:0}
+    .so-kpi .kpi-card{padding:calc(8px*var(--s)) calc(12px*var(--s)) calc(6px*var(--s))}
+    .so-kpi .kpi-card .kv{font-size:calc(20px*var(--s))}
+    .so-body{flex:1;display:flex;flex-direction:column;gap:calc(6px*var(--s));padding:calc(6px*var(--s)) calc(20px*var(--s)) calc(12px*var(--s));min-height:0;overflow:hidden}
+    .so-grid{display:grid;gap:calc(4px*var(--s)) calc(8px*var(--s));flex:1;min-height:0}
+    .so-grid.cols3{grid-template-columns:1fr 1.2fr 1fr}
+    .so-grid.cols4{grid-template-columns:1fr 1.2fr 1fr 1fr}
+    
+    .so-card{background:linear-gradient(180deg,rgba(14,18,40,.92),rgba(10,14,30,.88));border-radius:calc(8px*var(--s));padding:calc(10px*var(--s));border:1px solid rgba(124,92,252,.1);display:flex;flex-direction:column;min-height:0;overflow:hidden;position:relative}
+    .so-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(124,92,252,.15),transparent);pointer-events:none}
+    .so-card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:calc(6px*var(--s));flex-shrink:0;gap:calc(6px*var(--s))}
+    .so-card-h h3{font-size:calc(13px*var(--s));font-weight:700;color:#fff;display:flex;align-items:center;gap:calc(5px*var(--s));white-space:nowrap}
+    .so-card-h h3::before{content:'';width:calc(3px*var(--s));height:calc(14px*var(--s));background:var(--struct);border-radius:2px;flex-shrink:0}
+
+    /* ── sidebar ── */
+    #SB{position:fixed;top:60px;right:40px;width:min(88vw,480px);height:calc(100vh - 120px);min-width:320px;max-width:min(96vw,720px);min-height:260px;max-height:calc(100vh - 40px);background:#fafbfc;border:1px solid #cbd5e1;border-radius:12px;z-index:200;opacity:0;pointer-events:none;transform:scale(.96) translateY(8px);transition:opacity .3s var(--ease),transform .3s var(--ease);box-shadow:0 20px 60px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow:hidden}
+    .sb-resize{position:absolute;right:0;bottom:0;width:18px;height:18px;cursor:nwse-resize;z-index:2;user-select:none}.sb-resize::before{content:'';position:absolute;right:4px;bottom:4px;width:8px;height:8px;border-right:2px solid #94a3b8;border-bottom:2px solid #94a3b8;opacity:.5}
+    #SB.open{opacity:1;pointer-events:auto;transform:scale(1) translateY(0)}
+    .sb-drag{display:flex;align-items:center;gap:6px;padding:8px 12px;background:#f1f5f9;cursor:grab;user-select:none;flex-shrink:0;border-bottom:1px solid #e2e8f0;min-height:36px}.sb-drag:active{cursor:grabbing}
+    .sb-drag .sb-drag-dots{color:#94a3b8;font-size:11px;letter-spacing:1px;flex-shrink:0}.sb-drag .sb-drag-title{flex:1;font-size:12px;font-weight:700;color:#0f172a}
+    .sb-drag .sb-close{width:22px;height:22px;border-radius:6px;border:none;background:transparent;color:#94a3b8;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;flex-shrink:0;line-height:1}.sb-drag .sb-close:hover{background:#fee2e2;color:#ef4444}
+    .sb-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}.sb-inner{padding:10px 12px 16px;box-sizing:border-box}
+    .sb-sec{margin-bottom:5px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;background:#fff}.sb-sec:hover{border-color:#cbd5e1}.sb-sec.act{border-color:rgba(59,130,246,.45)}
+    .sb-hd{display:flex;align-items:center;gap:5px;padding:6px 8px;cursor:pointer;background:#f8fafc;transition:background .15s;user-select:none;border-bottom:1px solid transparent}.sb-hd:hover{background:#f1f5f9}.sb-sec.op .sb-hd{background:#fff;border-bottom-color:#e2e8f0}
+    .sb-hd .no{width:18px;height:18px;border-radius:3px;font-size:9px;background:#7c5cfc;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .sb-hd .tx{font-size:11px;font-weight:600;color:#1e293b;flex:1}.sb-hd .ar{color:#94a3b8;font-size:9px;transition:transform .25s}.sb-sec.op .sb-hd .ar{transform:rotate(90deg)}
+    .sb-bd{max-height:0;overflow:hidden;transition:max-height .4s ease;font-size:10px;line-height:1.7;color:#475569}.sb-sec.op .sb-bd{max-height:20000px}.sb-bi{padding:8px 8px 10px}
+    .sb-bd h4{color:#7c5cfc;font-size:10px;margin:8px 0 3px;font-weight:600}.sb-bd h4:first-child{margin-top:0}.sb-bd p{margin:3px 0;font-size:10px}
+    .sb-bd .ft{background:#f8fafc;border-left:2px solid #a78bfa;padding:5px 7px;margin:5px 0;border-radius:0 4px 4px 0;font-size:10px;line-height:1.6;color:#334155}.sb-bd .ft b{color:#1e293b}
+    .sec{transition:border-color .4s,box-shadow .4s}.sec.glow{border:2px solid var(--struct)!important;box-shadow:inset 0 0 30px rgba(124,92,252,.15);animation:glow-pulse 1.5s ease-in-out infinite}
+    @keyframes glow-pulse{0%,100%{box-shadow:inset 0 0 30px rgba(124,92,252,.15)}50%{box-shadow:inset 0 0 40px rgba(167,139,250,.25)}}
+    @media(prefers-reduced-motion:reduce){*,.feed-v-track,.feed-dot,.ctr{animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+
+<!-- floating mode toggle (top-left) -->
+<div class="float-mo">
+  <button type="button" class="on" id="bD" onclick="sw('demo')">演示</button>
+  <button type="button" id="bR" onclick="sw('review')">过稿</button>
+</div>
+
+<div id="M">
+  <div class="pg-c tl"></div><div class="pg-c br"></div>
+  <div class="hd">
+    <div class="hd-title">龙岗区教育局"<em>AI 龙老师</em>"数据驾驶舱</div>
+    <div class="date-range">
+      <div class="dr-presets">
+        <button type="button" onclick="setPreset(7)">7天</button>
+        <button type="button" class="on" onclick="setPreset(30)">30天</button>
+        <button type="button" onclick="setPreset(90)">90天</button>
+      </div>
+      <input type="date" id="drStart">
+      <span class="dr-sep">~</span>
+      <input type="date" id="drEnd">
+    </div>
+    <div class="hd-line" style="width:100%"></div>
+  </div>
+
+  <div class="kpi-row sec" data-s="1">
+    <div class="kpi-card"><div class="kl">使用学校</div><div class="kv"><span class="ctr" data-to="128">0</span><span class="ku">所</span></div></div>
+    <div class="kpi-card"><div class="kl">使用教师</div><div class="kv"><span id="kTA" class="ctr" data-to="3265">0</span><span class="ku">人</span></div></div>
+    <div class="kpi-card"><div class="kl">使用学生</div><div class="kv"><span id="kSA" class="ctr" data-to="28566">0</span><span class="ku">人</span></div></div>
+    <div class="kpi-card"><div class="kl">累计服务次数</div><div class="kv"><span class="ctr" data-to="53.3" data-suffix="万" data-decimal="1">0</span><span class="ku">次</span></div></div>
+  </div>
+
+  <div class="body">
+    <!-- 左栏 -->
+    <div class="col">
+      <div class="card sec" data-s="2" style="flex:1">
+        <div class="card-h"><h3><span class="ic"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span>每日使用人数</h3>
+          <div class="tab-sw"><button type="button" class="tab-btn on" id="tabStu" onclick="swDAU('stu')">学生</button><button type="button" class="tab-btn" id="tabTch" onclick="swDAU('tch')">教师</button></div></div>
+        <div style="display:flex;align-items:baseline;gap:calc(6px*var(--s));margin-bottom:calc(4px*var(--s));flex-shrink:0">
+          <span style="font-size:calc(11px*var(--s));color:var(--t3)">昨日</span>
+          <span id="dauVal" style="font-size:calc(26px*var(--s));font-weight:800;color:var(--gold);font-family:var(--num)">4,231</span>
+          <span style="font-size:calc(11px*var(--s));color:var(--t2)">人</span></div>
+        <div style="flex:1;min-height:0;position:relative"><canvas id="chDAU"></canvas></div>
+      </div>
+      <div class="card sec" data-s="9" style="flex:1">
+        <div class="card-h"><h3><span class="ic"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>学生年级分布</h3></div>
+        <div id="eGradeDist" style="flex:1;min-height:0"></div>
+      </div>
+    </div>
+
+    <!-- 中栏 -->
+    <div class="col" style="gap:0">
+      <div class="card sec" data-s="3" style="flex:4;border-radius:calc(12px*var(--s)) calc(12px*var(--s)) 0 0;padding-bottom:0;position:relative">
+        <div class="card-h" style="margin-bottom:4px"><h3><span class="ic"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>学校覆盖分布</h3><span class="tag">点击气泡查看学校详情</span></div>
+        <div id="eMap" style="flex:1;min-height:0"></div>
+        <div class="feed-v"><div class="feed-v-track">
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙城高级中学</span> 张明华老师 生成了互动课件</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>七年级学生<span class="feed-school">8273</span> 完成了AI作业批改</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙岗区外国语学校</span> 李文静老师 使用了AI组题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>三年级学生<span class="feed-school">0873</span> 使用了拍照答疑</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">南湾学校</span> 王建国老师 生成了大单元教案</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>九年级学生<span class="feed-school">5621</span> 上传了3道错题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">横岗中学</span> 陈思远老师 使用了AI命题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>四年级学生<span class="feed-school">3319</span> 完成了试卷擦除重做</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">园山实验学校</span> 刘雅琴老师 使用了AI命题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>八年级学生<span class="feed-school">4406</span> 使用了AI讲解</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">百合外国语学校</span> 赵志强老师 生成了互动课件</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">布吉中学</span> 吴海涛老师 生成了教学动画</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">平湖中学</span> 孙晓峰老师 生成了大单元教案</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙城高级中学</span> 张明华老师 生成了互动课件</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>七年级学生<span class="feed-school">8273</span> 完成了AI作业批改</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">南湾学校</span> 王建国老师 生成了大单元教案</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">横岗中学</span> 陈思远老师 使用了AI命题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙岗区实验学校</span> 林芳华老师 生成了教学动画</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">园山实验学校</span> 刘雅琴老师 使用了AI命题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">百合外国语学校</span> 赵志强老师 生成了教学游戏</div>
+        </div></div>
+      </div>
+      <div class="card sec" data-s="4" style="flex:3;border-radius:0 0 calc(12px*var(--s)) calc(12px*var(--s));border-top:none">
+        <div class="rank-dual">
+          <div class="rank-col">
+            <div class="rank-hd"><h4>学校创作榜</h4></div>
+            <div id="schoolRankList" style="display:flex;flex-direction:column;gap:1px;flex:1;min-height:0"></div>
+          </div>
+          <div class="rank-col">
+            <div class="rank-hd"><h4>教师创作榜</h4></div>
+            <div style="display:flex;flex-direction:column;gap:1px;flex:1;min-height:0">
+              <div class="sch"><span class="s-rank" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#000">1</span><span class="s-name">张明华<span style="color:var(--t3);margin-left:3px">龙城高中·数学</span></span><span class="s-val">127<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:linear-gradient(135deg,#94a3b8,#64748b);color:#000">2</span><span class="s-name">李文静<span style="color:var(--t3);margin-left:3px">外国语·英语</span></span><span class="s-val">98<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:linear-gradient(135deg,#b45309,#92400e);color:#fff">3</span><span class="s-name">王建国<span style="color:var(--t3);margin-left:3px">南湾·语文</span></span><span class="s-val">85<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:var(--bdr);color:var(--t3)">4</span><span class="s-name">陈思远<span style="color:var(--t3);margin-left:3px">横岗·物理</span></span><span class="s-val">72<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:var(--bdr);color:var(--t3)">5</span><span class="s-name">刘雅琴<span style="color:var(--t3);margin-left:3px">平湖·化学</span></span><span class="s-val">63<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:var(--bdr);color:var(--t3)">6</span><span class="s-name">赵志强<span style="color:var(--t3);margin-left:3px">百合·生物</span></span><span class="s-val">58<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:var(--bdr);color:var(--t3)">7</span><span class="s-name">周婷婷<span style="color:var(--t3);margin-left:3px">实验·历史</span></span><span class="s-val">51<span class="s-unit">个</span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右栏 -->
+    <div class="col">
+      <div class="card sec" data-s="5" style="flex:0 0 auto">
+        <div class="card-h"><h3><span class="ic"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>AI 助学 · 学生端</h3></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:calc(5px*var(--s));margin-bottom:calc(6px*var(--s))">
+          <div class="sh-cell"><div class="hc-val">8,902<span class="hc-unit">次</span></div><div class="hc-label">拍照答疑</div></div>
+          <div class="sh-cell"><div class="hc-val">6,789<span class="hc-unit">次</span></div><div class="hc-label">AI 讲解</div></div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 calc(6px*var(--s))">
+          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--accent)"></span>作业批改</span><span class="sl-val">12,345<span class="sl-u">次</span></span></div>
+          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--struct)"></span>视频讲解</span><span class="sl-val">4.6<span class="sl-u">万次</span></span></div>
+          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--gold)"></span>错题本</span><span class="sl-val">12,345<span class="sl-u">题</span></span></div>
+          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--blue)"></span>试卷打印</span><span class="sl-val">3,891<span class="sl-u">套</span></span></div>
+          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:#06b6d4"></span>试卷下载</span><span class="sl-val">2,780<span class="sl-u">次</span></span></div>
+          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:#f43f5e"></span>试卷讲解</span><span class="sl-val">4,230<span class="sl-u">次</span></span></div>
+          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:#8b5cf6"></span>视频课程</span><span class="sl-val">3,560<span class="sl-u">次</span></span></div></div>
+      </div>
+      <div class="card sec" data-s="6" style="flex:0 0 auto">
+        <div class="card-h"><h3><span class="ic"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>AI 助教 · 教师端</h3></div>
+        <div style="display:flex;align-items:stretch;gap:calc(10px*var(--s))">
+          <div style="flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:calc(4px*var(--s)) calc(14px*var(--s))">
+            <div style="font-size:calc(28px*var(--s));font-weight:800;color:var(--accent);font-family:var(--num);line-height:1.1">19,107</div>
+            <div style="font-size:calc(10px*var(--s));color:var(--t2);margin-top:calc(4px*var(--s))">生成资源总数</div></div>
+          <div style="width:1px;background:linear-gradient(180deg,transparent,rgba(124,92,252,.15),transparent)"></div>
+          <div class="sum-list" style="flex:1">
+            <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--purple)"></span>互动课件</span><span class="sl-val">8,306<span class="sl-u">个</span></span></div>
+            <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:#f59e0b"></span>教学动画</span><span class="sl-val">1,823<span class="sl-u">个</span></span></div>
+            <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:#ec4899"></span>教学游戏</span><span class="sl-val">1,206<span class="sl-u">个</span></span></div></div></div>
+      </div>
+      <div class="card sec" data-s="8" style="flex:1">
+        <div class="card-h"><h3><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 12l6.93-4"/><path d="M12 12v8"/></svg></span>社区资源学科分布</h3><span class="tag" style="font-family:var(--num);color:var(--accent);font-weight:700">6,800 <span style="color:var(--t3);font-weight:500;font-family:'PingFang SC',sans-serif">个</span></span></div>
+        <div id="eSubject" style="flex:1;min-height:calc(148px*var(--s))"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 学校详情全屏页 (参考区域布局) ═══ -->
+<div class="so" id="SO">
+  <div class="so-hd">
+    <div class="so-back" onclick="closeSchool()">←</div>
+    <span class="so-name" id="soName"></span>
+    <div class="date-range" id="soDateRange">
+      <div class="dr-presets">
+        <button type="button" onclick="setSOPreset(7)">7天</button>
+        <button type="button" class="on" onclick="setSOPreset(30)">30天</button>
+        <button type="button" onclick="setSOPreset(90)">90天</button>
+      </div>
+      <input type="date" id="soDrStart">
+      <span class="dr-sep">~</span>
+      <input type="date" id="soDrEnd">
+    </div>
+    <button type="button" class="exp-btn" onclick="exportSchoolCSV()" style="font-size:calc(11px*var(--s));padding:calc(4px*var(--s)) calc(12px*var(--s))"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导出全部数据</button>
+  </div>
+  <div class="so-kpi" id="soKpi"></div>
+  <div class="so-body">
+    <div class="so-grid cols4">
+      <div class="so-card"><div class="so-card-h"><h3>学生年级分布</h3></div><div id="soGrade" style="flex:1;min-height:0"></div></div>
+      <div class="so-card" style="grid-column:span 2"><div class="so-card-h"><h3>学生每日使用</h3><div class="tab-sw"><button class="tab-btn on" id="soStuTabDAU" onclick="swSoDAU('stu','dau')">人数</button><button class="tab-btn" id="soStuTabRate" onclick="swSoDAU('stu','rate')">使用率</button></div></div><div id="soStuRate" style="display:flex;align-items:baseline;gap:calc(6px*var(--s));margin-bottom:calc(2px*var(--s));flex-shrink:0"><span id="soStuRateLabel" style="font-size:calc(10px*var(--s));color:var(--t3)">使用人数</span><span id="soStuRateVal" style="font-size:calc(18px*var(--s));font-weight:800;color:var(--gold);font-family:var(--num)">1,856</span><span id="soStuRateUnit" style="font-size:calc(10px*var(--s));color:var(--t3)">人</span></div><div id="soStuDAU" style="flex:1;min-height:0"></div></div>
+      <div class="so-card"><div class="so-card-h"><h3>学生使用情况</h3></div><div id="soStudentData" style="flex:1;min-height:0;overflow-y:auto"></div></div>
+    </div>
+    <div class="so-grid cols4">
+      <div class="so-card"><div class="so-card-h"><h3>教师创作排行</h3></div><div id="soTeacherRank" style="flex:1;min-height:0;overflow-y:auto"></div></div>
+      <div class="so-card"><div class="so-card-h"><h3>教师每日使用</h3><div class="tab-sw"><button class="tab-btn on" id="soTchTabDAU" onclick="swSoDAU('tch','dau')">人数</button><button class="tab-btn" id="soTchTabRate" onclick="swSoDAU('tch','rate')">使用率</button></div></div><div id="soTchRate" style="display:flex;align-items:baseline;gap:calc(6px*var(--s));margin-bottom:calc(2px*var(--s));flex-shrink:0"><span id="soTchRateLabel" style="font-size:calc(10px*var(--s));color:var(--t3)">使用人数</span><span id="soTchRateVal" style="font-size:calc(18px*var(--s));font-weight:800;color:var(--accent);font-family:var(--num)">102</span><span id="soTchRateUnit" style="font-size:calc(10px*var(--s));color:var(--t3)">人</span></div><div id="soTchDAU" style="flex:1;min-height:0"></div></div>
+      <div class="so-card"><div class="so-card-h"><h3>教师使用数据</h3></div><div id="soTeacherData" style="flex:1;min-height:0;overflow-y:auto"></div></div>
+      <div class="so-card"><div class="so-card-h"><h3>教师资源学科分布</h3></div><div id="soSubjectPie" style="flex:1;min-height:0"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 过稿侧边栏 ═══ -->
+<div id="SB">
+  <div class="sb-drag" id="sbDrag"><span class="sb-drag-dots">⋮⋮</span><span class="sb-drag-title">产品稿 · 数据口径</span><button type="button" class="sb-close" onclick="sw('demo')" title="关闭">✕</button></div>
+  <div class="sb-scroll"><div class="sb-inner">
+  <div class="sb-sec op" data-sb="1"><div class="sb-hd"><span class="no">1</span><span class="tx">KPI 指标栏</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft"><b>使用学校</b>：两端登录学校去重。<b>使用教师 / 使用学生</b>：选定时间段内有使用记录的去重人数（不展示使用率和应参与人数）。<b>累计服务次数</b>= 学生端功能 PV + 教师端功能 PV。支持日期范围切换（7/30/90天预设 + 自由选日期）。</div></div></div></div>
+  <div class="sb-sec" data-sb="2"><div class="sb-hd"><span class="no">2</span><span class="tx">每日使用人数</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">学生 / 教师每日使用人数，Tab 切换，折线图 30 天。昨日数据突出显示。</div></div></div></div>
+  <div class="sb-sec" data-sb="9"><div class="sb-hd"><span class="no">3</span><span class="tx">学生年级分布</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">全区学生按年级使用人数分布，横向柱状图。小学（一～六年级）金色，中学（七～九年级）紫色。</div></div></div></div>
+  <div class="sb-sec" data-sb="3"><div class="sb-hd"><span class="no">4</span><span class="tx">学校覆盖地图</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft"><b>地图气泡</b>：按学校使用教师数映射气泡大小，15 所学校。<b>hover 卡片</b>：展示使用教师（人数+使用率）、使用学生（人数+使用率）、资源创作数。使用率仅在 hover 时可见，首页不直接展示。<b>点击气泡</b>：打开全屏学校详情页。左下角实时活动弹幕（教师创作、学生使用动态）。</div></div></div></div>
+  <div class="sb-sec"><div class="sb-hd"><span class="no">5</span><span class="tx">学校数据详情页（下钻）</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">点击地图气泡或排行榜学校进入，全屏覆盖展示单校数据。</div><h4>顶部</h4><div class="ft">← 返回按钮 + 学校名 + 日期选择器（7/30/90天预设 + 自由选日期，默认30天）+ 导出全部数据（CSV）。</div><h4>KPI 栏</h4><div class="ft">使用教师（人数）、使用学生（人数）、资源创作（个数）、累计服务（次数）。不展示使用率和应参与人数。</div><h4>学生行（4 列 grid，学生每日使用跨 2 列）</h4><div class="ft"><b>学生年级分布</b>：横向柱状图，按年级展示使用学生数，小学金色、中学紫色。<br/><b>学生每日使用</b>：折线图，Tab 切换「人数」/「使用率」。选人数时上方显示"使用人数 X 人"，选使用率时显示"使用率 X%"。<br/><b>学生使用情况</b>：顶部 3 个重点卡片（拍照答疑、作业批改、视频课堂），下方 2 列列表（AI讲解、试卷讲解、视频讲解、错题本、试卷打印、试卷下载）。</div><h4>教师行（4 列 grid）</h4><div class="ft"><b>教师创作排行</b>：按资源创作数排名，金银铜样式前三名，展示教师姓名、学科、创作数。<br/><b>教师每日使用</b>：折线图，Tab 切换「人数」/「使用率」，逻辑同学生端。<br/><b>教师使用数据</b>：资源总数突出 + 互动课件/教学动画/教学游戏/教学设计/习题组卷分项列表。<br/><b>教师资源学科分布</b>：饼图，按学科（数学/英语/语文/物理/化学/生物/其他）分布，底部水平 legend。</div></div></div></div>
+  <div class="sb-sec" data-sb="4"><div class="sb-hd"><span class="no">6</span><span class="tx">排行榜</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">学校创作榜 TOP7（点击可下钻到该校详情页）+ 教师创作榜 TOP7（展示教师姓名、学校、学科、创作数）。</div></div></div></div>
+  <div class="sb-sec" data-sb="5"><div class="sb-hd"><span class="no">7</span><span class="tx">AI 助学 · 学生端</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">拍照答疑 + AI 讲解（突出展示），其余功能（作业批改、视频讲解、错题本、试卷打印、试卷下载、试卷讲解、视频课程）2 列列表，累计口径。</div></div></div></div>
+  <div class="sb-sec" data-sb="6"><div class="sb-hd"><span class="no">8</span><span class="tx">AI 助教 · 教师端</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">生成资源总数（突出）+ 互动课件 / 教学动画 / 教学游戏分项列表，累计口径。</div></div></div></div>
+  <div class="sb-sec" data-sb="8"><div class="sb-hd"><span class="no">9</span><span class="tx">社区资源学科分布</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">环形图，按学科（数学/英语/语文/物理/化学/生物/历史/地理/道法/其他）分布，右侧 legend 带数量，累计口径。</div></div></div></div>
+</div></div><div class="sb-resize" id="sbResize"></div></div>
+
+<script>
+var S=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--s'))||1;
+Chart.defaults.color='#505882';Chart.defaults.borderColor='rgba(124,92,252,.06)';Chart.defaults.font.family="'PingFang SC','Noto Sans SC',sans-serif";Chart.defaults.font.size=Math.round(10*S);
+var allSchools=[
+  {name:'龙岗区实验学校',coord:[114.243,22.718],tt:120,at:102,ts:2200,as:1856,creates:1567},
+  {name:'龙城高级中学',coord:[114.285,22.733],tt:110,at:86,ts:1800,as:1320,creates:1243},
+  {name:'龙岗区外国语学校',coord:[114.302,22.698],tt:95,at:73,ts:1500,as:1105,creates:982},
+  {name:'平湖中学',coord:[114.108,22.703],tt:80,at:58,ts:1200,as:892,creates:756},
+  {name:'南湾学校',coord:[114.135,22.653],tt:65,at:45,ts:900,as:673,creates:623},
+  {name:'横岗中学',coord:[114.208,22.664],tt:75,at:52,ts:1100,as:814,creates:698},
+  {name:'布吉中学',coord:[114.105,22.632],tt:85,at:64,ts:1300,as:976,creates:845},
+  {name:'百合外国语学校',coord:[114.088,22.638],tt:70,at:49,ts:1000,as:738,creates:612},
+  {name:'龙岗街道中心小学',coord:[114.268,22.711],tt:50,at:35,ts:700,as:523,creates:478},
+  {name:'园山实验学校',coord:[114.322,22.688],tt:55,at:38,ts:800,as:586,creates:502},
+  {name:'宝龙学校',coord:[114.338,22.676],tt:60,at:41,ts:850,as:612,creates:534},
+  {name:'平湖实验学校',coord:[114.118,22.718],tt:68,at:47,ts:950,as:705,creates:589},
+  {name:'吉华中学',coord:[114.127,22.615],tt:62,at:43,ts:880,as:648,creates:567},
+  {name:'龙城初级中学',coord:[114.265,22.742],tt:78,at:56,ts:1150,as:842,creates:723},
+  {name:'坪地中学',coord:[114.330,22.722],tt:45,at:31,ts:650,as:467,creates:412}
+];
+var teachersBySchool={'龙岗区实验学校':[{n:'周婷婷',s:'历史',c:51},{n:'林芳华',s:'语文',c:47},{n:'马晓东',s:'数学',c:43},{n:'徐丽丽',s:'英语',c:38},{n:'郑伟',s:'物理',c:35}],'龙城高级中学':[{n:'张明华',s:'数学',c:127},{n:'何小燕',s:'英语',c:42},{n:'杨波',s:'语文',c:38},{n:'刘伟',s:'化学',c:31},{n:'陈琳',s:'生物',c:28}],'龙岗区外国语学校':[{n:'李文静',s:'英语',c:98},{n:'孙强',s:'数学',c:36},{n:'陈慧',s:'语文',c:32},{n:'王磊',s:'物理',c:27},{n:'赵丽',s:'化学',c:24}],'布吉中学':[{n:'吴海涛',s:'数学',c:45},{n:'黄敏',s:'英语',c:38},{n:'钱进',s:'语文',c:33},{n:'孙亮',s:'物理',c:28},{n:'周明',s:'化学',c:25}],'平湖中学':[{n:'孙晓峰',s:'数学',c:42},{n:'刘雅琴',s:'化学',c:63},{n:'张芳',s:'英语',c:35},{n:'陈刚',s:'物理',c:30},{n:'李明',s:'语文',c:26}],'横岗中学':[{n:'陈思远',s:'物理',c:72},{n:'王秀英',s:'数学',c:34},{n:'刘强',s:'英语',c:29},{n:'张伟',s:'化学',c:25},{n:'李娜',s:'生物',c:22}]};
+function getTeachers(n){if(teachersBySchool[n])return teachersBySchool[n];var subs=['数学','英语','语文','物理','化学','生物','历史','地理'],fams='王李张刘陈赵孙周吴黄徐马'.split(''),styles=['老师','老师','老师'];var out=[];for(var i=0;i<8;i++){out.push({n:fams[i%fams.length]+styles[0],s:subs[i%subs.length],c:Math.round(40*(1-i*.1)*(.8+Math.random()*.4))})}return out.sort(function(a,b){return b.c-a.c})}
+var dauStu=[3200,3350,3280,3420,3180,1850,1620,3450,3580,3520,3650,3400,2010,1780,3720,3850,3790,3920,3680,2180,1950,4020,4150,4080,4230,3980,2350,2120,4310,4231];
+var dauTch=[380,420,395,450,410,120,85,430,460,440,475,435,140,100,465,490,480,510,470,165,115,500,520,505,540,510,185,135,530,486];
+var dauLabels=dauStu.map(function(_,i){var d=new Date();d.setDate(d.getDate()-30+i);return(d.getMonth()+1)+'/'+d.getDate()});
+var dauChart,dauMode='stu';
+var periodData={'7d':{schools:125,ta:2890,tt:4200,sa:24500,st:35000},'30d':{schools:128,ta:3265,tt:4200,sa:28566,st:35000},'90d':{schools:128,ta:3380,tt:4200,sa:30120,st:35000}};
+var curPeriod='30d',curSchool=null;
+var soCharts={grade:null,stuDAU:null,tchDAU:null,subPie:null};
+
+/* ═══ school rank list ═══ */
+(function(){var l=document.getElementById('schoolRankList');allSchools.slice().sort(function(a,b){return b.creates-a.creates}).slice(0,7).forEach(function(s,i){
+  var rs=i===0?'background:linear-gradient(135deg,#f59e0b,#d97706);color:#000':i===1?'background:linear-gradient(135deg,#94a3b8,#64748b);color:#000':i===2?'background:linear-gradient(135deg,#b45309,#92400e);color:#fff':'background:var(--bdr);color:var(--t3)';
+  var d=document.createElement('div');d.className='sch';d.innerHTML='<span class="s-rank" style="'+rs+'">'+(i+1)+'</span><span class="s-name">'+s.name+'</span><span class="s-val">'+s.creates.toLocaleString()+'<span class="s-unit">个</span></span>';d.onclick=function(){openSchool(s)};l.appendChild(d)})})();
+
+/* ═══ DAU chart ═══ */
+(function(){var el=document.getElementById('chDAU'),ctx=el.getContext('2d');function mk(c){var g=ctx.createLinearGradient(0,0,0,el.parentElement.offsetHeight||120);g.addColorStop(0,c);g.addColorStop(1,'rgba(0,0,0,0)');return g}
+dauChart=new Chart(ctx,{type:'line',data:{labels:dauLabels,datasets:[{data:dauStu,borderColor:'#eab308',backgroundColor:mk('rgba(234,179,8,.12)'),fill:true,tension:.35,pointRadius:0,pointHoverRadius:Math.round(3*S),pointHoverBackgroundColor:'#eab308',borderWidth:1.8}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(8,11,24,.95)',borderColor:'rgba(124,92,252,.3)',borderWidth:1,titleFont:{size:Math.round(10*S)},bodyFont:{size:Math.round(11*S),weight:'bold'},padding:Math.round(6*S),displayColors:false,callbacks:{label:function(c){return c.parsed.y.toLocaleString()+' 人'}}}},scales:{x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:10,font:{size:Math.round(9*S)},color:'#505882'}},y:{grid:{color:'rgba(124,92,252,.06)',drawBorder:false},ticks:{font:{size:Math.round(10*S)},color:'#505882',callback:function(v){return v>=1e3?(v/1e3).toFixed(1)+'k':v}},beginAtZero:false}}}});
+window.swDAU=function(m){dauMode=m;var is=m==='stu';document.getElementById('tabStu').classList.toggle('on',is);document.getElementById('tabTch').classList.toggle('on',!is);document.getElementById('dauVal').textContent=is?'4,231':'486';document.getElementById('dauVal').style.color=is?'var(--gold)':'var(--accent)';var ds=dauChart.data.datasets[0];ds.data=is?dauStu:dauTch;ds.borderColor=is?'#eab308':'#a78bfa';ds.pointHoverBackgroundColor=ds.borderColor;var g=document.getElementById('chDAU').getContext('2d').createLinearGradient(0,0,0,120);g.addColorStop(0,is?'rgba(234,179,8,.12)':'rgba(167,139,250,.15)');g.addColorStop(1,'rgba(0,0,0,0)');ds.backgroundColor=g;dauChart.update()}})();
+
+/* ═══ grade distribution ═══ */
+var gradeDistChart;(function(){var d=document.getElementById('eGradeDist');if(!d)return;gradeDistChart=echarts.init(d);
+var gs=['一年级','二年级','三年级','四年级','五年级','六年级','七年级','八年级','九年级'];
+var total=28566,ws=[.5,.65,.8,.95,1.1,1.2,1.5,1.7,1.6],sum=ws.reduce(function(a,b){return a+b},0);
+var dt=ws.map(function(w){return Math.round(total*w/sum)});
+var cs=gs.map(function(_,i){return i<6?'#eab308':'#a78bfa'});
+gradeDistChart.setOption({tooltip:{trigger:'axis',axisPointer:{type:'shadow'},backgroundColor:'rgba(8,11,24,.95)',borderColor:'rgba(124,92,252,.3)',borderWidth:1,textStyle:{color:'#e2e8f0',fontSize:Math.round(10*S)},formatter:function(ps){return'<b>'+ps[0].name+'</b><br/>使用学生 <b style="color:#a78bfa">'+ps[0].value.toLocaleString()+'</b> 人'}},grid:{left:'18%',right:'12%',top:'4%',bottom:'4%'},xAxis:{type:'value',axisLabel:{color:'#505882',fontSize:Math.round(9*S),formatter:function(v){return v>=1e3?(v/1e3).toFixed(0)+'k':v}},splitLine:{lineStyle:{color:'rgba(124,92,252,.06)'}},axisLine:{show:false}},yAxis:{type:'category',data:gs,axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#94a3b8',fontSize:Math.round(9*S)}},series:[{type:'bar',data:dt.map(function(v,i){return{value:v,itemStyle:{color:cs[i]}}}),barWidth:Math.round(12*S),itemStyle:{borderRadius:[0,3,3,0]},label:{show:true,position:'right',color:'#94a3b8',fontSize:Math.round(9*S),fontWeight:700,fontFamily:'JetBrains Mono,monospace',formatter:function(p){return p.value.toLocaleString()}}}]});
+window.addEventListener('resize',function(){if(gradeDistChart)gradeDistChart.resize()})})();
+
+/* ═══ map ═══ */
+(function(){var FG={"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"龙岗区","adcode":440307},"geometry":{"type":"Polygon","coordinates":[[[114.054974,22.648973],[114.055934,22.642339],[114.056362,22.621145],[114.058404,22.611531],[114.060897,22.598111],[114.062158,22.595912],[114.071481,22.592809],[114.076293,22.594081],[114.089666,22.598512],[114.105993,22.588303],[114.119556,22.589984],[114.130823,22.586693],[114.139996,22.590333],[114.145693,22.592359],[114.150262,22.599341],[114.159944,22.60139],[114.166931,22.609287],[114.176012,22.614284],[114.191691,22.616085],[114.196862,22.613298],[114.200356,22.607741],[114.213676,22.59607],[114.219529,22.584581],[114.224919,22.585864],[114.230715,22.59849],[114.234752,22.609373],[114.240836,22.615646],[114.259888,22.618868],[114.265834,22.625268],[114.258702,22.634184],[114.259535,22.644135],[114.26979,22.65383],[114.26728,22.659711],[114.27167,22.668925],[114.276748,22.674816],[114.285082,22.678086],[114.291358,22.679627],[114.301167,22.683579],[114.316101,22.686661],[114.31857,22.69119],[114.323487,22.70041],[114.328947,22.707413],[114.340312,22.714105],[114.341815,22.719353],[114.340075,22.74646],[114.339577,22.751066],[114.344435,22.758543],[114.347836,22.762215],[114.351122,22.789689],[114.351711,22.79723],[114.351197,22.802929],[114.347871,22.809189],[114.337321,22.809485],[114.324065,22.804828],[114.311144,22.803569],[114.294851,22.806379],[114.28481,22.80826],[114.275967,22.797452],[114.268147,22.791082],[114.258338,22.782776],[114.246574,22.787516],[114.233849,22.796339],[114.229199,22.812515],[114.224254,22.812781],[114.216093,22.808173],[114.210165,22.792633],[114.198152,22.787486],[114.185335,22.781813],[114.179343,22.77916],[114.182657,22.775488],[114.187111,22.771703],[114.187602,22.76887],[114.182339,22.766757],[114.185023,22.765168],[114.197094,22.764936],[114.200425,22.763268],[114.204127,22.751051],[114.209349,22.748446],[114.208661,22.719818],[114.196718,22.710232],[114.199488,22.702033],[114.197192,22.689612],[114.191049,22.68794],[114.195891,22.680988],[114.186555,22.672214],[114.186706,22.667102],[114.164502,22.661608],[114.160829,22.664995],[114.155456,22.668209],[114.166335,22.678352],[114.161627,22.685274],[114.151783,22.690137],[114.14988,22.69945],[114.144664,22.714183],[114.131077,22.714112],[114.124559,22.715218],[114.117601,22.72315],[114.109278,22.714108],[114.104044,22.705531],[114.095964,22.702884],[114.093893,22.694205],[114.10191,22.68884],[114.095143,22.68479],[114.099614,22.675802],[114.100603,22.668647],[114.092615,22.663401],[114.085235,22.662036],[114.081302,22.668325],[114.076531,22.675206],[114.064905,22.669874],[114.054286,22.666101],[114.054974,22.648973]]]}}]};
+function init(g){try{echarts.registerMap('longgang',g);var d=document.getElementById('eMap');if(!d)return;var mc=echarts.init(d);window._mapChart=mc;var sd=allSchools.map(function(s){return{name:s.name,value:s.coord.concat(s.at),as:s.as,ts:s.ts,at:s.at,tt:s.tt,creates:s.creates}});
+mc.setOption({geo:{map:'longgang',roam:false,zoom:1.15,label:{show:false},itemStyle:{areaColor:'rgba(124,92,252,.03)',borderColor:'rgba(124,92,252,.25)',borderWidth:1.5},emphasis:{itemStyle:{areaColor:'rgba(124,92,252,.08)'},label:{show:false}}},tooltip:{trigger:'item',backgroundColor:'rgba(8,11,24,.95)',borderColor:'rgba(124,92,252,.3)',borderWidth:1,padding:[Math.round(8*S),Math.round(12*S)],textStyle:{color:'#e2e8f0',fontSize:Math.round(11*S)},formatter:function(p){if(!p.data)return'';var d=p.data,sr=Math.round(d.as/d.ts*100),tr=Math.round(d.at/d.tt*100);return'<b style="font-size:'+Math.round(13*S)+'px">'+d.name+'</b><br/><span style="color:#94a3b8">使用教师</span> <b style="color:#a78bfa">'+d.at+'</b> 人　<span style="color:#94a3b8">使用率</span> <b style="color:#a78bfa">'+tr+'%</b><br/><span style="color:#94a3b8">使用学生</span> <b style="color:#a78bfa">'+d.as.toLocaleString()+'</b> 人　<span style="color:#94a3b8">使用率</span> <b style="color:#a78bfa">'+sr+'%</b><br/><span style="color:#94a3b8">资源创作</span> <b style="color:#a78bfa">'+d.creates.toLocaleString()+'</b> 个'}},series:[{type:'effectScatter',coordinateSystem:'geo',data:sd,symbolSize:function(v){return 4+v[2]*.08},rippleEffect:{brushType:'stroke',period:4,scale:3},itemStyle:{color:'#a78bfa',shadowBlur:10,shadowColor:'rgba(167,139,250,.5)'},label:{show:false}},{type:'scatter',coordinateSystem:'geo',data:sd,symbolSize:function(v){return 2+v[2]*.04},itemStyle:{color:'#fff',opacity:.9},label:{show:false}}]});
+mc.on('click',function(p){if(p.data&&p.data.name){var s=allSchools.find(function(x){return x.name===p.data.name});if(s)openSchool(s)}});window.addEventListener('resize',function(){mc.resize()})}catch(e){console.error(e)}}
+setTimeout(function(){fetch('https://geo.datav.aliyun.com/areas_v3/bound/440307.json').then(function(r){if(!r.ok)throw 0;return r.json()}).then(init).catch(function(){init(FG)})},100)})();
+
+/* ═══ subject donut ═══ */
+(function(){var d=document.getElementById('eSubject');if(!d)return;var c=echarts.init(d);window._subjectChart=c;
+c.setOption({tooltip:{trigger:'item',backgroundColor:'rgba(8,11,24,.95)',borderColor:'rgba(124,92,252,.3)',borderWidth:1,textStyle:{color:'#e2e8f0',fontSize:Math.round(11*S)},formatter:function(p){return'<b>'+p.name+'</b><br/>'+p.value.toLocaleString()+' 个（'+p.percent+'%）'}},legend:{orient:'vertical',right:'2%',top:'middle',textStyle:{color:'#94a3b8',fontSize:Math.round(10*S)},itemWidth:Math.round(8*S),itemHeight:Math.round(8*S),itemGap:Math.round(4*S),formatter:function(n){var dd=c.getOption().series[0].data;for(var i=0;i<dd.length;i++)if(dd[i].name===n)return n+' '+dd[i].value.toLocaleString();return n}},series:[{type:'pie',radius:['30%','54%'],center:['40%','50%'],avoidLabelOverlap:false,label:{show:false},emphasis:{label:{show:true,fontSize:Math.round(12*S),fontWeight:'bold',color:'#fff'}},labelLine:{show:false},data:[{value:1580,name:'数学',itemStyle:{color:'#a78bfa'}},{value:1230,name:'英语',itemStyle:{color:'#818cf8'}},{value:1050,name:'语文',itemStyle:{color:'#c084fc'}},{value:780,name:'物理',itemStyle:{color:'#7c5cfc'}},{value:520,name:'化学',itemStyle:{color:'#f59e0b'}},{value:430,name:'生物',itemStyle:{color:'#22c55e'}},{value:360,name:'历史',itemStyle:{color:'#f43f5e'}},{value:310,name:'地理',itemStyle:{color:'#06b6d4'}},{value:250,name:'道法',itemStyle:{color:'#ec4899'}},{value:290,name:'其他',itemStyle:{color:'#505882'}}]}]});window.addEventListener('resize',function(){c.resize()})})();
+
+/* ═══ SCHOOL DETAIL ═══ */
+function openSchool(sch){curSchool=sch;document.getElementById('SO').classList.add('open');document.getElementById('soName').textContent=sch.name;initDR('soDrStart','soDrEnd');
+  var sr=Math.round(sch.as/sch.ts*100),tr=Math.round(sch.at/sch.tt*100);
+  document.getElementById('soKpi').innerHTML=
+    '<div class="kpi-card"><div class="kl">使用教师</div><div class="kv">'+sch.at+'<span class="ku">人</span></div></div>'+
+    '<div class="kpi-card"><div class="kl">使用学生</div><div class="kv">'+sch.as.toLocaleString()+'<span class="ku">人</span></div></div>'+
+    '<div class="kpi-card"><div class="kl">资源创作</div><div class="kv" style="color:var(--accent)">'+sch.creates.toLocaleString()+'<span class="ku">个</span></div></div>'+
+    '<div class="kpi-card"><div class="kl">累计服务</div><div class="kv" style="color:var(--gold)">'+Math.round(sch.as*1.8).toLocaleString()+'<span class="ku">次</span></div></div>';
+  document.getElementById('soStuRateLabel').textContent='使用人数';
+  document.getElementById('soStuRateVal').textContent=sch.as.toLocaleString();
+  document.getElementById('soStuRateUnit').textContent='人';
+  document.getElementById('soTchRateLabel').textContent='使用人数';
+  document.getElementById('soTchRateVal').textContent=sch.at.toLocaleString();
+  document.getElementById('soTchRateUnit').textContent='人';
+  _soDauMode={stu:'dau',tch:'dau'};_soDauCache={};
+  document.getElementById('soStuTabDAU').classList.add('on');document.getElementById('soStuTabRate').classList.remove('on');
+  document.getElementById('soTchTabDAU').classList.add('on');document.getElementById('soTchTabRate').classList.remove('on');
+  renderGrade(sch);renderSoDAU(sch,'stu','dau');renderSoDAU(sch,'tch','dau');renderStudentData(sch);renderTeacherRank(sch);renderTeacherData(sch);renderSubjectPie(sch);
+}
+function closeSchool(){document.getElementById('SO').classList.remove('open');curSchool=null;Object.keys(soCharts).forEach(function(k){if(soCharts[k]){soCharts[k].dispose();soCharts[k]=null}})}
+
+function renderGrade(s){var d=document.getElementById('soGrade');if(soCharts.grade)soCharts.grade.dispose();soCharts.grade=echarts.init(d);var b=s.as/9,gs=['一年级','二年级','三年级','四年级','五年级','六年级','七年级','八年级','九年级'],ws=[.5,.65,.8,.95,1.1,1.2,1.5,1.7,1.6],dt=ws.map(function(w){return Math.round(b*w*(.8+Math.random()*.4))}),cs=gs.map(function(_,i){return i<6?'#eab308':'#a78bfa'});
+soCharts.grade.setOption({tooltip:{trigger:'axis',axisPointer:{type:'shadow'},backgroundColor:'rgba(8,11,24,.95)',borderColor:'rgba(124,92,252,.3)',borderWidth:1,textStyle:{color:'#e2e8f0',fontSize:Math.round(10*S)}},grid:{left:'16%',right:'10%',top:'4%',bottom:'4%'},xAxis:{type:'value',axisLabel:{color:'#505882',fontSize:Math.round(9*S)},splitLine:{lineStyle:{color:'rgba(124,92,252,.06)'}},axisLine:{show:false}},yAxis:{type:'category',data:gs,axisLine:{show:false},axisTick:{show:false},axisLabel:{color:'#94a3b8',fontSize:Math.round(9*S)}},series:[{type:'bar',data:dt.map(function(v,i){return{value:v,itemStyle:{color:cs[i]}}}),barWidth:Math.round(10*S),itemStyle:{borderRadius:[0,3,3,0]},label:{show:true,position:'right',color:'#94a3b8',fontSize:Math.round(9*S),fontFamily:'JetBrains Mono,monospace'}}]});window.addEventListener('resize',function(){if(soCharts.grade)soCharts.grade.resize()})}
+
+function renderTeacherRank(s){var b=document.getElementById('soTeacherRank'),t=getTeachers(s.name),h='';t.forEach(function(x,i){var rs=i===0?'background:linear-gradient(135deg,#f59e0b,#d97706);color:#000':i===1?'background:linear-gradient(135deg,#94a3b8,#64748b);color:#000':i===2?'background:linear-gradient(135deg,#b45309,#92400e);color:#fff':'background:var(--bdr);color:var(--t3)';h+='<div class="sch"><span class="s-rank" style="'+rs+'">'+(i+1)+'</span><span class="s-name">'+x.n+'<span style="color:var(--t3);margin-left:3px">'+x.s+'</span></span><span class="s-val">'+x.c+'<span class="s-unit">个</span></span></div>'});b.innerHTML=h}
+
+function renderStudentData(s){var r=s.as/28566,b=document.getElementById('soStudentData');
+var hero=[{n:'拍照答疑',v:Math.round(8902*r),u:'次',c:'var(--accent)',ic:'📷'},{n:'作业批改',v:Math.round(12345*r),u:'次',c:'#c084fc',ic:'✏️'},{n:'视频课堂',v:Math.round(3560*r),u:'次',c:'var(--gold)',ic:'🎬'}];
+var rest=[{n:'AI 讲解',v:Math.round(6789*r),u:'次',c:'var(--struct)'},{n:'试卷讲解',v:Math.round(4230*r),u:'次',c:'var(--blue)'},{n:'视频讲解',v:Math.round(46000*r),u:'次',c:'#06b6d4'},{n:'错题本',v:Math.round(12345*r),u:'题',c:'#f43f5e'},{n:'试卷打印',v:Math.round(3891*r),u:'套',c:'#ec4899'},{n:'试卷下载',v:Math.round(2780*r),u:'次',c:'#22c55e'}];
+var h='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:calc(4px*var(--s));margin-bottom:calc(6px*var(--s))">';
+hero.forEach(function(x){h+='<div class="sh-cell" style="border-color:rgba(124,92,252,.08)"><div style="font-size:calc(9px*var(--s));margin-bottom:calc(2px*var(--s))">'+x.ic+'</div><div class="hc-val" style="color:'+x.c+'">'+x.v.toLocaleString()+'<span class="hc-unit">'+x.u+'</span></div><div class="hc-label">'+x.n+'</div></div>'});
+h+='</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0 calc(6px*var(--s))">';
+rest.forEach(function(x){h+='<div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:'+x.c+'"></span>'+x.n+'</span><span class="sl-val">'+x.v.toLocaleString()+'<span class="sl-u">'+x.u+'</span></span></div>'});
+h+='</div>';b.innerHTML=h}
+
+function renderTeacherData(s){var r=s.creates/19107,b=document.getElementById('soTeacherData');
+var items=[{n:'互动课件',v:Math.round(8306*r),c:'#a78bfa'},{n:'教学动画',v:Math.round(1823*r),c:'#f59e0b'},{n:'教学游戏',v:Math.round(1206*r),c:'#ec4899'},{n:'教学设计',v:Math.round(2150*r),c:'#06b6d4'},{n:'习题组卷',v:Math.round(1780*r),c:'#22c55e'}];
+var h='<div style="text-align:center;margin-bottom:calc(6px*var(--s));padding-bottom:calc(4px*var(--s));border-bottom:1px solid rgba(124,92,252,.08)"><div style="font-size:calc(20px*var(--s));font-weight:800;color:var(--accent);font-family:var(--num);line-height:1.1">'+s.creates.toLocaleString()+'</div><div style="font-size:calc(9px*var(--s));color:var(--t3);margin-top:2px">资源总数</div></div>';
+h+='<div class="sum-list">';
+items.forEach(function(x){h+='<div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:'+x.c+'"></span>'+x.n+'</span><span class="sl-val">'+x.v.toLocaleString()+'<span class="sl-u">个</span></span></div>'});
+h+='</div>';b.innerHTML=h}
+
+var _soDauCache={};
+function renderSoDAU(s,who,mode){mode=mode||'dau';var isStu=who==='stu';var domId=isStu?'soStuDAU':'soTchDAU';var key=isStu?'stuDAU':'tchDAU';var d=document.getElementById(domId);if(soCharts[key])soCharts[key].dispose();soCharts[key]=echarts.init(d);
+var ratio=isStu?s.as/28566:s.at/3265;var src=isStu?dauStu:dauTch;var cacheKey=who+s.name;if(!_soDauCache[cacheKey])_soDauCache[cacheKey]=src.map(function(v){return Math.round(v*ratio*(.8+Math.random()*.4))});var dt=_soDauCache[cacheKey];
+var total=isStu?s.ts:s.tt;var rateData=dt.map(function(v){return Math.round(v/total*1000)/10});
+var isRate=mode==='rate';var cl=isStu?'#eab308':'#a78bfa';var chartData=isRate?rateData:dt;
+soCharts[key].setOption({tooltip:{trigger:'axis',backgroundColor:'rgba(8,11,24,.95)',borderColor:'rgba(124,92,252,.3)',borderWidth:1,textStyle:{color:'#e2e8f0',fontSize:Math.round(10*S)},formatter:function(ps){return'<b>'+ps[0].axisValue+'</b><br/>'+(isStu?'学生':'教师')+(isRate?' 使用率 <b style="color:'+cl+'">'+ps[0].value+'%</b>':' <b style="color:'+cl+'">'+ps[0].value.toLocaleString()+'</b> 人')}},grid:{left:'12%',right:'4%',top:'4%',bottom:'14%'},xAxis:{type:'category',data:dauLabels,axisLine:{lineStyle:{color:'rgba(124,92,252,.12)'}},axisLabel:{color:'#505882',fontSize:Math.round(8*S)},splitLine:{show:false}},yAxis:{type:'value',max:isRate?100:undefined,axisLabel:{color:'#505882',fontSize:Math.round(9*S),formatter:function(v){return isRate?v+'%':v>=1e3?(v/1e3).toFixed(0)+'k':v}},splitLine:{lineStyle:{color:'rgba(124,92,252,.06)'}},axisLine:{show:false}},series:[{type:'line',data:chartData,smooth:true,symbol:'none',areaStyle:{color:new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:cl==='#eab308'?'rgba(234,179,8,.12)':'rgba(167,139,250,.12)'},{offset:1,color:'rgba(0,0,0,0)'}])},lineStyle:{color:cl,width:2},itemStyle:{color:cl}}]});
+window.addEventListener('resize',function(){if(soCharts[key])soCharts[key].resize()})}
+var _soDauMode={stu:'dau',tch:'dau'};
+window.swSoDAU=function(who,mode){_soDauMode[who]=mode;var pre=who==='stu'?'soStu':'soTch';document.getElementById(pre+'TabDAU').classList.toggle('on',mode==='dau');document.getElementById(pre+'TabRate').classList.toggle('on',mode==='rate');
+if(curSchool){var s=curSchool,isStu=who==='stu';if(mode==='rate'){var rate=isStu?Math.round(s.as/s.ts*100):Math.round(s.at/s.tt*100);document.getElementById(pre+'RateLabel').textContent='使用率';document.getElementById(pre+'RateVal').textContent=rate+'%';document.getElementById(pre+'RateUnit').textContent=''}else{document.getElementById(pre+'RateLabel').textContent='使用人数';document.getElementById(pre+'RateVal').textContent=isStu?s.as.toLocaleString():s.at.toLocaleString();document.getElementById(pre+'RateUnit').textContent='人'}renderSoDAU(s,who,mode)}}
+
+function renderSubjectPie(s){var d=document.getElementById('soSubjectPie');if(soCharts.subPie)soCharts.subPie.dispose();soCharts.subPie=echarts.init(d);
+var r=s.creates/19107;var data=[{v:Math.round(1580*r),n:'数学',c:'#a78bfa'},{v:Math.round(1230*r),n:'英语',c:'#818cf8'},{v:Math.round(1050*r),n:'语文',c:'#c084fc'},{v:Math.round(780*r),n:'物理',c:'#7c5cfc'},{v:Math.round(520*r),n:'化学',c:'#f59e0b'},{v:Math.round(430*r),n:'生物',c:'#22c55e'},{v:Math.round(360*r),n:'其他',c:'#505882'}];
+soCharts.subPie.setOption({tooltip:{trigger:'item',backgroundColor:'rgba(8,11,24,.95)',borderColor:'rgba(124,92,252,.3)',borderWidth:1,textStyle:{color:'#e2e8f0',fontSize:Math.round(10*S)},formatter:function(p){return'<b>'+p.name+'</b><br/>'+p.value.toLocaleString()+' 个（'+p.percent+'%）'}},legend:{orient:'horizontal',bottom:'2%',left:'center',textStyle:{color:'#94a3b8',fontSize:Math.round(8*S)},itemWidth:Math.round(6*S),itemHeight:Math.round(6*S),itemGap:Math.round(6*S)},series:[{type:'pie',radius:['25%','52%'],center:['50%','42%'],avoidLabelOverlap:false,label:{show:false},emphasis:{label:{show:true,fontSize:Math.round(10*S),fontWeight:'bold',color:'#fff'}},labelLine:{show:false},data:data.map(function(x){return{value:x.v,name:x.n,itemStyle:{color:x.c}}})}]});
+window.addEventListener('resize',function(){if(soCharts.subPie)soCharts.subPie.resize()})}
+/* ═══ date range ═══ */
+function fmtD(d){return d.toISOString().slice(0,10)}
+function daysAgo(n){var d=new Date();d.setDate(d.getDate()-n);return d}
+function initDR(sId,eId){var end=new Date(),start=daysAgo(30);var se=document.getElementById(sId),ee=document.getElementById(eId);se.value=fmtD(start);ee.value=fmtD(end);se.max=fmtD(end);ee.max=fmtD(end)}
+initDR('drStart','drEnd');
+function applyDR(){var s=document.getElementById('drStart').value,e=document.getElementById('drEnd').value;if(!s||!e)return;var diff=Math.round((new Date(e)-new Date(s))/864e5);var key=diff<=10?'7d':diff<=60?'30d':'90d';var d=periodData[key];
+document.getElementById('kTA').textContent=d.ta.toLocaleString();
+document.getElementById('kSA').textContent=d.sa.toLocaleString()}
+document.getElementById('drStart').addEventListener('change',function(){document.querySelectorAll('.hd .dr-presets button').forEach(function(b){b.classList.remove('on')});applyDR()});
+document.getElementById('drEnd').addEventListener('change',function(){document.querySelectorAll('.hd .dr-presets button').forEach(function(b){b.classList.remove('on')});applyDR()});
+window.setPreset=function(n){document.getElementById('drStart').value=fmtD(daysAgo(n));document.getElementById('drEnd').value=fmtD(new Date());document.querySelectorAll('.hd .dr-presets button').forEach(function(b){b.classList.remove('on')});document.querySelector('.hd .dr-presets button[onclick*="('+n+')"]').classList.add('on');applyDR()};
+window.setSOPreset=function(n){document.getElementById('soDrStart').value=fmtD(daysAgo(n));document.getElementById('soDrEnd').value=fmtD(new Date());document.querySelectorAll('#soDateRange .dr-presets button').forEach(function(b){b.classList.remove('on')});document.querySelector('#soDateRange .dr-presets button[onclick*="('+n+')"]').classList.add('on')};
+
+/* ═══ export ═══ */
+function dlCSV(h,rows,fn){var csv='\ufeff'+h.join(',')+'\n';rows.forEach(function(r){csv+=r.join(',')+'\n'});var b=new Blob([csv],{type:'text/csv;charset=utf-8;'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fn;a.click();URL.revokeObjectURL(a.href)}
+window.exportSchoolCSV=function(){if(!curSchool)return;var s=curSchool,r=s.as/28566,cr=s.creates/19107;var h=['指标','数值'];var rows=[['学校',s.name],['使用教师',s.at],['使用学生',s.as],['资源创作',s.creates],['拍照答疑',Math.round(8902*r)],['AI讲解',Math.round(6789*r)],['试卷讲解',Math.round(4230*r)],['视频课堂',Math.round(3560*r)],['作业批改',Math.round(12345*r)],['视频讲解',Math.round(46000*r)],['错题本',Math.round(12345*r)],['试卷打印',Math.round(3891*r)],['试卷下载',Math.round(2780*r)],['互动课件',Math.round(8306*cr)],['教学动画',Math.round(1823*cr)],['教学游戏',Math.round(1206*cr)]];dlCSV(h,rows,s.name+'_数据.csv')};
+
+/* ═══ counter ═══ */
+document.querySelectorAll('.ctr').forEach(function(el){var to=parseFloat(el.dataset.to),sf=el.dataset.suffix||'',dc=parseInt(el.dataset.decimal)||0,dur=1400,steps=50,step=0;function f(v){if(dc>0)return v.toFixed(dc)+sf;return Math.floor(v).toLocaleString()+sf}el.textContent=f(0);var t=setInterval(function(){step++;var p=Math.min(step/steps,1);p=1-Math.pow(1-p,3);el.textContent=f(to*p);if(p>=1){clearInterval(t);el.textContent=f(to)}},dur/steps)});
+
+/* ═══ mode ═══ */
+var isRev=false;function sw(m){isRev=m==='review';try{sessionStorage.setItem('dashMode',isRev?'review':'demo')}catch(e){}document.getElementById('SB').classList.toggle('open',isRev);document.getElementById('bD').classList.toggle('on',!isRev);document.getElementById('bR').classList.toggle('on',isRev)}
+(function(){var sb=document.getElementById('SB'),hd=document.getElementById('sbDrag'),ox=0,oy=0,dr=false;function st(x,y){dr=true;var r=sb.getBoundingClientRect();ox=x-r.left;oy=y-r.top;document.body.style.userSelect='none'}function mv(x,y){if(!dr)return;sb.style.left=Math.max(0,Math.min(x-ox,innerWidth-80))+'px';sb.style.top=Math.max(0,Math.min(y-oy,innerHeight-60))+'px';sb.style.right='auto'}function en(){dr=false;document.body.style.userSelect=''}
+hd.addEventListener('mousedown',function(e){if(!e.target.closest('.sb-close'))st(e.clientX,e.clientY)});document.addEventListener('mousemove',function(e){mv(e.clientX,e.clientY)});document.addEventListener('mouseup',en);
+var rh=document.getElementById('sbResize'),rz=false,rx,ry,rw,rhe;rh.addEventListener('mousedown',function(e){e.preventDefault();e.stopPropagation();rz=true;rx=e.clientX;ry=e.clientY;var r=sb.getBoundingClientRect();rw=r.width;rhe=r.height;document.body.style.userSelect='none'});document.addEventListener('mousemove',function(e){if(!rz)return;sb.style.width=Math.max(320,Math.min(innerWidth*.96,rw+(e.clientX-rx)))+'px';sb.style.height=Math.max(260,Math.min(innerHeight-40,rhe+(e.clientY-ry)))+'px'});document.addEventListener('mouseup',function(){if(rz){rz=false;document.body.style.userSelect=''}})})();
+(function(){try{if(sessionStorage.getItem('dashMode')==='review'||location.search.includes('mode=review'))sw('review')}catch(e){}})();
+document.querySelectorAll('.sb-hd').forEach(function(h){h.addEventListener('click',function(e){e.stopPropagation();var s=this.parentElement,w=s.classList.contains('op');s.classList.toggle('op');if(!w){var id=s.dataset.sb;if(id){document.querySelectorAll('.sec').forEach(function(x){x.classList.remove('glow')});var t=document.querySelector('.sec[data-s="'+id+'"]');if(t){t.scrollIntoView({behavior:'smooth',block:'center'});t.classList.add('glow');setTimeout(function(){t.classList.remove('glow')},5000)}}}})});
+document.querySelectorAll('.sec[data-s]').forEach(function(s){s.addEventListener('click',function(e){if(!isRev||e.target.closest('.tab-btn,button,.sel,select,canvas,.sch'))return;var id=this.dataset.s;document.querySelectorAll('.sec').forEach(function(x){x.classList.remove('glow')});document.querySelectorAll('.sb-sec').forEach(function(x){x.classList.remove('op','act')});var sb=document.querySelector('.sb-sec[data-sb="'+id+'"]');if(sb){if(!document.getElementById('SB').classList.contains('open'))sw('review');sb.classList.add('op','act');sb.scrollIntoView({behavior:'smooth',block:'start'})}this.classList.add('glow');var self=this;setTimeout(function(){self.classList.remove('glow')},5000)})});
+</script>
+</body>
+</html>
