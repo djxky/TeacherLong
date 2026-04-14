@@ -330,19 +330,49 @@
         ];
 
         function goBack() {
-            window.location.href = '../首页.html';
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '../首页-v3.html';
+            }
         }
 
         function loadQuestion() {
             try {
                 const q = sessionStorage.getItem('aiQuestion');
                 const a = sessionStorage.getItem('aiAnalysis');
+                const source = sessionStorage.getItem('aiSource');
+
+                if (source === 'home-input' || source === 'home-prompt') {
+                    document.querySelector('.question-card').style.display = 'none';
+                    if (q) {
+                        appendUserMsg(q);
+                        replyFreeForm(q);
+                    }
+                    sessionStorage.removeItem('aiSource');
+                    return;
+                }
+
                 if (q) questionContent.textContent = q;
                 if (a) {
                     const firstLine = a.replace(/<[^>]+>/g, ' ').trim().slice(0, 80);
                     if (firstLine) questionContent.textContent = questionContent.textContent + '\n\n（答案解析摘要：' + firstLine + '…）';
                 }
             } catch (e) {}
+        }
+
+        function replyFreeForm(text) {
+            var responses = {
+                '检查': '好的，请把作业拍照发给我，我来帮你逐题检查～',
+                '练习': '没问题！请告诉我科目和年级，我帮你出一份有针对性的练习卷。',
+                '错题': '我来帮你分析错题原因。请把错题拍照或者描述一下题目内容。',
+                '知识点': '好的，请告诉我你想整理哪个科目、哪个章节的知识点？我帮你梳理要点。'
+            };
+            var reply = '收到！我来帮你看看这个问题。请稍等…';
+            for (var key in responses) {
+                if (text.indexOf(key) !== -1) { reply = responses[key]; break; }
+            }
+            setTimeout(function() { appendAiMsg(reply); }, 600);
         }
 
         function appendUserMsg(text) {
