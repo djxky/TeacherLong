@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>历史记录 - AI 龙老师</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/app-shell.css">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        .mode-tab {
+            position: relative; font-size: 15px; font-weight: 500; color: #94a3b8;
+            padding-bottom: 8px; cursor: pointer; white-space: nowrap;
+            transition: color 0.2s; border: none; background: none; font-family: inherit;
+        }
+        .mode-tab.active { color: #0f172a; font-weight: 700; }
+        .mode-tab.active::after {
+            content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 20px; height: 3px; border-radius: 2px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        }
+
+        .filter-pill {
+            padding: 5px 14px; border-radius: 999px; font-size: 12px; font-weight: 500;
+            background: #f1f5f9; color: #64748b; cursor: pointer; white-space: nowrap;
+            transition: all 0.15s; border: none; font-family: inherit;
+        }
+        .filter-pill.active { background: #eef2ff; color: #4f46e5; font-weight: 600; }
+
+        .history-card {
+            background: white; border-radius: 16px; overflow: hidden;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+            cursor: pointer; transition: transform 0.12s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .history-card:active { transform: scale(0.98); }
+
+        .date-label { font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 10px; }
+
+        #toast {
+            position: absolute; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 24px;
+            font-size: 13px; font-weight: 600; pointer-events: none; opacity: 0;
+            transition: all 0.3s ease-out; z-index: 2000;
+            display: flex; align-items: center; gap: 8px;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; }
+    </style>
+</head>
+<body>
+    <div class="iphone-frame is-column" id="app-root">
+        <div class="dynamic-island"></div>
+        <div class="wx-capsule">
+            <button class="wx-capsule-btn"><svg width="18" height="4" viewBox="0 0 18 4"><circle cx="3" cy="2" r="1.5" fill="currentColor"/><circle cx="9" cy="2" r="1.5" fill="currentColor"/><circle cx="15" cy="2" r="1.5" fill="currentColor"/></svg></button>
+            <div class="wx-capsule-divider"></div>
+            <button class="wx-capsule-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M2 2l8 8M10 2l-8 8"/></svg></button>
+        </div>
+        <div id="toast"><svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg><span id="toast-msg"></span></div>
+
+        <header class="bg-white pt-[50px] pb-0 flex-shrink-0">
+            <div class="flex items-center px-4 pb-3">
+                <button onclick="goBack()" class="p-1 -ml-1">
+                    <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <h1 class="text-lg font-bold text-slate-800 ml-2">历史记录</h1>
+                <div class="topbar-spacer"></div>
+            </div>
+            <div class="flex gap-5 px-5 border-b border-gray-100">
+                <button class="mode-tab active" data-mode="correction" onclick="switchMode('correction', this)">作业批改</button>
+                <button class="mode-tab" data-mode="qa" onclick="switchMode('qa', this)">拍照答疑</button>
+                <button class="mode-tab" data-mode="diagnosis" onclick="switchMode('diagnosis', this)">错因诊断</button>
+            </div>
+        </header>
+
+        <div id="filter-row" class="flex gap-2 px-4 py-3 overflow-x-auto no-scrollbar flex-shrink-0 bg-white"></div>
+
+        <main class="flex-1 min-h-0 overflow-y-auto no-scrollbar px-4 pb-6" style="background: var(--app-page-fill);">
+            <div id="history-list"></div>
+        </main>
+
+        <div class="bg-white border-t border-gray-100 px-6 pt-3 pb-8 flex-shrink-0">
+            <div class="flex items-center justify-center">
+                <button onclick="showToast('管理功能（即将上线）')" class="app-btn-tertiary app-btn-row w-full">管理</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var currentMode = 'correction';
+        var currentFilter = 'all';
+
+        var HISTORY_DATA = {
+            correction: [
+                { id: 'c1', date: '今天', time: '14:06', subject: '数学', image: 'assets/homework-sample.png', questionCount: 14 },
+                { id: 'c2', date: '昨天', time: '16:30', subject: '数学', image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop', questionCount: 8 },
+                { id: 'c3', date: '1月25日', time: '10:15', subject: '英语', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=400&h=300&fit=crop', questionCount: 12 },
+            ],
+            qa: [
+                { id: 'q1', date: '今天', time: '11:20', subject: '数学', image: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=400&h=300&fit=crop', questionCount: 3 },
+                { id: 'q2', date: '1月24日', time: '09:40', subject: '英语', image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=400&h=300&fit=crop', questionCount: 1 },
+            ],
+            diagnosis: [
+                { id: 'd1', date: '今天', time: '14:10', subject: '数学', image: 'assets/homework-sample.png', questionCount: 3, wrongCount: 3 },
+                { id: 'd2', date: '昨天', time: '09:00', subject: '数学', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop', questionCount: 5, wrongCount: 2 },
+            ]
+        };
+
+        function goBack() { window.location.href = '首页.html'; }
+
+        function switchMode(mode, btn) {
+            currentMode = mode;
+            currentFilter = 'all';
+            document.querySelectorAll('.mode-tab').forEach(function(t) { t.classList.remove('active'); });
+            btn.classList.add('active');
+            renderFilters();
+            renderList();
+        }
+
+        function selectFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-pill').forEach(function(p) { p.classList.remove('active'); });
+            btn.classList.add('active');
+            renderList();
+        }
+
+        function renderFilters() {
+            var data = HISTORY_DATA[currentMode] || [];
+            var subjects = {};
+            data.forEach(function(item) {
+                subjects[item.subject] = (subjects[item.subject] || 0) + 1;
+            });
+            var html = '<button class="filter-pill active" onclick="selectFilter(\'all\', this)">全部 (' + data.length + ')</button>';
+            Object.keys(subjects).forEach(function(s) {
+                html += '<button class="filter-pill" onclick="selectFilter(\'' + s + '\', this)">' + s + ' (' + subjects[s] + ')</button>';
+            });
+            document.getElementById('filter-row').innerHTML = html;
+        }
+
+        function renderList() {
+            var data = HISTORY_DATA[currentMode] || [];
+            if (currentFilter !== 'all') {
+                data = data.filter(function(item) { return item.subject === currentFilter; });
+            }
+
+            if (data.length === 0) {
+                document.getElementById('history-list').innerHTML = '<div class="empty-state"><div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4"><svg class="w-8 h-8 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><p class="text-sm text-slate-400">暂无记录</p></div>';
+                return;
+            }
+
+            var grouped = {};
+            data.forEach(function(item) {
+                if (!grouped[item.date]) grouped[item.date] = [];
+                grouped[item.date].push(item);
+            });
+
+            var html = '';
+            Object.keys(grouped).forEach(function(date) {
+                html += '<div class="mt-4"><div class="date-label">' + date + '</div>';
+                html += '<div class="grid grid-cols-2 gap-3">';
+                grouped[date].forEach(function(item) {
+                    var subtitle = '共' + item.questionCount + '题';
+                    if (currentMode === 'diagnosis' && item.wrongCount !== undefined) {
+                        subtitle = item.wrongCount + '题错误';
+                    }
+                    var href = '#';
+                    if (currentMode === 'correction') href = '作业/作业批改.html?mode=correction&show=result';
+                    else if (currentMode === 'qa') href = '作业/作业批改.html?mode=qa&show=result';
+                    else if (currentMode === 'diagnosis') href = '错因诊断/错因诊断.html?show=result';
+
+                    html += '<div class="history-card" onclick="window.location.href=\'' + href + '\'">';
+                    html += '  <div class="w-full h-[120px] overflow-hidden">';
+                    html += '    <img src="' + item.image + '" class="w-full h-full object-cover" alt="">';
+                    html += '  </div>';
+                    html += '  <div class="px-3 py-2.5">';
+                    html += '    <div class="text-xs text-slate-800 font-medium">' + subtitle + '</div>';
+                    html += '  </div>';
+                    html += '</div>';
+                });
+                html += '</div></div>';
+            });
+
+            html += '<div class="text-center text-xs text-slate-300 py-6">– 已到底部 –</div>';
+            document.getElementById('history-list').innerHTML = html;
+        }
+
+        function showToast(msg) {
+            var toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.add('show');
+            setTimeout(function() { toast.classList.remove('show'); }, 2000);
+        }
+
+        renderFilters();
+        renderList();
+    </script>
+</body>
+</html>

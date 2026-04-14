@@ -1,0 +1,254 @@
+/**
+ * AI 龙老师小程序 — 演示壳层（与 首页.html 对齐）
+ * 新页面请在 tailwind 与字体之后引入：../assets/app-shell.css
+ * 页面特有样式仍写在各自 <style> 中。
+ */
+:root {
+  --app-font-sans: "Inter", "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
+  --app-body-bg: #ffffff;
+  --app-frame-inner: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 40%, #e8edf4 100%);
+  --app-page-fill: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 55%, #eef2f7 100%);
+  --app-frame-outer: #18181b;
+  --app-frame-mid: #27272a;
+  --app-frame-shadow: 0 24px 48px -12px rgba(24, 24, 27, 0.2);
+  --app-primary-btn: #ffd036;
+  --app-primary-btn-text: #0f172a;
+  --app-primary-btn-press: #f5be2a;
+  /* 与首页主色一致：次要强调 / 描边按钮 */
+  --app-secondary-accent: #4f46e5;
+  --app-secondary-accent-soft: rgba(79, 70, 229, 0.08);
+  /* 顶栏与微信胶囊占位（演示框内绝对定位胶囊宽约 88px） */
+  --app-capsule-clearance: 96px;
+  --app-back-clearance: 52px;
+  /* 微信渠道主操作 */
+  --app-wechat-green-start: #07c160;
+  --app-wechat-green-end: #06ad56;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--app-font-sans);
+  background: var(--app-body-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* 393×852 预览机身（与首页一致） */
+.iphone-frame {
+  width: 393px;
+  height: 852px;
+  position: relative;
+  overflow: hidden;
+  background: var(--app-frame-inner);
+  box-shadow: 0 0 0 12px var(--app-frame-outer), 0 0 0 14px var(--app-frame-mid), var(--app-frame-shadow);
+  border-radius: 50px;
+}
+
+.dynamic-island {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 35px;
+  background: linear-gradient(180deg, #27272a 0%, #18181b 100%);
+  border-radius: 20px;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.wx-capsule {
+  position: absolute;
+  top: 56px;
+  right: 10px;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  height: 32px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.06);
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.wx-capsule-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 32px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #3c3c3c;
+  padding: 0;
+}
+
+.wx-capsule-btn:active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.wx-capsule-divider {
+  width: 0.5px;
+  height: 18px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+/* 按需加在列表/结果容器上，与首页机身内色调一致 */
+.app-page-fill {
+  background: var(--app-page-fill);
+}
+
+/* 原各页写在 .iphone-frame 上的纵向全屏布局 */
+.iphone-frame.is-column {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── 顶栏标题避让胶囊 / 返回键（各页 .topbar-title、.page-title 复用） ── */
+.iphone-frame .topbar-title,
+.iphone-frame .page-title {
+  padding-left: var(--app-back-clearance);
+  padding-right: var(--app-capsule-clearance);
+  box-sizing: border-box;
+}
+
+/* 顶栏右侧占位，与胶囊宽度对齐（原 40px 易与胶囊重叠） */
+.iphone-frame .topbar-spacer {
+  width: var(--app-capsule-clearance);
+  height: 40px;
+  flex-shrink: 0;
+}
+
+/* ── 主/次按钮（底部双操作、表单主按钮等） ── */
+.app-btn-row {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 48px;
+  padding: 12px 14px;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+}
+
+.app-btn-row:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.app-btn-primary {
+  background: var(--app-primary-btn);
+  color: var(--app-primary-btn-text);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.app-btn-primary:active:not(:disabled) {
+  background: var(--app-primary-btn-press);
+}
+
+.app-btn-primary:disabled,
+.app-btn-primary.app-btn-primary--disabled {
+  background: #e2e8f0;
+  color: #94a3b8;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.app-btn-secondary {
+  background: #ffffff;
+  color: var(--app-secondary-accent);
+  border: 1.5px solid rgba(79, 70, 229, 0.45);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.app-btn-secondary:active:not(:disabled) {
+  background: var(--app-secondary-accent-soft);
+}
+
+.app-btn-secondary.is-added,
+.app-btn-secondary.app-btn-secondary--muted {
+  background: #f1f5f9;
+  color: #94a3b8;
+  border-color: transparent;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* 白底弱次要（打印、分享等） */
+.app-btn-tertiary {
+  background: rgba(255, 255, 255, 0.75);
+  color: #334155;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.app-btn-tertiary:active:not(:disabled) {
+  background: #f8fafc;
+}
+
+/* 全宽主按钮（个人信息、表单提交等） */
+.app-btn-primary-block {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  border: none;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  font-family: inherit;
+  background: var(--app-primary-btn);
+  color: var(--app-primary-btn-text);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.app-btn-primary-block:active {
+  transform: scale(0.99);
+  background: var(--app-primary-btn-press);
+}
+
+.app-btn-wechat {
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--app-wechat-green-start), var(--app-wechat-green-end));
+  box-shadow: 0 4px 16px -4px rgba(7, 193, 96, 0.45);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s ease;
+}
+
+.app-btn-wechat:active {
+  transform: scale(0.98);
+}

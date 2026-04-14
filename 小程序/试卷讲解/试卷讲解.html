@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>试卷讲解 - AI 龙老师</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/app-shell.css">
+    <style>
+        .ep-topbar{min-height:44px;padding:4px 4px;display:flex;align-items:center;gap:4px;flex-shrink:0;position:relative;z-index:20}
+        .ep-back{width:40px;height:40px;border-radius:12px;border:none;background:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;color:#52525b;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+        .ep-back:active{background:rgba(0,0,0,.05)}
+        .ep-topbar-title{position:absolute;left:0;right:0;text-align:center;font-size:1.0625rem;font-weight:700;color:#18181b;letter-spacing:-.02em;pointer-events:none}
+        .ep-topbar-spacer{width:var(--app-capsule-clearance,96px);height:40px;flex-shrink:0;pointer-events:none}
+
+        .ep-filters{display:flex;align-items:center;padding:0;flex-shrink:0;border-bottom:1px solid rgba(226,232,240,.5);position:relative;z-index:110}
+        .ep-filter-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;background:none;border:none;font-size:.875rem;font-weight:500;color:#475569;cursor:pointer;padding:12px 0;-webkit-tap-highlight-color:transparent;transition:color .15s,background .15s;position:relative}
+        .ep-filter-btn:active{background:rgba(0,0,0,.02)}
+        .ep-filter-btn.active{color:#0f172a;font-weight:600}
+        .ep-filter-btn.open{color:#ea580c;font-weight:600}
+        .ep-filter-btn svg{width:12px;height:12px;flex-shrink:0;transition:transform .2s}
+        .ep-filter-btn.open svg{transform:rotate(180deg);color:#ea580c}
+
+        .ep-list{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px 20px}
+        .ep-list::-webkit-scrollbar{display:none}
+
+        .ep-card{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid rgba(226,232,240,.6);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s}
+        .ep-card:active{background:rgba(0,0,0,.01)}
+        .ep-card:last-child{border-bottom:none}
+
+        .ep-cover{width:80px;height:100px;border-radius:8px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+        .ep-cover-subj{font-size:1.125rem;font-weight:900;color:#fff;letter-spacing:.02em;position:relative;z-index:2}
+        .ep-cover-year{font-size:.75rem;font-weight:700;color:rgba(255,255,255,.85);position:relative;z-index:2}
+        .ep-cover-badge{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:.5rem;font-weight:600;color:rgba(255,255,255,.7);background:rgba(255,255,255,.15);padding:1px 8px;border-radius:8px;white-space:nowrap;z-index:2;backdrop-filter:blur(4px)}
+        .ep-cover::after{content:'';position:absolute;top:-20%;right:-30%;width:80%;height:80%;border-radius:50%;background:rgba(255,255,255,.08);z-index:1}
+        .ep-cover.math{background:linear-gradient(145deg,#d97706 0%,#f59e0b 40%,#fbbf24 100%)}
+        .ep-cover.chinese{background:linear-gradient(145deg,#dc2626 0%,#ef4444 40%,#f87171 100%)}
+        .ep-cover.english{background:linear-gradient(145deg,#2563eb 0%,#3b82f6 40%,#60a5fa 100%)}
+
+        .ep-info{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:6px}
+        .ep-title-row{display:flex;align-items:flex-start;gap:6px}
+        .ep-rec-badge{flex-shrink:0;font-size:.5625rem;font-weight:700;color:#ea580c;background:rgba(234,88,12,.08);padding:2px 6px;border-radius:4px;margin-top:2px}
+        .ep-title{font-size:.875rem;font-weight:700;color:#0f172a;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .ep-meta-row{display:flex;align-items:center;justify-content:space-between}
+        .ep-count{font-size:.6875rem;color:#94a3b8}
+        .ep-video-link{font-size:.8125rem;font-weight:600;color:#ea580c;display:flex;align-items:center;gap:2px;flex-shrink:0}
+
+        /* 筛选弹窗 */
+        .ep-dd-wrap{position:relative;flex-shrink:0}
+        .ep-dropdown{position:absolute;top:0;left:0;right:0;z-index:105;background:#fff;box-shadow:0 8px 32px rgba(0,0,0,.1);border-radius:0 0 16px 16px;display:none;max-height:360px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+        .ep-dropdown.open{display:block}
+        .ep-dropdown::-webkit-scrollbar{display:none}
+        .ep-dd-item{padding:14px 20px;font-size:.875rem;font-weight:400;color:#475569;cursor:pointer;transition:background .12s;-webkit-tap-highlight-color:transparent}
+        .ep-dd-item:active{background:#fafafa}
+        .ep-dd-item.selected{color:#ea580c;font-weight:600}
+        .ep-dd-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.2);display:none}
+        .ep-dd-overlay.open{display:block}
+
+        .ep-empty{padding:60px 20px;text-align:center;color:#94a3b8;font-size:.8125rem;line-height:1.6}
+    </style>
+</head>
+<body>
+    <div class="iphone-frame is-column" id="app">
+        <div class="dynamic-island"></div>
+        <div class="wx-capsule">
+            <button class="wx-capsule-btn" aria-label="更多"><svg width="18" height="4" viewBox="0 0 18 4"><circle cx="3" cy="2" r="1.5" fill="currentColor"/><circle cx="9" cy="2" r="1.5" fill="currentColor"/><circle cx="15" cy="2" r="1.5" fill="currentColor"/></svg></button>
+            <div class="wx-capsule-divider"></div>
+            <button class="wx-capsule-btn" aria-label="关闭"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M2 2l8 8M10 2l-8 8"/></svg></button>
+        </div>
+
+        <div class="flex-1 min-h-0 flex flex-col pt-[50px]" style="position:relative">
+            <header class="ep-topbar"
+                data-doc="ep-topbar"
+                data-prd="顶部导航栏，点击返回按钮回到首页"
+                data-track="/click/examExplainListPage/back | 点击返回 | 无">
+                <button type="button" class="ep-back" onclick="goBack()" aria-label="返回">
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <span class="ep-topbar-title">试卷讲解</span>
+                <div class="ep-topbar-spacer" aria-hidden="true"></div>
+            </header>
+
+            <div class="ep-filters" id="filterBar"
+                data-doc="filter-bar"
+                data-prd="三个筛选项：科目、版本、年级；点击展开对应下拉列表，选中后筛选试卷列表；支持组合筛选"
+                data-track="/click/examExplainListPage/filter | 点击筛选项 | filterType#String,filterValue#String">
+                <button class="ep-filter-btn active" data-filter="subject" onclick="toggleFilter('subject')">
+                    <span id="filterSubjectLabel">数学</span>
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <button class="ep-filter-btn" data-filter="edition" onclick="toggleFilter('edition')">
+                    <span id="filterEditionLabel">不限</span>
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <button class="ep-filter-btn" data-filter="grade" onclick="toggleFilter('grade')">
+                    <span id="filterGradeLabel">五年级</span>
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+            </div>
+
+            <div class="ep-dd-overlay" id="ddOverlay" onclick="closeAllFilters()"></div>
+            <div class="ep-dd-wrap">
+                <div class="ep-dropdown" id="ddPanel"></div>
+            </div>
+
+            <div class="ep-list" id="paperList"
+                data-doc="paper-list"
+                data-prd="试卷卡片列表，点击整张卡片或视频讲解按钮跳转到该试卷的视频讲解详情页；按筛选条件动态过滤"
+                data-track="/click/examExplainListPage/selectPaper | 点击试卷 | paperId#String,paperTitle#String">
+            </div>
+        </div>
+    </div>
+
+    <script>
+    /* ══════════ Mock 数据 ══════════ */
+    const SUBJECTS = ['数学', '语文', '英语'];
+    const EDITIONS = ['不限', '人教版', '北师版', '沪教版', '苏教版', '青岛五四版', '西师版'];
+    const GRADES = ['三年级', '四年级', '五年级', '六年级'];
+
+    const PAPERS = [
+        { id:'p1', title:'2023-2024 学年北师版五年级上学期期末试卷：数学', subject:'数学', edition:'北师版', grade:'五年级', year:'2024', count:'3.2万', recommended:true, qCount:25 },
+        { id:'p2', title:'2023-2024 学年沪教版五年级上学期期末试卷：数学', subject:'数学', edition:'沪教版', grade:'五年级', year:'2024', count:'4648', recommended:true, qCount:22 },
+        { id:'p3', title:'2023-2024 学年青岛五四版五年级上学期期末试卷：数学', subject:'数学', edition:'青岛五四版', grade:'五年级', year:'2024', count:'3128', recommended:true, qCount:20 },
+        { id:'p4', title:'2022-2023 学年西师版五年级下学期期中试卷：数学', subject:'数学', edition:'西师版', grade:'五年级', year:'2023', count:'2.0万', recommended:true, qCount:24 },
+        { id:'p5', title:'2022-2023 学年人教版五年级上学期期末试卷：数学', subject:'数学', edition:'人教版', grade:'五年级', year:'2023', count:'9432', recommended:true, qCount:28 },
+        { id:'p6', title:'2023-2024 学年人教版五年级下学期期末试卷：数学', subject:'数学', edition:'人教版', grade:'五年级', year:'2024', count:'1.8万', recommended:true, qCount:26 },
+        { id:'p7', title:'2023-2024 学年北师版四年级上学期期末试卷：数学', subject:'数学', edition:'北师版', grade:'四年级', year:'2024', count:'2.6万', recommended:true, qCount:23 },
+        { id:'p8', title:'2023-2024 学年苏教版五年级上学期期末试卷：数学', subject:'数学', edition:'苏教版', grade:'五年级', year:'2024', count:'5210', recommended:false, qCount:22 },
+        { id:'p9', title:'2023-2024 学年人教版五年级上学期期末试卷：语文', subject:'语文', edition:'人教版', grade:'五年级', year:'2024', count:'2.1万', recommended:true, qCount:18 },
+        { id:'p10', title:'2023-2024 学年部编版五年级下学期期中试卷：语文', subject:'语文', edition:'人教版', grade:'五年级', year:'2024', count:'1.5万', recommended:true, qCount:16 },
+        { id:'p11', title:'2023-2024 学年人教版(PEP)五年级上学期期末试卷：英语', subject:'英语', edition:'人教版', grade:'五年级', year:'2024', count:'1.2万', recommended:true, qCount:30 },
+        { id:'p12', title:'2023-2024 学年外研版五年级上学期期末试卷：英语', subject:'英语', edition:'人教版', grade:'五年级', year:'2024', count:'6820', recommended:true, qCount:28 },
+        { id:'p13', title:'2022-2023 学年人教版六年级上学期期末试卷：数学', subject:'数学', edition:'人教版', grade:'六年级', year:'2023', count:'4.5万', recommended:true, qCount:30 },
+        { id:'p14', title:'2023-2024 学年北师版三年级上学期期末试卷：数学', subject:'数学', edition:'北师版', grade:'三年级', year:'2024', count:'1.9万', recommended:true, qCount:20 },
+    ];
+
+    /* ══════════ 状态 ══════════ */
+    let filterSubject = '数学';
+    let filterEdition = '不限';
+    let filterGrade = '五年级';
+    let openFilter = null;
+
+    const $ = id => document.getElementById(id);
+
+    const COVER_CLASS = { '数学': 'math', '语文': 'chinese', '英语': 'english' };
+
+    function formatCount(c) {
+        return c + '人学过';
+    }
+
+    /* ══════════ 渲染 ══════════ */
+    function renderList() {
+        const list = $('paperList');
+        const filtered = PAPERS.filter(p => {
+            if (p.subject !== filterSubject) return false;
+            if (filterEdition !== '不限' && p.edition !== filterEdition) return false;
+            if (p.grade !== filterGrade) return false;
+            return true;
+        });
+
+        if (!filtered.length) {
+            list.innerHTML = '<div class="ep-empty">暂无符合条件的试卷，请调整筛选条件</div>';
+            return;
+        }
+
+        list.innerHTML = filtered.map(p => `
+            <div class="ep-card" onclick="goDetail('${p.id}')">
+                <div class="ep-cover ${COVER_CLASS[p.subject] || 'math'}">
+                    <span class="ep-cover-subj">${p.subject}</span>
+                    <span class="ep-cover-year">${p.year}</span>
+                    <span class="ep-cover-badge">龙老师官方</span>
+                </div>
+                <div class="ep-info">
+                    <div class="ep-title-row">
+                        ${p.recommended ? '<span class="ep-rec-badge">推荐</span>' : ''}
+                        <span class="ep-title">${p.title}</span>
+                    </div>
+                    <div class="ep-meta-row">
+                        <span class="ep-count">${formatCount(p.count)}</span>
+                        <span class="ep-video-link">视频讲解
+                            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    /* ══════════ 筛选 ══════════ */
+    function toggleFilter(type) {
+        if (openFilter === type) { closeAllFilters(); return; }
+        openFilter = type;
+
+        document.querySelectorAll('.ep-filter-btn').forEach(b => {
+            b.classList.toggle('open', b.dataset.filter === type);
+            b.classList.toggle('active', b.dataset.filter === type);
+        });
+
+        let items = [];
+        let current = '';
+        if (type === 'subject') { items = SUBJECTS; current = filterSubject; }
+        else if (type === 'edition') { items = EDITIONS; current = filterEdition; }
+        else if (type === 'grade') { items = GRADES; current = filterGrade; }
+
+        $('ddPanel').innerHTML = items.map(v =>
+            `<div class="ep-dd-item${v === current ? ' selected' : ''}" data-type="${type}" data-val="${v}" onclick="selectFilter('${type}','${v}')">${v}</div>`
+        ).join('');
+
+        $('ddPanel').classList.add('open');
+        $('ddOverlay').classList.add('open');
+    }
+
+    function selectFilter(type, val) {
+        if (type === 'subject') { filterSubject = val; $('filterSubjectLabel').textContent = val; }
+        else if (type === 'edition') { filterEdition = val; $('filterEditionLabel').textContent = val; }
+        else if (type === 'grade') { filterGrade = val; $('filterGradeLabel').textContent = val; }
+        closeAllFilters();
+        renderList();
+    }
+
+    function closeAllFilters() {
+        openFilter = null;
+        $('ddPanel').classList.remove('open');
+        $('ddOverlay').classList.remove('open');
+        document.querySelectorAll('.ep-filter-btn').forEach(b => b.classList.remove('open'));
+    }
+
+    /* ══════════ 导航 ══════════ */
+    function goBack() { window.location.href = '../首页.html'; }
+
+    function goDetail(paperId) {
+        const paper = PAPERS.find(p => p.id === paperId);
+        if (!paper) return;
+        const qs = new URLSearchParams({ id: paperId, title: paper.title, subject: paper.subject });
+        window.location.href = '视频讲解.html?' + qs.toString();
+    }
+
+    /* ══════════ 初始化 ══════════ */
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlSubj = urlParams.get('subject');
+    if (urlSubj && SUBJECTS.includes(urlSubj)) filterSubject = urlSubj;
+    const urlGrade = urlParams.get('grade');
+    if (urlGrade && GRADES.includes(urlGrade)) filterGrade = urlGrade;
+
+    $('filterSubjectLabel').textContent = filterSubject;
+    $('filterGradeLabel').textContent = filterGrade;
+
+    renderList();
+    </script>
+</body>
+</html>

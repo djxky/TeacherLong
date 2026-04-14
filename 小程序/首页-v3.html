@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AI 龙老师 - 首页 v3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/app-shell.css">
+    <style>
+        /* ═══════════════════════════════════════════════
+           AI 龙老师 v3 — 宫格 + Suggested Prompts
+           ═══════════════════════════════════════════════ */
+
+        .v2-scroll {
+            flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
+            -webkit-overflow-scrolling: touch; position: relative; z-index: 1;
+        }
+        .v2-scroll::-webkit-scrollbar { display: none; }
+
+        /* ── 明亮渐变背景 ── */
+        .page-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background: linear-gradient(170deg, #f0ecff 0%, #faf8ff 25%, #f8fafc 50%, #f1f5f9 100%);
+        }
+        .bg-blob-1 {
+            position: absolute; top: -5%; left: -10%; width: 65%; height: 45%;
+            background: radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 70%);
+            filter: blur(50px); pointer-events: none; z-index: 0;
+        }
+        .bg-blob-2 {
+            position: absolute; top: 20%; right: -15%; width: 55%; height: 40%;
+            background: radial-gradient(ellipse, rgba(251,191,36,0.1) 0%, transparent 70%);
+            filter: blur(50px); pointer-events: none; z-index: 0;
+        }
+        .bg-blob-3 {
+            position: absolute; bottom: 10%; left: -5%; width: 50%; height: 40%;
+            background: radial-gradient(ellipse, rgba(96,165,250,0.08) 0%, transparent 70%);
+            filter: blur(45px); pointer-events: none; z-index: 0;
+        }
+
+        /* ── 顶栏 ── */
+        .v2-topbar {
+            height: 44px; padding: 0 20px;
+            padding-right: var(--app-capsule-clearance, 96px);
+            display: flex; align-items: center; justify-content: space-between;
+            flex-shrink: 0; position: relative; z-index: 20;
+        }
+        .v2-topbar-tabs { display: flex; gap: 18px; align-items: baseline; }
+        .v2-tab {
+            font-size: 1rem; font-weight: 400; color: #94a3b8;
+            cursor: pointer; transition: all 0.2s; padding: 0;
+            background: none; border: none; font-family: inherit;
+        }
+        .v2-tab.active { font-size: 1.125rem; font-weight: 700; color: #0f172a; }
+        .v2-topbar-right { display: flex; align-items: center; gap: 4px; }
+        .v2-icon-btn {
+            width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #94a3b8; cursor: pointer; background: none; border: none;
+            transition: all 0.18s; -webkit-tap-highlight-color: transparent;
+        }
+        .v2-icon-btn:active { transform: scale(0.9); background: rgba(0,0,0,0.03); }
+
+        /* ── AI 对话卡片（核心区域） ── */
+        .ai-card {
+            margin: 8px 20px 0; padding: 20px 16px 16px;
+            border-radius: 20px; position: relative; overflow: hidden;
+            background: #fff;
+            box-shadow: 0 2px 16px -4px rgba(99,102,241,0.08),
+                        0 1px 3px rgba(0,0,0,0.03);
+        }
+        .ai-card-glow {
+            position: absolute; top: -30px; right: -30px; width: 120px; height: 120px;
+            background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* 顶部角色行 */
+        .ai-row {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 14px; position: relative; z-index: 1;
+        }
+        .ai-avatar-wrap { position: relative; flex-shrink: 0; }
+        .ai-avatar {
+            width: 44px; height: 44px; border-radius: 50%;
+            object-fit: cover; object-position: top center;
+            border: 2px solid rgba(139,92,246,0.15);
+        }
+        .ai-online {
+            position: absolute; bottom: 0; right: 0;
+            width: 12px; height: 12px; border-radius: 50%;
+            background: #22c55e; border: 2px solid #fff;
+        }
+        .ai-row-text { flex: 1; min-width: 0; }
+        .ai-row-text .ai-name {
+            font-size: 0.9375rem; font-weight: 700; color: #0f172a; margin: 0;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .ai-name .ai-badge {
+            font-size: 0.5rem; font-weight: 700; color: #7c3aed;
+            background: rgba(139,92,246,0.08); padding: 1.5px 6px;
+            border-radius: 4px; letter-spacing: 0.03em;
+        }
+
+        /* 打字机气泡 */
+        .ai-bubble {
+            background: #f5f3ff; border-radius: 4px 16px 16px 16px;
+            padding: 12px 16px; position: relative; z-index: 1;
+            margin-bottom: 14px;
+        }
+        .ai-bubble-text {
+            font-size: 0.8125rem; color: #334155; line-height: 1.55;
+            font-weight: 400;
+        }
+        .ai-bubble-text .tw-cursor {
+            display: inline-block; width: 2px; height: 13px;
+            background: #a78bfa; margin-left: 1px;
+            vertical-align: text-bottom; border-radius: 1px;
+            animation: twBlink 0.8s step-end infinite;
+        }
+        @keyframes twBlink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+
+        /* 输入区 */
+        .ai-input-wrap {
+            display: flex; align-items: flex-end; gap: 8px;
+            background: #f8fafc; border-radius: 16px;
+            padding: 5px 5px 5px 14px;
+            border: 1.5px solid #e2e8f0;
+            transition: border-color 0.2s;
+            position: relative; z-index: 1;
+        }
+        .ai-input-wrap.focused { border-color: #a78bfa; }
+        .ai-input-field {
+            flex: 1; border: none; outline: none; background: transparent;
+            font-family: inherit; font-size: 0.8125rem; font-weight: 500;
+            color: #0f172a; padding: 9px 0; resize: none;
+            line-height: 1.4; min-height: 20px; max-height: 76px;
+        }
+        .ai-input-field::placeholder { color: #b4b8c4; font-weight: 400; }
+        .ai-input-btns { display: flex; align-items: center; gap: 4px; flex-shrink: 0; padding-bottom: 1px; }
+        .ai-btn-cam, .ai-btn-send {
+            width: 36px; height: 36px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            border: none; cursor: pointer; transition: all 0.18s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ai-btn-cam { background: rgba(139,92,246,0.06); color: #8b5cf6; }
+        .ai-btn-cam:active { transform: scale(0.9); background: rgba(139,92,246,0.12); }
+        .ai-btn-send {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: #fff; opacity: 0.3; pointer-events: none;
+            box-shadow: 0 2px 8px -2px rgba(139,92,246,0.3);
+        }
+        .ai-btn-send.active { opacity: 1; pointer-events: auto; }
+        .ai-btn-send.active:active { transform: scale(0.9); }
+
+        /* 拍照菜单 */
+        .cam-pop {
+            position: absolute; bottom: calc(100% + 8px); right: 50px;
+            background: #fff; border-radius: 16px; padding: 6px; min-width: 160px;
+            box-shadow: 0 8px 32px -4px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.04);
+            z-index: 60;
+            opacity: 0; pointer-events: none; transform: translateY(6px) scale(0.96);
+            transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
+        }
+        .cam-pop.open { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
+        .cam-pop-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 14px; border-radius: 12px; width: 100%;
+            border: none; background: none; cursor: pointer;
+            font-family: inherit; font-size: 0.8125rem; font-weight: 600;
+            color: #334155; text-align: left; transition: background 0.12s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .cam-pop-item:active { background: #f5f3ff; }
+        .cam-pop-icon {
+            width: 30px; height: 30px; border-radius: 9px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .cpi-violet { background: rgba(139,92,246,0.08); color: #8b5cf6; }
+        .cpi-amber { background: rgba(245,158,11,0.08); color: #f59e0b; }
+
+        /* ── Suggested Prompts ── */
+        .ai-prompts {
+            display: flex; gap: 6px; flex-wrap: wrap;
+            margin-top: 12px; position: relative; z-index: 1;
+        }
+        .ai-prompt-chip {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 7px 12px; border-radius: 20px;
+            background: #f5f3ff; border: 1px solid rgba(139,92,246,0.12);
+            font-size: 0.6875rem; font-weight: 500; color: #6d28d9;
+            cursor: pointer; transition: all 0.18s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ai-prompt-chip:active { transform: scale(0.96); background: #ede9fe; border-color: #a78bfa; }
+        .ai-prompt-chip svg { flex-shrink: 0; }
+
+        /* ── 工具宫格 ── */
+        .tool-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+            margin: 14px 20px 0; position: relative; z-index: 1;
+        }
+        .tool-cell {
+            display: flex; flex-direction: column; align-items: center; gap: 7px;
+            padding: 14px 6px 12px; border-radius: 14px;
+            background: #fff; border: 1px solid #f0f0f4;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+            cursor: pointer; transition: all 0.18s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .tool-cell:active { transform: scale(0.96); border-color: #c4b5fd; background: #faf8ff; }
+        .tc-icon {
+            width: 36px; height: 36px; border-radius: 11px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .tc-indigo { background: rgba(99,102,241,0.08); color: #6366f1; }
+        .tc-amber { background: rgba(245,158,11,0.08); color: #d97706; }
+        .tc-green { background: rgba(5,150,105,0.08); color: #059669; }
+        .tc-orange { background: rgba(234,88,12,0.08); color: #ea580c; }
+        .tc-warm { background: rgba(217,119,6,0.08); color: #d97706; }
+        .tc-purple { background: rgba(124,58,237,0.08); color: #7c3aed; }
+        .tool-cell span {
+            font-size: 0.6875rem; font-weight: 600; color: #475569;
+            text-align: center; line-height: 1.2;
+        }
+
+        /* ── 通用 section ── */
+        .sec { padding: 0 20px; margin-top: 28px; position: relative; z-index: 1; }
+        .sec-hd { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+        .sec-hd h2 {
+            font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .sec-badge {
+            font-size: 0.5rem; font-weight: 700; padding: 2px 7px;
+            border-radius: 5px; letter-spacing: 0.02em;
+        }
+        .sb-ai { background: rgba(139,92,246,0.08); color: #7c3aed; }
+        .sb-hot { background: rgba(239,68,68,0.06); color: #ef4444; }
+
+        /* ── 视频课堂 ── */
+        .vid-big {
+            border-radius: 16px; padding: 16px; position: relative; overflow: hidden;
+            cursor: pointer; transition: transform 0.18s; -webkit-tap-highlight-color: transparent;
+            background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 50%, #f5f3ff 100%);
+            box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+        }
+        .vid-big:active { transform: scale(0.98); }
+        .vb-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 0.5625rem; font-weight: 700; padding: 3px 9px;
+            border-radius: 7px; background: rgba(139,92,246,0.08);
+            color: #7c3aed; margin-bottom: 8px;
+        }
+        .vb-title { font-size: 0.9375rem; font-weight: 700; color: #0f172a; margin: 0; }
+        .vb-desc { font-size: 0.75rem; color: #64748b; margin: 3px 0 0; }
+        .vb-tags { display: flex; gap: 6px; margin-top: 10px; }
+        .vb-tag {
+            font-size: 0.625rem; font-weight: 600; padding: 3px 9px;
+            border-radius: 7px; background: rgba(255,255,255,0.7); color: #64748b;
+        }
+
+        .vid-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .vid-mini {
+            border-radius: 14px; padding: 14px 12px; cursor: pointer;
+            transition: transform 0.18s; -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+        }
+        .vid-mini:active { transform: scale(0.97); }
+        .vm-green { background: linear-gradient(135deg, #f0fdf4, #ecfdf5); }
+        .vm-orange { background: linear-gradient(135deg, #fffbeb, #fef3c7); }
+        .vm-icon {
+            width: 30px; height: 30px; border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 7px; background: rgba(255,255,255,0.7);
+        }
+        .vm-green .vm-icon { color: #059669; }
+        .vm-orange .vm-icon { color: #d97706; }
+        .vid-mini h4 { font-size: 0.8125rem; font-weight: 700; color: #0f172a; margin: 0; }
+        .vid-mini p { font-size: 0.625rem; color: #64748b; margin: 3px 0 0; }
+        .vm-tags { display: flex; gap: 4px; margin-top: 7px; flex-wrap: wrap; }
+        .vm-tag {
+            font-size: 0.5625rem; font-weight: 600; padding: 2px 7px;
+            border-radius: 5px; background: rgba(255,255,255,0.6); color: #64748b;
+        }
+
+        /* ── 专项横滑 ── */
+        .zk-scroll {
+            display: flex; gap: 10px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+            padding-bottom: 4px;
+        }
+        .zk-scroll::-webkit-scrollbar { display: none; }
+        .zk-item {
+            flex-shrink: 0; width: 144px; padding: 14px; border-radius: 14px;
+            position: relative; overflow: hidden; cursor: pointer;
+            transition: transform 0.18s; -webkit-tap-highlight-color: transparent;
+            background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+        }
+        .zk-item:active { transform: scale(0.97); }
+        .zk-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
+        .zk-bar-cn { background: linear-gradient(180deg, #f59e0b, #ef4444); }
+        .zk-bar-en { background: linear-gradient(180deg, #3b82f6, #6366f1); }
+        .zk-item h4 { font-size: 0.75rem; font-weight: 700; color: #0f172a; margin: 0; }
+        .zk-item p { font-size: 0.5625rem; color: #94a3b8; margin: 3px 0 0; }
+        .zk-count { font-size: 0.5rem; font-weight: 700; color: #a78bfa; margin-top: 7px; }
+
+        /* ── 练一练 ── */
+        .prac-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .prac-card {
+            padding: 14px; border-radius: 14px; cursor: pointer;
+            transition: transform 0.18s; -webkit-tap-highlight-color: transparent;
+            background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+        }
+        .prac-card:active { transform: scale(0.97); }
+        .pc-icon {
+            width: 34px; height: 34px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; margin-bottom: 8px;
+        }
+        .pc-violet { background: rgba(139,92,246,0.06); color: #8b5cf6; }
+        .pc-green { background: rgba(5,150,105,0.06); color: #059669; }
+        .pc-teal { background: rgba(13,148,136,0.06); color: #0d9488; }
+        .pc-rose { background: rgba(225,29,72,0.06); color: #e11d48; }
+        .prac-card h4 { font-size: 0.8125rem; font-weight: 700; color: #0f172a; margin: 0; }
+        .prac-card p { font-size: 0.625rem; color: #94a3b8; margin: 3px 0 0; }
+
+        /* ── 精品试卷推荐 ── */
+        .paper-sec { padding: 0 20px; margin-top: 28px; position: relative; z-index: 1; }
+        .paper-tabs-row { display: flex; gap: 4px; margin-bottom: 12px; }
+        .pt-btn {
+            padding: 5px 14px; font-size: 0.75rem; font-weight: 600;
+            color: #a1a1aa; background: transparent; border: none;
+            cursor: pointer; border-radius: 10px; font-family: inherit;
+            transition: all 0.18s; -webkit-tap-highlight-color: transparent;
+        }
+        .pt-btn.active { color: #0f172a; background: #fff; box-shadow: 0 2px 8px -2px rgba(0,0,0,0.06); }
+        .paper-rec-list { display: flex; flex-direction: column; gap: 8px; }
+        .paper-rec-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px; border-radius: 14px; background: #fff;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+            cursor: pointer; transition: transform 0.18s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .paper-rec-item:active { transform: scale(0.98); }
+        .pr-icon {
+            width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .pri-cn { background: linear-gradient(135deg, #eef2ff, #f5f3ff); color: #6366f1; }
+        .pri-ma { background: linear-gradient(135deg, #fffbeb, #fef9c3); color: #d97706; }
+        .pri-en { background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #059669; }
+        .pri-sc { background: linear-gradient(135deg, #ecfeff, #cffafe); color: #0891b2; }
+        .pr-body { flex: 1; min-width: 0; }
+        .pr-title {
+            font-size: 0.75rem; font-weight: 600; color: #0f172a; margin: 0;
+            line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .pr-rec-tag {
+            display: inline-block; font-size: 0.5rem; font-weight: 700;
+            padding: 1px 5px; border-radius: 3px; margin-right: 3px;
+            vertical-align: middle;
+        }
+        .prt-hot { background: rgba(239,68,68,0.08); color: #ef4444; }
+        .prt-pick { background: rgba(99,102,241,0.08); color: #6366f1; }
+        .pr-meta {
+            display: flex; align-items: center; gap: 6px; margin-top: 4px;
+            font-size: 0.5625rem; color: #94a3b8;
+        }
+        .pr-arrow { color: #d4d4d8; flex-shrink: 0; }
+
+        .v2-more {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 8px 24px; border-radius: 999px;
+            border: 1px solid #e2e8f0; background: #fff; color: #6366f1;
+            font-size: 0.75rem; font-weight: 600; font-family: inherit;
+            cursor: pointer; transition: all 0.18s; -webkit-tap-highlight-color: transparent;
+        }
+        .v2-more:active { transform: scale(0.96); background: #faf8ff; }
+
+        /* ── 入场动画 ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .anim { animation: fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both; }
+        .d1{animation-delay:.05s} .d2{animation-delay:.1s} .d3{animation-delay:.15s}
+        .d4{animation-delay:.2s} .d5{animation-delay:.25s} .d6{animation-delay:.3s}
+
+        /* Toast */
+        #toast {
+            position: absolute; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background: rgba(255,255,255,0.92); color: #0f172a;
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 12px 24px; border-radius: 9999px;
+            font-size: 13px; font-weight: 600; pointer-events: none; opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16,1,0.3,1); z-index: 2000;
+            box-shadow: 0 8px 24px -4px rgba(0,0,0,0.08);
+            display: flex; align-items: center; gap: 8px; border: none;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* 版本切换 */
+        .ver-sw {
+            position: fixed; bottom: 24px; right: 32px; z-index: 900;
+            display: flex; background: #fff; border-radius: 12px;
+            box-shadow: 0 4px 24px -4px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .ver-sw a {
+            padding: 10px 20px; text-decoration: none;
+            color: #94a3b8; font-size: 0.8125rem; font-weight: 600; font-family: inherit;
+        }
+        .ver-sw a.active { background: #7c3aed; color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="iphone-frame flex flex-col" id="app-root">
+        <div class="page-bg"></div>
+        <div class="bg-blob-1"></div>
+        <div class="bg-blob-2"></div>
+        <div class="bg-blob-3"></div>
+        <div class="dynamic-island"></div>
+        <div class="wx-capsule">
+            <button class="wx-capsule-btn" aria-label="更多"><svg width="18" height="4" viewBox="0 0 18 4"><circle cx="3" cy="2" r="1.5" fill="currentColor"/><circle cx="9" cy="2" r="1.5" fill="currentColor"/><circle cx="15" cy="2" r="1.5" fill="currentColor"/></svg></button>
+            <div class="wx-capsule-divider"></div>
+            <button class="wx-capsule-btn" aria-label="关闭"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M2 2l8 8M10 2l-8 8"/></svg></button>
+        </div>
+        <div id="toast"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#8b5cf6" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg><span id="toast-msg">AI 思考中…</span></div>
+
+        <div class="flex-1 min-h-0 flex flex-col pt-[50px]">
+
+            <!-- 顶栏 -->
+            <nav class="v2-topbar anim">
+                <div class="v2-topbar-tabs">
+                    <button class="v2-tab active">首页</button>
+                    <a class="v2-tab" href="我的.html" style="text-decoration:none;" data-doc="nav-me" data-prd="跳转我的页面" data-track="/click/teacherLongHomePage/me | 点击我的 | 无">我的</a>
+                </div>
+                <div class="v2-topbar-right">
+                    <a href="历史记录.html" class="v2-icon-btn" data-doc="nav-history" data-prd="跳转历史记录页" data-track="/click/teacherLongHomePage/history | 点击历史记录 | 无">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="v2-scroll">
+                <div style="padding-bottom: 24px;">
+
+                    <!-- ═══ AI 对话卡片 ═══ -->
+                    <div class="ai-card anim d1" data-doc="ai-card" data-prd="AI 龙老师对话卡片：展示 AI 角色 + 打字机问候 + 文字/拍照输入框，是首页核心交互区">
+                        <div class="ai-card-glow"></div>
+
+                        <!-- 角色行 -->
+                        <div class="ai-row">
+                            <div class="ai-avatar-wrap">
+                                <img src="assets/logo.png" alt="AI 龙老师" class="ai-avatar">
+                                <div class="ai-online"></div>
+                            </div>
+                            <div class="ai-row-text">
+                                <h1 class="ai-name">AI 龙老师 <span class="ai-badge">在线</span></h1>
+                            </div>
+                        </div>
+
+                        <!-- AI 说话气泡 -->
+                        <div class="ai-bubble">
+                            <div class="ai-bubble-text" id="twText"><span class="tw-cursor" id="twCursor"></span></div>
+                        </div>
+
+                        <!-- 输入区 -->
+                        <div class="ai-input-wrap" id="aiInputWrap">
+                            <textarea class="ai-input-field" id="aiInput" placeholder="输入问题，或拍照给我看…" rows="1" data-doc="ai-input" data-prd="文字输入或拍照入口" data-track="/click/teacherLongHomePage/focusAiInput | 聚焦 AI 输入框 | 无"></textarea>
+                            <div class="ai-input-btns">
+                                <button class="ai-btn-cam" id="camBtn" title="拍照" data-doc="cam-btn" data-prd="展开拍照菜单" data-track="/click/teacherLongHomePage/openCamMenu | 点击拍照 | 无">
+                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </button>
+                                <button class="ai-btn-send" id="sendBtn" title="发送" data-doc="send-btn" data-prd="发送文字给 AI" data-track="/click/teacherLongHomePage/sendAiQuestion | 发送 | 无">
+                                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </button>
+                            </div>
+                            <div class="cam-pop" id="camPop">
+                                <button class="cam-pop-item" onclick="openAiJiangTi()" data-doc="menu-qa" data-prd="拍照解题" data-track="/click/teacherLongHomePage/enterPhotoQa | 拍照解题 | 无">
+                                    <div class="cam-pop-icon cpi-amber"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
+                                    拍照解题
+                                </button>
+                                <button class="cam-pop-item" onclick="goToCorrection('correction')" data-doc="menu-correct" data-prd="作业批改" data-track="/click/teacherLongHomePage/enterAiCorrection | 作业批改 | 无">
+                                    <div class="cam-pop-icon cpi-violet"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                                    作业批改
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Suggested Prompts -->
+                        <div class="ai-prompts">
+                            <div class="ai-prompt-chip" onclick="fillPrompt('帮我检查这道题')" data-track="/click/teacherLongHomePage/suggestedPrompt | 帮我检查这道题 | 无">
+                                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                帮我检查这道题
+                            </div>
+                            <div class="ai-prompt-chip" onclick="fillPrompt('出一份练习卷')" data-track="/click/teacherLongHomePage/suggestedPrompt | 出一份练习卷 | 无">
+                                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                出一份练习卷
+                            </div>
+                            <div class="ai-prompt-chip" onclick="fillPrompt('讲解这道错题')" data-track="/click/teacherLongHomePage/suggestedPrompt | 讲解这道错题 | 无">
+                                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                                讲解这道错题
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══ 工具宫格 ═══ -->
+                    <div class="tool-grid anim d2">
+                        <div class="tool-cell" onclick="goToCorrection('correction')" data-doc="tool-correction" data-track="/click/teacherLongHomePage/enterAiCorrection | 作业批改 | 无">
+                            <div class="tc-icon tc-indigo"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+                            <span>作业批改</span>
+                        </div>
+                        <div class="tool-cell" onclick="openAiJiangTi()" data-doc="tool-photo-qa" data-track="/click/teacherLongHomePage/enterPhotoQa | 拍照解题 | 无">
+                            <div class="tc-icon tc-amber"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
+                            <span>拍照解题</span>
+                        </div>
+                        <div class="tool-cell" onclick="openBook()" data-doc="tool-book" data-track="/click/teacherLongHomePage/enterWrongBook | 错题本 | 无">
+                            <div class="tc-icon tc-green"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                            <span>错题本</span>
+                        </div>
+                        <div class="tool-cell" onclick="openUploadWrong()" data-doc="tool-upload" data-track="/click/teacherLongHomePage/enterUploadWrong | 上传错题 | 无">
+                            <div class="tc-icon tc-orange"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg></div>
+                            <span>上传错题</span>
+                        </div>
+                        <div class="tool-cell" onclick="openErrorAnalysis()" data-doc="tool-error" data-track="/click/teacherLongHomePage/enterErrorAnalysis | 错因分析 | 无">
+                            <div class="tc-icon tc-warm"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></div>
+                            <span>错因分析</span>
+                        </div>
+                        <div class="tool-cell" onclick="openErase()" data-doc="tool-erase" data-track="/click/teacherLongHomePage/enterErase | 试卷擦除 | 无">
+                            <div class="tc-icon tc-purple"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
+                            <span>试卷擦除</span>
+                        </div>
+                    </div>
+
+                    <!-- ═══ 学一学 ═══ -->
+                    <section class="sec anim d3">
+                        <div class="sec-hd">
+                            <h2>📚 学一学</h2>
+                            <span class="sec-badge sb-ai">AI 推荐</span>
+                        </div>
+                        <div class="vid-big" onclick="openKnowledgeVideos('new-standard')" data-doc="video-new-standard" data-track="/click/teacherLongHomePage/enterVideo | 新课标重点讲 | category#STRING">
+                            <div class="vb-badge"><svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>AI 推荐</div>
+                            <h2 class="vb-title">新课标重点讲</h2>
+                            <p class="vb-desc">紧扣新课标考点，重点题型逐个突破</p>
+                            <div class="vb-tags"><span class="vb-tag">语文</span><span class="vb-tag">数学</span><span class="vb-tag">英语</span></div>
+                        </div>
+                        <div class="vid-pair">
+                            <div class="vid-mini vm-green" onclick="openKnowledgeVideos('sync-course')" data-doc="video-sync" data-track="/click/teacherLongHomePage/enterVideo | 校内同步课 | category#STRING">
+                                <div class="vm-icon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>
+                                <h4>校内同步课</h4><p>与教材同步</p>
+                                <div class="vm-tags"><span class="vm-tag">语文</span><span class="vm-tag">数学</span><span class="vm-tag">英语</span></div>
+                            </div>
+                            <div class="vid-mini vm-orange" onclick="openKnowledgeVideos('special-skills')" data-doc="video-skills" data-track="/click/teacherLongHomePage/enterVideo | 拓展提升课 | category#STRING">
+                                <div class="vm-icon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg></div>
+                                <h4>拓展提升课</h4><p>1200+专题精讲</p>
+                                <div class="vm-tags"><span class="vm-tag">语文</span><span class="vm-tag">英语</span></div>
+                            </div>
+                        </div>
+                        <!-- 专项大招课 -->
+                        <div style="margin-top:18px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                                <div style="font-size:0.8125rem;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:5px;">⚡ 专项大招课</div>
+                                <div style="font-size:0.625rem;font-weight:600;color:#94a3b8;" id="zkLabel">七年级</div>
+                            </div>
+                            <div class="zk-scroll" id="zkScroll"></div>
+                        </div>
+                    </section>
+
+                    <!-- ═══ 练一练 ═══ -->
+                    <section class="sec anim d4">
+                        <div class="sec-hd">
+                            <h2>✏️ 练一练</h2>
+                            <span class="sec-badge sb-hot">精选</span>
+                        </div>
+                        <div class="prac-grid">
+                            <div class="prac-card" onclick="openExamPapers()" data-doc="tool-papers" data-track="/click/teacherLongHomePage/enterExamPapers | 试卷下载 | 无">
+                                <div class="pc-icon pc-violet"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></div>
+                                <h4>试卷下载</h4><p>海量精品试卷</p>
+                            </div>
+                            <div class="prac-card" onclick="openPaperExplain()" data-doc="tool-explain" data-track="/click/teacherLongHomePage/enterPaperExplain | 试卷讲解 | 无">
+                                <div class="pc-icon pc-green"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                                <h4>试卷讲解</h4><p>AI 逐题视频讲解</p>
+                            </div>
+                            <div class="prac-card" onclick="openRealExam('primary')" data-doc="tool-primary" data-track="/click/teacherLongHomePage/enterPrimaryExam | 小升初真题 | 无">
+                                <div class="pc-icon pc-teal"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
+                                <h4>小升初真题</h4><p>历年真题精选</p>
+                            </div>
+                            <div class="prac-card" onclick="openRealExam('middle')" data-doc="tool-middle" data-track="/click/teacherLongHomePage/enterMiddleExam | 中考真题 | 无">
+                                <div class="pc-icon pc-rose"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div>
+                                <h4>中考真题</h4><p>中考真题汇编</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- ═══ 精品试卷推荐 ═══ -->
+                    <section class="paper-sec anim d5" style="margin-bottom:8px;">
+                        <div class="sec-hd">
+                            <h2>📄 精品试卷</h2>
+                            <span class="sec-badge sb-ai">AI 推荐</span>
+                        </div>
+                        <div class="paper-tabs-row" id="v2PaperTabs">
+                            <button class="pt-btn active" data-subj="chinese">语文</button>
+                            <button class="pt-btn" data-subj="math">数学</button>
+                            <button class="pt-btn" data-subj="english">英语</button>
+                            <button class="pt-btn" data-subj="science">科学</button>
+                        </div>
+                        <div class="paper-rec-list" id="v2PaperList"></div>
+                        <div style="text-align:center;margin-top:16px;">
+                            <button class="v2-more" onclick="window.location.href='试卷/试卷下载.html'">查看全部试卷 <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 版本切换 -->
+    <div class="ver-sw">
+        <a href="首页.html">v1</a>
+        <a href="首页-v2.html">v2</a>
+        <a href="首页-v3.html" class="active">v3</a>
+    </div>
+
+    <script>
+        /* ── 打字机（AI 龙老师说话） ── */
+        (function() {
+            var h = new Date().getHours();
+            var greet = h < 6 ? '夜深了还在学习' : h < 11 ? '早上好' : h < 14 ? '中午好' : h < 18 ? '下午好' : '晚上好';
+
+            var phrases = [
+                greet + '呀～有什么不会的题，拍给我看看 📸',
+                '今天想复习哪个科目？我帮你找试卷 📝',
+                '错题不用怕，拍一下我帮你分析原因 🔍',
+                '新课标重点课已更新，快来看看吧 📚',
+            ];
+            var el = document.getElementById('twText');
+            var cursor = document.getElementById('twCursor');
+            var pi = 0, ci = 0, deleting = false;
+
+            function tick() {
+                var phrase = phrases[pi];
+                if (!deleting) {
+                    ci++;
+                    el.innerHTML = phrase.substring(0, ci) + '<span class="tw-cursor"></span>';
+                    if (ci >= phrase.length) {
+                        setTimeout(function() { deleting = true; tick(); }, 2800);
+                        return;
+                    }
+                    setTimeout(tick, 40 + Math.random() * 25);
+                } else {
+                    ci--;
+                    el.innerHTML = phrase.substring(0, ci) + '<span class="tw-cursor"></span>';
+                    if (ci <= 0) {
+                        deleting = false;
+                        pi = (pi + 1) % phrases.length;
+                        setTimeout(tick, 350);
+                        return;
+                    }
+                    setTimeout(tick, 18);
+                }
+            }
+            setTimeout(tick, 500);
+        })();
+
+        /* ── 输入框交互 ── */
+        (function() {
+            var input = document.getElementById('aiInput');
+            var wrap = document.getElementById('aiInputWrap');
+            var sendBtn = document.getElementById('sendBtn');
+            var camBtn = document.getElementById('camBtn');
+            var camPop = document.getElementById('camPop');
+
+            input.addEventListener('focus', function() { wrap.classList.add('focused'); });
+            input.addEventListener('blur', function() { wrap.classList.remove('focused'); });
+            input.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = Math.min(this.scrollHeight, 76) + 'px';
+                sendBtn.classList.toggle('active', this.value.trim().length > 0);
+            });
+            sendBtn.addEventListener('click', function() {
+                var q = input.value.trim();
+                if (!q) return;
+                showToast('AI 龙老师正在思考…');
+                input.value = ''; input.style.height = 'auto';
+                sendBtn.classList.remove('active');
+            });
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
+            });
+            camBtn.addEventListener('click', function(e) {
+                e.stopPropagation(); camPop.classList.toggle('open');
+            });
+            document.addEventListener('click', function() { camPop.classList.remove('open'); });
+            camPop.addEventListener('click', function(e) { e.stopPropagation(); });
+        })();
+
+        function fillPrompt(text) {
+            var input = document.getElementById('aiInput');
+            var wrap = document.getElementById('aiInputWrap');
+            var sendBtn = document.getElementById('sendBtn');
+            input.value = text;
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 76) + 'px';
+            wrap.classList.add('focused');
+            sendBtn.classList.add('active');
+            showToast('AI 龙老师正在思考…');
+            setTimeout(function() {
+                input.value = ''; input.style.height = 'auto';
+                sendBtn.classList.remove('active');
+                wrap.classList.remove('focused');
+            }, 800);
+        }
+
+        /* ── 页面跳转 ── */
+        function goToCorrection(m) { sessionStorage.setItem('cameraMode',m); window.location.href='作业/作业批改.html?mode='+m; }
+        function openAiJiangTi() { sessionStorage.setItem('cameraMode','qa'); window.location.href='作业/作业批改.html?mode=qa'; }
+        function openBook() { window.location.href='错题本/错题本.html'; }
+        function openUploadWrong() { sessionStorage.setItem('cameraMode','wrong'); window.location.href='作业/作业批改.html?mode=wrong'; }
+        function openErase() { window.location.href='试卷/试卷擦除.html'; }
+        function openPaperExplain() { window.location.href='试卷讲解/试卷讲解.html'; }
+        function openErrorAnalysis() { window.location.href='作业/作业批改.html?mode=diagnosis'; }
+        function openRealExam(t) { window.location.href='试卷/试卷列表.html?type='+t; }
+        function openExamPapers() { window.location.href='试卷/试卷下载.html'; }
+        function openKnowledgeVideos(c) { window.location.href=c?'视频/知识点讲解.html?cat='+c:'视频/知识点讲解.html'; }
+
+        function showToast(msg) {
+            var t=document.getElementById('toast');
+            document.getElementById('toast-msg').textContent=msg;
+            t.classList.add('show');
+            setTimeout(function(){t.classList.remove('show');},2000);
+        }
+
+        /* ── 专项大招课 ── */
+        var GRADES=['一年级','二年级','三年级','四年级','五年级','六年级','七年级','八年级','九年级'];
+        var ZK={
+            primary:[
+                {title:'语文·古诗名篇',desc:'生动讲解 情景联想',lang:'cn',subj:'语文',topic:'古诗名篇',count:24},
+                {title:'语文·看图写话',desc:'观察方法 表达训练',lang:'cn',subj:'语文',topic:'看图写话',count:18},
+                {title:'语文·阅读理解',desc:'精读泛读 答题技巧',lang:'cn',subj:'语文',topic:'阅读理解',count:20},
+                {title:'英语·语法提升',desc:'语法提升 系统精讲',lang:'en',subj:'英语',topic:'语法提升',count:18},
+                {title:'英语·阅读专项',desc:'阅读策略 词汇拓展',lang:'en',subj:'英语',topic:'阅读专项',count:16},
+            ],
+            middle:[
+                {title:'语文·中文阅读',desc:'记叙文/说明文/议论文',lang:'cn',subj:'语文',topic:'中文阅读',count:32},
+                {title:'语文·中文写作',desc:'审题立意 结构布局',lang:'cn',subj:'语文',topic:'中文写作',count:28},
+                {title:'语文·名著专项',desc:'必读名著考点精讲',lang:'cn',subj:'语文',topic:'名著专项',count:20},
+                {title:'英语·语法专项',desc:'时态/从句/非谓语',lang:'en',subj:'英语',topic:'语法专项',count:26},
+                {title:'英语·题型技巧',desc:'完形/阅读/写作',lang:'en',subj:'英语',topic:'题型技巧',count:22},
+            ]
+        };
+        var zkG=sessionStorage.getItem('gradeClass')||'七年级';
+        if(GRADES.indexOf(zkG)===-1) zkG='七年级';
+        function renderZk(){
+            var mid=/[七八九]年级/.test(zkG), cards=mid?ZK.middle:ZK.primary;
+            document.getElementById('zkLabel').textContent=zkG;
+            document.getElementById('zkScroll').innerHTML=cards.map(function(c){
+                var bar=c.lang==='cn'?'zk-bar-cn':'zk-bar-en';
+                var p='cat=special-skills&subj='+encodeURIComponent(c.subj);
+                if(c.topic)p+='&topic='+encodeURIComponent(c.topic);
+                return '<div class="zk-item" onclick="window.location.href=\'视频/知识点讲解.html?'+p+'\'">'+
+                    '<div class="zk-bar '+bar+'"></div>'+
+                    '<h4>'+c.title+'</h4><p>'+c.desc+'</p>'+
+                    '<div class="zk-count">'+c.count+' 节课</div></div>';
+            }).join('');
+        }
+        renderZk();
+
+        /* ── 精品试卷推荐列表 ── */
+        var V2_PAPERS = {
+            chinese: [
+                { t: '部编版七年级语文上册新课标重点模拟题', dl: '2.3k', rec: '推荐' },
+                { t: '部编版七年级语文上册古诗文默写与赏析卷', dl: '2.1k', rec: '精选' },
+                { t: '人教版七年级语文上册阅读理解专项训练', dl: '1.9k' },
+                { t: '部编版七年级语文上册期末综合测试卷', dl: '1.9k', rec: '推荐' },
+                { t: '部编版六年级语文上册阅读理解专项突破', dl: '3.5k', rec: '精选' },
+            ],
+            math: [
+                { t: '人教版七年级数学上册有理数综合训练卷', dl: '2.1k', rec: '推荐' },
+                { t: '人教版七年级数学上册整式加减运算检测卷', dl: '1.6k', rec: '精选' },
+                { t: '人教版五年级数学上册应用题分类专练卷', dl: '4.1k', rec: '精选' },
+                { t: '人教版七年级数学上册计算能力达标检测卷', dl: '1.7k', rec: '推荐' },
+                { t: '人教版七年级数学上册期末综合测试卷', dl: '1.8k' },
+            ],
+            english: [
+                { t: '人教版七年级英语上册阅读理解精练（含答案）', dl: '1.8k', rec: '推荐' },
+                { t: '人教版七年级英语上册语法填空与单选专练', dl: '1.6k', rec: '精选' },
+                { t: '外研版六年级英语上册常用句型与对话练习', dl: '3.2k', rec: '精选' },
+                { t: '人教版七年级英语上册时态综合练习', dl: '1.7k', rec: '推荐' },
+                { t: '人教版七年级英语上册期末综合试卷', dl: '1.3k' },
+            ],
+            science: [
+                { t: '浙教版七年级科学上册生物知识点检测卷', dl: '1.8k', rec: '推荐' },
+                { t: '浙教版七年级科学上册物质的特性专项训练', dl: '1.5k', rec: '精选' },
+                { t: '浙教版七年级科学上册温度与物态变化专练', dl: '1.3k', rec: '推荐' },
+                { t: '教科版七年级科学上册期末综合检测卷', dl: '950' },
+                { t: '浙教版八年级科学上册力学综合专项训练卷', dl: '2.3k', rec: '推荐' },
+            ]
+        };
+        var v2PaperSubj = 'chinese';
+        var iconMap = { chinese:'pri-cn', math:'pri-ma', english:'pri-en', science:'pri-sc' };
+
+        function renderV2Papers() {
+            var items = V2_PAPERS[v2PaperSubj] || [];
+            var ic = iconMap[v2PaperSubj];
+            document.getElementById('v2PaperList').innerHTML = items.map(function(p) {
+                var tag = '';
+                if (p.rec === '推荐') tag = '<span class="pr-rec-tag prt-hot">推荐</span>';
+                else if (p.rec === '精选') tag = '<span class="pr-rec-tag prt-pick">精选</span>';
+                return '<div class="paper-rec-item" onclick="window.location.href=\'试卷/试卷下载.html\'">' +
+                    '<div class="pr-icon ' + ic + '"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>' +
+                    '<div class="pr-body"><div class="pr-title">' + tag + p.t + '</div>' +
+                    '<div class="pr-meta"><svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>' + p.dl + '人下载</div></div>' +
+                    '<div class="pr-arrow"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div></div>';
+            }).join('');
+        }
+
+        document.getElementById('v2PaperTabs').addEventListener('click', function(e) {
+            var btn = e.target.closest('.pt-btn');
+            if (!btn) return;
+            this.querySelectorAll('.pt-btn').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            v2PaperSubj = btn.dataset.subj;
+            renderV2Papers();
+        });
+        renderV2Papers();
+    </script>
+
+</body>
+</html>

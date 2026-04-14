@@ -7,17 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/app-shell.css">
     <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; background: #ffffff; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        .iphone-frame {
-            width: 393px; height: 852px; position: relative; overflow: hidden;
-            background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 40%, #e8edf4 100%);
-            box-shadow: 0 0 0 12px #18181b, 0 0 0 14px #27272a, 0 24px 48px -12px rgba(24,24,27,0.2);
-            border-radius: 50px;
-        }
 
         /* Mesh Gradients */
         .mesh-bg {
@@ -46,23 +37,6 @@
             filter: blur(70px); pointer-events: none; z-index: 0;
         }
 
-        .dynamic-island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 120px; height: 35px; background: linear-gradient(180deg, #27272a 0%, #18181b 100%); border-radius: 20px; z-index: 1000; pointer-events: none; }
-
-        .wx-capsule {
-            position: absolute; top: 56px; right: 10px; z-index: 999;
-            display: flex; align-items: center; height: 32px; border-radius: 16px;
-            background: rgba(0,0,0,0.06);
-            border: 0.5px solid rgba(0,0,0,0.08);
-            overflow: hidden;
-        }
-        .wx-capsule-btn {
-            display: flex; align-items: center; justify-content: center;
-            width: 40px; height: 32px;
-            border: none; background: none; cursor: pointer; color: #3c3c3c; padding: 0;
-        }
-        .wx-capsule-btn:active { background: rgba(0,0,0,0.05); }
-        .wx-capsule-divider { width: 0.5px; height: 18px; background: rgba(0,0,0,0.12); }
-
         .tab-panel { display: flex !important; visibility: visible; pointer-events: auto; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
 
         .home-scroll {
@@ -74,8 +48,10 @@
         /* 顶部导航 */
         .top-nav {
             height: 44px; padding: 0 20px;
+            padding-right: var(--app-capsule-clearance, 96px);
             display: flex; align-items: center; justify-content: space-between;
             flex-shrink: 0; position: relative; z-index: 20;
+            box-sizing: border-box;
         }
         .top-nav-tabs { display: flex; gap: 18px; align-items: baseline; }
         .top-nav-tab {
@@ -605,6 +581,9 @@
                         <button class="top-nav-tab active" data-doc="nav-home" data-prd="当前页面高亮态，不可点击">首页</button>
                         <a class="top-nav-tab" href="我的.html" style="text-decoration:none;" data-doc="nav-me" data-prd="跳转我的页面（独立页面 我的.html）" data-track="/click/teacherLongHomePage/me | 点击我的 | 无">我的</a>
                     </div>
+                    <a href="历史记录.html" class="top-nav-icon" title="历史记录" data-doc="nav-history" data-prd="跳转历史记录页" data-track="/click/teacherLongHomePage/history | 点击历史记录 | 无">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </a>
                 </nav>
 
                 <div class="home-scroll">
@@ -670,7 +649,7 @@
                                     </div>
                                     <span class="minor-tool-label">试卷下载</span>
                                 </div>
-                                <div class="minor-tool" onclick="openPaperExplain()" data-doc="tool-paper-explain" data-prd="即将上线。试卷讲解功能，拍照上传试卷后 AI 逐题讲解" data-track="/click/teacherLongHomePage/enterPaperExplain | 点击试卷讲解 | 无">
+                                <div class="minor-tool" onclick="openPaperExplain()" data-doc="tool-paper-explain" data-prd="跳转试卷讲解列表页（试卷讲解/试卷讲解.html），按科目/版本/年级筛选试卷，点击卡片进入视频讲解页" data-track="/click/teacherLongHomePage/enterPaperExplain | 点击试卷讲解 | 无">
                                     <div class="minor-tool-icon mi-blue">
                                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     </div>
@@ -816,6 +795,13 @@
 
     </div>
 
+    <!-- ═══ 版本切换入口（手机框外） ═══ -->
+    <div style="position:fixed;bottom:24px;left:32px;z-index:900;display:flex;align-items:center;gap:0;background:#ffffff;border-radius:12px;box-shadow:0 4px 24px -4px rgba(0,0,0,0.12),0 0 0 1px rgba(0,0,0,0.06);overflow:hidden;">
+        <a href="首页.html" style="padding:10px 20px;text-decoration:none;color:#fff;background:#4f46e5;font-size:0.8125rem;font-weight:600;font-family:inherit;">v1</a>
+        <a href="首页-v2.html" style="padding:10px 20px;text-decoration:none;color:#94a3b8;font-size:0.8125rem;font-weight:600;font-family:inherit;">v2</a>
+        <a href="首页-v3.html" style="padding:10px 20px;text-decoration:none;color:#94a3b8;font-size:0.8125rem;font-weight:600;font-family:inherit;">v3</a>
+    </div>
+
     <!-- ═══ 模式切换按钮（手机框外） ═══ -->
     <div class="mode-toggle" id="modeToggle">
         <button class="active" onclick="setMode('demo')">演示</button>
@@ -851,10 +837,10 @@
             window.location.href = '试卷/试卷擦除.html';
         }
         function openPaperExplain() {
-            showToast('试卷讲解（即将上线）');
+            window.location.href = '试卷讲解/试卷讲解.html';
         }
         function openErrorAnalysis() {
-            showToast('错因分析（即将上线）');
+            window.location.href = '作业/作业批改.html?mode=diagnosis';
         }
         function openRealExam(type) {
             window.location.href = '试卷/试卷列表.html?type=' + type;
@@ -867,7 +853,7 @@
             window.location.href = url;
         }
         function openHistory() {
-            showToast('历史记录（可跳转独立页）');
+            window.location.href = '历史记录.html';
         }
 
         function showToast(msg) {
@@ -1490,7 +1476,7 @@
 | 3 | 错因分析 | `作业/作业批改.html?mode=wrong` | 已上线 | 拍照识别错题后 AI 分析错因，复用上传错题拍照入口 |
 | 4 | 试卷擦除 | `试卷/试卷擦除.html` | 已上线 | 拍照后自动擦除试卷上的手写笔迹 |
 | 5 | 试卷下载 | `试卷/试卷下载.html` | 已上线 | 按学科和类型筛选下载试卷 |
-| 6 | 试卷讲解 | 即将上线 | 待开发 | 拍照上传试卷后 AI 逐题讲解 |
+| 6 | 试卷讲解 | `试卷讲解/试卷讲解.html` | 已上线 | 按科目/版本/年级筛选试卷，点击进入视频逐题讲解 |
 | 7 | 小升初真题 | `试卷/试卷列表.html?type=primary` | 已上线 | 历年小升初真题资源专区 |
 | 8 | 中考真题 | `试卷/试卷列表.html?type=middle` | 已上线 | 历年中考真题资源专区 |
 
@@ -1498,7 +1484,7 @@
 
 - **错因分析**：入口交互与上传错题共用拍照页（mode=wrong），但结果页增加错因分析模块，展示 AI 对错误原因的诊断
 - **小升初真题 / 中考真题**：两个独立入口，分别跳转对应的真题专区
-- **试卷讲解**：当前未上线，点击后显示 Toast 提示「试卷讲解（即将上线）」
+- **试卷讲解**：跳转 `试卷讲解/试卷讲解.html`，按科目/版本/年级筛选试卷列表，点击卡片进入视频讲解页逐题讲解
 
 [!] 错因分析当前复用上传错题的拍照入口（mode=wrong），后续若需独立模式需新增 mode 枚举值。
 

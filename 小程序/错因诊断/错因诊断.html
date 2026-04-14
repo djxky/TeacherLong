@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>错因诊断 - AI 龙老师</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/app-shell.css">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        .page-container { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; }
+        .handwriting { font-family: 'Ma Shan Zheng', cursive; color: #334155; opacity: 0.8; transform: rotate(-1deg); }
+
+        /* 原图上的错题标注框 */
+        .photo-wrap { position: relative; width: 100%; }
+        .photo-wrap img { width: 100%; display: block; }
+        .error-hotspot {
+            position: absolute; border: 2.5px solid #EF4444; border-radius: 6px;
+            cursor: pointer; -webkit-tap-highlight-color: transparent;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            background: rgba(239, 68, 68, 0.06);
+        }
+        .error-hotspot:active { border-color: #DC2626; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2); }
+        .error-hotspot-badge {
+            position: absolute; bottom: -9px; right: -9px;
+            width: 20px; height: 20px; background: #EF4444; color: white;
+            border-radius: 50%; font-size: 11px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15); pointer-events: none;
+        }
+
+        /* 底部弹窗 — 和作业批改一致 */
+        .bottom-sheet {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 85%;
+            background: white; border-top-left-radius: 20px; border-top-right-radius: 20px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 100; display: flex; flex-direction: column;
+        }
+        .bottom-sheet.open { transform: translateY(0); }
+
+        /* 题目编号切换 */
+        .q-num-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            border: 2px solid #FECACA; background: white; color: #EF4444;
+            font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; cursor: pointer; transition: all 0.15s;
+        }
+        .q-num-btn.active { border-color: #EF4444; background: #EF4444; color: white; }
+
+        /* 诊断内容样式 */
+        .diagnosis-error-highlight { background: #FEF3C7; color: #1E293B; font-weight: 700; padding: 1px 6px; border-radius: 4px; border-bottom: 2px solid #F59E0B; }
+        .dimension-row { display: flex; gap: 14px; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid #F1F5F9; }
+        .dimension-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .dimension-left { width: 95px; flex-shrink: 0; }
+        .dimension-status { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+        .dimension-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: white; flex-shrink: 0; }
+        .dimension-icon.mastered { background: #22C55E; }
+        .dimension-icon.needs-work { background: #EF4444; }
+        .dimension-name { font-size: 14px; font-weight: 700; }
+        .dimension-name.mastered { color: #16A34A; }
+        .dimension-name.needs-work { color: #EF4444; }
+        .dimension-sub { font-size: 11px; color: #94A3B8; line-height: 1.4; margin-top: 2px; }
+        .dimension-right { flex: 1; min-width: 0; }
+        .dimension-analysis { font-size: 13px; color: #475569; line-height: 1.7; }
+        .dimension-error-detail { font-size: 13px; color: #DC2626; font-weight: 600; line-height: 1.7; margin-bottom: 8px; }
+        .dimension-deep { font-size: 13px; color: #15803D; line-height: 1.7; }
+        .tip-card { border: 1px solid #E2E8F0; border-radius: 14px; padding: 14px; }
+        .tip-label { display: inline-block; font-size: 11px; font-weight: 600; color: #94A3B8; border: 1px solid #CBD5E1; border-radius: 4px; padding: 2px 8px; margin-bottom: 8px; }
+
+        /* 单题诊断页（来自错题本） */
+        .mesh-bg { position: absolute; top: -10%; left: -20%; width: 80%; height: 60%; background: radial-gradient(ellipse at center, rgba(99,102,241,0.25) 0%, transparent 65%); filter: blur(70px); pointer-events: none; z-index: 0; }
+        .mesh-bg-2 { position: absolute; top: 20%; right: -30%; width: 90%; height: 70%; background: radial-gradient(ellipse at center, rgba(236,72,153,0.18) 0%, transparent 65%); filter: blur(70px); pointer-events: none; z-index: 0; }
+        .single-glass {
+            background: rgba(255,255,255,0.55); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 2px 12px -4px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.65); border: none;
+        }
+
+        #toast {
+            position: absolute; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 24px;
+            font-size: 13px; font-weight: 600; pointer-events: none; opacity: 0;
+            transition: all 0.3s ease-out; z-index: 2000;
+            display: flex; align-items: center; gap: 8px;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+    <div class="iphone-frame" id="app-root">
+        <div class="dynamic-island"></div>
+        <div class="wx-capsule">
+            <button class="wx-capsule-btn"><svg width="18" height="4" viewBox="0 0 18 4"><circle cx="3" cy="2" r="1.5" fill="currentColor"/><circle cx="9" cy="2" r="1.5" fill="currentColor"/><circle cx="15" cy="2" r="1.5" fill="currentColor"/></svg></button>
+            <div class="wx-capsule-divider"></div>
+            <button class="wx-capsule-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M2 2l8 8M10 2l-8 8"/></svg></button>
+        </div>
+        <div id="toast"><svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg><span id="toast-msg"></span></div>
+
+        <!-- ====== 结果页：原图 + 标注框 ====== -->
+        <div id="page-result" class="page-container flex flex-col hidden" style="z-index: 50; padding-top: 50px; background: #f1f5f9;">
+            <header class="bg-white/90 backdrop-blur-md pt-2 pb-3 pl-4 pr-[100px] shadow-sm flex justify-between items-center z-20 flex-shrink-0">
+                <button onclick="goBack()" class="p-1 -ml-1"><svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+                <h1 class="text-lg font-bold text-slate-800">错因诊断</h1>
+                <div class="w-6"></div>
+            </header>
+
+            <main class="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+                <div class="px-3 pt-3 pb-2">
+                    <div class="text-center text-xs text-slate-400 mb-2">点击图片上的红框查看错因诊断</div>
+                    <div id="photo-container" class="photo-wrap rounded-xl overflow-hidden shadow-sm">
+                        <img src="../assets/homework-sample.png" alt="作业原图">
+                        <!-- 错题热区将由 JS 动态生成 -->
+                    </div>
+                </div>
+            </main>
+
+            <div class="bg-white border-t border-gray-100 px-6 pt-3 pb-8 shadow-[0_-5px_20px_rgba(0,0,0,0.03)] z-50 flex-shrink-0">
+                <div class="flex items-center justify-center">
+                    <button onclick="goBackToCamera()" class="app-btn-primary app-btn-row" style="max-width:220px;">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        再拍一张
+                    </button>
+                </div>
+            </div>
+
+            <!-- ====== 底部弹窗 — 错因诊断详情（和作业批改 detail-sheet 同规范） ====== -->
+            <div id="detail-sheet" class="bottom-sheet">
+                <div class="w-full flex justify-center pt-3 pb-1" onclick="closeDetail()"><div class="w-12 h-1.5 bg-gray-200 rounded-full"></div></div>
+                <div class="px-5 py-3 border-b border-gray-50 flex justify-between items-center">
+                    <span id="detail-title" class="text-slate-900 font-bold text-base">第 1 题</span>
+                    <button onclick="closeDetail()" class="text-slate-400"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                </div>
+                <div id="question-selector" class="border-b border-gray-100 px-4 py-2 hidden flex-shrink-0">
+                    <div id="question-selector-list" class="flex items-center gap-3 overflow-x-auto no-scrollbar py-1"></div>
+                </div>
+                <div id="detail-body" class="flex-1 min-h-0 overflow-y-auto p-5 pb-8 space-y-5">
+                    <!-- 诊断内容将动态填充 -->
+                </div>
+
+                <div id="detail-buttons" class="border-t border-gray-100 p-4 flex gap-3 pb-8 flex-shrink-0">
+                    <button type="button" id="btn-add-notebook" onclick="addToNotebook()" class="app-btn-secondary app-btn-row">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                        加入错题本
+                    </button>
+                    <button type="button" onclick="goBackToCamera()" class="app-btn-primary app-btn-row">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        再拍一页
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== 单题诊断页（来自错题本） ====== -->
+        <div id="page-single" class="page-container flex flex-col hidden" style="z-index: 60; background: var(--app-page-fill);">
+            <div class="mesh-bg"></div>
+            <div class="mesh-bg-2"></div>
+            <header class="sticky top-0 z-30 pt-[50px] pb-3 px-4 bg-white/60 backdrop-blur-md" style="border-bottom: 1px solid rgba(255,255,255,0.4);">
+                <div class="flex items-center gap-2">
+                    <button onclick="goBackFromSingle()" class="p-1 -ml-1 active:opacity-60">
+                        <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <h1 class="text-lg font-bold text-slate-800">错因诊断</h1>
+                </div>
+            </header>
+            <main id="single-body" class="flex-1 min-h-0 overflow-y-auto no-scrollbar p-4 space-y-3 relative z-10" style="padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));">
+            </main>
+            <div class="sticky bottom-0 z-40 px-4 pt-3 pb-6 bg-white/60 backdrop-blur-md" style="border-top: 1px solid rgba(255,255,255,0.4);">
+                <button onclick="goBackFromSingle()" class="app-btn-primary app-btn-row w-full">返回错题本</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var QUESTIONS = [
+            {
+                number: 1,
+                title: '计算: √18 × (-√8) - √(9/2) × (-√8) + 4',
+                type: '计算题',
+                status: 'wrong',
+                box: { left: '8%', top: '12%', width: '42%', height: '18%' },
+                diagnosis: {
+                    summary: '该生能熟练调用乘法分配律及立方根性质，准确梳理运算顺序完成基础化简，但在二次根式乘法运算时<mark>误判负号运算规则</mark>，导致最终计算结果出错',
+                    thumbnail: '../assets/homework-sample.png',
+                    subQuestions: [
+                        {
+                            label: '第(2)问',
+                            dimensions: [
+                                { name: '审题感知', subDesc: '识别多项式化简计算目标', status: 'mastered', analysis: '该生能将算式按照加法与乘法划分为不同运算模块，准确完成了运算顺序的确立。' },
+                                { name: '知识唤醒', subDesc: '运用二次根式混合运算化简', status: 'mastered', analysis: '此处准确调用了乘法分配律及立方根性质，体现了对基础运算法则的熟悉度。' },
+                                {
+                                    name: '推演求解', subDesc: '依次计算乘法和根式求值', status: 'needs_work',
+                                    errorDetail: '学生在运用乘法分配律计算 -√(9/2) × (-√8) 时，得出的结果符号出错，错误地写成了 7 + √36。',
+                                    deepAnalysis: '深度归因：该生在进行二次根式乘法运算时，忽略了负号的运算规则，导致符号判断错误。正确推演：原式 = -√144 + √36 + 4 = -12 + 6 + 4 = -2'
+                                }
+                            ]
+                        }
+                    ],
+                    nextSteps: {
+                        summary: '本题考查二次根式四则混合运算，核心是掌握运算顺序与符号判断规范',
+                        tips: [
+                            { label: 'Tip1', text: '带负号的二次根式乘法运算前先统计负号个数，按照偶正奇负先确定最终符号再计算根式数值' },
+                            { label: 'Tip2', text: '运用乘法分配律展开时将项前面的符号和项作为整体绑定处理，避免符号判断错误' }
+                        ]
+                    }
+                }
+            },
+            {
+                number: 2,
+                title: '(a+b)² - (a-b)²，其中 a=√3, b=√2',
+                type: '化简求值',
+                status: 'correct',
+                box: { left: '8%', top: '32%', width: '42%', height: '12%' },
+                diagnosis: null
+            },
+            {
+                number: 3,
+                title: '若 x = 2+√3，求 x² - 4x + 1 的值',
+                type: '解答题',
+                status: 'correct',
+                box: { left: '52%', top: '32%', width: '42%', height: '12%' },
+                diagnosis: null
+            },
+            {
+                number: 4,
+                title: '解方程：2/(x-1) + 1 = (x+2)/(x-1)',
+                type: '解方程',
+                status: 'wrong',
+                box: { left: '52%', top: '60%', width: '42%', height: '20%' },
+                diagnosis: {
+                    summary: '该生能正确识别分式方程的基本形式，但在去分母化简过程中<mark>遗漏了对增根的验证</mark>，直接将 x=1 作为方程的解，导致答案无效',
+                    thumbnail: '../assets/homework-sample.png',
+                    subQuestions: [
+                        {
+                            label: '全题',
+                            dimensions: [
+                                { name: '审题感知', subDesc: '识别分式方程类型', status: 'mastered', analysis: '能正确辨认分式方程，找到公分母 (x-1)。' },
+                                { name: '知识唤醒', subDesc: '去分母法解分式方程', status: 'mastered', analysis: '去分母步骤正确，两边同乘 (x-1) 后整理得到 x=1。' },
+                                {
+                                    name: '推演求解', subDesc: '验根与结论', status: 'needs_work',
+                                    errorDetail: '将 x=1 代入原方程分母 (x-1)=0，分式无意义，x=1 是增根。',
+                                    deepAnalysis: '深度归因：学生缺少验根意识，解分式方程时必须将结果代回原方程检验分母是否为零。正确结论：原方程无解。'
+                                }
+                            ]
+                        }
+                    ],
+                    nextSteps: {
+                        summary: '分式方程解题的最后一步必须验根，将求得的解代入最简公分母检验',
+                        tips: [
+                            { label: 'Tip1', text: '解完分式方程后，把结果代入各分母表达式，若出现分母为零则为增根，需舍去' },
+                            { label: 'Tip2', text: '养成在答案旁写"经检验，x=... 是（不是）原方程的解"的习惯' }
+                        ]
+                    }
+                }
+            },
+            {
+                number: 5,
+                title: '已知等腰三角形 ABC 中，AB=AC，∠A=80°，求 ∠B',
+                type: '几何',
+                status: 'wrong',
+                box: { left: '8%', top: '72%', width: '84%', height: '16%' },
+                diagnosis: {
+                    summary: '该生正确运用三角形内角和定理列出方程，但在最终计算中<mark>把 (180°-80°) 误算为 120°</mark>，导致 ∠B 结果错误',
+                    thumbnail: '../assets/homework-sample.png',
+                    subQuestions: [
+                        {
+                            label: '全题',
+                            dimensions: [
+                                { name: '审题感知', subDesc: '提取等腰三角形条件', status: 'mastered', analysis: '正确识别 AB=AC 推出 ∠B=∠C。' },
+                                {
+                                    name: '推演求解', subDesc: '计算底角度数', status: 'needs_work',
+                                    errorDetail: '180°-80°=100°，再除以2应得50°，但该生写成了 120°÷2=60°。',
+                                    deepAnalysis: '深度归因：计算 180-80 时进位出错，属于粗心运算失误。正确答案：∠B = (180°-80°)/2 = 50°。'
+                                }
+                            ]
+                        }
+                    ],
+                    nextSteps: {
+                        summary: '几何计算题建议在草稿纸上列竖式验算关键步骤',
+                        tips: [
+                            { label: 'Tip1', text: '列出 ∠A+∠B+∠C=180° 后，先算 180-∠A 再除以 2，分步写出避免口算出错' },
+                            { label: 'Tip2', text: '答完后可以把三个角加起来检验是否等于 180°' }
+                        ]
+                    }
+                }
+            }
+        ];
+
+        var currentWrongIdx = -1;
+        var wrongIndices = [];
+
+        // 收集错题索引
+        QUESTIONS.forEach(function(q, i) { if (q.status === 'wrong') wrongIndices.push(i); });
+
+        // 在原图上渲染标注框
+        function renderPhotoOverlays() {
+            var container = document.getElementById('photo-container');
+            if (!container) return;
+            // 清除旧热区
+            container.querySelectorAll('.error-hotspot').forEach(function(el) { el.remove(); });
+
+            var wrongSeq = 0;
+            QUESTIONS.forEach(function(q, idx) {
+                if (!q.box || q.status !== 'wrong') return;
+                wrongSeq++;
+                var hotspot = document.createElement('div');
+                hotspot.className = 'error-hotspot';
+                hotspot.style.left = q.box.left;
+                hotspot.style.top = q.box.top;
+                hotspot.style.width = q.box.width;
+                hotspot.style.height = q.box.height;
+                hotspot.onclick = function() { openDetail(idx); };
+                hotspot.innerHTML = '<span class="error-hotspot-badge">' + wrongSeq + '</span>';
+                container.appendChild(hotspot);
+            });
+        }
+
+        function goBack() {
+            var params = new URLSearchParams(window.location.search);
+            if (params.get('show') === 'result' || params.get('from') === 'notebook') {
+                window.history.back();
+            } else {
+                window.location.href = '../作业/作业批改.html?mode=diagnosis';
+            }
+        }
+        function goBackToCamera() {
+            window.location.href = '../作业/作业批改.html?mode=diagnosis';
+        }
+
+        // === 打开弹窗 ===
+        function openDetail(idx) {
+            var q = QUESTIONS[idx];
+            if (!q || q.status !== 'wrong' || !q.diagnosis) {
+                showToast('该题目正确，无需诊断');
+                return;
+            }
+            currentWrongIdx = idx;
+            renderDetailContent(q);
+            renderQuestionSelector();
+            document.getElementById('detail-sheet').classList.add('open');
+        }
+
+        function closeDetail() {
+            document.getElementById('detail-sheet').classList.remove('open');
+        }
+
+        function renderQuestionSelector() {
+            var wrap = document.getElementById('question-selector');
+            var list = document.getElementById('question-selector-list');
+            if (wrongIndices.length <= 1) { wrap.classList.add('hidden'); return; }
+            wrap.classList.remove('hidden');
+            var html = '';
+            wrongIndices.forEach(function(idx, seq) {
+                var cls = idx === currentWrongIdx ? ' active' : '';
+                html += '<button class="q-num-btn' + cls + '" onclick="switchQuestion(' + idx + ')">' + (seq + 1) + '</button>';
+            });
+            list.innerHTML = html;
+        }
+
+        function switchQuestion(idx) {
+            var q = QUESTIONS[idx];
+            if (!q || q.status !== 'wrong' || !q.diagnosis) return;
+            currentWrongIdx = idx;
+            renderDetailContent(q);
+            renderQuestionSelector();
+            document.getElementById('detail-body').scrollTop = 0;
+        }
+
+        // === 渲染弹窗内容 ===
+        function renderDetailContent(q) {
+            var d = q.diagnosis;
+            var seqNum = wrongIndices.indexOf(QUESTIONS.indexOf(q)) + 1;
+            document.getElementById('detail-title').textContent = '第 ' + seqNum + ' 题';
+
+            var summaryText = d.summary.replace(/<mark>/g, '<span class="diagnosis-error-highlight">').replace(/<\/mark>/g, '</span>');
+            var html = '';
+
+            // 错题原图
+            if (d.thumbnail) {
+                html += '<div class="rounded-xl overflow-hidden border border-gray-100 shadow-sm">';
+                html += '  <img src="' + d.thumbnail + '" alt="错题原图" class="w-full block" style="max-height:200px;object-fit:cover;">';
+                html += '</div>';
+            }
+
+            // AI 错因摘要
+            html += '<div>';
+            html += '  <h4 class="text-sm font-bold text-slate-800 mb-2">AI 错因摘要</h4>';
+            html += '  <p class="text-sm text-slate-600 leading-relaxed">' + summaryText + '</p>';
+            html += '</div>';
+
+            // 全链路诊断
+            html += '<div>';
+            html += '  <div class="flex items-center justify-between mb-3">';
+            html += '    <h4 class="text-sm font-bold text-slate-800">全链路错因诊断</h4>';
+            html += '    <div class="flex items-center gap-3 text-[10px] text-slate-400">';
+            html += '      <span class="flex items-center gap-1"><span class="dimension-icon mastered" style="width:14px;height:14px;font-size:9px;">✓</span>掌握</span>';
+            html += '      <span class="flex items-center gap-1"><span class="dimension-icon needs-work" style="width:14px;height:14px;font-size:9px;">✕</span>待掌握</span>';
+            html += '    </div>';
+            html += '  </div>';
+
+            d.subQuestions.forEach(function(sq) {
+                if (d.subQuestions.length > 1) {
+                    html += '<h5 class="text-xs font-bold text-slate-700 mb-2">' + sq.label + '</h5>';
+                }
+                sq.dimensions.forEach(function(dim) {
+                    var statusCls = dim.status === 'mastered' ? 'mastered' : 'needs-work';
+                    var iconText = dim.status === 'mastered' ? '✓' : '✕';
+
+                    html += '<div class="dimension-row">';
+                    html += '  <div class="dimension-left">';
+                    html += '    <div class="dimension-status"><span class="dimension-icon ' + statusCls + '">' + iconText + '</span><span class="dimension-name ' + statusCls + '">' + dim.name + '</span></div>';
+                    html += '    <div class="dimension-sub">' + dim.subDesc + '</div>';
+                    html += '  </div>';
+                    html += '  <div class="dimension-right">';
+                    if (dim.status === 'needs_work' && dim.errorDetail) {
+                        html += '<div class="dimension-error-detail">' + dim.errorDetail + '</div>';
+                        if (dim.deepAnalysis) html += '<div class="dimension-deep">' + dim.deepAnalysis + '</div>';
+                    } else {
+                        html += '<div class="dimension-analysis">' + (dim.analysis || '') + '</div>';
+                    }
+                    html += '  </div></div>';
+                });
+            });
+            html += '</div>';
+
+            // 下一步建议
+            html += '<div>';
+            html += '  <h4 class="text-sm font-bold text-slate-800 mb-2">下一步建议</h4>';
+            html += '  <p class="text-xs text-slate-500 mb-3 leading-relaxed">' + d.nextSteps.summary + '</p>';
+            html += '  <div class="grid grid-cols-2 gap-3">';
+            d.nextSteps.tips.forEach(function(tip) {
+                html += '<div class="tip-card"><span class="tip-label">' + tip.label + '</span><p class="text-xs text-slate-600 leading-relaxed">' + tip.text + '</p></div>';
+            });
+            html += '  </div>';
+            html += '</div>';
+
+            html += '<div class="h-4"></div>';
+
+            document.getElementById('detail-body').innerHTML = html;
+
+            // 重置"加入错题本"按钮
+            var btn = document.getElementById('btn-add-notebook');
+            btn.className = 'app-btn-secondary app-btn-row';
+            btn.innerHTML = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>加入错题本';
+        }
+
+        // === 加入错题本 ===
+        function addToNotebook() {
+            var btn = document.getElementById('btn-add-notebook');
+            if (!btn || btn.classList.contains('is-added')) return;
+            showToast('已加入错题本');
+            btn.className = 'app-btn-secondary app-btn-row is-added';
+            btn.innerHTML = '已加入';
+        }
+
+        function showToast(msg) {
+            var toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.add('show');
+            setTimeout(function() { toast.classList.remove('show'); }, 2000);
+        }
+
+        // === 错题本单题诊断数据（按 qid 映射） ===
+        var NOTEBOOK_DIAGNOSIS = {
+            1: {
+                image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&h=400&fit=crop',
+                title: '已知线性方程组\nx₁ + x₂ - 3x₃ = -10\n6x₂ - 2x₃ + x₄ = 7\n求方程组的通解。',
+                type: '填空题',
+                diagnosis: {
+                    summary: '该生能正确写出增广矩阵并进行初等行变换，但在确定自由未知量时<mark>遗漏了对 x₄ 的处理</mark>，导致通解形式不完整',
+                    subQuestions: [{
+                        label: '全题',
+                        dimensions: [
+                            { name: '审题感知', subDesc: '识别线性方程组类型', status: 'mastered', analysis: '准确识别齐次/非齐次方程组类型，正确写出增广矩阵。' },
+                            { name: '知识唤醒', subDesc: '初等行变换化简', status: 'mastered', analysis: '行变换步骤正确，化为行阶梯形矩阵。' },
+                            { name: '推演求解', subDesc: '确定自由变量与通解', status: 'needs_work',
+                              errorDetail: '化简后未将 x₄ 列为自由未知量，导致通解缺少一个自由参数。',
+                              deepAnalysis: '深度归因：自由未知量的判定需看非主元列，x₃ 和 x₄ 所在列均无主元，应均为自由未知量。正确通解应含两个参数 t₁、t₂。'
+                            }
+                        ]
+                    }],
+                    nextSteps: {
+                        summary: '解线性方程组时，化行阶梯形后需数主元列，非主元列对应的未知量即自由未知量',
+                        tips: [
+                            { label: 'Tip1', text: '行阶梯形后先数主元个数 r，再用 n-r 确定自由未知量个数（n 为未知量总数）' },
+                            { label: 'Tip2', text: '通解写成 η₀ + t₁ξ₁ + t₂ξ₂ 的标准形式，每个自由变量对应一个基础解系向量' }
+                        ]
+                    }
+                }
+            },
+            3: {
+                image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=400&fit=crop',
+                title: '阅读材料：What is the main idea of the passage? (Paragraph 2-3)',
+                type: '阅读理解',
+                diagnosis: {
+                    summary: '该生能定位到相关段落，但在概括主旨时<mark>过度关注细节而忽略了段落首句的核心论点</mark>',
+                    subQuestions: [{
+                        label: '全题',
+                        dimensions: [
+                            { name: '审题感知', subDesc: '定位目标段落', status: 'mastered', analysis: '准确定位到第 2、3 段进行阅读。' },
+                            { name: '推演求解', subDesc: '概括主旨大意', status: 'needs_work',
+                              errorDetail: '选择了段落中的一个支撑细节作为主旨，而非段落首句提出的核心论点。',
+                              deepAnalysis: '深度归因：主旨题应先看各段 topic sentence（通常是首句），再看段落展开方式。该生直接从段落中间抓取了印象深刻的例子。'
+                            }
+                        ]
+                    }],
+                    nextSteps: {
+                        summary: '主旨题解题策略：先读首尾句，再看展开方式，最后排除细节干扰项',
+                        tips: [
+                            { label: 'Tip1', text: '先读每段首句和尾句，用一句话总结每段大意，再综合判断 main idea' },
+                            { label: 'Tip2', text: '排除选项时注意区分"too specific（过于具体）"和"too broad（过于宽泛）"的干扰项' }
+                        ]
+                    }
+                }
+            },
+            4: {
+                image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=400&fit=crop',
+                title: '设 A 为 3 阶矩阵，|A|=2，则 |(-2A)*|= ______ 。',
+                type: '填空题',
+                diagnosis: {
+                    summary: '该生能调用 |kA|=kⁿ|A| 公式，但在计算伴随矩阵行列式时<mark>混淆了 |A*| 与 |A⁻¹| 的关系</mark>',
+                    subQuestions: [{
+                        label: '全题',
+                        dimensions: [
+                            { name: '知识唤醒', subDesc: '行列式数乘性质', status: 'mastered', analysis: '正确使用 |kA|=kⁿ|A|，算出 |(-2A)|=(-2)³×2=-16。' },
+                            { name: '推演求解', subDesc: '伴随矩阵行列式', status: 'needs_work',
+                              errorDetail: '将 |B*| 错写为 1/|B|，实际 |B*|=|B|ⁿ⁻¹（n 为阶数）。',
+                              deepAnalysis: '深度归因：|A*|=|A|ⁿ⁻¹ 与 A⁻¹=A*/|A| 是两个不同公式。设 B=-2A，|B|=-16，则 |B*|=|B|²=256。'
+                            }
+                        ]
+                    }],
+                    nextSteps: {
+                        summary: '伴随矩阵的核心公式：AA*=|A|E → |A*|=|A|ⁿ⁻¹',
+                        tips: [
+                            { label: 'Tip1', text: '先算 |kA|=kⁿ|A| 得到 |B|，再用 |B*|=|B|ⁿ⁻¹ 求伴随矩阵行列式' },
+                            { label: 'Tip2', text: '区分 A⁻¹=A*/|A| (求逆) 与 |A*|=|A|ⁿ⁻¹ (求行列式) 两类问题' }
+                        ]
+                    }
+                }
+            },
+            6: {
+                image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=400&fit=crop',
+                title: '语法填空：He asked me ______ I had finished the work.',
+                type: '语法填空',
+                diagnosis: {
+                    summary: '该生填写了 that，但此处宾语从句表达"是否"之意，应使用<mark>whether 或 if</mark>',
+                    subQuestions: [{
+                        label: '全题',
+                        dimensions: [
+                            { name: '审题感知', subDesc: '识别宾语从句', status: 'mastered', analysis: '正确判断 asked me 后面是宾语从句结构。' },
+                            { name: '推演求解', subDesc: '选择引导词', status: 'needs_work',
+                              errorDetail: '填写 that 表示陈述，但上下文语义为"是否完成"，应用 whether/if。',
+                              deepAnalysis: '深度归因：asked 后接 whether/if 表示"询问是否…"，接 that 则表示"告知…"。此处语境明确为疑问，应选 whether/if。'
+                            }
+                        ]
+                    }],
+                    nextSteps: {
+                        summary: '宾语从句引导词选择取决于从句的语义类型，而非主句动词',
+                        tips: [
+                            { label: 'Tip1', text: '先判断从句是陈述(that)、疑问(whether/if)、还是特殊疑问(wh-词)' },
+                            { label: 'Tip2', text: 'ask 后接 whether/if 意为"问是否"，接 wh-词意为"问什么/哪里/何时"' }
+                        ]
+                    }
+                }
+            }
+        };
+
+        function goBackFromSingle() {
+            window.history.back();
+        }
+
+        function renderSingleDiagnosis(qid) {
+            var data = NOTEBOOK_DIAGNOSIS[qid];
+            if (!data) { goBackFromSingle(); return; }
+            var d = data.diagnosis;
+            var summaryText = d.summary.replace(/<mark>/g, '<span class="diagnosis-error-highlight">').replace(/<\/mark>/g, '</span>');
+            var html = '';
+
+            html += '<div class="single-glass rounded-2xl overflow-hidden"><img src="' + data.image + '" class="w-full" alt="题目图片"></div>';
+
+            html += '<div class="single-glass rounded-2xl p-4">';
+            html += '  <h3 class="text-xs font-semibold text-indigo-400 mb-2 tracking-wide">题目内容</h3>';
+            html += '  <div class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">' + data.title + '</div>';
+            html += '</div>';
+
+            html += '<div class="single-glass rounded-2xl p-4">';
+            html += '  <h4 class="text-sm font-bold text-slate-800 mb-2">AI 错因摘要</h4>';
+            html += '  <p class="text-sm text-slate-600 leading-relaxed">' + summaryText + '</p>';
+            html += '</div>';
+
+            html += '<div class="single-glass rounded-2xl p-4">';
+            html += '  <div class="flex items-center justify-between mb-3">';
+            html += '    <h4 class="text-sm font-bold text-slate-800">全链路错因诊断</h4>';
+            html += '    <div class="flex items-center gap-3 text-[10px] text-slate-400">';
+            html += '      <span class="flex items-center gap-1"><span class="dimension-icon mastered" style="width:14px;height:14px;font-size:9px;">✓</span>掌握</span>';
+            html += '      <span class="flex items-center gap-1"><span class="dimension-icon needs-work" style="width:14px;height:14px;font-size:9px;">✕</span>待掌握</span>';
+            html += '    </div>';
+            html += '  </div>';
+            d.subQuestions.forEach(function(sq) {
+                if (d.subQuestions.length > 1) {
+                    html += '<h5 class="text-xs font-bold text-slate-700 mb-2">' + sq.label + '</h5>';
+                }
+                sq.dimensions.forEach(function(dim) {
+                    var statusCls = dim.status === 'mastered' ? 'mastered' : 'needs-work';
+                    var iconText = dim.status === 'mastered' ? '✓' : '✕';
+                    html += '<div class="dimension-row">';
+                    html += '  <div class="dimension-left">';
+                    html += '    <div class="dimension-status"><span class="dimension-icon ' + statusCls + '">' + iconText + '</span><span class="dimension-name ' + statusCls + '">' + dim.name + '</span></div>';
+                    html += '    <div class="dimension-sub">' + dim.subDesc + '</div>';
+                    html += '  </div>';
+                    html += '  <div class="dimension-right">';
+                    if (dim.status === 'needs_work' && dim.errorDetail) {
+                        html += '<div class="dimension-error-detail">' + dim.errorDetail + '</div>';
+                        if (dim.deepAnalysis) html += '<div class="dimension-deep">' + dim.deepAnalysis + '</div>';
+                    } else {
+                        html += '<div class="dimension-analysis">' + (dim.analysis || '') + '</div>';
+                    }
+                    html += '  </div></div>';
+                });
+            });
+            html += '</div>';
+
+            html += '<div class="single-glass rounded-2xl p-4">';
+            html += '  <h4 class="text-sm font-bold text-slate-800 mb-2">举一反三建议</h4>';
+            html += '  <p class="text-xs text-slate-500 mb-3 leading-relaxed">' + d.nextSteps.summary + '</p>';
+            html += '  <div class="grid grid-cols-2 gap-3">';
+            d.nextSteps.tips.forEach(function(tip) {
+                html += '<div class="tip-card" style="background:rgba(255,255,255,0.6);backdrop-filter:blur(10px);border-color:rgba(255,255,255,0.4);"><span class="tip-label">' + tip.label + '</span><p class="text-xs text-slate-600 leading-relaxed">' + tip.text + '</p></div>';
+            });
+            html += '  </div>';
+            html += '</div>';
+
+            document.getElementById('single-body').innerHTML = html;
+            document.getElementById('page-single').classList.remove('hidden');
+        }
+
+        // === 入口逻辑 ===
+        (function() {
+            var params = new URLSearchParams(window.location.search);
+            if (params.get('from') === 'notebook' && params.get('qid')) {
+                renderSingleDiagnosis(parseInt(params.get('qid'), 10));
+            } else {
+                showResult();
+            }
+        })();
+
+        function showResult() {
+            document.getElementById('page-result').classList.remove('hidden');
+            renderPhotoOverlays();
+            if (wrongIndices.length === 1) {
+                setTimeout(function() { openDetail(wrongIndices[0]); }, 300);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -5,35 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>AI 龙老师 - 试卷详情</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/app-shell.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; background: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
 
-        .iphone-frame {
-            width: 393px; height: 852px; position: relative; overflow: hidden;
-            background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 40%, #e8edf4 100%);
-            box-shadow: 0 0 0 12px #18181b, 0 0 0 14px #27272a, 0 24px 48px -12px rgba(24,24,27,0.2);
-            border-radius: 50px;
-            display: flex; flex-direction: column;
-        }
         .mesh-bg { position: absolute; top: -10%; left: -20%; width: 80%; height: 60%; background: radial-gradient(ellipse at center, rgba(99,102,241,0.3) 0%, transparent 65%); filter: blur(70px); pointer-events: none; z-index: 0; }
         .mesh-bg-2 { position: absolute; top: 15%; right: -30%; width: 90%; height: 70%; background: radial-gradient(ellipse at center, rgba(236,72,153,0.22) 0%, transparent 65%); filter: blur(70px); pointer-events: none; z-index: 0; }
         .mesh-bg-3 { position: absolute; bottom: -10%; left: -20%; width: 80%; height: 70%; background: radial-gradient(ellipse at center, rgba(168,85,247,0.22) 0%, transparent 65%); filter: blur(70px); pointer-events: none; z-index: 0; }
-        .dynamic-island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 120px; height: 35px; background: linear-gradient(180deg, #27272a 0%, #18181b 100%); border-radius: 20px; z-index: 1000; pointer-events: none; }
-        .wx-capsule {
-            position: absolute; top: 56px; right: 10px; z-index: 999;
-            display: flex; align-items: center; height: 32px; border-radius: 16px;
-            background: rgba(0,0,0,0.06);
-            border: 0.5px solid rgba(0,0,0,0.08);
-            overflow: hidden;
-        }
-        .wx-capsule-btn {
-            display: flex; align-items: center; justify-content: center;
-            width: 40px; height: 32px;
-            border: none; background: none; cursor: pointer; color: #3c3c3c; padding: 0;
-        }
-        .wx-capsule-btn:active { background: rgba(0,0,0,0.05); }
-        .wx-capsule-divider { width: 0.5px; height: 18px; background: rgba(0,0,0,0.12); }
 
         .topbar {
             display: flex; align-items: center; padding: 60px 16px 12px; flex-shrink: 0;
@@ -55,9 +33,8 @@
             color: #18181b; letter-spacing: -0.02em;
             pointer-events: none;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            padding: 0 8px;
         }
-        .topbar-spacer { width: 40px; height: 40px; flex-shrink: 0; }
+        .topbar-spacer { height: 40px; flex-shrink: 0; }
 
         .scroll-area {
             flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
@@ -95,17 +72,6 @@
             flex-shrink: 0; position: relative; z-index: 10;
             padding: 12px 20px calc(env(safe-area-inset-bottom, 20px) + 12px);
         }
-        .wechat-btn {
-            width: 100%; padding: 14px 0; border: none; border-radius: 14px;
-            background: linear-gradient(135deg, #07c160, #06ad56);
-            color: #fff; font-size: 1rem; font-weight: 700;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 4px 16px -4px rgba(7,193,96,0.4);
-            transition: transform .1s;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .wechat-btn:active { transform: scale(0.98); }
-
         .toast {
             position: absolute; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px);
             background: rgba(255,255,255,0.8); color: #0f172a;
@@ -159,7 +125,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-    <div class="iphone-frame">
+    <div class="iphone-frame is-column">
         <div class="mesh-bg"></div>
         <div class="mesh-bg-2"></div>
         <div class="mesh-bg-3"></div>
@@ -188,7 +154,7 @@
         </div>
 
         <div class="bottom-bar">
-            <button class="wechat-btn" onclick="sendToWechat()">
+            <button type="button" class="app-btn-wechat" onclick="sendToWechat()">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.864.864 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05a6.127 6.127 0 01-.253-1.736c0-3.74 3.568-6.768 7.967-6.768.277 0 .55.012.82.035C17.162 4.973 13.265 2.188 8.691 2.188zm5.166 4.271a.96.96 0 110 1.92.96.96 0 010-1.92zM5.98 8.38a.96.96 0 110-1.921.96.96 0 010 1.92zm18.02 6.218c0-3.345-3.304-6.06-7.381-6.06-4.078 0-7.381 2.715-7.381 6.06 0 3.345 3.303 6.06 7.38 6.06.87 0 1.71-.12 2.5-.34a.72.72 0 01.597.082l1.585.927a.271.271 0 00.14.045c.133 0 .24-.108.24-.245 0-.06-.024-.118-.04-.177l-.327-1.233a.49.49 0 01.178-.553C23.008 18.462 24 16.8 24 14.598zm-9.583-1.24a.8.8 0 110-1.6.8.8 0 010 1.6zm4.404 0a.8.8 0 110-1.6.8.8 0 010 1.6z"/></svg>
                 发送到微信
             </button>

@@ -6,17 +6,9 @@
     <title>AI 龙老师 - 试卷下载</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/app-shell.css">
     <style>
         * { box-sizing: border-box; }
-        body { font-family: 'Inter', 'Noto Sans SC', sans-serif; background: #ffffff; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; }
-
-        .iphone-frame {
-            width: 393px; height: 852px; position: relative; overflow: hidden;
-            background: linear-gradient(160deg, #f8fafc 0%, #f1f5f9 40%, #e8edf4 100%);
-            box-shadow: 0 0 0 12px #18181b, 0 0 0 14px #27272a, 0 24px 48px -12px rgba(24,24,27,0.2);
-            border-radius: 50px;
-            display: flex; flex-direction: column;
-        }
 
         .mesh-bg {
             position: absolute; top: -10%; left: -20%; width: 80%; height: 60%;
@@ -33,22 +25,6 @@
             background: radial-gradient(ellipse at center, rgba(168,85,247,0.22) 0%, transparent 65%);
             filter: blur(70px); pointer-events: none; z-index: 0;
         }
-
-        .dynamic-island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 120px; height: 35px; background: linear-gradient(180deg, #27272a 0%, #18181b 100%); border-radius: 20px; z-index: 1000; pointer-events: none; }
-        .wx-capsule {
-            position: absolute; top: 56px; right: 10px; z-index: 999;
-            display: flex; align-items: center; height: 32px; border-radius: 16px;
-            background: rgba(0,0,0,0.06);
-            border: 0.5px solid rgba(0,0,0,0.08);
-            overflow: hidden;
-        }
-        .wx-capsule-btn {
-            display: flex; align-items: center; justify-content: center;
-            width: 40px; height: 32px;
-            border: none; background: none; cursor: pointer; color: #3c3c3c; padding: 0;
-        }
-        .wx-capsule-btn:active { background: rgba(0,0,0,0.05); }
-        .wx-capsule-divider { width: 0.5px; height: 18px; background: rgba(0,0,0,0.12); }
 
         .topbar {
             display: flex; align-items: center; padding: 60px 16px 12px; flex-shrink: 0;
@@ -70,7 +46,7 @@
             color: #0f172a; letter-spacing: -0.02em;
             pointer-events: none;
         }
-        .topbar-spacer { width: 40px; height: 40px; flex-shrink: 0; }
+        .topbar-spacer { height: 40px; flex-shrink: 0; }
         .dl-history-bar {
             position: absolute; bottom: 0; left: 0; right: 0;
             z-index: 50; padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
@@ -81,13 +57,13 @@
         .dl-history-bar a {
             display: flex; align-items: center; justify-content: center; gap: 6px;
             width: 100%; padding: 12px 0; border-radius: 12px;
-            background: rgba(99,102,241,0.06);
-            font-size: 0.8125rem; font-weight: 600; color: #6366f1;
+            background: rgba(79,70,229,0.06);
+            font-size: 0.8125rem; font-weight: 600; color: #4f46e5;
             text-decoration: none;
             -webkit-tap-highlight-color: transparent;
             transition: transform .18s cubic-bezier(0.16,1,0.3,1);
         }
-        .dl-history-bar a:active { transform: scale(0.97); background: rgba(99,102,241,0.12); }
+        .dl-history-bar a:active { transform: scale(0.97); background: rgba(79,70,229,0.12); }
 
         .scroll-area {
             flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
@@ -313,7 +289,7 @@
 </head>
 <body>
 
-    <div class="iphone-frame" id="app-root">
+    <div class="iphone-frame is-column" id="app-root">
         <div class="mesh-bg"></div>
         <div class="mesh-bg-2"></div>
         <div class="mesh-bg-3"></div>
