@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AI 龙老师 - 首页 v3</title>
+    <title>AI 龙老师 - 首页 v4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/app-shell.css">
     <style>
         /* ═══════════════════════════════════════════════
-           AI 龙老师 v3 — 宫格 + Suggested Prompts
+           AI 龙老师 v4 — 与 v3 同构：顶栏导航 + AI 主入口 + 工具矩阵
+           v4 仅强化 AI 输入条视觉（贴近主流对话产品的圆角白底输入区）
            ═══════════════════════════════════════════════ */
 
         .v2-scroll {
@@ -39,97 +40,118 @@
             filter: blur(45px); pointer-events: none; z-index: 0;
         }
 
-        /* ── 顶栏 ── */
-        .v2-topbar {
+        /* ── v4 顶栏 ── */
+        .v4-topbar {
             height: 44px; padding: 0 20px;
             padding-right: var(--app-capsule-clearance, 96px);
             display: flex; align-items: center; justify-content: space-between;
             flex-shrink: 0; position: relative; z-index: 20;
         }
-        .v2-topbar-tabs { display: flex; gap: 18px; align-items: baseline; }
-        .v2-tab {
-            font-size: 1rem; font-weight: 400; color: #94a3b8;
+        .v4-topbar-tabs { display: flex; gap: 18px; align-items: baseline; }
+        .v4-tab {
+            font-size: 1.0625rem; font-weight: 400; color: #94a3b8;
             cursor: pointer; transition: all 0.2s; padding: 0;
-            background: none; border: none; font-family: inherit;
+            background: none; border: none; font-family: inherit; text-decoration: none;
         }
-        .v2-tab.active { font-size: 1.125rem; font-weight: 700; color: #0f172a; }
-        .v2-topbar-right { display: flex; align-items: center; gap: 4px; }
-        .v2-icon-btn {
-            width: 34px; height: 34px; border-radius: 50%;
+        .v4-tab.active { font-size: 1.1875rem; font-weight: 800; color: #0f172a; letter-spacing: -0.01em; }
+        .v4-topbar-right { display: flex; align-items: center; }
+        .v4-icon-btn {
+            width: 36px; height: 36px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            color: #94a3b8; cursor: pointer; background: none; border: none;
-            transition: all 0.18s; -webkit-tap-highlight-color: transparent;
-        }
-        .v2-icon-btn:active { transform: scale(0.9); background: rgba(0,0,0,0.03); }
-
-        /* ── AI 入口卡片 ── */
-        .ai-card {
-            margin: 8px 20px 0; padding: 16px 16px 14px;
-            border-radius: 20px;
-            background: linear-gradient(135deg, #f5f3ff 0%, #eef2ff 40%, #faf8ff 100%);
-            box-shadow: 0 2px 20px -4px rgba(99,102,241,0.10), 0 1px 3px rgba(0,0,0,0.03);
-            position: relative; overflow: hidden;
-            border: 1px solid rgba(139,92,246,0.08);
-        }
-        .ai-card-glow {
-            position: absolute; top: -40px; right: -40px; width: 130px; height: 130px;
-            background: radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 70%);
-            pointer-events: none;
-        }
-        .ai-top {
-            display: flex; align-items: center; gap: 11px;
-            margin-bottom: 12px; position: relative; z-index: 1;
-        }
-        .ai-avatar {
-            width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
-            object-fit: cover; object-position: top center;
-            border: 2px solid rgba(139,92,246,0.12);
-        }
-        .ai-info { flex: 1; min-width: 0; }
-        .ai-name {
-            font-size: 0.9375rem; font-weight: 700; color: #1e1b4b; margin: 0;
-            line-height: 1.35;
-        }
-        .ai-name strong { font-weight: 800; }
-        .ai-sub {
-            font-size: 0.6875rem; color: #7c3aed; margin: 3px 0 0;
-            display: flex; align-items: center; gap: 4px;
-            height: 16px; overflow: hidden;
-        }
-        .ai-sub-track {
-            position: relative; flex: 1; height: 16px; overflow: hidden;
-        }
-        .ai-sub-item {
-            position: absolute; left: 0; top: 0; width: 100%;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            opacity: 0; transform: translateY(8px);
-            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
-            font-weight: 500; line-height: 16px;
-        }
-        .ai-sub-item.active { opacity: 1; transform: translateY(0); }
-        .ai-input-bar {
-            display: flex; align-items: center; gap: 8px;
-            background: rgba(255,255,255,0.8); border-radius: 14px;
-            padding: 8px 8px 8px 14px;
-            border: 1.5px solid rgba(139,92,246,0.1);
-            cursor: pointer; transition: all 0.18s;
+            color: #64748b; cursor: pointer; transition: all 0.18s; text-decoration: none;
             -webkit-tap-highlight-color: transparent;
-            position: relative; z-index: 1;
-            backdrop-filter: blur(10px);
         }
-        .ai-input-bar:active { border-color: #a78bfa; transform: scale(0.99); }
-        .ai-input-placeholder {
-            flex: 1; font-size: 0.8125rem; color: #a5a0b8; font-weight: 400;
+        .v4-icon-btn:active { transform: scale(0.9); background: rgba(0,0,0,0.05); }
+
+        /* ── v4 AI 全模态交互中枢 ── */
+        .v4-ai-hub {
+            margin: 16px 20px 24px; position: relative; z-index: 10;
         }
-        .ai-input-btn {
-            width: 32px; height: 32px; border-radius: 10px;
+        .v4-greeting { margin-bottom: 20px; padding-left: 2px; }
+        .v4-greeting h1 {
+            font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0;
+            letter-spacing: -0.02em; line-height: 1.2;
+        }
+        .v4-greeting p {
+            font-size: 0.8125rem; font-weight: 500; color: #64748b; margin: 4px 0 0;
+        }
+
+        /* 统一输入条 */
+        .v4-main-input {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #fff; border-radius: 22px; padding: 8px 10px 8px 20px;
+            box-shadow: 0 4px 20px -6px rgba(99,102,241,0.12), 0 1px 3px rgba(0,0,0,0.04);
+            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1.5px solid transparent;
+            margin-bottom: 12px; -webkit-tap-highlight-color: transparent;
+        }
+        .v4-main-input:active { transform: scale(0.985); border-color: rgba(139,92,246,0.3); box-shadow: 0 2px 10px -4px rgba(99,102,241,0.1); }
+        .v4-placeholder { font-size: 0.9375rem; color: #94a3b8; font-weight: 500; }
+        .v4-voice-btn {
+            width: 40px; height: 40px; border-radius: 14px;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff;
+            display: flex; align-items: center; justify-content: center; border: none;
+            box-shadow: 0 2px 8px rgba(139,92,246,0.3); cursor: pointer;
+            transition: transform 0.18s; -webkit-tap-highlight-color: transparent;
+        }
+        .v4-voice-btn:active { transform: scale(0.9); box-shadow: 0 1px 4px rgba(139,92,246,0.4); }
+
+        /* 双核心入口 */
+        .v4-core-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .v4-core-card {
+            padding: 18px 16px; border-radius: 22px;
+            display: flex; flex-direction: column; justify-content: space-between; gap: 20px;
+            position: relative; overflow: hidden; cursor: pointer;
+            box-shadow: 0 4px 16px -4px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.7);
+            transition: transform 0.2s; -webkit-tap-highlight-color: transparent;
+            min-height: 120px;
+        }
+        .v4-core-card:active { transform: scale(0.96); }
+        .v4-core-card::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.3) 100%);
+            pointer-events: none; z-index: 0;
+        }
+        .v4-search { background: linear-gradient(135deg, #eef2ff, #c7d2fe); }
+        .v4-search .v4-cc-icon { background: #6366f1; color: #fff; }
+        .v4-search .v4-cc-icon::after { box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
+        
+        .v4-correct { background: linear-gradient(135deg, #f0fdf4, #a7f3d0); }
+        .v4-correct .v4-cc-icon { background: #10b981; color: #fff; }
+        .v4-correct .v4-cc-icon::after { box-shadow: 0 4px 12px rgba(16,185,129,0.4); }
+
+        .v4-cc-icon {
+            width: 44px; height: 44px; border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.7); color: #8b5cf6;
-            border: none; cursor: pointer; flex-shrink: 0;
-            transition: all 0.18s; -webkit-tap-highlight-color: transparent;
-            box-shadow: 0 1px 3px rgba(139,92,246,0.06);
+            position: relative; z-index: 1;
         }
-        .ai-input-btn:active { transform: scale(0.9); background: rgba(139,92,246,0.1); }
+        .v4-cc-text { z-index: 1; }
+        .v4-cc-text h3 { font-size: 1.0625rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
+        .v4-cc-text p { font-size: 0.6875rem; font-weight: 500; color: #64748b; margin: 4px 0 0; }
+
+        /* ── 悬浮轻量宫格 ── */
+        .minor-tools {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            row-gap: 18px; padding: 0 10px; margin: 0 10px 28px;
+        }
+        .minor-tool {
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 0.18s;
+        }
+        .minor-tool:active { transform: scale(0.93); }
+        .minor-tool-icon {
+            width: 46px; height: 46px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
+            box-shadow: 0 2px 12px -2px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.9);
+        }
+        .minor-tool-label { font-size: 0.6875rem; font-weight: 600; color: #475569; text-align: center; }
+        .minor-tool-icon.mi-green { color: #059669; }
+        .minor-tool-icon.mi-orange { color: #ea580c; }
+        .minor-tool-icon.mi-purple { color: #7c3aed; }
+        .minor-tool-icon.mi-rose { color: #e11d48; }
+        .minor-tool-icon.mi-blue { color: #2563eb; }
+        .minor-tool-icon.mi-amber { color: #d97706; }
+        .minor-tool-icon.mi-teal { color: #0d9488; }
 
         /* 语音录入浮层 */
         .voice-overlay {
@@ -268,48 +290,23 @@
         .zk-desc { font-size: 0.5625rem; color: #64748b; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .zk-arrow { flex-shrink: 0; color: #d4d4d8; margin-left: 4px; }
 
-        /* ── 主功能双卡 ── */
-        .tools-area { margin: 12px 20px 0; }
-        .main-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-        .main-card {
-            padding: 16px 14px; border-radius: 16px; position: relative; overflow: hidden;
-            cursor: pointer; -webkit-tap-highlight-color: transparent;
-            transition: transform 0.18s cubic-bezier(0.16,1,0.3,1);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 2px 12px -4px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.65);
-        }
-        .main-card:active { transform: scale(0.97); }
-        .main-card-icon {
-            width: 36px; height: 36px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            margin-bottom: 10px; background: rgba(255,255,255,0.8);
-            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.05);
-        }
-        .main-card h3 { font-size: 0.875rem; font-weight: 700; margin: 0; color: #0f172a; line-height: 1.3; }
-        .main-card p { font-size: 0.6875rem; margin: 3px 0 0; color: #64748b; line-height: 1.3; }
-        .mc-indigo { background: linear-gradient(135deg, rgba(238,242,255,0.7) 0%, rgba(255,255,255,0.4) 100%); }
-        .mc-indigo .main-card-icon { color: #4f46e5; }
-        .mc-amber { background: linear-gradient(135deg, rgba(255,251,235,0.7) 0%, rgba(255,255,255,0.4) 100%); }
-        .mc-amber .main-card-icon { color: #d97706; }
-        /* ── 次级工具行 ── */
+        /* ── 悬浮轻量宫格 ── */
         .minor-tools {
             display: grid; grid-template-columns: repeat(4, 1fr);
-            border-radius: 16px; padding: 14px 6px 10px; row-gap: 10px;
-            background: rgba(255,255,255,0.55);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 2px 12px -4px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.65);
+            row-gap: 18px; padding: 0 10px; margin: 0 10px 28px;
         }
         .minor-tool {
-            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
             cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 0.18s;
         }
         .minor-tool:active { transform: scale(0.93); }
         .minor-tool-icon {
-            width: 40px; height: 40px; border-radius: 12px;
+            width: 46px; height: 46px; border-radius: 16px;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.7); box-shadow: 0 2px 8px -2px rgba(0,0,0,0.04);
+            background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
+            box-shadow: 0 2px 12px -2px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.9);
         }
-        .minor-tool-label { font-size: 0.625rem; font-weight: 500; color: #64748b; text-align: center; }
+        .minor-tool-label { font-size: 0.6875rem; font-weight: 600; color: #475569; text-align: center; }
         .minor-tool-icon.mi-green { color: #059669; }
         .minor-tool-icon.mi-orange { color: #ea580c; }
         .minor-tool-icon.mi-purple { color: #7c3aed; }
@@ -426,15 +423,15 @@
 
         <div class="flex-1 min-h-0 flex flex-col pt-[50px]">
 
-            <!-- 顶栏 -->
-            <nav class="v2-topbar anim">
-                <div class="v2-topbar-tabs">
-                    <button class="v2-tab active">首页</button>
-                    <a class="v2-tab" href="我的.html" style="text-decoration:none;" data-doc="nav-me" data-prd="跳转我的页面" data-track="/click/teacherLongHomePage/me | 点击我的 | 无">我的</a>
+            <!-- 顶栏导航 -->
+            <nav class="v4-topbar anim">
+                <div class="v4-topbar-tabs">
+                    <button class="v4-tab active">首页</button>
+                    <a class="v4-tab" href="我的.html" data-doc="nav-me" data-track="/click/teacherLongHomePage/me | 点击我的 | 无">我的</a>
                 </div>
-                <div class="v2-topbar-right">
-                    <a href="历史记录.html" class="v2-icon-btn" data-doc="nav-history" data-prd="跳转历史记录页" data-track="/click/teacherLongHomePage/history | 点击历史记录 | 无">
-                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div class="v4-topbar-right">
+                    <a href="历史记录.html" class="v4-icon-btn" data-doc="nav-history" data-track="/click/teacherLongHomePage/history | 点击历史记录 | 无">
+                        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </a>
                 </div>
             </nav>
@@ -442,31 +439,41 @@
             <div class="v2-scroll">
                 <div style="padding-bottom: 24px;">
 
-                    <!-- ═══ AI 对话入口卡片 ═══ -->
-                    <div class="ai-card anim d1" data-doc="ai-card" data-prd="AI 龙老师对话入口卡片">
-                        <div class="ai-card-glow"></div>
-                        <div class="ai-top">
-                            <img src="assets/logo.png" alt="AI 龙老师" class="ai-avatar">
-                            <div class="ai-info">
-                                <h1 class="ai-name">Hi，我是 <strong>AI 龙老师</strong></h1>
-                                <div class="ai-sub">
-                                    <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                    <div class="ai-sub-track" id="carouselTrack"></div>
+                    <!-- ═══ v4：统一 AI 交互中枢 ═══ -->
+                    <div class="v4-ai-hub anim d1" data-doc="v4-ai-hub">
+                        <div class="v4-greeting">
+                            <h1>Hi，今天想解决什么问题？</h1>
+                            <p>向我提问，或直接拍照</p>
+                        </div>
+                        
+                        <!-- 文字与语音输入 -->
+                        <div class="v4-main-input" onclick="goToChat()" data-doc="ai-entry" data-track="/click/teacherLongHomePage/enterChat | 进入对话 | 无">
+                            <span class="v4-placeholder">输入你要问的难题…</span>
+                            <button class="v4-voice-btn" onclick="event.stopPropagation(); startVoice()" data-doc="voice-btn" data-track="/click/teacherLongHomePage/voiceInput | 语音输入 | 无">
+                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- 双核心入口（消除多余的相机 icon，以大卡片承载） -->
+                        <div class="v4-core-grid">
+                            <div class="v4-core-card v4-search" onclick="goToPhotoQa()" data-doc="tool-photo-qa" data-track="/click/teacherLongHomePage/enterPhotoQa | 拍照搜题 | 无">
+                                <div class="v4-cc-icon"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></div>
+                                <div class="v4-cc-text">
+                                    <h3>拍照搜题</h3>
+                                    <p>AI 逐步解析</p>
+                                </div>
+                            </div>
+                            <div class="v4-core-card v4-correct" onclick="goToCorrection()" data-doc="tool-correction" data-track="/click/teacherLongHomePage/enterAiCorrection | 作业批改 | 无">
+                                <div class="v4-cc-icon"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                                <div class="v4-cc-text">
+                                    <h3>作业批改</h3>
+                                    <p>秒看对错建议</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="ai-input-bar" onclick="goToChat()" data-doc="ai-entry" data-track="/click/teacherLongHomePage/enterChat | 进入对话 | 无">
-                            <span class="ai-input-placeholder">给 AI 龙老师发消息</span>
-                            <button class="ai-input-btn" onclick="event.stopPropagation(); startVoice()" data-doc="voice-btn" data-track="/click/teacherLongHomePage/voiceInput | 语音输入 | 无">
-                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>
-                            </button>
-                            <button class="ai-input-btn" onclick="event.stopPropagation(); window.location.href='作业/作业批改.html'" data-doc="cam-btn" data-track="/click/teacherLongHomePage/enterCamera | 点击拍照 | 无">
-                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            </button>
-                        </div>
                     </div>
 
-                    <!-- 语音录入浮层 -->
+                    <!-- 语音录入浮层 (保持与 v3 一致) -->
                     <div class="voice-overlay" id="voiceOverlay" onclick="cancelVoice()">
                         <div class="voice-box" onclick="event.stopPropagation()">
                             <div class="voice-ring" id="voiceRing">
@@ -479,60 +486,39 @@
                         </div>
                     </div>
 
-                    <!-- ═══ 主功能双卡 + 次级工具 ═══ -->
-                    <div class="tools-area anim d2">
-                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;">
-                            <span style="font-size:0.875rem;font-weight:700;color:#0f172a;">🛠️ 常用工具</span>
+                    <!-- ═══ 悬浮次级工具 ═══ -->
+                    <div class="minor-tools anim d2">
+                        <div class="minor-tool" onclick="window.location.href='错题本/错题本.html'" data-doc="tool-wrong-book" data-track="/click/teacherLongHomePage/enterWrongBook | 错题本 | 无">
+                            <div class="minor-tool-icon mi-green"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                            <span class="minor-tool-label">错题本</span>
                         </div>
-                        <div class="main-tools">
-                            <div class="main-card mc-indigo" onclick="goToCorrection()" data-doc="tool-correction" data-track="/click/teacherLongHomePage/enterAiCorrection | 作业批改 | 无">
-                                <div class="main-card-icon">
-                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                </div>
-                                <h3>作业批改</h3>
-                                <p>拍照即出批改结果</p>
-                            </div>
-                            <div class="main-card mc-amber" onclick="goToPhotoQa()" data-doc="tool-photo-qa" data-track="/click/teacherLongHomePage/enterPhotoQa | 拍照搜题 | 无">
-                                <div class="main-card-icon">
-                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                                </div>
-                                <h3>拍照搜题</h3>
-                                <p>AI 逐步解析答疑</p>
-                            </div>
+                        <div class="minor-tool" onclick="window.location.href='作业/作业批改.html?mode=wrong'" data-doc="tool-upload-wrong" data-track="/click/teacherLongHomePage/enterUploadWrong | 录错题 | 无">
+                            <div class="minor-tool-icon mi-amber"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg></div>
+                            <span class="minor-tool-label">录错题</span>
                         </div>
-                        <div class="minor-tools">
-                            <div class="minor-tool" onclick="window.location.href='错题本/错题本.html'" data-doc="tool-wrong-book" data-track="/click/teacherLongHomePage/enterWrongBook | 错题本 | 无">
-                                <div class="minor-tool-icon mi-green"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                                <span class="minor-tool-label">错题本</span>
-                            </div>
-                            <div class="minor-tool" onclick="window.location.href='作业/作业批改.html?mode=wrong'" data-doc="tool-upload-wrong" data-track="/click/teacherLongHomePage/enterUploadWrong | 录错题 | 无">
-                                <div class="minor-tool-icon mi-amber"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg></div>
-                                <span class="minor-tool-label">录错题</span>
-                            </div>
-                            <div class="minor-tool" onclick="goToErrorAnalysis()" data-doc="tool-error-analysis" data-track="/click/teacherLongHomePage/enterErrorAnalysis | 错因诊断 | 无">
-                                <div class="minor-tool-icon mi-orange"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
-                                <span class="minor-tool-label">错因诊断</span>
-                            </div>
-                            <div class="minor-tool" onclick="goToErase()" data-doc="tool-erase" data-track="/click/teacherLongHomePage/enterErase | 试卷擦除 | 无">
-                                <div class="minor-tool-icon mi-purple"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></div>
-                                <span class="minor-tool-label">试卷擦除</span>
-                            </div>
-                            <div class="minor-tool" onclick="openExamPapers()" data-doc="tool-papers" data-track="/click/teacherLongHomePage/enterExamPapers | 试卷下载 | 无">
-                                <div class="minor-tool-icon mi-blue"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></div>
-                                <span class="minor-tool-label">试卷下载</span>
-                            </div>
-                            <div class="minor-tool" onclick="openPaperExplain()" data-doc="tool-explain" data-track="/click/teacherLongHomePage/enterPaperExplain | 试卷讲解 | 无">
-                                <div class="minor-tool-icon mi-blue"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></div>
-                                <span class="minor-tool-label">试卷讲解</span>
-                            </div>
-                            <div class="minor-tool" onclick="openRealExam('primary')" data-doc="tool-primary" data-track="/click/teacherLongHomePage/enterPrimaryExam | 小升初真题 | 无">
-                                <div class="minor-tool-icon mi-teal"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
-                                <span class="minor-tool-label">小升初真题</span>
-                            </div>
-                            <div class="minor-tool" onclick="openRealExam('middle')" data-doc="tool-middle" data-track="/click/teacherLongHomePage/enterMiddleExam | 中考真题 | 无">
-                                <div class="minor-tool-icon mi-rose"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div>
-                                <span class="minor-tool-label">中考真题</span>
-                            </div>
+                        <div class="minor-tool" onclick="goToErrorAnalysis()" data-doc="tool-error-analysis" data-track="/click/teacherLongHomePage/enterErrorAnalysis | 错因诊断 | 无">
+                            <div class="minor-tool-icon mi-orange"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
+                            <span class="minor-tool-label">错因诊断</span>
+                        </div>
+                        <div class="minor-tool" onclick="goToErase()" data-doc="tool-erase" data-track="/click/teacherLongHomePage/enterErase | 试卷擦除 | 无">
+                            <div class="minor-tool-icon mi-purple"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></div>
+                            <span class="minor-tool-label">试卷擦除</span>
+                        </div>
+                        <div class="minor-tool" onclick="openExamPapers()" data-doc="tool-papers" data-track="/click/teacherLongHomePage/enterExamPapers | 试卷下载 | 无">
+                            <div class="minor-tool-icon mi-blue"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></div>
+                            <span class="minor-tool-label">试卷下载</span>
+                        </div>
+                        <div class="minor-tool" onclick="openPaperExplain()" data-doc="tool-explain" data-track="/click/teacherLongHomePage/enterPaperExplain | 试卷讲解 | 无">
+                            <div class="minor-tool-icon mi-blue"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></div>
+                            <span class="minor-tool-label">试卷讲解</span>
+                        </div>
+                        <div class="minor-tool" onclick="openRealExam('primary')" data-doc="tool-primary" data-track="/click/teacherLongHomePage/enterPrimaryExam | 小升初真题 | 无">
+                            <div class="minor-tool-icon mi-teal"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
+                            <span class="minor-tool-label">小升初真题</span>
+                        </div>
+                        <div class="minor-tool" onclick="openRealExam('middle')" data-doc="tool-middle" data-track="/click/teacherLongHomePage/enterMiddleExam | 中考真题 | 无">
+                            <div class="minor-tool-icon mi-rose"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div>
+                            <span class="minor-tool-label">中考真题</span>
                         </div>
                     </div>
 
@@ -597,40 +583,12 @@
     <div class="ver-sw">
         <a href="首页.html">v1</a>
         <a href="首页-v2.html">v2</a>
-        <a href="首页-v3.html" class="active">v3</a>
+        <a href="首页-v3.html">v3</a>
+        <a href="首页-v4.html" class="active">v4</a>
     </div>
 
     <script>
-        sessionStorage.setItem('homeVersion', 'v3');
-
-        /* ── AI 副标题轮播 ── */
-        var carouselTips = [
-            '拍一拍，作业秒批改 ✍️',
-            '为什么天空是蓝色的？',
-            '帮你找出错题薄弱点',
-            '恐龙是怎么灭绝的？',
-            '拍照搜题，逐步讲解',
-            '光的速度有多快？',
-            '试卷擦除，还原空白卷',
-            '人体有多少块骨头？'
-        ];
-        (function initCarousel() {
-            var track = document.getElementById('carouselTrack');
-            if (!track) return;
-            carouselTips.forEach(function(tip, i) {
-                var span = document.createElement('span');
-                span.className = 'ai-sub-item' + (i === 0 ? ' active' : '');
-                span.textContent = tip;
-                track.appendChild(span);
-            });
-            var idx = 0;
-            setInterval(function() {
-                var items = track.querySelectorAll('.ai-sub-item');
-                items[idx].classList.remove('active');
-                idx = (idx + 1) % items.length;
-                items[idx].classList.add('active');
-            }, 3000);
-        })();
+        sessionStorage.setItem('homeVersion', 'v4');
 
         /* ── 文字输入 → 跳对话页自动聚焦 ── */
         function goToChat() {

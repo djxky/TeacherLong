@@ -165,6 +165,53 @@
             color: #fff; opacity: 1; pointer-events: auto;
         }
         .ci-btn-send.active:active { transform: scale(0.92); }
+        .ci-btn-mic { background: rgba(139,92,246,0.08); color: #7c3aed; }
+        .ci-btn-mic:active { background: rgba(139,92,246,0.15); }
+
+        /* 语音录入浮层 */
+        .voice-overlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(0,0,0,0.45); backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.25s;
+        }
+        .voice-overlay.show { opacity: 1; pointer-events: auto; }
+        .voice-box {
+            width: 220px; padding: 32px 24px 28px; border-radius: 24px;
+            background: #fff; text-align: center;
+            box-shadow: 0 20px 60px -12px rgba(0,0,0,0.25);
+            transform: scale(0.9); transition: transform 0.25s cubic-bezier(0.16,1,0.3,1);
+        }
+        .voice-overlay.show .voice-box { transform: scale(1); }
+        .voice-ring {
+            width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 16px;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            display: flex; align-items: center; justify-content: center;
+            position: relative; color: #fff;
+        }
+        .voice-ring::before {
+            content: ''; position: absolute; inset: -8px; border-radius: 50%;
+            border: 2px solid rgba(139,92,246,0.3);
+            animation: voicePulse 1.5s ease-out infinite;
+        }
+        .voice-ring::after {
+            content: ''; position: absolute; inset: -16px; border-radius: 50%;
+            border: 2px solid rgba(139,92,246,0.15);
+            animation: voicePulse 1.5s ease-out 0.3s infinite;
+        }
+        @keyframes voicePulse {
+            0% { transform: scale(0.95); opacity: 1; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+        .voice-status { font-size: 0.875rem; font-weight: 600; color: #0f172a; margin-bottom: 4px; }
+        .voice-hint { font-size: 0.6875rem; color: #94a3b8; }
+        .voice-text { font-size: 0.8125rem; font-weight: 500; color: #7c3aed; margin-top: 8px; min-height: 20px; }
+        .voice-cancel {
+            margin-top: 16px; padding: 6px 20px; border-radius: 20px;
+            border: 1px solid #e2e8f0; background: none;
+            font-size: 0.75rem; font-weight: 500; color: #64748b;
+            cursor: pointer; font-family: inherit;
+        }
 
         /* ── 快捷提示（空状态） ── */
         .chat-empty {
@@ -251,12 +298,28 @@
                         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     </button>
                     <textarea class="ci-textarea" id="ciInput" placeholder="输入问题，或拍照给我看…" rows="1"></textarea>
+                    <button class="ci-btn ci-btn-mic" id="ciMicBtn" title="语音输入" onclick="startVoice()">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>
+                    </button>
                     <button class="ci-btn ci-btn-send" id="ciSendBtn" title="发送">
                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </button>
                 </div>
                 <input type="file" id="ciFileInput" accept="image/*" capture="environment" style="display:none;">
             </div>
+        </div>
+    </div>
+
+    <!-- 语音录入浮层 -->
+    <div class="voice-overlay" id="voiceOverlay" onclick="cancelVoice()">
+        <div class="voice-box" onclick="event.stopPropagation()">
+            <div class="voice-ring" id="voiceRing">
+                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>
+            </div>
+            <div class="voice-status" id="voiceStatus">正在聆听…</div>
+            <div class="voice-hint" id="voiceHint">请说出你的问题</div>
+            <div class="voice-text" id="voiceText"></div>
+            <button class="voice-cancel" onclick="cancelVoice()">取消</button>
         </div>
     </div>
 
@@ -274,6 +337,45 @@ var pendingImage = null;
 var socraticStep = 0;
 var hasImage = false;
 var lastCardType = null;
+
+/* ── 语音输入 ── */
+var voiceTimer = null;
+var voiceQuestions = [
+    '帮我批改一下作业',
+    '这道数学题怎么解',
+    '为什么天空是蓝色的',
+    '光合作用的原理是什么',
+    '英语作文怎么写好开头'
+];
+function startVoice() {
+    var ol = document.getElementById('voiceOverlay');
+    document.getElementById('voiceStatus').textContent = '正在聆听…';
+    document.getElementById('voiceHint').textContent = '请说出你的问题';
+    document.getElementById('voiceText').textContent = '';
+    document.getElementById('voiceRing').style.background = 'linear-gradient(135deg, #8b5cf6, #7c3aed)';
+    ol.classList.add('show');
+    voiceTimer = setTimeout(function() {
+        document.getElementById('voiceStatus').textContent = '识别中…';
+        document.getElementById('voiceHint').textContent = '正在转文字';
+        voiceTimer = setTimeout(function() {
+            var q = voiceQuestions[Math.floor(Math.random() * voiceQuestions.length)];
+            document.getElementById('voiceStatus').textContent = '识别完成';
+            document.getElementById('voiceHint').textContent = '';
+            document.getElementById('voiceText').textContent = '「' + q + '」';
+            document.getElementById('voiceRing').style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            voiceTimer = setTimeout(function() {
+                ol.classList.remove('show');
+                hideEmpty();
+                appendUserMsg(q, null);
+                routeReply(q, false);
+            }, 1200);
+        }, 1000);
+    }, 2000);
+}
+function cancelVoice() {
+    if (voiceTimer) { clearTimeout(voiceTimer); voiceTimer = null; }
+    document.getElementById('voiceOverlay').classList.remove('show');
+}
 
 function goBack() {
     if (window.history.length > 1) window.history.back();
@@ -732,12 +834,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!source) return;
 
+        if (source === 'home-focus') {
+            sessionStorage.removeItem('aiSource');
+            setTimeout(function() { ciInput.focus(); }, 300);
+            return;
+        }
+
         hideEmpty();
 
         if (source === 'home-image' && image) {
             appendUserMsg(q || '请帮我看看这道题', image);
             routeReply(q || '请帮我看看这道题', true);
-        } else if (source === 'home-input' || source === 'home-prompt') {
+        } else if (source === 'home-input' || source === 'home-prompt' || source === 'home-voice') {
             appendUserMsg(q, null);
             routeReply(q, false);
         }
