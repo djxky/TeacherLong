@@ -208,7 +208,9 @@
 
     <script>
         function goBack() {
-            window.location.href = '../首页.html';
+            if (window.history.length > 1) { window.history.back(); return; }
+            var v = sessionStorage.getItem('homeVersion');
+            window.location.href = v === 'v1' ? '../首页.html' : '../首页-v3.html';
         }
 
         function logout() {

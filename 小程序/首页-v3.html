@@ -64,7 +64,7 @@
 
         /* ── AI 对话卡片（核心区域） ── */
         .ai-card {
-            margin: 8px 20px 0; padding: 16px 14px 12px;
+            margin: 8px 20px 0; padding: 16px 14px 14px;
             border-radius: 20px; position: relative; overflow: hidden;
             background: #fff;
             box-shadow: 0 2px 16px -4px rgba(99,102,241,0.08),
@@ -155,31 +155,6 @@
         .ai-btn-send.active { opacity: 1; pointer-events: auto; }
         .ai-btn-send.active:active { transform: scale(0.9); }
 
-        /* 拍照菜单 */
-        .cam-pop {
-            position: absolute; bottom: calc(100% + 8px); right: 50px;
-            background: #fff; border-radius: 16px; padding: 6px; min-width: 160px;
-            box-shadow: 0 8px 32px -4px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.04);
-            z-index: 60;
-            opacity: 0; pointer-events: none; transform: translateY(6px) scale(0.96);
-            transition: all 0.2s cubic-bezier(0.16,1,0.3,1);
-        }
-        .cam-pop.open { opacity: 1; pointer-events: auto; transform: translateY(0) scale(1); }
-        .cam-pop-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 11px 14px; border-radius: 12px; width: 100%;
-            border: none; background: none; cursor: pointer;
-            font-family: inherit; font-size: 0.8125rem; font-weight: 600;
-            color: #334155; text-align: left; transition: background 0.12s;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .cam-pop-item:active { background: #f5f3ff; }
-        .cam-pop-icon {
-            width: 30px; height: 30px; border-radius: 9px;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-        }
-        .cpi-violet { background: rgba(139,92,246,0.08); color: #8b5cf6; }
-        .cpi-amber { background: rgba(245,158,11,0.08); color: #f59e0b; }
 
         /* ── Suggested Prompts ── */
         .ai-prompts {
@@ -197,34 +172,43 @@
         }
         .ai-prompt-chip:active { transform: scale(0.96); background: #ede9fe; border-color: #a78bfa; }
 
-        /* ── 工具宫格 ── */
-        .tool-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-            margin: 14px 20px 0; position: relative; z-index: 1;
-        }
-        .tool-cell {
-            display: flex; flex-direction: column; align-items: center; gap: 7px;
-            padding: 14px 6px 12px; border-radius: 14px;
-            background: #fff; border: 1px solid #f0f0f4;
+        /* ── 错题本卡片 ── */
+        .wb-card {
+            margin: 12px 20px 0; padding: 12px 16px;
+            border-radius: 14px; background: #fff;
+            border: 1px solid rgba(5,150,105,0.08);
             box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+            display: flex; align-items: center; justify-content: space-between;
             cursor: pointer; transition: all 0.18s;
             -webkit-tap-highlight-color: transparent;
         }
-        .tool-cell:active { transform: scale(0.96); border-color: #c4b5fd; background: #faf8ff; }
-        .tc-icon {
-            width: 36px; height: 36px; border-radius: 11px;
+        .wb-card:active { transform: scale(0.98); border-color: rgba(5,150,105,0.2); }
+        .wb-left { display: flex; align-items: center; gap: 8px; }
+        .wb-icon { font-size: 16px; }
+        .wb-title { font-size: 0.8125rem; font-weight: 700; color: #1e1b4b; }
+        .wb-right { display: flex; align-items: center; gap: 6px; }
+        .wb-count { font-size: 0.6875rem; color: #64748b; }
+        .wb-count strong { color: #059669; font-weight: 700; }
+        .wb-right svg { color: #c4b5fd; }
+
+        /* ── 图片预览 ── */
+        .ai-img-preview {
+            position: relative; display: inline-block;
+            margin-bottom: 8px; z-index: 1;
+        }
+        .ai-img-preview img {
+            width: 80px; height: 80px; object-fit: cover;
+            border-radius: 10px; border: 2px solid rgba(139,92,246,0.15);
+        }
+        .ai-img-remove {
+            position: absolute; top: -6px; right: -6px;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: #ef4444; color: #fff; border: 2px solid #fff;
+            font-size: 12px; line-height: 1; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
-        .tc-indigo { background: rgba(99,102,241,0.08); color: #6366f1; }
-        .tc-amber { background: rgba(245,158,11,0.08); color: #d97706; }
-        .tc-green { background: rgba(5,150,105,0.08); color: #059669; }
-        .tc-orange { background: rgba(234,88,12,0.08); color: #ea580c; }
-        .tc-warm { background: rgba(217,119,6,0.08); color: #d97706; }
-        .tc-purple { background: rgba(124,58,237,0.08); color: #7c3aed; }
-        .tool-cell span {
-            font-size: 0.6875rem; font-weight: 600; color: #475569;
-            text-align: center; line-height: 1.2;
-        }
+
+
 
         /* ── 通用 section ── */
         .sec { padding: 0 20px; margin-top: 28px; position: relative; z-index: 1; }
@@ -306,24 +290,34 @@
         .zk-item p { font-size: 0.5625rem; color: #94a3b8; margin: 3px 0 0; }
         .zk-count { font-size: 0.5rem; font-weight: 700; color: #a78bfa; margin-top: 7px; }
 
-        /* ── 练一练 ── */
-        .prac-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .prac-card {
-            padding: 14px; border-radius: 14px; cursor: pointer;
-            transition: transform 0.18s; -webkit-tap-highlight-color: transparent;
-            background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+        /* ── 常用工具 ── */
+        .tool-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 0; padding: 14px 6px 10px;
+            background: #fff; border-radius: 16px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.04);
         }
-        .prac-card:active { transform: scale(0.97); }
-        .pc-icon {
-            width: 34px; height: 34px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center; margin-bottom: 8px;
+        .tool-item {
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            padding: 10px 0; cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform 0.15s;
         }
-        .pc-violet { background: rgba(139,92,246,0.06); color: #8b5cf6; }
-        .pc-green { background: rgba(5,150,105,0.06); color: #059669; }
-        .pc-teal { background: rgba(13,148,136,0.06); color: #0d9488; }
-        .pc-rose { background: rgba(225,29,72,0.06); color: #e11d48; }
-        .prac-card h4 { font-size: 0.8125rem; font-weight: 700; color: #0f172a; margin: 0; }
-        .prac-card p { font-size: 0.625rem; color: #94a3b8; margin: 3px 0 0; }
+        .tool-item:active { transform: scale(0.92); }
+        .ti-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.04);
+        }
+        .ti-label { font-size: 0.625rem; font-weight: 500; color: #64748b; text-align: center; }
+        .ti-indigo { background: rgba(99,102,241,0.06); color: #6366f1; }
+        .ti-amber { background: rgba(245,158,11,0.06); color: #d97706; }
+        .ti-orange { background: rgba(234,88,12,0.06); color: #ea580c; }
+        .ti-purple { background: rgba(124,58,237,0.06); color: #7c3aed; }
+        .ti-blue { background: rgba(37,99,235,0.06); color: #2563eb; }
+        .ti-green { background: rgba(5,150,105,0.06); color: #059669; }
+        .ti-teal { background: rgba(13,148,136,0.06); color: #0d9488; }
+        .ti-rose { background: rgba(225,29,72,0.06); color: #e11d48; }
 
         /* ── 精品试卷推荐 ── */
         .paper-sec { padding: 0 20px; margin-top: 28px; position: relative; z-index: 1; }
@@ -469,63 +463,44 @@
                             <div class="ai-bubble-text" id="twText"><span class="tw-cursor" id="twCursor"></span></div>
                         </div>
 
+                        <!-- 图片预览 -->
+                        <div class="ai-img-preview" id="imgPreview" style="display:none;">
+                            <img id="imgThumb" src="" alt="已选图片">
+                            <button class="ai-img-remove" id="imgRemove" aria-label="移除图片">&times;</button>
+                        </div>
+
                         <!-- 输入区 -->
                         <div class="ai-input-wrap" id="aiInputWrap">
                             <textarea class="ai-input-field" id="aiInput" placeholder="输入问题，或拍照给我看…" rows="1" data-doc="ai-input" data-prd="文字输入或拍照入口" data-track="/click/teacherLongHomePage/focusAiInput | 聚焦 AI 输入框 | 无"></textarea>
                             <div class="ai-input-btns">
-                                <button class="ai-btn-cam" id="camBtn" title="拍照" data-doc="cam-btn" data-prd="展开拍照菜单" data-track="/click/teacherLongHomePage/openCamMenu | 点击拍照 | 无">
+                                <button class="ai-btn-cam" id="camBtn" title="上传图片" data-doc="cam-btn" data-prd="选择或拍摄图片上传给AI" data-track="/click/teacherLongHomePage/uploadImage | 上传图片 | 无">
                                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                 </button>
-                                <button class="ai-btn-send" id="sendBtn" title="发送" data-doc="send-btn" data-prd="发送文字给 AI" data-track="/click/teacherLongHomePage/sendAiQuestion | 发送 | 无">
+                                <button class="ai-btn-send" id="sendBtn" title="发送" data-doc="send-btn" data-prd="发送文字/图片给 AI" data-track="/click/teacherLongHomePage/sendAiQuestion | 发送 | 无">
                                     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
                                 </button>
                             </div>
-                            <div class="cam-pop" id="camPop">
-                                <button class="cam-pop-item" onclick="openAiJiangTi()" data-doc="menu-qa" data-prd="拍照解题" data-track="/click/teacherLongHomePage/enterPhotoQa | 拍照解题 | 无">
-                                    <div class="cam-pop-icon cpi-amber"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
-                                    拍照解题
-                                </button>
-                                <button class="cam-pop-item" onclick="goToCorrection('correction')" data-doc="menu-correct" data-prd="作业批改" data-track="/click/teacherLongHomePage/enterAiCorrection | 作业批改 | 无">
-                                    <div class="cam-pop-icon cpi-violet"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                                    作业批改
-                                </button>
-                            </div>
+                            <input type="file" id="imgFileInput" accept="image/*" capture="environment" style="display:none;">
                         </div>
 
-                        <!-- Suggested Prompts -->
+                        <!-- Suggested Prompts — 学生百科类问题 -->
                         <div class="ai-prompts">
-                            <div class="ai-prompt-chip" onclick="fillPrompt('帮我检查作业')" data-track="/click/teacherLongHomePage/suggestedPrompt | 检查作业 | 无">检查作业</div>
-                            <div class="ai-prompt-chip" onclick="fillPrompt('出一份练习卷')" data-track="/click/teacherLongHomePage/suggestedPrompt | 出练习卷 | 无">出练习卷</div>
-                            <div class="ai-prompt-chip" onclick="fillPrompt('讲解这道错题')" data-track="/click/teacherLongHomePage/suggestedPrompt | 讲错题 | 无">讲错题</div>
-                            <div class="ai-prompt-chip" onclick="fillPrompt('整理知识点')" data-track="/click/teacherLongHomePage/suggestedPrompt | 整理知识点 | 无">整理知识点</div>
+                            <div class="ai-prompt-chip" onclick="fillPrompt('为什么天空是蓝色的')" data-track="/click/teacherLongHomePage/suggestedPrompt | 百科问答 | 无">🌏 为什么天空是蓝色的</div>
+                            <div class="ai-prompt-chip" onclick="fillPrompt('恐龙是怎么灭绝的')" data-track="/click/teacherLongHomePage/suggestedPrompt | 百科问答 | 无">🦕 恐龙灭绝之谜</div>
+                            <div class="ai-prompt-chip" onclick="fillPrompt('人体有多少块骨头')" data-track="/click/teacherLongHomePage/suggestedPrompt | 百科问答 | 无">🦴 人体的骨头</div>
+                            <div class="ai-prompt-chip" onclick="fillPrompt('光的速度有多快')" data-track="/click/teacherLongHomePage/suggestedPrompt | 百科问答 | 无">⚡ 光速有多快</div>
                         </div>
                     </div>
 
-                    <!-- ═══ 工具宫格 ═══ -->
-                    <div class="tool-grid anim d2">
-                        <div class="tool-cell" onclick="goToCorrection('correction')" data-doc="tool-correction" data-track="/click/teacherLongHomePage/enterAiCorrection | 作业批改 | 无">
-                            <div class="tc-icon tc-indigo"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
-                            <span>作业批改</span>
+                    <!-- ═══ 我的错题本 ═══ -->
+                    <div class="wb-card anim d2" onclick="window.location.href='错题本/错题本.html'" data-doc="wrongbook-card" data-prd="错题本入口卡片，展示错题数量，点击跳转错题本列表" data-track="/click/teacherLongHomePage/enterWrongBook | 点击错题本卡片 | 无">
+                        <div class="wb-left">
+                            <span class="wb-icon">📒</span>
+                            <span class="wb-title">我的错题本</span>
                         </div>
-                        <div class="tool-cell" onclick="openAiJiangTi()" data-doc="tool-photo-qa" data-track="/click/teacherLongHomePage/enterPhotoQa | 拍照解题 | 无">
-                            <div class="tc-icon tc-amber"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
-                            <span>拍照解题</span>
-                        </div>
-                        <div class="tool-cell" onclick="openBook()" data-doc="tool-book" data-track="/click/teacherLongHomePage/enterWrongBook | 错题本 | 无">
-                            <div class="tc-icon tc-green"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                            <span>错题本</span>
-                        </div>
-                        <div class="tool-cell" onclick="openUploadWrong()" data-doc="tool-upload" data-track="/click/teacherLongHomePage/enterUploadWrong | 上传错题 | 无">
-                            <div class="tc-icon tc-orange"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg></div>
-                            <span>上传错题</span>
-                        </div>
-                        <div class="tool-cell" onclick="openErrorAnalysis()" data-doc="tool-error" data-track="/click/teacherLongHomePage/enterErrorAnalysis | 错因分析 | 无">
-                            <div class="tc-icon tc-warm"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></div>
-                            <span>错因分析</span>
-                        </div>
-                        <div class="tool-cell" onclick="openErase()" data-doc="tool-erase" data-track="/click/teacherLongHomePage/enterErase | 试卷擦除 | 无">
-                            <div class="tc-icon tc-purple"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
-                            <span>试卷擦除</span>
+                        <div class="wb-right">
+                            <span class="wb-count"><strong>3</strong> 道错题</span>
+                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                         </div>
                     </div>
 
@@ -563,28 +538,43 @@
                         </div>
                     </section>
 
-                    <!-- ═══ 练一练 ═══ -->
-                    <section class="sec anim d4">
+                    <!-- ═══ 常用工具 ═══ -->
+                    <section class="sec anim d4" data-doc="tools-section" data-prd="常用工具区，承载全部 AI 工具和资源工具入口，4列2行紧凑宫格">
                         <div class="sec-hd">
-                            <h2>✏️ 练一练</h2>
-                            <span class="sec-badge sb-hot">精选</span>
+                            <h2>🛠️ 常用工具</h2>
                         </div>
-                        <div class="prac-grid">
-                            <div class="prac-card" onclick="openExamPapers()" data-doc="tool-papers" data-track="/click/teacherLongHomePage/enterExamPapers | 试卷下载 | 无">
-                                <div class="pc-icon pc-violet"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></div>
-                                <h4>试卷下载</h4><p>海量精品试卷</p>
+                        <div class="tool-grid">
+                            <div class="tool-item" onclick="goToCorrection()" data-doc="tool-correction" data-track="/click/teacherLongHomePage/enterAiCorrection | 作业批改 | 无">
+                                <div class="ti-icon ti-indigo"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+                                <span class="ti-label">作业批改</span>
                             </div>
-                            <div class="prac-card" onclick="openPaperExplain()" data-doc="tool-explain" data-track="/click/teacherLongHomePage/enterPaperExplain | 试卷讲解 | 无">
-                                <div class="pc-icon pc-green"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                                <h4>试卷讲解</h4><p>AI 逐题视频讲解</p>
+                            <div class="tool-item" onclick="goToPhotoQa()" data-doc="tool-photo-qa" data-track="/click/teacherLongHomePage/enterPhotoQa | 拍照搜题 | 无">
+                                <div class="ti-icon ti-amber"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></div>
+                                <span class="ti-label">拍照搜题</span>
                             </div>
-                            <div class="prac-card" onclick="openRealExam('primary')" data-doc="tool-primary" data-track="/click/teacherLongHomePage/enterPrimaryExam | 小升初真题 | 无">
-                                <div class="pc-icon pc-teal"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
-                                <h4>小升初真题</h4><p>历年真题精选</p>
+                            <div class="tool-item" onclick="goToErrorAnalysis()" data-doc="tool-error-analysis" data-track="/click/teacherLongHomePage/enterErrorAnalysis | 错因诊断 | 无">
+                                <div class="ti-icon ti-orange"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
+                                <span class="ti-label">错因诊断</span>
                             </div>
-                            <div class="prac-card" onclick="openRealExam('middle')" data-doc="tool-middle" data-track="/click/teacherLongHomePage/enterMiddleExam | 中考真题 | 无">
-                                <div class="pc-icon pc-rose"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div>
-                                <h4>中考真题</h4><p>中考真题汇编</p>
+                            <div class="tool-item" onclick="goToErase()" data-doc="tool-erase" data-track="/click/teacherLongHomePage/enterErase | 试卷擦除 | 无">
+                                <div class="ti-icon ti-purple"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></div>
+                                <span class="ti-label">试卷擦除</span>
+                            </div>
+                            <div class="tool-item" onclick="openExamPapers()" data-doc="tool-papers" data-track="/click/teacherLongHomePage/enterExamPapers | 试卷下载 | 无">
+                                <div class="ti-icon ti-blue"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></div>
+                                <span class="ti-label">试卷下载</span>
+                            </div>
+                            <div class="tool-item" onclick="openPaperExplain()" data-doc="tool-explain" data-track="/click/teacherLongHomePage/enterPaperExplain | 试卷讲解 | 无">
+                                <div class="ti-icon ti-green"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                                <span class="ti-label">试卷讲解</span>
+                            </div>
+                            <div class="tool-item" onclick="openRealExam('primary')" data-doc="tool-primary" data-track="/click/teacherLongHomePage/enterPrimaryExam | 小升初真题 | 无">
+                                <div class="ti-icon ti-teal"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
+                                <span class="ti-label">小升初真题</span>
+                            </div>
+                            <div class="tool-item" onclick="openRealExam('middle')" data-doc="tool-middle" data-track="/click/teacherLongHomePage/enterMiddleExam | 中考真题 | 无">
+                                <div class="ti-icon ti-rose"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div>
+                                <span class="ti-label">中考真题</span>
                             </div>
                         </div>
                     </section>
@@ -615,11 +605,12 @@
     <!-- 版本切换 -->
     <div class="ver-sw">
         <a href="首页.html">v1</a>
-        <a href="首页-v2.html">v2</a>
         <a href="首页-v3.html" class="active">v3</a>
     </div>
 
     <script>
+        sessionStorage.setItem('homeVersion', 'v3');
+
         /* ── 打字机（AI 龙老师说话） ── */
         (function() {
             var h = new Date().getHours();
@@ -666,49 +657,77 @@
             var wrap = document.getElementById('aiInputWrap');
             var sendBtn = document.getElementById('sendBtn');
             var camBtn = document.getElementById('camBtn');
-            var camPop = document.getElementById('camPop');
+            var fileInput = document.getElementById('imgFileInput');
+            var preview = document.getElementById('imgPreview');
+            var thumb = document.getElementById('imgThumb');
+            var removeBtn = document.getElementById('imgRemove');
+            var pendingImage = null;
 
             input.addEventListener('focus', function() { wrap.classList.add('focused'); });
             input.addEventListener('blur', function() { wrap.classList.remove('focused'); });
             input.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = Math.min(this.scrollHeight, 76) + 'px';
-                sendBtn.classList.toggle('active', this.value.trim().length > 0);
+                updateSendBtn();
             });
+
+            function updateSendBtn() {
+                sendBtn.classList.toggle('active', input.value.trim().length > 0 || pendingImage);
+            }
+
+            camBtn.addEventListener('click', function() { window.location.href = '作业/作业批改.html'; });
+
+            fileInput.addEventListener('change', function() {
+                var file = this.files[0];
+                if (!file) return;
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    pendingImage = e.target.result;
+                    thumb.src = pendingImage;
+                    preview.style.display = 'inline-block';
+                    updateSendBtn();
+                };
+                reader.readAsDataURL(file);
+            });
+
+            removeBtn.addEventListener('click', function() {
+                pendingImage = null;
+                preview.style.display = 'none';
+                thumb.src = '';
+                fileInput.value = '';
+                updateSendBtn();
+            });
+
             sendBtn.addEventListener('click', function() {
                 var q = input.value.trim();
-                if (!q) return;
-                sessionStorage.setItem('aiQuestion', q);
-                sessionStorage.setItem('aiSource', 'home-input');
-                window.location.href = '作业/ai讲题.html';
+                var img = pendingImage;
+                if (!q && !img) return;
+                sessionStorage.setItem('aiQuestion', q || '请帮我看看这道题');
+                sessionStorage.setItem('aiSource', img ? 'home-image' : 'home-input');
+                if (img) sessionStorage.setItem('aiImage', img);
+                window.location.href = '对话.html';
             });
+
             input.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendBtn.click(); }
             });
-            camBtn.addEventListener('click', function(e) {
-                e.stopPropagation(); camPop.classList.toggle('open');
-            });
-            document.addEventListener('click', function() { camPop.classList.remove('open'); });
-            camPop.addEventListener('click', function(e) { e.stopPropagation(); });
         })();
 
         function fillPrompt(text) {
             sessionStorage.setItem('aiQuestion', text);
             sessionStorage.setItem('aiSource', 'home-prompt');
-            window.location.href = '作业/ai讲题.html';
+            window.location.href = '对话.html';
         }
 
         /* ── 页面跳转 ── */
-        function goToCorrection(m) { sessionStorage.setItem('cameraMode',m); window.location.href='作业/作业批改.html?mode='+m; }
-        function openAiJiangTi() { sessionStorage.setItem('cameraMode','qa'); window.location.href='作业/作业批改.html?mode=qa'; }
-        function openBook() { window.location.href='错题本/错题本.html'; }
-        function openUploadWrong() { sessionStorage.setItem('cameraMode','wrong'); window.location.href='作业/作业批改.html?mode=wrong'; }
-        function openErase() { window.location.href='试卷/试卷擦除.html'; }
-        function openPaperExplain() { window.location.href='试卷讲解/试卷讲解.html'; }
-        function openErrorAnalysis() { window.location.href='作业/作业批改.html?mode=diagnosis'; }
-        function openRealExam(t) { window.location.href='试卷/试卷列表.html?type='+t; }
-        function openExamPapers() { window.location.href='试卷/试卷下载.html'; }
         function openKnowledgeVideos(c) { window.location.href=c?'视频/知识点讲解.html?cat='+c:'视频/知识点讲解.html'; }
+        function goToCorrection() { window.location.href='作业/作业批改.html?mode=correction'; }
+        function goToPhotoQa() { window.location.href='作业/作业批改.html?mode=qa'; }
+        function goToErrorAnalysis() { window.location.href='错因诊断/错因诊断.html'; }
+        function goToErase() { window.location.href='试卷/试卷擦除.html'; }
+        function openExamPapers() { window.location.href='试卷/试卷下载.html'; }
+        function openPaperExplain() { window.location.href='试卷讲解/试卷讲解.html'; }
+        function openRealExam(t) { window.location.href='试卷/试卷列表.html?type='+t; }
 
         function showToast(msg) {
             var t=document.getElementById('toast');

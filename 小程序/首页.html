@@ -818,6 +818,8 @@
     </div>
 
     <script>
+        sessionStorage.setItem('homeVersion', 'v1');
+
         function goToCorrection(mode) {
             sessionStorage.setItem('cameraMode', mode);
             window.location.href = '作业/作业批改.html?mode=' + mode;

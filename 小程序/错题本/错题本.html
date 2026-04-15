@@ -519,9 +519,10 @@
         }
 
         function closeBook() {
-            // 返回到首页
             exitEditMode();
-            window.location.href = '../首页.html';
+            if (window.history.length > 1) { window.history.back(); return; }
+            var v = sessionStorage.getItem('homeVersion');
+            window.location.href = v === 'v1' ? '../首页.html' : '../首页-v3.html';
         }
 
         // 渲染错题列表（简化版，只显示图片和时间）

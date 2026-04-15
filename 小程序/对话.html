@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AI 龙老师 - 对话</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/app-shell.css">
+    <style>
+        .page-wrap {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            background: linear-gradient(180deg, #faf8ff 0%, #f5f3ff 30%, #fff 100%);
+        }
+
+        /* ── 顶栏 ── */
+        .chat-header {
+            padding: 50px 16px 10px;
+            display: flex; align-items: center; gap: 12px;
+            flex-shrink: 0; position: relative; z-index: 20;
+        }
+        .ch-back { padding: 6px; margin: -6px; color: #1e293b; background: none; border: none; cursor: pointer; }
+        .ch-avatar {
+            width: 32px; height: 32px; border-radius: 50%;
+            object-fit: cover; object-position: top center;
+            border: 2px solid rgba(139,92,246,0.15);
+        }
+        .ch-info { flex: 1; min-width: 0; }
+        .ch-name { font-size: 15px; font-weight: 700; color: #1e1b4b; }
+        .ch-status {
+            font-size: 11px; color: #22c55e; font-weight: 600;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .ch-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
+
+        /* ── 对话区 ── */
+        .chat-body {
+            flex: 1; overflow-y: auto; padding: 12px 16px 16px;
+            display: flex; flex-direction: column; gap: 14px;
+            min-height: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        .chat-body::-webkit-scrollbar { display: none; }
+
+        /* 消息气泡 */
+        .msg { max-width: 82%; animation: msgIn 0.3s ease-out; }
+        .msg-ai { align-self: flex-start; }
+        .msg-user { align-self: flex-end; }
+
+        .msg-bubble {
+            padding: 10px 14px; border-radius: 16px;
+            font-size: 13.5px; line-height: 1.6; word-break: break-word;
+        }
+        .msg-ai .msg-bubble {
+            background: #fff; color: #334155;
+            border: 1px solid #f0f0f4;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+        }
+        .msg-user .msg-bubble {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            color: #fff; border-bottom-right-radius: 4px;
+        }
+        .msg-user .msg-bubble img {
+            max-width: 180px; border-radius: 8px; margin-top: 6px;
+            display: block;
+        }
+
+        /* 打字指示器 */
+        .typing-dots { display: inline-flex; gap: 4px; align-items: center; padding: 4px 0; }
+        .typing-dots span {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: #a78bfa; animation: blink 1.4s infinite both;
+        }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        /* ── 功能卡片 ── */
+        .func-card {
+            margin-top: 8px; padding: 0; border-radius: 14px;
+            border: 1px solid #e8e5f0; background: #fff;
+            overflow: hidden; cursor: pointer;
+            transition: all 0.18s; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .func-card:active { transform: scale(0.98); border-color: #c4b5fd; }
+        .fc-header {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 14px; background: #faf8ff;
+            border-bottom: 1px solid #f0ecf9;
+        }
+        .fc-icon {
+            width: 28px; height: 28px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; flex-shrink: 0;
+        }
+        .fc-header-text h4 { font-size: 12.5px; font-weight: 700; color: #1e1b4b; margin: 0; }
+        .fc-header-text p { font-size: 10.5px; color: #94a3b8; margin: 2px 0 0; }
+        .fc-body { padding: 12px 14px; }
+        .fc-preview {
+            font-size: 12px; color: #64748b; line-height: 1.5;
+        }
+        .fc-preview-item {
+            display: flex; align-items: center; gap: 6px;
+            padding: 3px 0;
+        }
+        .fc-check { color: #22c55e; font-weight: 700; }
+        .fc-cross { color: #ef4444; font-weight: 700; }
+        .fc-footer {
+            display: flex; align-items: center; justify-content: center; gap: 4px;
+            padding: 8px 14px; background: #faf8ff; border-top: 1px solid #f0ecf9;
+            font-size: 11.5px; font-weight: 600; color: #7c3aed;
+        }
+
+        /* ── 底部输入 ── */
+        .chat-input-bar {
+            padding: 10px 14px 20px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            background: #fff; border-top: 1px solid #f0f0f4;
+            flex-shrink: 0;
+        }
+        .ci-img-preview {
+            display: none; margin-bottom: 8px;
+            position: relative; width: fit-content;
+        }
+        .ci-img-preview.show { display: block; }
+        .ci-img-preview img {
+            width: 64px; height: 64px; object-fit: cover;
+            border-radius: 8px; border: 1px solid #e2e8f0;
+        }
+        .ci-img-remove {
+            position: absolute; top: -5px; right: -5px;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: #ef4444; color: #fff; border: 2px solid #fff;
+            font-size: 11px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ci-row { display: flex; align-items: flex-end; gap: 8px; }
+        .ci-textarea {
+            flex: 1; min-height: 40px; max-height: 100px;
+            padding: 10px 14px; border-radius: 20px;
+            border: 1.5px solid #e8e5f0; background: #faf8ff;
+            font-size: 14px; font-family: inherit; color: #1e293b;
+            resize: none; outline: none; line-height: 1.4;
+            transition: border-color 0.2s;
+        }
+        .ci-textarea:focus { border-color: #a78bfa; }
+        .ci-textarea::placeholder { color: #b8b0cd; }
+        .ci-btn {
+            width: 40px; height: 40px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: none; cursor: pointer; flex-shrink: 0;
+            transition: all 0.15s; -webkit-tap-highlight-color: transparent;
+        }
+        .ci-btn-cam {
+            background: rgba(139,92,246,0.08); color: #7c3aed;
+        }
+        .ci-btn-cam:active { background: rgba(139,92,246,0.15); }
+        .ci-btn-send {
+            background: #e2e0ea; color: #a09cb0;
+            pointer-events: none; opacity: 0.6;
+        }
+        .ci-btn-send.active {
+            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            color: #fff; opacity: 1; pointer-events: auto;
+        }
+        .ci-btn-send.active:active { transform: scale(0.92); }
+
+        /* ── 快捷提示（空状态） ── */
+        .chat-empty {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 16px;
+            padding: 40px 20px;
+        }
+        .ce-avatar {
+            width: 64px; height: 64px; border-radius: 50%;
+            object-fit: cover; object-position: top center;
+            border: 3px solid rgba(139,92,246,0.12);
+        }
+        .ce-title { font-size: 16px; font-weight: 700; color: #1e1b4b; }
+        .ce-desc { font-size: 12.5px; color: #94a3b8; text-align: center; line-height: 1.5; }
+        .ce-chips {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 8px; margin-top: 4px;
+        }
+        .ce-chip {
+            padding: 8px 14px; border-radius: 20px;
+            background: #fff; border: 1px solid #e8e5f0;
+            font-size: 12px; font-weight: 600; color: #6d28d9;
+            cursor: pointer; transition: all 0.15s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+        .ce-chip:active { transform: scale(0.96); background: #f5f3ff; border-color: #c4b5fd; }
+
+        @keyframes msgIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes blink {
+            0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+            40% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-frame is-column">
+        <div class="dynamic-island"></div>
+        <div class="wx-capsule">
+            <button class="wx-capsule-btn" aria-label="更多"><svg width="18" height="4" viewBox="0 0 18 4"><circle cx="3" cy="2" r="1.5" fill="currentColor"/><circle cx="9" cy="2" r="1.5" fill="currentColor"/><circle cx="15" cy="2" r="1.5" fill="currentColor"/></svg></button>
+            <div class="wx-capsule-divider"></div>
+            <button class="wx-capsule-btn" aria-label="关闭"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M2 2l8 8M10 2l-8 8"/></svg></button>
+        </div>
+
+        <div class="page-wrap">
+            <!-- 顶栏 -->
+            <div class="chat-header">
+                <button class="ch-back" onclick="goBack()">
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <img src="assets/logo.png" alt="AI 龙老师" class="ch-avatar">
+                <div class="ch-info">
+                    <div class="ch-name">AI 龙老师</div>
+                    <div class="ch-status"><span class="ch-dot"></span>在线</div>
+                </div>
+            </div>
+
+            <!-- 对话区 -->
+            <div class="chat-body" id="chatBody">
+                <!-- 空状态 -->
+                <div class="chat-empty" id="emptyState">
+                    <img src="assets/logo.png" alt="AI 龙老师" class="ce-avatar">
+                    <div class="ce-title">有什么我能帮你的？</div>
+                    <div class="ce-desc">直接打字提问，我来帮你解答</div>
+                    <div class="ce-chips">
+                        <div class="ce-chip" onclick="quickSend('为什么天空是蓝色的')">🌏 天空为什么是蓝色的</div>
+                        <div class="ce-chip" onclick="quickSend('恐龙是怎么灭绝的')">🦕 恐龙灭绝之谜</div>
+                        <div class="ce-chip" onclick="quickSend('人体有多少块骨头')">🦴 人体的骨头</div>
+                        <div class="ce-chip" onclick="quickSend('光的速度有多快')">⚡ 光速有多快</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部输入 -->
+            <div class="chat-input-bar">
+                <div class="ci-img-preview" id="ciImgPreview">
+                    <img id="ciImgThumb" src="" alt="图片">
+                    <button class="ci-img-remove" id="ciImgRemove">&times;</button>
+                </div>
+                <div class="ci-row">
+                    <button class="ci-btn ci-btn-cam" id="ciCamBtn" title="拍照/上传图片">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </button>
+                    <textarea class="ci-textarea" id="ciInput" placeholder="输入问题，或拍照给我看…" rows="1"></textarea>
+                    <button class="ci-btn ci-btn-send" id="ciSendBtn" title="发送">
+                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+                <input type="file" id="ciFileInput" accept="image/*" capture="environment" style="display:none;">
+            </div>
+        </div>
+    </div>
+
+<script>
+var chatBody = document.getElementById('chatBody');
+var emptyState = document.getElementById('emptyState');
+var ciInput = document.getElementById('ciInput');
+var ciSendBtn = document.getElementById('ciSendBtn');
+var ciCamBtn = document.getElementById('ciCamBtn');
+var ciFileInput = document.getElementById('ciFileInput');
+var ciImgPreview = document.getElementById('ciImgPreview');
+var ciImgThumb = document.getElementById('ciImgThumb');
+var ciImgRemove = document.getElementById('ciImgRemove');
+var pendingImage = null;
+var socraticStep = 0;
+var hasImage = false;
+var lastCardType = null;
+
+function goBack() {
+    if (window.history.length > 1) window.history.back();
+    else window.location.href = '首页-v3.html';
+}
+
+function hideEmpty() {
+    if (emptyState) { emptyState.remove(); emptyState = null; }
+}
+
+function scrollToBottom() {
+    setTimeout(function() { chatBody.scrollTop = chatBody.scrollHeight; }, 50);
+}
+
+function updateSendBtn() {
+    ciSendBtn.classList.toggle('active', ciInput.value.trim().length > 0 || pendingImage);
+}
+
+/* ── 输入交互 ── */
+ciInput.addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+    updateSendBtn();
+});
+ciInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); }
+});
+
+ciCamBtn.addEventListener('click', function() { ciFileInput.click(); });
+ciFileInput.addEventListener('change', function() {
+    var file = this.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        pendingImage = e.target.result;
+        ciImgThumb.src = pendingImage;
+        ciImgPreview.classList.add('show');
+        updateSendBtn();
+    };
+    reader.readAsDataURL(file);
+});
+ciImgRemove.addEventListener('click', function() {
+    pendingImage = null;
+    ciImgPreview.classList.remove('show');
+    ciImgThumb.src = '';
+    ciFileInput.value = '';
+    updateSendBtn();
+});
+
+ciSendBtn.addEventListener('click', doSend);
+
+function doSend() {
+    var text = ciInput.value.trim();
+    var img = pendingImage;
+    if (!text && !img) return;
+
+    hideEmpty();
+    appendUserMsg(text, img);
+
+    ciInput.value = ''; ciInput.style.height = 'auto';
+    pendingImage = null;
+    ciImgPreview.classList.remove('show');
+    ciImgThumb.src = '';
+    ciFileInput.value = '';
+    updateSendBtn();
+
+    hasImage = !!img;
+    routeReply(text, !!img);
+}
+
+function quickSend(text) {
+    hideEmpty();
+    appendUserMsg(text, null);
+    routeReply(text, false);
+}
+
+/* ── 消息渲染 ── */
+function appendUserMsg(text, imgSrc) {
+    var div = document.createElement('div');
+    div.className = 'msg msg-user';
+    var bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    if (text) {
+        var p = document.createElement('div');
+        p.textContent = text;
+        bubble.appendChild(p);
+    }
+    if (imgSrc) {
+        var img = document.createElement('img');
+        img.src = imgSrc;
+        img.alt = '上传的图片';
+        bubble.appendChild(img);
+    }
+    div.appendChild(bubble);
+    chatBody.appendChild(div);
+    scrollToBottom();
+}
+
+function appendAiText(text) {
+    var div = document.createElement('div');
+    div.className = 'msg msg-ai';
+    var bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = text.replace(/\n/g, '<br>');
+    div.appendChild(bubble);
+    chatBody.appendChild(div);
+    scrollToBottom();
+}
+
+function appendAiCard(cardConfig) {
+    var div = document.createElement('div');
+    div.className = 'msg msg-ai';
+
+    var bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = cardConfig.aiText.replace(/\n/g, '<br>');
+    div.appendChild(bubble);
+
+    var card = document.createElement('div');
+    card.className = 'func-card';
+    card.onclick = function() { window.location.href = cardConfig.href; };
+
+    card.innerHTML =
+        '<div class="fc-header">' +
+            '<div class="fc-icon" style="background:' + cardConfig.iconBg + ';">' + cardConfig.icon + '</div>' +
+            '<div class="fc-header-text"><h4>' + cardConfig.title + '</h4><p>' + cardConfig.subtitle + '</p></div>' +
+        '</div>' +
+        '<div class="fc-body"><div class="fc-preview">' + cardConfig.preview + '</div></div>' +
+        '<div class="fc-footer">查看详情 <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div>';
+
+    div.appendChild(card);
+    chatBody.appendChild(div);
+    scrollToBottom();
+}
+
+function showTyping() {
+    var div = document.createElement('div');
+    div.className = 'msg msg-ai';
+    div.id = 'typingMsg';
+    var bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+    div.appendChild(bubble);
+    chatBody.appendChild(div);
+    scrollToBottom();
+}
+function removeTyping() {
+    var el = document.getElementById('typingMsg');
+    if (el) el.remove();
+}
+
+/* ── 意图路由 ── */
+function routeReply(text, hasImg) {
+    showTyping();
+
+    var t = text.toLowerCase();
+    var delay = 600 + Math.random() * 400;
+
+    /* 先检测是否为追问（上一轮是卡片结果） */
+    if (lastCardType && isFollowUp(t)) {
+        setTimeout(function() {
+            removeTyping();
+            handleFollowUp(t, lastCardType);
+        }, delay);
+        return;
+    }
+
+    /* 苏格拉底式引导进行中，用户的回复继续走引导 */
+    if (socraticStep > 0 && socraticStep < socraticQuestions.length && !hasImg) {
+        setTimeout(function() { removeTyping(); doSocratic(); }, delay);
+        return;
+    }
+
+    if ((t.indexOf('加入') !== -1 || t.indexOf('存') !== -1 || t.indexOf('收录') !== -1 || t.indexOf('放到') !== -1 || t.indexOf('放进') !== -1 || t.indexOf('添加') !== -1 || t.indexOf('记到') !== -1 || t.indexOf('录到') !== -1) && t.indexOf('错题') !== -1) {
+        setTimeout(function() {
+            removeTyping();
+            if (lastCardType === 'correction') {
+                appendAiText('✅ 已将 3 道错题加入错题本：\n\n• 第 4 题 — 方程求解\n• 第 7 题 — 移项运算\n• 第 11 题 — 条件判断\n\n已自动归类到对应知识点。');
+                setTimeout(function() {
+                    appendAiCard({
+                        aiText: '可以去错题本看看👇',
+                        icon: '📒', iconBg: 'rgba(5,150,105,0.08)',
+                        title: '我的错题本',
+                        subtitle: '刚加入 3 道 · 共 50 道错题',
+                        preview:
+                            '<div class="fc-preview-item"><span class="fc-check">✓</span> 3 道新错题已归类</div>' +
+                            '<div class="fc-preview-item">📐 方程与不等式 — 20 道</div>' +
+                            '<div class="fc-preview-item">📊 统计与概率 — 15 道</div>',
+                        href: '错题本/错题本.html'
+                    });
+                }, 400);
+            } else {
+                appendAiText('好的，你想加哪些题到错题本呢？\n\n你可以：\n📸 拍照发给我，我帮你识别录入\n📝 或者先「批改作业」，我自动帮你把错题加进去');
+            }
+            lastCardType = 'wrongbook';
+        }, delay);
+    } else if (t.indexOf('批改') !== -1 || t.indexOf('检查作业') !== -1) {
+        lastCardType = 'correction';
+        setTimeout(function() {
+            removeTyping();
+            appendAiCard({
+                aiText: hasImg ? '收到你的作业照片！我已经帮你批改好了，看看结果👇' : '好的，我来帮你批改作业。拍照发给我，或者直接查看批改工具👇',
+                icon: '📸', iconBg: 'rgba(99,102,241,0.08)',
+                title: '作业批改报告',
+                subtitle: hasImg ? '已完成批改 · 共 12 题' : '拍照即出对错',
+                preview: hasImg ?
+                    '<div class="fc-preview-item"><span class="fc-check">✓</span> 正确 9 题</div>' +
+                    '<div class="fc-preview-item"><span class="fc-cross">✗</span> 错误 3 题（第 4、7、11 题）</div>' +
+                    '<div class="fc-preview-item" style="color:#d97706;">📊 正确率 75%</div>' :
+                    '<div class="fc-preview-item">📷 拍照上传作业，秒出批改结果</div>',
+                href: '作业/作业批改.html?mode=correction&show=result'
+            });
+            if (hasImg) {
+                setTimeout(function() {
+                    appendAiText('批改完了！有 3 道错题（第 4、7、11 题）。\n\n你可以：\n• 说「第X题为什么错」→ 我帮你讲解\n• 说「把错题加入错题本」→ 一键收录');
+                }, 500);
+            }
+        }, delay);
+    } else if (t.indexOf('擦除') !== -1 || t.indexOf('还原') !== -1 || t.indexOf('空白') !== -1) {
+        lastCardType = 'erase';
+        setTimeout(function() {
+            removeTyping();
+            appendAiCard({
+                aiText: hasImg ? '收到！我来帮你把答案擦掉，还原成空白试卷👇' : '好的，把试卷拍照发给我，我帮你擦除答案，还原空白卷👇',
+                icon: '✨', iconBg: 'rgba(124,58,237,0.08)',
+                title: '试卷擦除',
+                subtitle: hasImg ? '处理完成 · 可下载' : '上传试卷照片',
+                preview: hasImg ?
+                    '<div class="fc-preview-item">✅ 答案已擦除，空白卷已生成</div>' +
+                    '<div class="fc-preview-item">📄 点击查看或下载</div>' :
+                    '<div class="fc-preview-item">📷 拍照上传试卷 → 自动擦除答案</div>',
+                href: '试卷/试卷擦除.html?show=result'
+            });
+        }, delay);
+    } else if (t.indexOf('错因') !== -1 || t.indexOf('诊断') !== -1 || t.indexOf('薄弱') !== -1 || t.indexOf('分析') !== -1) {
+        lastCardType = 'diagnosis';
+        setTimeout(function() {
+            removeTyping();
+            appendAiCard({
+                aiText: '我来帮你分析错题的根本原因👇',
+                icon: '🔍', iconBg: 'rgba(217,119,6,0.08)',
+                title: '错因诊断报告',
+                subtitle: '基于历史错题分析',
+                preview:
+                    '<div class="fc-preview-item">📊 计算类错误占比 42%</div>' +
+                    '<div class="fc-preview-item">📊 概念理解类占比 35%</div>' +
+                    '<div class="fc-preview-item">📊 审题不清占比 23%</div>',
+                href: '错因诊断/错因诊断.html?show=result'
+            });
+            setTimeout(function() {
+                appendAiText('从你的错题来看，计算类错误最多。想让我针对「计算」专项出几道练习吗？');
+            }, 500);
+        }, delay);
+    } else if (t.indexOf('错题') !== -1 && (t.indexOf('上传') !== -1 || t.indexOf('录入') !== -1)) {
+        lastCardType = 'upload';
+        setTimeout(function() {
+            removeTyping();
+            appendAiCard({
+                aiText: '好的，把错题拍照发给我，我帮你录入错题本👇',
+                icon: '📤', iconBg: 'rgba(234,88,12,0.08)',
+                title: '上传错题',
+                subtitle: '拍照录入错题集',
+                preview: '<div class="fc-preview-item">📷 拍照即可录入，自动归类</div>',
+                href: '作业/作业批改.html?mode=wrong&show=result'
+            });
+        }, delay);
+    } else if (t.indexOf('错题本') !== -1 || t.indexOf('错题') !== -1) {
+        lastCardType = 'wrongbook';
+        setTimeout(function() {
+            removeTyping();
+            appendAiCard({
+                aiText: '这是你的错题本，我已经帮你按知识点分类好了👇',
+                icon: '📒', iconBg: 'rgba(5,150,105,0.08)',
+                title: '我的错题本',
+                subtitle: '共 47 道错题 · 3 个薄弱点',
+                preview:
+                    '<div class="fc-preview-item">📐 方程与不等式 — 18 道</div>' +
+                    '<div class="fc-preview-item">📊 统计与概率 — 15 道</div>' +
+                    '<div class="fc-preview-item">📏 几何证明 — 14 道</div>',
+                href: '错题本/错题本.html'
+            });
+        }, delay);
+    } else if (t.indexOf('搜题') !== -1 || (hasImg && (t.indexOf('这道题') !== -1 || t.indexOf('怎么做') !== -1 || t.indexOf('看看') !== -1 || t === '' || t === '请帮我看看这道题'))) {
+        lastCardType = 'search';
+        setTimeout(function() {
+            removeTyping();
+            appendAiCard({
+                aiText: '我找到了这道题的解析👇\n不过别急着看答案，我想先问你几个问题，帮你自己想明白。',
+                icon: '🔎', iconBg: 'rgba(245,158,11,0.08)',
+                title: '搜题结果',
+                subtitle: '已匹配到相似题目',
+                preview:
+                    '<div class="fc-preview-item">📖 题型：方程求解</div>' +
+                    '<div class="fc-preview-item">⭐ 难度：中等</div>' +
+                    '<div class="fc-preview-item">✅ 包含详细解题步骤</div>',
+                href: '作业/作业批改.html?mode=qa&show=result'
+            });
+            socraticStep = 0;
+            setTimeout(function() { doSocratic(); }, 800);
+        }, delay);
+    } else if (hasImg) {
+        lastCardType = 'search';
+        setTimeout(function() {
+            removeTyping();
+            appendAiText('收到你的图片！让我看看这道题…');
+            socraticStep = 0;
+            setTimeout(function() { doSocratic(); }, 800);
+        }, delay);
+    } else {
+        setTimeout(function() {
+            removeTyping();
+            doFreeReply(text);
+        }, delay);
+    }
+}
+
+/* ── 追问检测 ── */
+function isFollowUp(t) {
+    if (/错题/.test(t) && /(加入|存|收录|放到|放进|添加|记到|录到)/.test(t)) return false;
+    var patterns = [
+        /第\s*\d+\s*题/, /为什么/, /怎么错/, /错在哪/, /讲一下/, /讲讲/,
+        /详细/, /看不懂/, /不理解/, /还有/, /再出/, /类似/,
+        /怎么改/, /怎么办/, /能改吗/, /帮我讲/, /不太懂/,
+        /计算/, /概念/, /审题/, /哪些/
+    ];
+    for (var i = 0; i < patterns.length; i++) {
+        if (patterns[i].test(t)) return true;
+    }
+    return false;
+}
+
+/* ── 追问处理 ── */
+function handleFollowUp(t, ctx) {
+    var numMatch = t.match(/第\s*(\d+)\s*题/);
+    var num = numMatch ? numMatch[1] : null;
+
+    if (ctx === 'correction') {
+        if (num) {
+            appendAiText(
+                '好，我来看看第 ' + num + ' 题。\n\n' +
+                '📝 题目：解方程 3x + 7 = 22\n' +
+                '❌ 你的答案：x = 4\n' +
+                '✅ 正确答案：x = 5\n\n' +
+                '💡 错因分析：移项时符号处理有误。\n3x = 22 - 7 = 15，所以 x = 15 ÷ 3 = 5。\n\n' +
+                '你理解了吗？要不要我出一道类似的练练？'
+            );
+        } else if (/为什么|怎么错|错在哪/.test(t)) {
+            appendAiText(
+                '这 3 道错题的错因各有不同：\n\n' +
+                '• 第 4 题：计算过程中进位遗漏\n' +
+                '• 第 7 题：移项时正负号搞反了\n' +
+                '• 第 11 题：题目条件没看全，漏了一个已知条件\n\n' +
+                '想针对哪道详细讲讲？告诉我题号就行。'
+            );
+        } else {
+            appendAiText('你想了解更多批改细节吗？可以说"第X题为什么错"，我来帮你分析。');
+        }
+    } else if (ctx === 'diagnosis') {
+        if (/计算/.test(t)) {
+            appendAiText(
+                '计算类错误主要集中在这几个方面：\n\n' +
+                '1️⃣ 有理数混合运算的符号判断（占 45%）\n' +
+                '2️⃣ 分数运算通分不准确（占 30%）\n' +
+                '3️⃣ 多步计算的进位/退位遗漏（占 25%）\n\n' +
+                '建议从第 1 项开始练起，我给你出 5 道符号判断的题？'
+            );
+        } else if (/出|练/.test(t)) {
+            appendAiText(
+                '好的，这是针对你薄弱点的 3 道练习：\n\n' +
+                '1️⃣ 计算：(-3) × 4 + (-2)² ÷ (-1) = ?\n' +
+                '2️⃣ 计算：5 - (-7) + 3 × (-2) = ?\n' +
+                '3️⃣ 化简：2(x-3) - 3(2x+1) = ?\n\n' +
+                '试着做做看，做完告诉我你的答案～'
+            );
+        } else {
+            appendAiText('你想让我详细讲哪类错因？比如说"计算类怎么改善"，或者"帮我出几道练习"。');
+        }
+    } else if (ctx === 'search') {
+        doSocratic();
+    } else {
+        appendAiText('好的，你还想了解什么？可以继续问我～');
+    }
+}
+
+/* ── 苏格拉底式引导 ── */
+var socraticQuestions = [
+    '🧐 在我告诉你答案之前，我想先帮你理清思路。\n\n你先看看这道题，它考的是哪个知识点？试着用一句话描述。',
+    '不错！那你觉得解这道题的第一步应该做什么？不用怕说错。',
+    '💡 提示：试试把已知条件列出来，找找它们之间的关系。\n\n你来试试？',
+    '你的方向对了！继续算下去，写出你的过程。',
+    '✅ 太棒了！你自己想出来的，我只是引导了一下。\n\n这道题的核心是理解条件之间的关系。要不要我再出一道类似的练习题？'
+];
+
+function doSocratic() {
+    if (socraticStep >= socraticQuestions.length) return;
+    showTyping();
+    var q = socraticQuestions[socraticStep];
+    socraticStep++;
+    setTimeout(function() {
+        removeTyping();
+        appendAiText(q);
+    }, 600 + Math.random() * 300);
+}
+
+/* ── 自由问答 ── */
+var knowledgeQA = [
+    { keys: ['天空', '蓝色'], answer: '天空之所以是蓝色的，是因为「瑞利散射」。\n\n☀️ 太阳光其实包含了红橙黄绿蓝靛紫所有颜色。当阳光穿过大气层时，空气中的氮气和氧气分子会把光散射开。\n\n🔵 波长短的蓝光和紫光比红光更容易被散射（散射强度和波长的四次方成反比）。虽然紫光波长更短，但我们的眼睛对蓝光更敏感，所以看到的天空就是蓝色的。\n\n🌅 这也解释了为什么日出日落时天空是橙红色——阳光穿过更厚的大气层，蓝光被散射掉了，剩下的红光就到了我们眼睛里。' },
+    { keys: ['恐龙', '灭绝'], answer: '大约 6600 万年前，恐龙从地球上消失了。目前最被认可的理论是「小行星撞击说」。\n\n☄️ 一颗直径约 10 公里的小行星撞击了今天墨西哥尤卡坦半岛，形成了直径 180 公里的希克苏鲁伯陨石坑。\n\n🌋 撞击引发了巨大的海啸、地震和火山喷发，扬起的尘埃遮蔽了阳光长达数月甚至数年。\n\n🌿 没有阳光 → 植物无法光合作用 → 食草恐龙饿死 → 食肉恐龙也跟着灭绝。\n\n🐦 有趣的是，恐龙并没有完全灭绝——今天的鸟类就是恐龙的后代！所以从某种意义上说，恐龙还活在我们身边。' },
+    { keys: ['骨头', '人体'], answer: '成年人的身体里有 **206 块骨头**！\n\n👶 但你知道吗？刚出生的婴儿大约有 270 块骨头，比成年人还多。随着长大，一些骨头会慢慢融合在一起。\n\n🦴 人体最大的骨头是大腿里的「股骨」，最小的骨头是耳朵里的「镫骨」，只有 3 毫米左右，比一粒米还小。\n\n💪 骨头虽然看起来是死的，其实是活组织，内部有血管和神经，还能不断自我修复。骨骼大约每 10 年就会完全更新一次。' },
+    { keys: ['光', '速度', '多快'], answer: '光速大约是 **每秒 30 万公里**（精确值：299,792,458 米/秒），是宇宙中最快的速度！\n\n🌍 用光速绕地球一圈只需要 0.13 秒，也就是你眨一下眼的功夫，光已经绕了地球 7 圈半。\n\n🌙 从地球到月球，光只需要 1.3 秒。\n\n☀️ 太阳光到达地球需要约 8 分 20 秒。也就是说，你现在看到的阳光其实是 8 分钟前发出的。\n\n⭐ 爱因斯坦的相对论告诉我们：没有任何有质量的物体能达到光速。当物体接近光速时，它的质量会趋向无穷大，需要的能量也变成无穷大。' },
+    { keys: ['光速'], answer: '光速大约是 **每秒 30 万公里**（精确值：299,792,458 米/秒），是宇宙中最快的速度！\n\n🌍 用光速绕地球一圈只需要 0.13 秒，也就是你眨一下眼的功夫，光已经绕了地球 7 圈半。\n\n🌙 从地球到月球，光只需要 1.3 秒。\n\n☀️ 太阳光到达地球需要约 8 分 20 秒。也就是说，你现在看到的阳光其实是 8 分钟前发出的。' },
+    { keys: ['地球', '多大'], answer: '地球的直径大约是 **12,742 公里**，赤道周长约 40,075 公里。\n\n🌍 地球的表面积约 5.1 亿平方公里，其中 71% 被海洋覆盖，只有 29% 是陆地。\n\n⚖️ 地球的质量大约是 6×10²⁴ 千克，也就是 6 后面跟 24 个零。\n\n🪐 在太阳系的八大行星中，地球排第五大。木星最大，能装下 1300 个地球！' },
+    { keys: ['月亮', '月球'], answer: '月球是地球唯一的天然卫星，离我们大约 **38.4 万公里**。\n\n🌙 月球的直径约 3,474 公里，大概是地球的四分之一。\n\n🚀 月球上没有大气层，所以白天最热可达 127°C，晚上最冷可达 -173°C。\n\n👨‍🚀 1969 年 7 月 20 日，美国宇航员阿姆斯特朗成为第一个踏上月球的人。他说了那句著名的话：「这是个人的一小步，却是人类的一大步。」\n\n🌊 月球的引力虽然只有地球的六分之一，但它能影响地球的潮汐——涨潮退潮就是月球引力的作用。' },
+    { keys: ['为什么', '下雨'], answer: '下雨其实是水循环的一部分。\n\n☀️ 太阳加热地面和水面 → 水蒸发变成水蒸气上升到空中。\n\n☁️ 水蒸气到高空后遇冷凝结成小水滴或小冰晶，大量聚集就形成了云。\n\n🌧️ 当云中的水滴越聚越大、越来越重，空气再也托不住的时候，它们就会落下来——这就是雨！\n\n💡 一朵普通的积雨云里含有的水大约有 50 万吨，相当于一个小型水库的水量。' },
+    { keys: ['太阳', '多大', '多远'], answer: '太阳是一颗巨大的恒星，直径约 **139 万公里**，是地球直径的 109 倍！\n\n☀️ 如果把太阳比作一个篮球，地球就只有一粒芝麻那么大。\n\n📏 太阳离地球约 1.5 亿公里，光从太阳到地球需要 8 分 20 秒。\n\n🔥 太阳表面温度约 5,500°C，核心温度高达 1,500 万°C。它通过核聚变反应把氢变成氦，释放出巨大的能量。\n\n⏳ 太阳已经燃烧了约 46 亿年，预计还能继续燃烧 50 亿年。' }
+];
+
+function doFreeReply(text) {
+    lastCardType = null;
+
+    for (var i = 0; i < knowledgeQA.length; i++) {
+        var qa = knowledgeQA[i];
+        var allMatch = true;
+        for (var j = 0; j < qa.keys.length; j++) {
+            if (text.indexOf(qa.keys[j]) === -1) { allMatch = false; break; }
+        }
+        if (allMatch) { appendAiText(qa.answer); return; }
+    }
+
+    var replies = {
+        '知识点': '好的，告诉我你想整理哪个科目、哪个章节的知识点？\n\n我帮你梳理核心概念和易错点。',
+        '练习': '没问题！告诉我科目和难度，我来给你出几道针对性的练习题。',
+        '出': '好的，你想出哪个科目的题目？难度要求是什么？',
+        '讲': '你想让我讲什么？发一道具体的题目，或者告诉我某个知识点，我来帮你理清。',
+        '不懂': '没关系，我换个方式解释。\n\n你告诉我具体哪一步不理解？我们慢慢来。',
+        '不会': '没关系！让我再引导你一下。\n\n你先告诉我，这道题里你能看懂的部分是什么？',
+        '好': '还有什么想问的吗？拍照或者打字都行～',
+        '可以': '好的！还需要什么帮助就跟我说～'
+    };
+    var reply = '好问题！让我来给你解答。\n\n这是一个很有趣的问题，涉及到的知识点比较多。你可以告诉我你是几年级的，我用适合你的方式来讲解～';
+    for (var key in replies) {
+        if (text.indexOf(key) !== -1) {
+            reply = replies[key];
+            break;
+        }
+    }
+    appendAiText(reply);
+}
+
+/* ── 初始化 ── */
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        var q = sessionStorage.getItem('aiQuestion');
+        var source = sessionStorage.getItem('aiSource');
+        var image = sessionStorage.getItem('aiImage');
+
+        if (!source) return;
+
+        hideEmpty();
+
+        if (source === 'home-image' && image) {
+            appendUserMsg(q || '请帮我看看这道题', image);
+            routeReply(q || '请帮我看看这道题', true);
+        } else if (source === 'home-input' || source === 'home-prompt') {
+            appendUserMsg(q, null);
+            routeReply(q, false);
+        }
+
+        sessionStorage.removeItem('aiQuestion');
+        sessionStorage.removeItem('aiSource');
+        sessionStorage.removeItem('aiImage');
+    } catch (e) {}
+});
+</script>
+</body>
+</html>

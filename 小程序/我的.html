@@ -334,7 +334,7 @@
         <div class="flex-1 min-h-0 flex flex-col pt-[50px]">
             <nav class="top-nav" data-s="1">
                 <div class="top-nav-tabs">
-                    <a class="top-nav-tab" href="首页.html" data-doc="nav-home" data-prd="跳转首页（独立页面 首页.html）" data-track="/click/teacherLongMyPage/home | 点击首页 | 无">首页</a>
+                    <a class="top-nav-tab" id="homeLink" href="首页-v3.html" data-doc="nav-home" data-prd="跳转首页" data-track="/click/teacherLongMyPage/home | 点击首页 | 无">首页</a>
                     <button class="top-nav-tab active" data-doc="nav-me" data-prd="当前页面高亮态，不可点击">我的</button>
                 </div>
             </nav>
@@ -483,6 +483,11 @@
     </div>
 
     <script>
+        (function() {
+            var v = sessionStorage.getItem('homeVersion');
+            if (v === 'v1') { var el = document.getElementById('homeLink'); if (el) el.href = '首页.html'; }
+        })();
+
         function getStudents() {
             try { return JSON.parse(localStorage.getItem('students')) || []; } catch(e) { return []; }
         }

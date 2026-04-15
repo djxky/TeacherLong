@@ -93,9 +93,11 @@
             justify-content: center;
             position: relative;
         }
-        .ai-avatar-emoji {
-            font-size: 42px;
-            line-height: 1;
+        .ai-avatar-img {
+            width: 56px;
+            height: 56px;
+            object-fit: contain;
+            display: block;
         }
         .ai-avatar-ring {
             position: absolute;
@@ -250,6 +252,10 @@
             text-align: center;
             padding: 4px 0;
         }
+        @keyframes blink {
+            0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+            40% { opacity: 1; transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -280,7 +286,7 @@
 
             <div class="ai-avatar-wrap">
                 <div class="ai-avatar">
-                    <span class="ai-avatar-emoji" aria-hidden="true">🤖</span>
+                    <img class="ai-avatar-img" src="../assets/logo.png" alt="AI 讲解">
                     <div class="ai-avatar-ring"></div>
                 </div>
             </div>
@@ -321,13 +327,24 @@
         const textInputWrap = document.getElementById('text-input-wrap');
         const textInput = document.getElementById('text-input');
 
-        let stepIndex = 0;
-        const aiReplies = [
-            '这道题可以先化简再代入。我们先看分母 x - 1，当 x = 2 时，x - 1 = 1 ≠ 0，所以可以代入。',
-            '分子 x² - 1 可以因式分解为 (x + 1)(x - 1)，所以原式 = (x + 1)(x - 1) / (x - 1)。',
-            '约去 (x - 1) 后得到 x + 1，当 x = 2 时，结果就是 2 + 1 = 3。',
-            '总结：先化简成 x + 1，再代入 x = 2，答案是 3。如果还有哪一步不清楚，可以继续问我。'
+        let socraticStep = 0;
+
+        const socraticFlow = [
+            { type: 'think', text: '我看到这道题了。在我告诉你答案之前，我想先问你几个问题，帮你自己找到思路 🧐' },
+            { type: 'question', text: '你先看看这道题，它考的是哪个知识点？试着用一句话描述一下。' },
+            { type: 'question', text: '很好！那你觉得解这道题的第一步应该做什么？不用怕说错，先说说你的想法。' },
+            { type: 'hint', text: '💡 提示一下：你可以先试试把已知条件列出来，看看能不能找到关系。' },
+            { type: 'question', text: '你试着算一下？把过程写给我看看，我帮你检查每一步。' },
+            { type: 'confirm', text: '非常好！你的方向是对的。最终答案你能得出来吗？' },
+            { type: 'summary', text: '✅ 太棒了！你自己想出来的，我只是引导了一下。这道题的核心是理解题目中的条件关系。下次遇到类似的题，可以用同样的思路。\n\n要不要我再出一道类似的练习题巩固一下？' }
         ];
+
+        const freeFormReplies = {
+            '知识点': '好的，请告诉我你想整理哪个科目、哪个章节的知识点？我来帮你梳理核心要点和易错点。',
+            '练习': '没问题！告诉我科目和年级，我帮你出几道有针对性的练习题。',
+            '怎么做': '好的，你可以把题目拍照发给我，或者直接描述题目内容。我会一步步引导你思考。',
+            '出': '好的，告诉我科目和难度，我来给你出题。'
+        };
 
         function goBack() {
             if (window.history.length > 1) {
@@ -337,17 +354,105 @@
             }
         }
 
+        function appendUserMsg(text) {
+            var div = document.createElement('div');
+            div.className = 'msg user';
+            div.textContent = text;
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function appendUserImage(src, text) {
+            var div = document.createElement('div');
+            div.className = 'msg user';
+            div.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
+            if (text) {
+                var p = document.createElement('div');
+                p.textContent = text;
+                div.appendChild(p);
+            }
+            var img = document.createElement('img');
+            img.src = src;
+            img.style.cssText = 'max-width:180px;border-radius:8px;';
+            img.alt = '上传的题目图片';
+            div.appendChild(img);
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function appendAiMsg(text, isWarn) {
+            var div = document.createElement('div');
+            div.className = 'msg ai' + (isWarn ? ' warn' : '');
+            div.innerHTML = text.replace(/\n/g, '<br>');
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function appendTypingIndicator() {
+            var div = document.createElement('div');
+            div.className = 'msg ai';
+            div.id = 'typing-indicator';
+            div.innerHTML = '<span style="display:inline-flex;gap:4px;align-items:center;"><span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;animation:blink 1.4s infinite both;"></span><span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;animation:blink 1.4s 0.2s infinite both;"></span><span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;animation:blink 1.4s 0.4s infinite both;"></span></span>';
+            chatArea.appendChild(div);
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            var el = document.getElementById('typing-indicator');
+            if (el) el.remove();
+        }
+
+        function socraticReply() {
+            if (socraticStep >= socraticFlow.length) {
+                appendAiMsg('还有什么想问的吗？随时拍照或者打字提问～');
+                return;
+            }
+            var step = socraticFlow[socraticStep];
+            socraticStep++;
+            appendTypingIndicator();
+            setTimeout(function() {
+                removeTypingIndicator();
+                appendAiMsg(step.text);
+            }, 800 + Math.random() * 400);
+        }
+
+        function replyToUser(userText) {
+            if (socraticStep > 0 && socraticStep < socraticFlow.length) {
+                socraticReply();
+                return;
+            }
+            var reply = '收到！让我想想这个问题…\n\n你觉得这道题考的是什么知识点呢？我们一起来分析。';
+            for (var key in freeFormReplies) {
+                if (userText.indexOf(key) !== -1) { reply = freeFormReplies[key]; break; }
+            }
+            appendTypingIndicator();
+            setTimeout(function() {
+                removeTypingIndicator();
+                appendAiMsg(reply);
+            }, 600);
+        }
+
         function loadQuestion() {
             try {
-                const q = sessionStorage.getItem('aiQuestion');
-                const a = sessionStorage.getItem('aiAnalysis');
-                const source = sessionStorage.getItem('aiSource');
+                var q = sessionStorage.getItem('aiQuestion');
+                var a = sessionStorage.getItem('aiAnalysis');
+                var source = sessionStorage.getItem('aiSource');
+                var image = sessionStorage.getItem('aiImage');
+
+                if (source === 'home-image' && image) {
+                    document.querySelector('.question-card').style.display = 'none';
+                    appendUserImage(image, q);
+                    socraticReply();
+                    sessionStorage.removeItem('aiSource');
+                    sessionStorage.removeItem('aiImage');
+                    return;
+                }
 
                 if (source === 'home-input' || source === 'home-prompt') {
                     document.querySelector('.question-card').style.display = 'none';
                     if (q) {
                         appendUserMsg(q);
-                        replyFreeForm(q);
+                        replyToUser(q);
                     }
                     sessionStorage.removeItem('aiSource');
                     return;
@@ -355,61 +460,21 @@
 
                 if (q) questionContent.textContent = q;
                 if (a) {
-                    const firstLine = a.replace(/<[^>]+>/g, ' ').trim().slice(0, 80);
+                    var firstLine = a.replace(/<[^>]+>/g, ' ').trim().slice(0, 80);
                     if (firstLine) questionContent.textContent = questionContent.textContent + '\n\n（答案解析摘要：' + firstLine + '…）';
                 }
             } catch (e) {}
-        }
-
-        function replyFreeForm(text) {
-            var responses = {
-                '检查': '好的，请把作业拍照发给我，我来帮你逐题检查～',
-                '练习': '没问题！请告诉我科目和年级，我帮你出一份有针对性的练习卷。',
-                '错题': '我来帮你分析错题原因。请把错题拍照或者描述一下题目内容。',
-                '知识点': '好的，请告诉我你想整理哪个科目、哪个章节的知识点？我帮你梳理要点。'
-            };
-            var reply = '收到！我来帮你看看这个问题。请稍等…';
-            for (var key in responses) {
-                if (text.indexOf(key) !== -1) { reply = responses[key]; break; }
-            }
-            setTimeout(function() { appendAiMsg(reply); }, 600);
-        }
-
-        function appendUserMsg(text) {
-            const div = document.createElement('div');
-            div.className = 'msg user';
-            div.textContent = text;
-            chatArea.appendChild(div);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
-
-        function appendAiMsg(text, isWarn) {
-            const div = document.createElement('div');
-            div.className = 'msg ai' + (isWarn ? ' warn' : '');
-            div.textContent = text;
-            chatArea.appendChild(div);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
-
-        function replyFromAi(userText) {
-            if (userText.includes('不懂') || userText.includes('不会') || userText.includes('怎么') || userText.includes('？') || userText.includes('?')) {
-                const reply = aiReplies[stepIndex % aiReplies.length];
-                stepIndex++;
-                setTimeout(() => appendAiMsg(reply), 600);
-            } else {
-                setTimeout(() => appendAiMsg('你可以问「这道题怎么做？」或「先化简是什么意思？」我会一步步讲给你听。'), 600);
-            }
         }
 
         function toggleVoiceInput() {
             if (voiceBtn.textContent.includes('点击说话')) {
                 voiceBtn.innerHTML = '<span>正在聆听...</span>';
                 voiceBtn.classList.add('opacity-90');
-                setTimeout(() => {
+                setTimeout(function() {
                     voiceBtn.innerHTML = '<svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg> 点击说话';
                     voiceBtn.classList.remove('opacity-90');
                     appendUserMsg('这道题怎么做？');
-                    replyFromAi('这道题怎么做？');
+                    replyToUser('这道题怎么做？');
                 }, 1500);
             }
         }
@@ -427,11 +492,11 @@
         }
 
         function sendText() {
-            const t = textInput.value.trim();
+            var t = textInput.value.trim();
             if (!t) return;
             appendUserMsg(t);
             textInput.value = '';
-            replyFromAi(t);
+            replyToUser(t);
         }
 
         textInput.addEventListener('keydown', function (e) {

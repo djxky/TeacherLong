@@ -318,11 +318,12 @@
 
         function goBack() {
             var params = new URLSearchParams(window.location.search);
-            if (params.get('show') === 'result' || params.get('from') === 'notebook') {
+            if (params.get('from') === 'notebook') {
                 window.history.back();
-            } else {
-                window.location.href = '../作业/作业批改.html?mode=diagnosis';
+                return;
             }
+            var v = sessionStorage.getItem('homeVersion');
+            window.location.href = v === 'v1' ? '../首页.html' : '../首页-v3.html';
         }
         function goBackToCamera() {
             window.location.href = '../作业/作业批改.html?mode=diagnosis';
