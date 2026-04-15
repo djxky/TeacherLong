@@ -247,6 +247,81 @@
             0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
             40% { opacity: 1; transform: scale(1); }
         }
+
+        /* ── 过稿模式 ── */
+        .mode-toggle {
+            position: fixed; top: 24px; right: 32px; z-index: 900;
+            display: flex; background: #fff; border-radius: 12px;
+            box-shadow: 0 4px 24px -4px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .mode-toggle button {
+            padding: 10px 24px; border: none; background: transparent;
+            color: #94a3b8; cursor: pointer; font-family: inherit;
+            font-size: 0.8125rem; font-weight: 600; transition: all 0.2s;
+        }
+        .mode-toggle button.active { background: #7c3aed; color: #fff; }
+        .review-panel {
+            position: fixed; top: 60px; right: 32px;
+            width: 380px; height: 520px; min-width: 280px; min-height: 300px;
+            background: #fff; z-index: 1500; border-radius: 16px;
+            box-shadow: 0 12px 48px -8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06);
+            display: none; flex-direction: column;
+            font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+            overflow: hidden;
+        }
+        .review-panel.open { display: flex; }
+        .rp-header {
+            padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+            cursor: move; user-select: none; -webkit-user-select: none;
+            background: linear-gradient(180deg, #faf8ff, #fff);
+        }
+        .rp-header h2 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0; pointer-events: none; }
+        .rp-header span { font-size: 11px; color: #94a3b8; pointer-events: none; }
+        .rp-close {
+            width: 26px; height: 26px; border-radius: 8px; border: none;
+            background: #f8fafc; color: #64748b; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+        }
+        .rp-close:hover { background: #fee2e2; color: #ef4444; }
+        .rp-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+        .rp-body::-webkit-scrollbar { width: 4px; }
+        .rp-body::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 2px; }
+        .rp-section { margin-bottom: 16px; }
+        .rp-section-title {
+            font-size: 11px; font-weight: 700; color: #7c3aed; text-transform: uppercase;
+            letter-spacing: 0.05em; margin-bottom: 8px;
+            padding-bottom: 6px; border-bottom: 1px solid #f5f3ff;
+        }
+        .rp-mdoc {
+            padding: 16px; font-size: 13px; color: #334155; line-height: 1.7;
+        }
+        .rp-mdoc h1 { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 2px solid #ede9fe; }
+        .rp-mdoc h2 { font-size: 14px; font-weight: 700; color: #1e1b4b; margin: 20px 0 8px; padding: 6px 10px; background: #f5f3ff; border-radius: 6px; border-left: 3px solid #7c3aed; }
+        .rp-mdoc h3 { font-size: 13px; font-weight: 700; color: #0f172a; margin: 14px 0 4px; }
+        .rp-mdoc h4 { font-size: 12px; font-weight: 700; color: #475569; margin: 10px 0 4px; }
+        .rp-mdoc p { margin: 0 0 6px; }
+        .rp-mdoc ul { padding-left: 16px; margin: 0 0 8px; }
+        .rp-mdoc li { margin-bottom: 3px; }
+        .rp-mdoc table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 12px; }
+        .rp-mdoc th { background: #f8fafc; font-weight: 600; color: #475569; text-align: left; padding: 6px 8px; border: 1px solid #e2e8f0; }
+        .rp-mdoc td { padding: 5px 8px; border: 1px solid #e2e8f0; vertical-align: top; }
+        .rp-mdoc code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 11px; font-family: 'SF Mono','Menlo',monospace; color: #7c3aed; }
+        .rp-mdoc pre { background: #1e293b; color: #e2e8f0; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 8px 0; font-size: 11px; line-height: 1.5; }
+        .rp-mdoc pre code { background: none; color: inherit; padding: 0; }
+        .rp-mdoc hr { border: none; border-top: 1px solid #f1f5f9; margin: 16px 0; }
+        .rp-mdoc blockquote { margin: 8px 0; padding: 8px 12px; background: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 0 6px 6px 0; font-size: 12px; color: #92400e; }
+        .rp-mdoc .prd-note { margin: 6px 0; padding: 6px 10px; background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 0 6px 6px 0; font-size: 11px; color: #991b1b; }
+        .rp-resize { position: absolute; z-index: 10; }
+        .rp-resize-e { top: 0; right: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-w { top: 0; left: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-s { bottom: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-n { top: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-se { bottom: -4px; right: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
+        .rp-resize-sw { bottom: -4px; left: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-ne { top: -4px; right: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-nw { top: -4px; left: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
     </style>
 </head>
 <body>
@@ -308,6 +383,37 @@
                 <input type="file" id="ciFileInput" accept="image/*" capture="environment" style="display:none;">
             </div>
         </div>
+    </div>
+
+    <!-- 过稿面板 -->
+    <div class="review-panel" id="reviewPanel">
+        <div class="rp-resize rp-resize-n" data-dir="n"></div>
+        <div class="rp-resize rp-resize-s" data-dir="s"></div>
+        <div class="rp-resize rp-resize-e" data-dir="e"></div>
+        <div class="rp-resize rp-resize-w" data-dir="w"></div>
+        <div class="rp-resize rp-resize-ne" data-dir="ne"></div>
+        <div class="rp-resize rp-resize-nw" data-dir="nw"></div>
+        <div class="rp-resize rp-resize-se" data-dir="se"></div>
+        <div class="rp-resize rp-resize-sw" data-dir="sw"></div>
+        <div class="rp-header" id="rpHeader">
+            <div>
+                <h2>📋 产品稿 · 对话页</h2>
+                <span>docs/prd/对话.md</span>
+            </div>
+            <button class="rp-close" onclick="setMode('demo')">✕</button>
+        </div>
+        <div class="rp-body" id="rpBody">
+            <div class="rp-section">
+                <div class="rp-section-title">📄 产品稿文档</div>
+                <div class="rp-mdoc" id="rpDocContent">加载中…</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模式切换（右上角） -->
+    <div class="mode-toggle" id="modeToggle">
+        <button class="active" onclick="setMode('demo')">演示</button>
+        <button onclick="setMode('review')">过稿</button>
     </div>
 
     <!-- 语音录入浮层 -->
@@ -855,6 +961,180 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.removeItem('aiImage');
     } catch (e) {}
 });
+
+/* ── 过稿模式 ── */
+var reviewOpen = false;
+var prdLoaded = false;
+
+function renderMd(md) {
+    var inCode = false, codeLines = [], inTable = false, tableLines = [];
+    var out = [];
+    md.split('\n').forEach(function(line) {
+        if (line.match(/^```/)) {
+            if (inCode) { out.push('<pre><code>' + codeLines.join('\n') + '</code></pre>'); codeLines = []; }
+            inCode = !inCode; return;
+        }
+        if (inCode) { codeLines.push(line.replace(/</g,'&lt;')); return; }
+        if (line.match(/^\|.+\|$/)) {
+            if (line.match(/^\|[\s:|-]+\|$/)) return;
+            var cells = line.split('|').filter(function(c,i,a){return i>0&&i<a.length-1;}).map(function(c){return c.trim();});
+            if (!inTable) { inTable = true; tableLines = []; }
+            tableLines.push(cells);
+            return;
+        }
+        if (inTable) { flushTable(); inTable = false; }
+        if (line.match(/^#{1}\s/)) { out.push('<h1>'+inl(line.replace(/^#\s+/,''))+'</h1>'); return; }
+        if (line.match(/^#{2}\s/)) { out.push('<h2>'+inl(line.replace(/^##\s+/,''))+'</h2>'); return; }
+        if (line.match(/^#{3}\s/)) { out.push('<h3>'+inl(line.replace(/^###\s+/,''))+'</h3>'); return; }
+        if (line.match(/^#{4}\s/)) { out.push('<h4>'+inl(line.replace(/^####\s+/,''))+'</h4>'); return; }
+        if (line.match(/^>\s+/)) { out.push('<blockquote>'+inl(line.replace(/^>\s+/,''))+'</blockquote>'); return; }
+        if (line.match(/^\[!\]/)) { out.push('<div class="prd-note">'+inl(line.replace(/^\[!\]\s*/,''))+'</div>'); return; }
+        if (line.match(/^---$/)) { out.push('<hr>'); return; }
+        if (line.match(/^[-*]\s/)) { out.push('<li>'+inl(line.replace(/^[-*]\s+/,''))+'</li>'); return; }
+        if (line.match(/^\d+\.\s/)) { out.push('<li>'+inl(line.replace(/^\d+\.\s+/,''))+'</li>'); return; }
+        if (line.trim()) out.push('<p>'+inl(line)+'</p>');
+    });
+    if (inTable) flushTable();
+    function flushTable() {
+        var h='<table><thead><tr>'+tableLines[0].map(function(c){return '<th>'+inl(c)+'</th>';}).join('')+'</tr></thead><tbody>';
+        for(var i=1;i<tableLines.length;i++) h+='<tr>'+tableLines[i].map(function(c){return '<td>'+inl(c)+'</td>';}).join('')+'</tr>';
+        out.push(h+'</tbody></table>');
+    }
+    function inl(s) {
+        return s
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    }
+    return out.join('\n');
+}
+
+var _currentMode = 'demo';
+function setMode(mode) {
+    if (mode === _currentMode) return;
+    _currentMode = mode;
+    var btns = document.querySelectorAll('#modeToggle button');
+    btns.forEach(function(b, i) { b.classList.toggle('active', mode === 'demo' ? i === 0 : i === 1); });
+    if (mode === 'review') {
+        reviewOpen = true;
+        document.getElementById('reviewPanel').classList.add('open');
+        if (!prdLoaded) loadPrdDoc();
+    } else {
+        reviewOpen = false;
+        document.getElementById('reviewPanel').classList.remove('open');
+    }
+}
+
+document.getElementById('modeToggle').addEventListener('click', function(e) { e.stopPropagation(); });
+
+if (new URLSearchParams(window.location.search).get('mode') === 'review') {
+    setTimeout(function() { _currentMode = 'demo'; setMode('review'); }, 100);
+}
+
+function loadPrdDoc() {
+    prdLoaded = true;
+    fetch('docs/prd/对话.md')
+        .then(function(r) { return r.ok ? r.text() : Promise.reject(); })
+        .then(function(md) {
+            document.getElementById('rpDocContent').innerHTML = renderMd(md);
+        })
+        .catch(function() {
+            document.getElementById('rpDocContent').textContent = '未找到 docs/prd/对话.md 文件';
+        });
+}
+
+/* ── 拖拽移动 & 调整大小 ── */
+(function() {
+    var panel, header, dragging = false, ox, oy, sx, sy;
+    document.addEventListener('DOMContentLoaded', function() {
+        panel = document.getElementById('reviewPanel');
+        header = document.getElementById('rpHeader');
+        header.addEventListener('mousedown', startDrag);
+        header.addEventListener('touchstart', startDragTouch, { passive: false });
+        panel.querySelectorAll('.rp-resize').forEach(function(h) {
+            h.addEventListener('mousedown', startResize);
+            h.addEventListener('touchstart', startResizeTouch, { passive: false });
+        });
+    });
+    function startDrag(e) {
+        if (e.target.closest('.rp-close')) return;
+        dragging = true;
+        ox = e.clientX; oy = e.clientY;
+        sx = panel.offsetLeft; sy = panel.offsetTop;
+        document.addEventListener('mousemove', onDrag);
+        document.addEventListener('mouseup', stopDrag);
+        e.preventDefault();
+    }
+    function startDragTouch(e) {
+        if (e.target.closest('.rp-close')) return;
+        dragging = true;
+        var t = e.touches[0];
+        ox = t.clientX; oy = t.clientY;
+        sx = panel.offsetLeft; sy = panel.offsetTop;
+        document.addEventListener('touchmove', onDragTouch, { passive: false });
+        document.addEventListener('touchend', stopDrag);
+        e.preventDefault();
+    }
+    function onDrag(e) { if (dragging) moveTo(e.clientX, e.clientY); }
+    function onDragTouch(e) {
+        if (!dragging) return;
+        moveTo(e.touches[0].clientX, e.touches[0].clientY);
+        e.preventDefault();
+    }
+    function moveTo(cx, cy) {
+        var nx = sx + (cx - ox), ny = sy + (cy - oy);
+        nx = Math.max(0, Math.min(nx, window.innerWidth - 80));
+        ny = Math.max(0, Math.min(ny, window.innerHeight - 40));
+        panel.style.left = nx + 'px'; panel.style.top = ny + 'px'; panel.style.right = 'auto';
+    }
+    function stopDrag() {
+        dragging = false;
+        document.removeEventListener('mousemove', onDrag);
+        document.removeEventListener('mouseup', stopDrag);
+        document.removeEventListener('touchmove', onDragTouch);
+        document.removeEventListener('touchend', stopDrag);
+    }
+    var resizing = false, rDir, rox, roy, rRect;
+    function startResize(e) {
+        rDir = e.target.dataset.dir; resizing = true;
+        rox = e.clientX; roy = e.clientY;
+        rRect = { l: panel.offsetLeft, t: panel.offsetTop, w: panel.offsetWidth, h: panel.offsetHeight };
+        document.addEventListener('mousemove', onResize);
+        document.addEventListener('mouseup', stopResize);
+        e.preventDefault(); e.stopPropagation();
+    }
+    function startResizeTouch(e) {
+        rDir = e.target.dataset.dir; resizing = true;
+        var t = e.touches[0]; rox = t.clientX; roy = t.clientY;
+        rRect = { l: panel.offsetLeft, t: panel.offsetTop, w: panel.offsetWidth, h: panel.offsetHeight };
+        document.addEventListener('touchmove', onResizeTouch, { passive: false });
+        document.addEventListener('touchend', stopResize);
+        e.preventDefault(); e.stopPropagation();
+    }
+    function onResize(e) { if (resizing) applyResize(e.clientX, e.clientY); }
+    function onResizeTouch(e) {
+        if (!resizing) return;
+        applyResize(e.touches[0].clientX, e.touches[0].clientY);
+        e.preventDefault();
+    }
+    function applyResize(cx, cy) {
+        var dx = cx - rox, dy = cy - roy, minW = 280, minH = 300;
+        var nl = rRect.l, nt = rRect.t, nw = rRect.w, nh = rRect.h;
+        if (rDir.indexOf('e') >= 0) nw = Math.max(minW, rRect.w + dx);
+        if (rDir.indexOf('w') >= 0) { nw = Math.max(minW, rRect.w - dx); nl = rRect.l + rRect.w - nw; }
+        if (rDir.indexOf('s') >= 0) nh = Math.max(minH, rRect.h + dy);
+        if (rDir.indexOf('n') >= 0) { nh = Math.max(minH, rRect.h - dy); nt = rRect.t + rRect.h - nh; }
+        panel.style.width = nw + 'px'; panel.style.height = nh + 'px';
+        panel.style.left = nl + 'px'; panel.style.top = nt + 'px'; panel.style.right = 'auto';
+    }
+    function stopResize() {
+        resizing = false;
+        document.removeEventListener('mousemove', onResize);
+        document.removeEventListener('mouseup', stopResize);
+        document.removeEventListener('touchmove', onResizeTouch);
+        document.removeEventListener('touchend', stopResize);
+    }
+})();
 </script>
 </body>
 </html>
