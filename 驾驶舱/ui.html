@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平谷区 AI 赋能教学应用数据监测</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap');
+        
+        body {
+            background-color: #060c17;
+            color: #ffffff;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            overflow: hidden;
+        }
+
+        /* 科技感边框装饰 */
+        .dv-card {
+            background: rgba(22, 28, 43, 0.8);
+            border: 1px solid rgba(64, 158, 255, 0.2);
+            position: relative;
+        }
+
+        .dv-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 10px; height: 10px;
+            border-top: 2px solid #409eff; border-left: 2px solid #409eff;
+        }
+
+        /* 数字专用字体 */
+        .font-num {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(64, 158, 255, 0.3); border-radius: 10px; }
+
+        /* 标题渐变线 */
+        .header-line {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #409eff, #42b983, #409eff, transparent);
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        /* 呼吸动画 */
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(66, 185, 131, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(66, 185, 131, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(66, 185, 131, 0); }
+        }
+        .dot-active {
+            animation: pulse-green 2s infinite;
+        }
+    </style>
+</head>
+<body class="p-4 h-screen flex flex-col">
+
+    <header class="flex justify-between items-center mb-4">
+        <div class="text-xs text-gray-400 font-num">2026-03-09 — 2026-03-15</div>
+        <div class="text-center">
+            <h1 class="text-3xl font-bold tracking-widest text-white italic">
+                平谷区 AI 赋能教学应用数据监测
+            </h1>
+            <div class="header-line"></div>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="text-sm">胡老师</span>
+            <div class="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-400 flex items-center justify-center">
+                <span class="text-xs">👤</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex justify-center gap-32 mb-6">
+        <div class="text-center">
+            <div class="text-4xl font-num font-bold text-[#42b983]">18 <span class="text-sm font-normal text-gray-500">所</span></div>
+            <div class="text-xs text-gray-400 mt-1">覆盖学校数</div>
+        </div>
+        <div class="text-center">
+            <div class="text-4xl font-num font-bold">252 <span class="text-sm font-normal text-gray-500">人</span></div>
+            <div class="text-xs text-gray-400 mt-1">参与老师数</div>
+        </div>
+        <div class="text-center">
+            <div class="text-4xl font-num font-bold">3157 <span class="text-sm font-normal text-gray-500">人</span></div>
+            <div class="text-xs text-gray-400 mt-1">参与学生数</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-4 gap-4 flex-1 min-h-0">
+        
+        <div class="col-span-1 flex flex-col gap-4">
+            <div class="dv-card p-4 flex-1">
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="border-l-4 border-blue-500 pl-2">学习时长趋势</span>
+                    <span class="text-gray-500 text-xs cursor-pointer">详情 ></span>
+                </div>
+                <div class="text-[10px] text-gray-400">单日最高学习时长 <span class="text-[#42b983] font-bold">3214.1</span> 小时</div>
+                <div id="chart-line" class="w-full h-32 mt-2"></div>
+            </div>
+
+            <div class="dv-card p-4 flex-[1.5] overflow-hidden">
+                <div class="flex justify-between text-sm mb-4">
+                    <span class="border-l-4 border-blue-500 pl-2">课后作业师均使用次数排行</span>
+                    <span class="text-gray-500 text-xs">详情 ></span>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between text-xs items-center">
+                        <span class="truncate w-40 opacity-80">1 北京市平谷区东高村学校</span>
+                        <span class="text-[#42b983] font-num">4.6</span>
+                    </div>
+                    <div class="flex justify-between text-xs items-center opacity-60">
+                        <span class="truncate w-40">2 北京市平谷区第七中学</span>
+                        <span class="text-[#42b983] font-num">3.4</span>
+                    </div>
+                    <div class="flex justify-between text-xs items-center opacity-60">
+                        <span class="truncate w-40">3 北京青年政治学院平谷学校</span>
+                        <span class="text-[#42b983] font-num">2.9</span>
+                    </div>
+                    </div>
+            </div>
+        </div>
+
+        <div class="col-span-2 flex flex-col gap-4">
+            <div class="dv-card flex-1 relative bg-[#0a1220] overflow-hidden">
+                <svg class="absolute inset-0 w-full h-full opacity-20" viewBox="0 0 800 600">
+                    <path d="M200 100 L300 80 L500 150 L600 300 L550 500 L300 550 L150 400 Z" fill="none" stroke="#409eff" stroke-width="2" />
+                </svg>
+                
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#1a2335]/90 border border-[#42b983] p-4 rounded shadow-2xl z-10">
+                    <div class="text-[#42b983] font-bold text-sm flex items-center gap-2 mb-3">
+                        <div class="w-2 h-2 rounded-full bg-[#42b983] dot-active"></div>
+                        北京市平谷区第五中学
+                    </div>
+                    <div class="grid grid-cols-3 gap-6 text-[10px] text-gray-400">
+                        <div>参与学生<p class="text-white text-base font-num">582</p></div>
+                        <div>参与老师<p class="text-white text-base font-num">29</p></div>
+                        <div>学习时长<p class="text-[#42b983] text-base font-num">2888.3</p></div>
+                    </div>
+                </div>
+
+                <div class="absolute bottom-4 left-4 right-4 h-16 bg-black/40 backdrop-blur p-2 border-l-4 border-[#42b983] text-[10px]">
+                    <div class="text-gray-500 mb-1">实时动态播报</div>
+                    <div class="flex gap-4">
+                        <span class="text-gray-500 italic">15:11</span>
+                        <span>北京市平谷区第五中学 <span class="text-blue-400">郝孟涵</span> 发布了 【数学】 课堂练习</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-span-1 flex flex-col gap-4">
+            <div class="dv-card p-4 flex-1">
+                <div class="text-sm mb-4 border-l-4 border-blue-500 pl-2">教学资源</div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <div class="text-[10px] text-gray-500">精品题目</div>
+                        <div class="text-lg font-num font-bold">25 <span class="text-[10px] font-normal opacity-50">亿道</span></div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-gray-500">试卷资源</div>
+                        <div class="text-lg font-num font-bold">300 <span class="text-[10px] font-normal opacity-50">万套</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dv-card p-4 flex-1">
+                <div class="flex justify-between text-sm mb-4">
+                    <span class="border-l-4 border-blue-500 pl-2">学校学习指数排行</span>
+                    <span class="text-gray-500 text-xs">详情 ></span>
+                </div>
+                <div class="space-y-4">
+                    <div class="relative pt-1">
+                        <div class="flex items-center justify-between text-[10px] mb-1">
+                            <span class="opacity-80">1 东高村学校</span>
+                            <span class="text-[#42b983]">98.2%</span>
+                        </div>
+                        <div class="overflow-hidden h-1 flex rounded bg-gray-700">
+                            <div style="width:98%" class="bg-[#42b983]"></div>
+                        </div>
+                    </div>
+                    <div class="relative pt-1 opacity-60">
+                        <div class="flex items-center justify-between text-[10px] mb-1">
+                            <span class="opacity-80">2 小香玉艺术学校</span>
+                            <span class="text-[#42b983]">85.4%</span>
+                        </div>
+                        <div class="overflow-hidden h-1 flex rounded bg-gray-700">
+                            <div style="width:85%" class="bg-[#42b983]"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dv-card p-4 flex-1">
+                <div class="text-sm mb-2 border-l-4 border-blue-500 pl-2">阅读情况</div>
+                <div id="chart-pie" class="w-full h-32"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mt-4 h-32">
+        <div class="dv-card p-4 grid grid-cols-4 items-center gap-4">
+            <div class="col-span-1 text-center border-r border-gray-800">
+                <div class="text-xs text-gray-500 mb-1">智能助学</div>
+                <div class="text-xl font-num text-[#42b983] font-bold">14275</div>
+                <div class="text-[10px] opacity-40">学习总时长(h)</div>
+            </div>
+            <div class="col-span-3 grid grid-cols-3 gap-2">
+                <div class="bg-white/5 p-2 rounded text-center">
+                    <div class="text-[10px] text-gray-500">视频播放</div>
+                    <div class="text-sm font-num">4233</div>
+                </div>
+                <div class="bg-white/5 p-2 rounded text-center">
+                    <div class="text-[10px] text-gray-500">练习次数</div>
+                    <div class="text-sm font-num">39273</div>
+                </div>
+                <div class="bg-white/5 p-2 rounded text-center">
+                    <div class="text-[10px] text-gray-500">举一反三</div>
+                    <div class="text-sm font-num text-[#42b983]">2530</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dv-card p-4 grid grid-cols-4 items-center gap-4">
+            <div class="col-span-1 text-center border-r border-gray-800">
+                <div class="text-xs text-gray-500 mb-1">学习成果</div>
+                <div class="text-xl font-num text-red-500 font-bold">40256</div>
+                <div class="text-[10px] opacity-40">错题总数</div>
+            </div>
+            <div class="col-span-3 grid grid-cols-3 gap-2">
+                <div class="bg-white/5 p-2 rounded text-center">
+                    <div class="text-[10px] text-gray-500">已订正</div>
+                    <div class="text-sm font-num">4804</div>
+                </div>
+                <div class="bg-white/5 p-2 rounded text-center">
+                    <div class="text-[10px] text-gray-500">薄弱点</div>
+                    <div class="text-sm font-num">12474</div>
+                </div>
+                <div class="bg-white/5 p-2 rounded text-center border border-red-900/30">
+                    <div class="text-[10px] text-red-400">消除薄弱点</div>
+                    <div class="text-sm font-num text-red-400">5384</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化折线图
+        const lineChart = echarts.init(document.getElementById('chart-line'));
+        lineChart.setOption({
+            grid: { top: 10, bottom: 20, left: 30, right: 10 },
+            xAxis: {
+                type: 'category',
+                data: ['03-09', '03-11', '03-13', '03-15'],
+                axisLabel: { color: '#666', fontSize: 10 },
+                axisLine: { show: false }
+            },
+            yAxis: {
+                type: 'value',
+                splitLine: { lineStyle: { color: '#222' } },
+                axisLabel: { color: '#666', fontSize: 10 }
+            },
+            series: [{
+                data: [1800, 1500, 3214, 1200],
+                type: 'line',
+                smooth: true,
+                symbol: 'none',
+                lineStyle: { color: '#42b983', width: 3 },
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: 'rgba(66, 185, 131, 0.3)' },
+                        { offset: 1, color: 'rgba(66, 185, 131, 0)' }
+                    ])
+                }
+            }]
+        });
+
+        // 初始化饼图
+        const pieChart = echarts.init(document.getElementById('chart-pie'));
+        pieChart.setOption({
+            series: [{
+                type: 'pie',
+                radius: ['60%', '80%'],
+                center: ['50%', '50%'],
+                avoidLabelOverlap: false,
+                label: { show: false },
+                data: [
+                    { value: 508, name: '五中', itemStyle: { color: '#42b983' } },
+                    { value: 346, name: '实验学校', itemStyle: { color: '#409eff' } },
+                    { value: 200, name: '其他', itemStyle: { color: '#333' } }
+                ]
+            }]
+        });
+
+        // 响应式
+        window.onresize = () => {
+            lineChart.resize();
+            pieChart.resize();
+        };
+    </script>
+</body>
+</html>

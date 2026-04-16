@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>龙岗区教育局 AI 龙老师 数据驾驶舱</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <style>
+    :root{
+      --bg:#080d1a;--card:#0e1526;--card2:#121d33;--bdr:#182641;
+      --blue:#3b82f6;--cyan:#06b6d4;--green:#22c55e;--gold:#eab308;--orange:#f97316;--purple:#a78bfa;
+      --t1:#eef2f9;--t2:#94a3b8;--t3:#475569;--sb-w:420px;
+      --ease:cubic-bezier(.22,1,.36,1)
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow:hidden}
+    body{font-family:-apple-system,'PingFang SC','Noto Sans SC','Helvetica Neue',sans-serif;background:var(--bg);color:var(--t1)}
+    ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px}
+
+    #M{height:100vh;display:flex;flex-direction:column;padding:10px 14px;transition:margin-right .4s var(--ease)}
+
+    .hd{display:flex;align-items:center;gap:10px;height:36px;flex-shrink:0;margin-bottom:8px}
+    .bk{width:28px;height:28px;border-radius:6px;background:var(--card);border:1px solid var(--bdr);color:var(--t2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;transition:border-color .2s}.bk:hover{border-color:var(--blue)}
+    .sel{background:var(--card);border:1px solid var(--bdr);color:var(--t1);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit;outline:none}.sel:focus{border-color:var(--blue)}
+    .hd-title{flex:1;text-align:center;font-size:17px;font-weight:700;letter-spacing:3px;color:#fff}
+    .hd-title em{font-style:normal;color:var(--cyan)}
+    .mo{display:flex;border:1px solid var(--bdr);border-radius:6px;overflow:hidden}
+    .mo button{padding:4px 14px;font-size:11px;cursor:pointer;background:transparent;color:var(--t2);border:none;font-family:inherit;transition:all .15s;letter-spacing:.5px}
+    .mo button.on{background:var(--blue);color:#fff;font-weight:600}
+
+    .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;flex-shrink:0;margin-bottom:8px}
+    .kpi{background:var(--card);border-radius:8px;padding:8px 12px 6px;position:relative;overflow:hidden;border:1px solid transparent;transition:border-color .3s}
+    .kpi:hover{border-color:rgba(59,130,246,.2)}
+    .kpi .label{font-size:9px;color:var(--t3);margin-bottom:2px;letter-spacing:.5px;font-weight:500}
+    .kpi .val{font-size:22px;font-weight:800;color:#fff;line-height:1.1;font-variant-numeric:tabular-nums}
+    .kpi .val .unit{font-size:10px;font-weight:400;color:var(--t2);margin-left:2px}
+    .kpi .delta{display:inline-flex;align-items:center;gap:2px;font-size:8px;font-weight:600;padding:1px 5px;border-radius:3px;margin-top:3px}
+    .kpi .delta.up{background:rgba(34,197,94,.1);color:var(--green)}
+    .kpi .spark{position:absolute;bottom:4px;right:8px;width:60px;height:20px;opacity:.45}
+    .kpi:hover .spark{opacity:.7}
+
+    .body{flex:1;display:grid;grid-template-columns:22% 1fr 24%;gap:8px;min-height:0;overflow:hidden}
+    .col{display:flex;flex-direction:column;gap:8px;min-height:0;min-width:0;overflow:hidden}
+
+    .card{background:var(--card);border-radius:10px;padding:10px 12px;border:1px solid transparent;transition:border-color .3s,box-shadow .4s;display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden}
+    .card:hover{border-color:rgba(59,130,246,.12)}
+    .card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-shrink:0}
+    .card-h h3{font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;gap:5px}
+    .card-h h3 .ic{font-size:13px}
+    .card-h .tag{font-size:9px;color:var(--t2);background:var(--card2);padding:2px 7px;border-radius:4px}
+    .cw{flex:1;position:relative;min-height:0}
+
+    .hb{margin-bottom:4px}
+    .hb:last-child{margin-bottom:0}
+    .hb-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+    .hb-name{font-size:10px;color:var(--t2);display:flex;align-items:center;gap:4px}
+    .hb-name .rank{width:15px;height:15px;border-radius:4px;font-size:8px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+    .rank.r1{background:linear-gradient(135deg,#f59e0b,#d97706);color:#000}
+    .rank.r2{background:linear-gradient(135deg,#94a3b8,#64748b);color:#000}
+    .rank.r3{background:linear-gradient(135deg,#b45309,#92400e);color:#fff}
+    .rank.rn{background:var(--bdr);color:var(--t3)}
+    .hb-val{font-size:10px;font-weight:600;color:var(--t1);font-variant-numeric:tabular-nums}
+    .hb-track{height:4px;background:rgba(59,130,246,.08);border-radius:2px;overflow:hidden}
+    .hb-fill{height:100%;border-radius:2px;transition:width 1.2s var(--ease)}
+    .fill-blue{background:linear-gradient(90deg,var(--blue),var(--cyan))}
+    .fill-green{background:linear-gradient(90deg,var(--green),#34d399)}
+    .fill-cyan{background:linear-gradient(90deg,var(--cyan),#67e8f9)}
+    .fill-gold{background:linear-gradient(90deg,var(--gold),#fde047)}
+    .fill-purple{background:linear-gradient(90deg,var(--purple),#c4b5fd)}
+
+    .sec{transition:box-shadow .4s}
+    .sec.glow{box-shadow:0 0 0 1.5px var(--blue),0 0 24px rgba(59,130,246,.1)}
+
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    .feed-v{position:absolute;left:10px;bottom:10px;width:280px;max-height:55%;overflow:hidden;pointer-events:none;z-index:2;mask-image:linear-gradient(to bottom,transparent 0%,#000 15%,#000 85%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 15%,#000 85%,transparent 100%)}
+    .feed-v-track{display:flex;flex-direction:column;gap:5px;animation:scroll-feed-v 50s linear infinite}
+    .feed-v-track:hover{animation-play-state:paused;pointer-events:auto}
+    .feed-v-item{background:rgba(14,21,38,.78);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border:1px solid rgba(24,38,65,.5);border-radius:5px;padding:4px 8px;font-size:9px;color:var(--t2);display:flex;align-items:center;gap:4px;white-space:nowrap}
+    .feed-dot{width:4px;height:4px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
+    .feed-school{color:var(--green);font-weight:600}
+    .feed-time{color:var(--t3);font-size:8px}
+    @keyframes scroll-feed-v{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}
+
+    .eff{flex-shrink:0;background:var(--card);border-radius:10px;padding:8px 12px;border:1px solid transparent;transition:border-color .3s}
+    .eff:hover{border-color:rgba(59,130,246,.12)}
+
+    #SB{position:fixed;top:0;right:0;width:var(--sb-w);height:100vh;background:linear-gradient(180deg,#0a1122,#080e1a);border-left:1px solid var(--bdr);z-index:100;transform:translateX(100%);transition:transform .4s var(--ease);box-shadow:-8px 0 32px rgba(0,0,0,.6);overflow-y:auto;overflow-x:hidden}
+    #SB.open{transform:translateX(0)}
+    .sb-inner{padding:14px 16px;width:var(--sb-w)}
+    .sb-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:6px}
+    .sb-sec{margin-bottom:4px;border:1px solid var(--bdr);border-radius:8px;overflow:hidden;transition:border-color .3s}
+    .sb-sec.act{border-color:rgba(59,130,246,.4)}
+    .sb-hd{display:flex;align-items:center;gap:6px;padding:8px 12px;cursor:pointer;background:rgba(14,21,38,.7);transition:background .15s;user-select:none}
+    .sb-hd:hover{background:rgba(24,38,65,.6)}
+    .sb-hd .no{width:20px;height:20px;border-radius:5px;font-size:9px;background:var(--blue);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .sb-hd .tx{font-size:12px;font-weight:600;color:var(--t1);flex:1}
+    .sb-hd .ar{color:var(--t3);font-size:8px;transition:transform .25s}
+    .sb-sec.op .sb-hd .ar{transform:rotate(90deg)}
+    .sb-bd{max-height:0;overflow:hidden;transition:max-height .35s ease;font-size:10px;line-height:1.8;color:var(--t2)}
+    .sb-sec.op .sb-bd{max-height:6000px}
+    .sb-bi{padding:8px 12px 12px}
+    .sb-bd h4{color:var(--cyan);font-size:10px;margin:8px 0 3px;font-weight:600}
+    .sb-bd h4:first-child{margin-top:0}
+    .sb-bd p{margin:2px 0}
+    .sb-bd .ft{background:rgba(59,130,246,.04);border-left:2px solid var(--blue);padding:5px 8px;margin:4px 0;border-radius:0 5px 5px 0;font-size:10px;line-height:1.7}
+    .sb-bd .ft b{color:var(--t1)}
+    .sb-bd .src{color:var(--cyan);font-size:9px;margin-top:8px;padding-top:5px;border-top:1px dashed var(--bdr);line-height:1.5}
+    .sb-bd .note{background:rgba(234,179,8,.06);border-left:2px solid var(--gold);padding:4px 8px;margin:4px 0;border-radius:0 5px 5px 0;font-size:9px;color:var(--gold)}
+  </style>
+</head>
+<body>
+<div id="M">
+
+  <div class="hd">
+    <div class="bk">‹</div>
+    <select class="sel"><option>2025-2026学年 上学期</option><option>2025-2026学年 下学期</option><option>2024-2025学年 下学期</option></select>
+    <div class="hd-title">龙岗区教育局 AI"<em>AI 龙老师</em>"数据驾驶舱</div>
+    <span style="font-size:9px;color:var(--t3);white-space:nowrap">数据截至 2026-03-17</span>
+    <div class="mo">
+      <button class="on" id="bD" onclick="sw('demo')">演示</button>
+      <button id="bR" onclick="sw('review')">过稿</button>
+    </div>
+  </div>
+
+  <div class="kpi-row sec" data-s="1">
+    <div class="kpi">
+      <div class="label">覆盖学校数</div>
+      <div class="val"><span class="ctr" data-to="128">0</span><span class="unit">所</span></div>
+      <div class="delta up">↑ 较上学期 +32 所</div>
+      <svg class="spark" viewBox="0 0 60 20"><polyline points="2,18 12,15 22,12 32,10 42,6 52,3 58,2" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <div class="kpi">
+      <div class="label">参与教师数</div>
+      <div class="val"><span class="ctr" data-to="3265">0</span><span class="unit">人</span></div>
+      <div class="delta up">↑ 活跃率 68.4%</div>
+      <svg class="spark" viewBox="0 0 60 20"><polyline points="2,17 12,14 22,12 32,9 42,5 52,3 58,2" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <div class="kpi">
+      <div class="label">参与学生数</div>
+      <div class="val"><span class="ctr" data-to="28566">0</span><span class="unit">人</span></div>
+      <div class="delta up">↑ 较上学期 +24.7%</div>
+      <svg class="spark" viewBox="0 0 60 20"><polyline points="2,18 12,15 22,11 32,9 42,5 52,3 58,1" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <div class="kpi">
+      <div class="label">累计服务次数</div>
+      <div class="val"><span class="ctr" data-to="532845">0</span><span class="unit">次</span></div>
+      <div class="delta up">↑ 较上学期 +186%</div>
+      <svg class="spark" viewBox="0 0 60 20"><polyline points="2,18 12,17 22,15 32,11 42,6 52,3 58,1" fill="none" stroke="var(--cyan)" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+    <div class="kpi">
+      <div class="label">累计学习时长</div>
+      <div class="val"><span class="ctr" data-to="128456">0</span><span class="unit">h</span></div>
+      <div class="delta up">↑ 生均 4.5 h</div>
+      <svg class="spark" viewBox="0 0 60 20"><polyline points="2,18 12,16 22,13 32,10 42,6 52,3 58,1" fill="none" stroke="var(--green)" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <div class="col">
+      <div class="card sec" data-s="2" style="flex:5">
+        <div class="card-h">
+          <h3><span class="ic">📈</span>功能使用趋势</h3>
+          <span class="tag">近6月 · 月度次数</span>
+        </div>
+        <div class="cw"><canvas id="ch1"></canvas></div>
+      </div>
+      <div class="card sec" data-s="5" style="flex:5">
+        <div class="card-h">
+          <h3><span class="ic">🎒</span>AI 助学 · 学生端</h3>
+          <span class="tag">AI 龙老师小程序</span>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:6px;flex-shrink:0;align-items:flex-end">
+          <div style="flex:1"><div style="font-size:9px;color:var(--t3);margin-bottom:1px">日均活跃</div><div style="display:flex;align-items:center;gap:4px"><span style="font-size:20px;font-weight:800;color:var(--cyan)">4,231</span><span style="font-size:10px;color:var(--t2)">人</span><svg style="width:44px;height:16px;flex-shrink:0;opacity:.6" viewBox="0 0 44 16"><polyline points="2,14 8,12 14,9 20,8 26,5 32,4 38,3 42,2" fill="none" stroke="var(--cyan)" stroke-width="1.2" stroke-linecap="round"/></svg></div></div>
+          <div style="flex:1"><div style="font-size:9px;color:var(--t3);margin-bottom:1px">累计练题</div><div><span style="font-size:20px;font-weight:800;color:var(--cyan)">156,788</span><span style="font-size:10px;color:var(--t2)"> 道</span></div></div>
+        </div>
+        <div style="flex:1;min-height:0;overflow:hidden">
+          <div class="hb"><div class="hb-top"><span class="hb-name">📷 作业批改</span><span class="hb-val">12,345 次</span></div><div class="hb-track"><div class="hb-fill fill-cyan" data-w="100%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name">🔍 拍照答疑</span><span class="hb-val">8,902 次</span></div><div class="hb-track"><div class="hb-fill fill-cyan" data-w="72%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name">💬 苏氏问答</span><span class="hb-val">6,789 次</span></div><div class="hb-track"><div class="hb-fill fill-cyan" data-w="55%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name">📝 上传错题</span><span class="hb-val">5,432 次</span></div><div class="hb-track"><div class="hb-fill fill-cyan" data-w="44%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name">🧹 试卷擦除</span><span class="hb-val">3,891 次</span></div><div class="hb-track"><div class="hb-fill fill-cyan" data-w="32%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name">🎬 AI 讲题</span><span class="hb-val">45,678 播放</span></div><div class="hb-track"><div class="hb-fill fill-green" data-w="90%"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col" style="gap:0">
+      <div class="card sec" data-s="3" style="flex:1;border-radius:10px 10px 0 0;padding-bottom:0;position:relative">
+        <div class="card-h" style="margin-bottom:4px">
+          <h3><span class="ic">🗺️</span>学校覆盖分布</h3>
+          <span class="tag">龙岗区 · 128 所</span>
+        </div>
+        <div id="eMap" style="flex:1;min-height:0"></div>
+        <div class="feed-v">
+          <div class="feed-v-track">
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙城高中</span> 张老师 生成了【数学】AI教学动画 <span class="feed-time">2分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">实验学校</span> 326名学生 完成了AI作业批改 <span class="feed-time">5分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">外国语学校</span> 李老师 发布了【英语】AI组题试卷 <span class="feed-time">8分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">平湖中学</span> 初二(4)班 完成了错题巩固练习 <span class="feed-time">12分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">南湾学校</span> 王老师 使用AI教案备课【语文】<span class="feed-time">15分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">布吉中学</span> 89名学生 正在进行拍照答疑 <span class="feed-time">18分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">横岗中学</span> 陈老师 生成了【物理】AI命题 <span class="feed-time">22分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">坂田实验</span> 高一(2)班 上传了47道错题 <span class="feed-time">25分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">宝龙学校</span> 初一年级 完成了试卷擦除重做 <span class="feed-time">28分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">园山实验</span> 刘老师 使用AI命题【化学】<span class="feed-time">31分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙城高中</span> 张老师 生成了【数学】AI教学动画 <span class="feed-time">2分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">实验学校</span> 326名学生 完成了AI作业批改 <span class="feed-time">5分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">外国语学校</span> 李老师 发布了【英语】AI组题试卷 <span class="feed-time">8分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">平湖中学</span> 初二(4)班 完成了错题巩固练习 <span class="feed-time">12分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">南湾学校</span> 王老师 使用AI教案备课【语文】<span class="feed-time">15分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">布吉中学</span> 89名学生 正在进行拍照答疑 <span class="feed-time">18分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">横岗中学</span> 陈老师 生成了【物理】AI命题 <span class="feed-time">22分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">坂田实验</span> 高一(2)班 上传了47道错题 <span class="feed-time">25分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">宝龙学校</span> 初一年级 完成了试卷擦除重做 <span class="feed-time">28分钟前</span></div>
+            <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">园山实验</span> 刘老师 使用AI命题【化学】<span class="feed-time">31分钟前</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="eff sec" data-s="7" style="border-radius:0 0 10px 10px;border-top:1px solid var(--bdr)">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">
+          <span style="font-size:11px;font-weight:700;color:#fff;flex-shrink:0">📊 数据亮点</span>
+          <div style="display:flex;gap:12px;flex:1;font-size:9px;flex-wrap:wrap">
+            <div>错题采集 <b style="color:var(--cyan);font-size:13px">86,432</b><span style="color:var(--t3)"> 道</span></div>
+            <div>答疑解题 <b style="color:var(--green);font-size:13px">45,678</b><span style="color:var(--t3)"> 次</span></div>
+            <div>AI讲题播放 <b style="color:var(--blue);font-size:13px">45,678</b><span style="color:var(--t3)"> 次</span></div>
+            <div>试卷重做 <b style="color:var(--purple);font-size:13px">3,891</b><span style="color:var(--t3)"> 份</span></div>
+            <div>错题本用户 <b style="color:var(--orange);font-size:13px">12,345</b><span style="color:var(--t3)"> 人</span></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;font-size:9px">
+          <div style="flex:1;background:rgba(34,197,94,.04);border-radius:4px;padding:4px 8px;color:var(--t2)"><span style="color:var(--green);font-weight:600">龙城高中</span> 高二年级累计采集错题 <b style="color:var(--green)">12,000+</b> 道，覆盖数学、英语、物理</div>
+          <div style="flex:1;background:rgba(6,182,212,.04);border-radius:4px;padding:4px 8px;color:var(--t2)"><span style="color:var(--cyan);font-weight:600">实验学校</span> 初三 AI 讲题播放超 <b style="color:var(--cyan)">8,000</b> 次，拍照答疑使用 <b style="color:var(--cyan)">3,200+</b> 次</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card sec" data-s="4" style="flex:5">
+        <div class="card-h">
+          <h3><span class="ic">🏆</span>学校使用深度排行</h3>
+          <span class="tag">TOP 8 · 人均使用次数</span>
+        </div>
+        <div style="flex:1;min-height:0;overflow:hidden">
+          <div class="hb"><div class="hb-top"><span class="hb-name"><span class="rank r1">1</span>南湾学校</span><span class="hb-val">28.6 次/人</span></div><div class="hb-track"><div class="hb-fill fill-blue" data-w="100%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name"><span class="rank r2">2</span>龙岗区外国语学校</span><span class="hb-val">26.3 次/人</span></div><div class="hb-track"><div class="hb-fill fill-blue" data-w="92%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name"><span class="rank r3">3</span>龙城初级中学</span><span class="hb-val">24.8 次/人</span></div><div class="hb-track"><div class="hb-fill fill-blue" data-w="87%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name"><span class="rank rn">4</span>龙城高级中学</span><span class="hb-val">23.1 次/人</span></div><div class="hb-track"><div class="hb-fill fill-blue" data-w="81%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name"><span class="rank rn">5</span>坂田实验学校</span><span class="hb-val">21.5 次/人</span></div><div class="hb-track"><div class="hb-fill fill-blue" data-w="75%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name"><span class="rank rn">6</span>龙岗区实验学校</span><span class="hb-val">20.2 次/人</span></div><div class="hb-track"><div class="hb-fill fill-blue" data-w="71%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name"><span class="rank rn">7</span>平湖中学</span><span class="hb-val">19.4 次/人</span></div><div class="hb-track"><div class="hb-fill fill-blue" data-w="68%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name"><span class="rank rn">8</span>园山实验学校</span><span class="hb-val">18.7 次/人</span></div><div class="hb-track"><div class="hb-fill fill-blue" data-w="65%"></div></div></div>
+        </div>
+      </div>
+      <div class="card sec" data-s="6" style="flex:6">
+        <div class="card-h">
+          <h3><span class="ic">👩‍🏫</span>AI 助教 · 教师端</h3>
+          <span class="tag">飞象老师</span>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:6px;flex-shrink:0;align-items:flex-end">
+          <div style="flex:1"><div style="font-size:9px;color:var(--t3);margin-bottom:1px">日均活跃</div><div style="display:flex;align-items:center;gap:4px"><span style="font-size:20px;font-weight:800;color:var(--purple)">486</span><span style="font-size:10px;color:var(--t2)">人</span><svg style="width:44px;height:16px;flex-shrink:0;opacity:.6" viewBox="0 0 44 16"><polyline points="2,13 8,11 14,10 20,8 26,6 32,5 38,3 42,2" fill="none" stroke="var(--purple)" stroke-width="1.2" stroke-linecap="round"/></svg></div></div>
+          <div style="flex:1"><div style="font-size:9px;color:var(--t3);margin-bottom:1px">创作资源</div><div><span style="font-size:20px;font-weight:800;color:var(--purple)">32,543</span><span style="font-size:10px;color:var(--t2)"> 个</span></div></div>
+        </div>
+        <div style="flex:1;min-height:0;overflow:hidden">
+          <div class="hb"><div class="hb-top"><span class="hb-name">🎨 AI 教学动画</span><span class="hb-val">8,306 个</span></div><div class="hb-track"><div class="hb-fill fill-purple" data-w="100%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name">✏️ AI 命题</span><span class="hb-val">6,234 次</span></div><div class="hb-track"><div class="hb-fill fill-purple" data-w="75%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name">📋 AI 组题</span><span class="hb-val">4,567 份</span></div><div class="hb-track"><div class="hb-fill fill-purple" data-w="55%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name">📖 AI 教案</span><span class="hb-val">3,892 份</span></div><div class="hb-track"><div class="hb-fill fill-purple" data-w="47%"></div></div></div>
+          <div class="hb"><div class="hb-top"><span class="hb-name">🌐 资源分享</span><span class="hb-val">2,345 次</span></div><div class="hb-track"><div class="hb-fill fill-purple" data-w="28%"></div></div></div>
+        </div>
+        <div style="flex-shrink:0;margin-top:6px;padding-top:6px;border-top:1px solid var(--bdr)">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;text-align:center;font-size:8px;color:var(--t3)">
+            <div style="background:rgba(167,139,250,.04);border-radius:4px;padding:4px"><div style="font-size:12px;font-weight:700;color:var(--purple)">25,907</div>精品题目</div>
+            <div style="background:rgba(167,139,250,.04);border-radius:4px;padding:4px"><div style="font-size:12px;font-weight:700;color:var(--purple)">18,201</div>试卷资源</div>
+            <div style="background:rgba(34,197,94,.04);border-radius:4px;padding:4px"><div style="font-size:12px;font-weight:700;color:var(--green)">↓40%</div>备课时间</div>
+            <div style="background:rgba(34,197,94,.04);border-radius:4px;padding:4px"><div style="font-size:12px;font-weight:700;color:var(--green)">4.7/5</div>满意度</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════ SIDEBAR ══════ -->
+<div id="SB">
+  <div class="sb-inner">
+    <div class="sb-title">📋 过稿批注 · 产品说明文档</div>
+
+    <div class="sb-sec op" data-sb="1"><div class="sb-hd"><span class="no">1</span><span class="tx">核心 KPI 指标</span><span class="ar">▶</span></div>
+      <div class="sb-bd"><div class="sb-bi">
+        <h4>为什么选这 5 个指标</h4>
+        <p>局端最关注的是：<b>覆盖了多少人（规模）</b>、<b>是不是在用（活跃度）</b>、<b>用了多久（粘性）</b>。这 5 个指标分别回答这三个核心问题。</p>
+        <div class="ft"><b>覆盖学校数</b>：周期内至少有 1 名师生使用过AI 龙老师的学校数量。128/全区约 300 所 = 42.7% 学校覆盖。「↑较上期 +32 所」体现项目推广进度。</div>
+        <div class="ft"><b>参与教师数</b>：周期内至少使用 1 次飞象老师（AI 助教）的教师人数。含 AI 教学动画、AI 命题、AI 组题、AI 教案等所有教师端功能。</div>
+        <div class="ft"><b>参与学生数</b>：周期内至少使用 1 次AI 龙老师小程序（AI 助学）的学生人数。含作业批改、拍照答疑、苏氏问答、上传错题、试卷擦除等所有学生端功能。</div>
+        <div class="ft"><b>累计服务次数</b>：学生使用AI 龙老师小程序各功能的总计服务次数。53 万+ 次体现了产品的高频使用。「↑较上学期 +186%」反映产品使用量的爆发式增长。</div>
+        <div class="ft"><b>累计学习时长</b>：学生使用AI 龙老师小程序各功能的总计时长。「生均 4.5h」= 总时长 / 参与学生数，反映人均使用深度。</div>
+        <h4>迷你趋势线</h4>
+        <p>每张卡片右下角的迷你折线展示该指标近 6 个月的变化趋势。上升曲线 = 项目持续增长中。</p>
+        <div class="note">说明：所有指标均为产品自身可采集的数据，不依赖外部学校/学籍数据系统。</div>
+        <div class="src">数据来源：AI 助管监管数据（学校编号、教师活跃数、学生活跃数、使用率）</div>
+      </div></div>
+    </div>
+
+    <div class="sb-sec" data-sb="2"><div class="sb-hd"><span class="no">2</span><span class="tx">功能使用趋势</span><span class="ar">▶</span></div>
+      <div class="sb-bd"><div class="sb-bi">
+        <h4>为什么按"功能"而不是"用户角色"展示趋势</h4>
+        <p>教师和学生的量级差异太大（教师约数千人 vs 学生数万人），放在同一图表上要么双轴失真，要么一方几乎不可见。改为<b>按功能维度</b>展示月度使用次数，好处：</p>
+        <div class="ft">① 所有功能使用同一单位（次），无需双轴<br>② 多条线展示了产品功能的丰富度和各自增长态势<br>③ 即使总量偶尔波动，不同功能此消彼长，整体面积感仍然饱满<br>④ 领导能直观看到"原来AI 龙老师有这么多功能都在被用"</div>
+        <h4>图表解读</h4>
+        <div class="ft"><b>作业批改</b>（青色）：使用最频繁的功能，持续增长<br><b>拍照答疑</b>（蓝色）：第二大功能，跟作业批改形成互补<br><b>AI 讲题</b>（绿色）：视频播放类，中后期增速快<br><b>苏氏问答</b>（紫色）：AI 对话功能，稳步增长<br><b>上传错题</b>（橙色）：错题管理入口，用户习惯逐步养成</div>
+        <div class="src">数据来源：AI 助学使用数据（按功能、按月聚合使用次数）</div>
+      </div></div>
+    </div>
+
+    <div class="sb-sec" data-sb="3"><div class="sb-hd"><span class="no">3</span><span class="tx">学校覆盖分布地图</span><span class="ar">▶</span></div>
+      <div class="sb-bd"><div class="sb-bi">
+        <h4>为什么放地图</h4>
+        <p>地图让局端领导一眼看出：哪些街道已经铺开、哪些还是空白。相比纯数字，<b>空间感知</b>更适合项目推广类汇报——区领导习惯按「街道」思考工作推进。</p>
+        <h4>地图内容</h4>
+        <div class="ft"><b>底图</b>：龙岗区真实行政边界（GeoJSON 来自阿里 DataV 开放数据，行政代码 440307）<br><b>发光圆点</b>：每个点 = 一所已覆盖学校，涟漪动画表示"活跃中"<br><b>圆点大小</b>：映射该校活跃学生数——学生越多，圆点越大<br><b>Hover 信息</b>：悬浮显示学校名称、活跃学生数、累计使用次数</div>
+        <h4>实时弹幕动态</h4>
+        <p>地图左下角纵向滚动的弹幕条，模拟直播间的实时 feed。与横向滚动相比，纵向弹幕更有"正在发生"的临场感，让领导直观感受到老师和学生正在使用产品。</p>
+        <div class="note">建议支持点击学校圆点后跳转该校详情页（功能明细、学科分布、教师活跃等）</div>
+        <div class="src">数据来源：学校经纬度坐标 + AI 助管监管数据（按学校聚合）</div>
+      </div></div>
+    </div>
+
+    <div class="sb-sec" data-sb="4"><div class="sb-hd"><span class="no">4</span><span class="tx">学校使用深度排行</span><span class="ar">▶</span></div>
+      <div class="sb-bd"><div class="sb-bi">
+        <h4>为什么用"人均使用次数"排名</h4>
+        <p><b>人均使用次数 = 该校累计使用次数 / 该校活跃学生数</b>。分母是我们产品自身的活跃用户数据，不依赖学校在籍学生数。这个指标不受学校规模影响——大学校和小学校在同一起跑线上比"学生用得深不深"。</p>
+        <h4>为什么不用"活跃学生数"排名</h4>
+        <p>活跃学生数受学校规模影响太大。2000 人的大学校天然比 500 人的小学校活跃数高，排行榜会变成"学校规模排行"。人均指标消除了这个偏差。</p>
+        <h4>行业参考</h4>
+        <div class="ft">Education Perfect、Clever Analytics、ClassLink 等成熟教育 SaaS 产品在做学校级对比时，均采用人均维度指标（人均登录天数、人均完成课程数、人均使用时长），分母用产品自身注册/活跃用户数。</div>
+        <h4>展示价值</h4>
+        <div class="ft">• <b>公平对比</b>：大小学校在同一标准下排名<br>• <b>正面叙事</b>：展示的是"学生用得多深"，全是正面数字<br>• <b>标杆效应</b>：排名靠前的学校可组织经验分享</div>
+        <div class="src">数据来源：AI 助学使用数据（累计使用次数 / 活跃学生数，按学校聚合）</div>
+      </div></div>
+    </div>
+
+    <div class="sb-sec" data-sb="5"><div class="sb-hd"><span class="no">5</span><span class="tx">AI 助学详情（AI 龙老师小程序）</span><span class="ar">▶</span></div>
+      <div class="sb-bd"><div class="sb-bi">
+        <h4>产品定位</h4>
+        <p>AI 助学是学生端的微信小程序，作为 AI 学伴为学生提供个性化学习服务。依托教育垂类大模型与知识图谱，提供与学情画像精准匹配的练习内容。</p>
+        <h4>功能使用排行解读</h4>
+        <div class="ft"><b>作业批改</b>（使用最多）：拍照上传作业，AI 自动识别批改。标注正确/错误并提供视频讲解和解析步骤。支持「加入错题本」和「AI 讲解」。</div>
+        <div class="ft"><b>拍照答疑</b>：拍照上传单道题目，AI 提供详细解答。取景框为黄色窄条，一次框选一道题。</div>
+        <div class="ft"><b>苏氏问答</b>：AI 对话问答。支持文字、语音、拍照输入。采用启发式引导而非直接给答案。</div>
+        <div class="ft"><b>上传错题</b>：拍照后系统自动识别题目区域，支持多选和手动框题。选中后需选择学科分类。</div>
+        <div class="ft"><b>试卷擦除</b>：拍照上传已答试卷，AI 擦除手写答案，生成空白试卷重做。</div>
+        <div class="ft"><b>AI 讲题</b>（播放量最高）：题目视频讲解功能。<b>播放量 45,678 次</b>远超其他功能。</div>
+        <div class="src">数据来源：AI 助学使用数据（使用功能、使用频次）+ 埋点聚合</div>
+      </div></div>
+    </div>
+
+    <div class="sb-sec" data-sb="6"><div class="sb-hd"><span class="no">6</span><span class="tx">AI 助教详情（飞象老师）</span><span class="ar">▶</span></div>
+      <div class="sb-bd"><div class="sb-bi">
+        <h4>产品定位</h4>
+        <p>AI 助教是教师端的 Web 平台，功能与飞象老师完全一致。基于猿辅导十余年教育大模型与百亿级知识数据构建。</p>
+        <h4>功能使用排行解读</h4>
+        <div class="ft"><b>AI 教学动画</b>（使用最多）：教师输入知识点，生成专业级交互教学动画。支持手机拍照生成，零技术门槛。</div>
+        <div class="ft"><b>AI 命题</b>：上传新材料/情境，AI 命制原创专业题目。</div>
+        <div class="ft"><b>AI 组题</b>：输入知识点/难度/范围，AI 智能组成个性化题单。</div>
+        <div class="ft"><b>AI 教案</b>：输入单元/课时名称，生成专业大单元教学设计方案。</div>
+        <div class="ft"><b>资源分享</b>：教师创作的资源在教师社区分类展示，促进校际流通。</div>
+        <h4>教师效率提升</h4>
+        <div class="ft"><b>备课时间节省 40%</b>：基于教师问卷调研，使用后单节课备课从约 45 分钟降至约 27 分钟。<br><b>教师满意度 4.7/5</b>：教师对 AI 助教工具的综合评分。</div>
+        <div class="note">教师端活跃度直接带动学生端使用——教师用飞象老师布置的练习，学生通过AI 龙老师小程序完成。</div>
+        <div class="src">数据来源：AI 助教使用数据（使用功能、使用时长、生成资源数）</div>
+      </div></div>
+    </div>
+
+    <div class="sb-sec" data-sb="7"><div class="sb-hd"><span class="no">7</span><span class="tx">数据亮点</span><span class="ar">▶</span></div>
+      <div class="sb-bd"><div class="sb-bi">
+        <h4>为什么选"纯事实计数"而非"效果指标"</h4>
+        <p>驾驶舱面向局端领导汇报，所有数字必须<b>不可被质疑</b>。"巩固率""消除率"等衍生指标需要解释定义和计算方式，容易被挑战。而直接计数（采集了多少错题、答疑了多少次）是产品日志的原始记录，<b>事实即说服力</b>。</p>
+        <h4>五项核心指标</h4>
+        <div class="ft"><b>错题采集 86,432 道</b>：学生通过「上传错题」功能累计采集的错题总数。数字越大，说明学生在主动用 AI 管理自己的薄弱知识点。</div>
+        <div class="ft"><b>答疑解题 45,678 次</b>：学生通过「拍照答疑」功能累计获得 AI 解答的次数。体现 AI 作为"随身家教"的使用频率。</div>
+        <div class="ft"><b>AI 讲题播放 45,678 次</b>：AI 视频讲解的累计播放次数。播放量大说明学生对视频讲解有强烈需求，产品粘性高。</div>
+        <div class="ft"><b>试卷重做 3,891 份</b>：学生通过「试卷擦除」功能生成空白试卷并重做的次数。体现学生自主复习意愿。</div>
+        <div class="ft"><b>错题本用户 12,345 人</b>：累计使用错题本功能的独立学生数。反映错题管理习惯的养成。</div>
+        <h4>学校亮点案例</h4>
+        <div class="ft">用<b>具体学校名 + 具体计数</b>做亮点展示。所有数字均为产品直接采集，无需解释定义，领导汇报时直接引用。<br>• 龙城高中高二年级累计采集 12,000+ 道错题<br>• 实验学校初三 AI 讲题播放超 8,000 次</div>
+        <div class="note">设计原则：只展示"符合领导预期、不容易被挑战和质疑"的数据。所有数字来自产品自身日志，无外部依赖，无主观判定。</div>
+        <div class="src">数据来源：AI 助学使用日志（错题采集、答疑记录、播放记录、试卷擦除记录）</div>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+Chart.defaults.color='#475569';Chart.defaults.borderColor='#182641';Chart.defaults.font.family="'PingFang SC','Noto Sans SC',sans-serif";Chart.defaults.font.size=9;
+
+/* ── Chart 1: 功能使用趋势 ── */
+(function(){
+  var ctx=document.getElementById('ch1').getContext('2d');
+  function grd(r,g,b){var gr=ctx.createLinearGradient(0,0,0,200);gr.addColorStop(0,'rgba('+r+','+g+','+b+',.22)');gr.addColorStop(1,'rgba('+r+','+g+','+b+',.01)');return gr}
+  new Chart(ctx,{type:'line',data:{labels:['9月','10月','11月','12月','1月','2月'],datasets:[
+    {label:'作业批改',data:[1200,2850,4100,5600,7200,8900],borderColor:'#06b6d4',backgroundColor:grd(6,182,212),fill:true,tension:.4,pointRadius:1.5,borderWidth:1.5},
+    {label:'拍照答疑',data:[800,1900,3200,4100,5300,6400],borderColor:'#3b82f6',backgroundColor:grd(59,130,246),fill:true,tension:.4,pointRadius:1.5,borderWidth:1.5},
+    {label:'AI 讲题',data:[600,1600,2800,4500,5800,6200],borderColor:'#22c55e',backgroundColor:grd(34,197,94),fill:true,tension:.4,pointRadius:1.5,borderWidth:1.5},
+    {label:'苏氏问答',data:[400,1100,2100,3200,4000,4900],borderColor:'#a78bfa',backgroundColor:grd(167,139,250),fill:true,tension:.4,pointRadius:1.5,borderWidth:1.5},
+    {label:'上传错题',data:[300,800,1500,2400,3100,3900],borderColor:'#f97316',backgroundColor:grd(249,115,22),fill:true,tension:.4,pointRadius:1.5,borderWidth:1.5}
+  ]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{position:'bottom',labels:{boxWidth:6,padding:8,font:{size:9},usePointStyle:true}},tooltip:{backgroundColor:'rgba(14,21,38,.95)',borderColor:'#182641',borderWidth:1,padding:8,titleFont:{size:10},bodyFont:{size:9},callbacks:{label:function(c){return c.dataset.label+': '+c.raw.toLocaleString()+' 次'}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'rgba(24,38,65,.4)'},ticks:{font:{size:9},callback:function(v){return v>=10000?(v/10000)+'万':v>=1000?(v/1000)+'k':v}}}}}});
+})();
+
+/* ── ECharts Map: 龙岗区 ── */
+(function(){
+  var schools=[
+    {name:'龙城高级中学',value:[114.285,22.733],students:1856,uses:18234},
+    {name:'龙岗区实验学校',value:[114.243,22.718],students:2103,uses:21067},
+    {name:'龙岗区外国语学校',value:[114.302,22.698],students:1542,uses:14890},
+    {name:'平湖中学',value:[114.108,22.703],students:1287,uses:11345},
+    {name:'南湾学校',value:[114.135,22.653],students:1104,uses:9876},
+    {name:'横岗中学',value:[114.208,22.664],students:986,uses:8432},
+    {name:'布吉中学',value:[114.105,22.632],students:1350,uses:12890},
+    {name:'坂田实验学校',value:[114.063,22.654],students:1128,uses:10234},
+    {name:'龙岗街道中心小学',value:[114.268,22.711],students:823,uses:7654},
+    {name:'园山实验学校',value:[114.322,22.688],students:756,uses:6890},
+    {name:'宝龙学校',value:[114.338,22.676],students:982,uses:8901},
+    {name:'平湖实验学校',value:[114.118,22.718],students:1067,uses:9345},
+    {name:'吉华中学',value:[114.127,22.615],students:895,uses:7234},
+    {name:'龙城初级中学',value:[114.265,22.742],students:1211,uses:11678},
+    {name:'坪地中学',value:[114.330,22.722],students:678,uses:5432}
+  ];
+
+  var FALLBACK_GEO={"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"龙岗区","adcode":440307},"geometry":{"type":"Polygon","coordinates":[
+    [[114.054974,22.648973],[114.055934,22.642339],[114.056362,22.621145],[114.058404,22.611531],
+    [114.060897,22.598111],[114.062158,22.595912],[114.071481,22.592809],[114.076293,22.594081],
+    [114.089666,22.598512],[114.105993,22.588303],[114.119556,22.589984],[114.130823,22.586693],
+    [114.139996,22.590333],[114.145693,22.592359],[114.150262,22.599341],[114.159944,22.60139],
+    [114.166931,22.609287],[114.176012,22.614284],[114.191691,22.616085],[114.196862,22.613298],
+    [114.200356,22.607741],[114.213676,22.59607],[114.219529,22.584581],[114.224919,22.585864],
+    [114.230715,22.59849],[114.234752,22.609373],[114.240836,22.615646],[114.259888,22.618868],
+    [114.265834,22.625268],[114.258702,22.634184],[114.259535,22.644135],[114.26979,22.65383],
+    [114.26728,22.659711],[114.27167,22.668925],[114.276748,22.674816],[114.285082,22.678086],
+    [114.291358,22.679627],[114.301167,22.683579],[114.316101,22.686661],[114.31857,22.69119],
+    [114.323487,22.70041],[114.328947,22.707413],[114.340312,22.714105],[114.341815,22.719353],
+    [114.340075,22.74646],[114.339577,22.751066],[114.344435,22.758543],[114.347836,22.762215],
+    [114.351122,22.789689],[114.351711,22.79723],[114.351197,22.802929],[114.347871,22.809189],
+    [114.337321,22.809485],[114.324065,22.804828],[114.311144,22.803569],[114.294851,22.806379],
+    [114.28481,22.80826],[114.275967,22.797452],[114.268147,22.791082],[114.258338,22.782776],
+    [114.246574,22.787516],[114.233849,22.796339],[114.229199,22.812515],[114.224254,22.812781],
+    [114.216093,22.808173],[114.210165,22.792633],[114.198152,22.787486],[114.185335,22.781813],
+    [114.179343,22.77916],[114.182657,22.775488],[114.187111,22.771703],[114.187602,22.76887],
+    [114.182339,22.766757],[114.185023,22.765168],[114.197094,22.764936],[114.200425,22.763268],
+    [114.204127,22.751051],[114.209349,22.748446],[114.208661,22.719818],[114.196718,22.710232],
+    [114.199488,22.702033],[114.197192,22.689612],[114.191049,22.68794],[114.195891,22.680988],
+    [114.186555,22.672214],[114.186706,22.667102],[114.164502,22.661608],[114.160829,22.664995],
+    [114.155456,22.668209],[114.166335,22.678352],[114.161627,22.685274],[114.151783,22.690137],
+    [114.14988,22.69945],[114.144664,22.714183],[114.131077,22.714112],[114.124559,22.715218],
+    [114.117601,22.72315],[114.109278,22.714108],[114.104044,22.705531],[114.095964,22.702884],
+    [114.093893,22.694205],[114.10191,22.68884],[114.095143,22.68479],[114.099614,22.675802],
+    [114.100603,22.668647],[114.092615,22.663401],[114.085235,22.662036],[114.081302,22.668325],
+    [114.076531,22.675206],[114.064905,22.669874],[114.054286,22.666101],[114.054974,22.648973]]
+  ]}}]};
+
+  function initMap(geoData){
+    try{
+      echarts.registerMap('longgang',geoData);
+      var dom=document.getElementById('eMap');
+      if(!dom)return;
+      var mc=echarts.init(dom);
+      window._mapChart=mc;
+      mc.setOption({
+        geo:{map:'longgang',roam:false,zoom:1.15,
+          label:{show:false},
+          itemStyle:{areaColor:'rgba(6,182,212,.04)',borderColor:'rgba(59,130,246,.35)',borderWidth:1.5},
+          emphasis:{itemStyle:{areaColor:'rgba(59,130,246,.08)'},label:{show:false}}
+        },
+        tooltip:{trigger:'item',backgroundColor:'rgba(14,21,38,.95)',borderColor:'#182641',borderWidth:1,padding:[8,12],
+          textStyle:{color:'#eef2f9',fontSize:11,fontFamily:"'PingFang SC',sans-serif"},
+          formatter:function(p){
+            if(p.data){
+              return '<b style="font-size:13px">'+p.data.name+'</b><br/>'
+                +'<span style="color:#94a3b8">活跃学生</span> <b style="color:#22c55e">'+p.data.students.toLocaleString()+' 人</b><br/>'
+                +'<span style="color:#94a3b8">累计使用</span> <b>'+p.data.uses.toLocaleString()+' 次</b>';
+            }
+          }
+        },
+        series:[{
+          type:'effectScatter',coordinateSystem:'geo',
+          data:schools.map(function(s){return{name:s.name,value:s.value.concat(s.students),students:s.students,uses:s.uses}}),
+          symbolSize:function(v){return 4+v[2]*0.005},
+          rippleEffect:{brushType:'stroke',period:4,scale:3},
+          itemStyle:{color:'#22c55e',shadowBlur:8,shadowColor:'rgba(34,197,94,.4)'},
+          label:{show:false}
+        },{
+          type:'scatter',coordinateSystem:'geo',
+          data:schools.map(function(s){return{name:s.name,value:s.value.concat(s.students),students:s.students,uses:s.uses}}),
+          symbolSize:function(v){return 2+v[2]*0.003},
+          itemStyle:{color:'#fff',opacity:.9},
+          label:{show:false}
+        }]
+      });
+      window.addEventListener('resize',function(){mc.resize()});
+    }catch(e){console.error('Map init error:',e)}
+  }
+
+  setTimeout(function(){
+    fetch('https://geo.datav.aliyun.com/areas_v3/bound/440307.json')
+      .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
+      .then(function(data){initMap(data)})
+      .catch(function(){initMap(FALLBACK_GEO)});
+  },100);
+})();
+
+/* ── Counter animation ── */
+document.querySelectorAll('.ctr').forEach(function(el){
+  var to=parseFloat(el.dataset.to),suf=el.dataset.suffix||'',dur=1600,start=null;
+  function tick(ts){
+    if(!start)start=ts;
+    var p=Math.min((ts-start)/dur,1);p=1-Math.pow(1-p,3);
+    var v=Math.floor(to*p);
+    el.textContent=v.toLocaleString()+suf;
+    if(p<1)requestAnimationFrame(tick);else el.textContent=to.toLocaleString()+suf;
+  }
+  requestAnimationFrame(tick);
+});
+
+/* ── Bar fill animation ── */
+setTimeout(function(){document.querySelectorAll('[data-w]').forEach(function(el){el.style.width=el.dataset.w})},300);
+
+/* ── Mode switch ── */
+var isRev=false;
+function sw(m){
+  isRev=(m==='review');
+  document.getElementById('SB').classList.toggle('open',isRev);
+  document.getElementById('M').style.marginRight=isRev?'var(--sb-w)':'0';
+  document.getElementById('bD').classList.toggle('on',!isRev);
+  document.getElementById('bR').classList.toggle('on',isRev);
+  setTimeout(function(){try{Object.values(Chart.instances).forEach(function(c){c.resize()});if(window._mapChart)window._mapChart.resize()}catch(e){}},450);
+}
+if(location.search.includes('mode=review')||location.search.includes('mode=handoff'))sw('review');
+
+/* ── Sidebar accordion ── */
+document.querySelectorAll('.sb-hd').forEach(function(hd){
+  hd.addEventListener('click',function(e){
+    e.stopPropagation();
+    var sec=this.parentElement,was=sec.classList.contains('op');
+    sec.classList.toggle('op');
+    if(!was){
+      var id=sec.dataset.sb;
+      if(id){
+        document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('glow')});
+        var t=document.querySelector('.sec[data-s="'+id+'"]');
+        if(t){t.classList.add('glow');setTimeout(function(){t.classList.remove('glow')},3000);}
+      }
+    }
+  });
+});
+
+document.querySelectorAll('.sec[data-s]').forEach(function(sec){
+  sec.addEventListener('click',function(){
+    if(!isRev)return;
+    var id=this.dataset.s;
+    document.querySelectorAll('.sb-sec').forEach(function(s){s.classList.remove('op','act')});
+    var sb=document.querySelector('.sb-sec[data-sb="'+id+'"]');
+    if(sb){sb.classList.add('op','act');sb.scrollIntoView({behavior:'smooth',block:'start'});}
+    this.classList.add('glow');var self=this;setTimeout(function(){self.classList.remove('glow')},3000);
+  });
+});
+</script>
+</body>
+</html>

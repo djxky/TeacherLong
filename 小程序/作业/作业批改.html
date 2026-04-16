@@ -243,16 +243,11 @@
                         </div>
                         <p class="absolute bottom-[-30px] w-full text-center text-white/90 text-xs font-bold">一次拍摄一整页，题目平行参考性</p>
                     </div>
-                    <div id="focus-box-diagnosis" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[70%] border border-white/40 rounded-lg">
-                        <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-green-400"></div>
-                        <div class="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-green-400"></div>
-                        <div class="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-green-400"></div>
-                        <div class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-green-400"></div>
-                        <div class="grid-guide-line grid-guide-v" style="left: 33.333%"></div>
-                        <div class="grid-guide-line grid-guide-v" style="left: 66.666%"></div>
-                        <div class="grid-guide-line grid-guide-h" style="top: 33.333%"></div>
-                        <div class="grid-guide-line grid-guide-h" style="top: 66.666%"></div>
-                        <p class="absolute bottom-[-30px] w-full text-center text-white/70 text-xs">请拍摄<b class="text-white/90">已批改</b>的数学作业</p>
+                    <div id="focus-box-diagnosis" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[75%] h-[140px] border-2 border-emerald-400 rounded-lg bg-black/10 shadow-[0_0_0_999px_rgba(0,0,0,0.5)]">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-full h-[1px] bg-emerald-400/50"></div>
+                        </div>
+                        <p class="absolute bottom-[-30px] w-full text-center text-white/90 text-xs font-bold">对准一道题目，拍照诊断错因</p>
                     </div>
                     <div id="focus-box-erase" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[70%] border border-white/40 rounded-lg">
                         <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-white"></div>
@@ -432,7 +427,7 @@
             var hintText = document.getElementById('scan-hint-text');
             if (currentMode === 'correction') hintText.innerText = 'AI 正在识别试卷...';
             else if (currentMode === 'qa') hintText.innerText = 'AI 正在聚焦题目...';
-            else if (currentMode === 'diagnosis') hintText.innerText = '正在识别批改标记...';
+            else if (currentMode === 'diagnosis') hintText.innerText = '拍照成功，正在搜题...';
             else if (currentMode === 'wrong') hintText.innerText = '正在加入错题本...';
             else if (currentMode === 'erase') hintText.innerText = '正在擦除笔迹...';
             setTimeout(function() {
@@ -551,7 +546,7 @@
             } else if (currentMode === 'qa') {
                 hintText.innerText = "AI 正在聚焦题目...";
             } else if (currentMode === 'diagnosis') {
-                hintText.innerText = "正在识别批改标记...";
+                hintText.innerText = "拍照成功，正在搜题...";
             } else if (currentMode === 'wrong') {
                 hintText.innerText = "正在加入错题本...";
             } else if (currentMode === 'erase') {

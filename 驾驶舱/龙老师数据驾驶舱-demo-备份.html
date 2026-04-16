@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>龙岗区教育局 AI 龙老师 数据驾驶舱</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+  <style>
+    :root{
+      --bg:#060c14;--card:#0d1520;--card2:#111827;--bdr:#1e293b;
+      --accent:#00f5d4;--struct:#409eff;--blue:#3b82f6;--cyan:#00f5d4;--green:#00f5d4;--gold:#eab308;--orange:#f97316;--purple:#a78bfa;
+      --t1:#e2e8f0;--t2:#94a3b8;--t3:#475569;--sb-w:min(92vw,520px);
+      --num:'JetBrains Mono','SF Mono','Fira Code',ui-monospace,monospace;
+      --ease:cubic-bezier(.22,1,.36,1);
+      --s:1
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow:hidden}
+    body{font-family:-apple-system,'PingFang SC','Noto Sans SC','Helvetica Neue',sans-serif;background:var(--bg);color:var(--t1);font-size:calc(14px * var(--s));background-image:radial-gradient(ellipse 60% 50% at 50% 60%,rgba(64,158,255,.04) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 20% 40%,rgba(0,245,212,.02) 0%,transparent 60%),radial-gradient(ellipse 35% 35% at 80% 35%,rgba(167,139,250,.02) 0%,transparent 60%)}
+    @media(min-width:1440px){:root{--s:1.15}}
+    @media(min-width:1680px){:root{--s:1.3}}
+    @media(min-width:1920px){:root{--s:1.45}}
+    @media(min-width:2560px){:root{--s:1.8}}
+    ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(64,158,255,.3);border-radius:10px}
+
+    #M{height:100vh;display:flex;flex-direction:column;padding:calc(12px * var(--s)) calc(16px * var(--s));position:relative}
+    #M::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.02) 2px,rgba(0,0,0,.02) 4px);pointer-events:none;z-index:9999}
+    #M::after{content:'';position:absolute;top:calc(6px * var(--s));left:calc(6px * var(--s));width:calc(20px * var(--s));height:calc(20px * var(--s));border-top:2px solid rgba(64,158,255,.25);border-left:2px solid rgba(64,158,255,.25);pointer-events:none;z-index:1}
+    .pg-br{position:absolute;bottom:calc(6px * var(--s));right:calc(6px * var(--s));width:calc(20px * var(--s));height:calc(20px * var(--s));border-bottom:2px solid rgba(64,158,255,.25);border-right:2px solid rgba(64,158,255,.25);pointer-events:none;z-index:1}
+
+    .hd{display:flex;align-items:center;gap:calc(10px * var(--s));flex-shrink:0;margin-bottom:calc(6px * var(--s));flex-wrap:wrap}
+    .bk{width:calc(28px * var(--s));height:calc(28px * var(--s));border-radius:calc(6px * var(--s));background:var(--card);border:1px solid var(--bdr);color:var(--t2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:calc(13px * var(--s));transition:border-color .2s}.bk:hover{border-color:var(--struct)}
+    .sel{background:var(--card);border:1px solid var(--bdr);color:var(--t1);padding:calc(4px * var(--s)) calc(10px * var(--s));border-radius:calc(6px * var(--s));font-size:calc(12px * var(--s));cursor:pointer;font-family:inherit;outline:none}.sel:focus{border-color:var(--struct)}
+    .hd-title{flex:1;text-align:center;font-size:calc(17px * var(--s));font-weight:700;letter-spacing:3px;color:#fff}
+    .hd-title em{font-style:normal;color:var(--accent);text-shadow:0 0 12px rgba(0,245,212,.4),0 0 30px rgba(0,245,212,.15)}
+    .hd-line{height:1px;background:linear-gradient(to right,transparent,var(--struct),var(--accent),var(--struct),transparent);margin-top:calc(4px * var(--s));flex-shrink:0}
+    .mo{display:flex;border:1px solid var(--bdr);border-radius:calc(6px * var(--s));overflow:hidden}
+    .mo button{padding:calc(4px * var(--s)) calc(14px * var(--s));font-size:calc(12px * var(--s));cursor:pointer;background:transparent;color:var(--t2);border:none;font-family:inherit;transition:all .15s;letter-spacing:.5px}
+    .mo button.on{background:rgba(64,158,255,.15);color:var(--struct);font-weight:600}
+
+    .kpi-row{display:flex;flex-shrink:0;margin-bottom:calc(8px * var(--s));background:linear-gradient(180deg,rgba(13,21,32,.7) 0%,rgba(13,21,32,.4) 100%);border:1px solid rgba(64,158,255,.1);border-radius:calc(8px * var(--s));position:relative;overflow:hidden}
+    .kpi-row::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 5%,rgba(64,158,255,.3) 30%,rgba(0,245,212,.2) 50%,rgba(64,158,255,.3) 70%,transparent 95%)}
+    .kpi{flex:1;padding:calc(10px * var(--s)) calc(16px * var(--s)) calc(8px * var(--s));text-align:center;position:relative;cursor:pointer;transition:background .2s}
+    .kpi:hover{background:rgba(64,158,255,.03)}
+    .kpi+.kpi::before{content:'';position:absolute;left:0;top:20%;height:60%;width:1px;background:linear-gradient(180deg,transparent,rgba(64,158,255,.2),transparent)}
+    .kpi .label{font-size:calc(11px * var(--s));color:var(--t3);margin-bottom:calc(3px * var(--s));letter-spacing:.5px;font-weight:500}
+    .kpi .val{font-size:calc(26px * var(--s));font-weight:800;color:#fff;line-height:1.1;font-family:var(--num);font-variant-numeric:tabular-nums;text-shadow:0 0 10px rgba(255,255,255,.12)}
+    .kpi .val .unit{font-size:calc(12px * var(--s));font-weight:400;color:var(--t2);margin-left:2px}
+    .kpi .delta{display:inline-flex;align-items:center;gap:2px;font-size:calc(10px * var(--s));font-weight:600;padding:calc(1px * var(--s)) calc(5px * var(--s));border-radius:3px;margin-top:2px}
+    .kpi .delta.up{background:rgba(34,197,94,.1);color:var(--green)}
+
+    .body{flex:1;display:grid;grid-template-columns:23% 1fr 28%;gap:calc(8px * var(--s));min-height:0;overflow:hidden}
+    .col{display:flex;flex-direction:column;gap:calc(6px * var(--s));min-height:0;min-width:0;overflow:hidden}
+
+    .card{background:linear-gradient(180deg,rgba(16,24,40,.9) 0%,rgba(10,18,30,.85) 100%);border-radius:calc(8px * var(--s));padding:calc(10px * var(--s));border:1px solid rgba(64,158,255,.12);transition:border-color .3s,box-shadow .4s,transform .3s;display:flex;flex-direction:column;min-height:0;min-width:0;overflow:hidden;position:relative;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(64,158,255,.2),transparent);pointer-events:none;z-index:1}
+    .card::after{content:'';position:absolute;bottom:0;right:0;width:calc(10px * var(--s));height:calc(10px * var(--s));border-bottom:2px solid rgba(64,158,255,.15);border-right:2px solid rgba(64,158,255,.15);pointer-events:none;z-index:1}
+    .card:hover{border-color:rgba(64,158,255,.25);box-shadow:0 4px 20px rgba(0,0,0,.4),0 0 20px rgba(64,158,255,.05)}
+    .card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:calc(6px * var(--s));flex-shrink:0;gap:calc(6px * var(--s));overflow:hidden}
+    .card-h h3{font-size:calc(13px * var(--s));font-weight:700;color:#fff;display:flex;align-items:center;gap:calc(5px * var(--s));white-space:nowrap}
+    .card-h h3::before{content:'';width:calc(3px * var(--s));height:calc(14px * var(--s));background:var(--struct);border-radius:2px;flex-shrink:0}
+    .card-h h3 .ic{width:calc(14px * var(--s));height:calc(14px * var(--s));flex-shrink:0;display:inline-flex}
+    .card-h h3 .ic svg{width:100%;height:100%;stroke:var(--struct);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .card-h .tag{font-size:calc(10px * var(--s));color:var(--t2);background:rgba(255,255,255,.04);padding:calc(2px * var(--s)) calc(6px * var(--s));border-radius:calc(4px * var(--s));white-space:nowrap;flex-shrink:0;border:1px solid rgba(255,255,255,.04)}
+
+    /* ── 核心数据卡 ── */
+    .core{display:flex;flex-direction:column;gap:calc(4px * var(--s));flex-shrink:0}
+    .core-item{border-radius:calc(8px * var(--s));padding:calc(7px * var(--s)) calc(10px * var(--s));display:flex;align-items:center;gap:calc(8px * var(--s));position:relative;overflow:hidden}
+    .core-item::before{content:'';position:absolute;inset:0;border-radius:calc(8px * var(--s));opacity:.08;pointer-events:none}
+    .core-item.c-cyan{background:linear-gradient(135deg,rgba(6,182,212,.1) 0%,rgba(6,182,212,.02) 100%);border:1px solid rgba(6,182,212,.12)}
+    .core-item.c-cyan::before{background:linear-gradient(135deg,var(--cyan),transparent)}
+    .core-item.c-blue{background:linear-gradient(135deg,rgba(59,130,246,.1) 0%,rgba(59,130,246,.02) 100%);border:1px solid rgba(59,130,246,.12)}
+    .core-item.c-blue::before{background:linear-gradient(135deg,var(--blue),transparent)}
+    .core-item.c-purple{background:linear-gradient(135deg,rgba(167,139,250,.1) 0%,rgba(167,139,250,.02) 100%);border:1px solid rgba(167,139,250,.12)}
+    .core-item.c-purple::before{background:linear-gradient(135deg,var(--purple),transparent)}
+    .core-item.c-purple2{background:linear-gradient(135deg,rgba(167,139,250,.08) 0%,rgba(167,139,250,.015) 100%);border:1px solid rgba(167,139,250,.1)}
+    .core-item.c-purple2::before{background:linear-gradient(135deg,var(--purple),transparent);opacity:.05}
+    .core-item .ci-icon{width:calc(28px * var(--s));height:calc(28px * var(--s));border-radius:calc(7px * var(--s));display:flex;align-items:center;justify-content:center;font-size:calc(14px * var(--s));flex-shrink:0}
+    .ci-icon.ic-cyan{background:rgba(6,182,212,.15)}
+    .ci-icon.ic-blue{background:rgba(59,130,246,.15)}
+    .ci-icon.ic-purple{background:rgba(167,139,250,.15)}
+    .core-item .ci-body{flex:1;min-width:0}
+    .core-item .ci-label{font-size:calc(11px * var(--s));color:var(--t2);margin-bottom:1px;white-space:nowrap}
+    .core-item .ci-val{font-size:calc(18px * var(--s));font-weight:800;font-family:var(--num);font-variant-numeric:tabular-nums;line-height:1.2;white-space:nowrap}
+    .ci-val.v-cyan{color:var(--cyan)}
+    .ci-val.v-blue{color:var(--blue)}
+    .ci-val.v-purple{color:var(--purple)}
+    .core-item .ci-unit{font-size:calc(11px * var(--s));font-weight:400;color:var(--t3);margin-left:2px}
+
+    /* ── 次要数据行 ── */
+
+    .sub-row{display:flex;justify-content:space-between;align-items:center;padding:calc(3px * var(--s)) calc(6px * var(--s));border-radius:calc(4px * var(--s));transition:background .15s}
+    .sub-row:hover{background:rgba(255,255,255,.02)}
+    .sub-row .sr-dot{width:calc(4px * var(--s));height:calc(4px * var(--s));border-radius:50%;flex-shrink:0;margin-right:calc(4px * var(--s))}
+    .sub-row .sr-name{font-size:calc(11px * var(--s));color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;display:flex;align-items:center}
+    .sub-row .sr-val{font-size:calc(12px * var(--s));font-weight:600;color:var(--t1);font-family:var(--num);font-variant-numeric:tabular-nums;white-space:nowrap;flex-shrink:0}
+
+
+    /* ── 排行榜（学校+教师） ── */
+    .rank-dual{display:grid;grid-template-columns:1fr 1fr;gap:calc(6px * var(--s));flex:1;min-height:0;overflow:hidden;position:relative}
+    .rank-dual::before{content:'';position:absolute;left:50%;top:10%;height:80%;width:1px;background:linear-gradient(180deg,transparent,rgba(64,158,255,.15),transparent);transform:translateX(-50%)}
+    .rank-col{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+    .rank-col .rank-hd{display:flex;align-items:center;gap:calc(4px * var(--s));margin-bottom:calc(4px * var(--s));flex-shrink:0}
+    .rank-col .rank-hd h4{font-size:calc(12px * var(--s));font-weight:700;color:#fff;display:flex;align-items:center;gap:calc(5px * var(--s));white-space:nowrap}
+    .rank-col .rank-hd h4::before{content:'';width:calc(2px * var(--s));height:calc(12px * var(--s));background:var(--struct);border-radius:1px;flex-shrink:0}
+    .rank-col .rank-hd h4 .ic{width:calc(12px * var(--s));height:calc(12px * var(--s));flex-shrink:0;display:inline-flex}
+    .rank-col .rank-hd h4 .ic svg{width:100%;height:100%;stroke:var(--struct);stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .sch{display:flex;align-items:center;gap:calc(5px * var(--s));padding:calc(4px * var(--s)) calc(6px * var(--s));border-radius:calc(6px * var(--s));transition:background .2s,transform .2s;cursor:pointer}
+    .sch:hover{background:rgba(64,158,255,.04);transform:translateX(2px)}
+    .sch .s-rank{width:calc(16px * var(--s));height:calc(16px * var(--s));border-radius:50%;font-size:calc(10px * var(--s));font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .sch .s-name{flex:1;min-width:0;font-size:calc(11px * var(--s));color:var(--t1);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sch .s-val{font-size:calc(13px * var(--s));font-weight:700;color:var(--accent);font-family:var(--num);font-variant-numeric:tabular-nums;flex-shrink:0}
+    .sch .s-unit{font-size:calc(10px * var(--s));font-weight:400;color:var(--t3);margin-left:1px}
+
+    /* ── Tab 切换 ── */
+    .tab-sw{display:flex;border:1px solid var(--bdr);border-radius:calc(5px * var(--s));overflow:hidden;flex-shrink:0}
+    .tab-btn{padding:calc(2px * var(--s)) calc(10px * var(--s));font-size:calc(11px * var(--s));cursor:pointer;background:transparent;color:var(--t3);border:none;font-family:inherit;font-weight:600;transition:color .15s,background .15s}
+    .tab-btn.on{background:rgba(64,158,255,.15);color:var(--struct);border:none}
+
+    /* ── 明细列表 ── */
+    .sum-list{display:flex;flex-direction:column;gap:calc(2px * var(--s));justify-content:center}
+    .sl-row{display:flex;align-items:center;justify-content:space-between;padding:calc(3px * var(--s)) calc(6px * var(--s));border-radius:calc(4px * var(--s));transition:background .15s}
+    .sl-row:hover{background:rgba(64,158,255,.04)}
+    .sl-row .sl-dot{width:calc(4px * var(--s));height:calc(4px * var(--s));border-radius:50%;flex-shrink:0;margin-right:calc(5px * var(--s))}
+    .sl-row .sl-name{font-size:calc(11px * var(--s));color:var(--t2);display:flex;align-items:center;flex:1}
+    .sl-row .sl-val{font-size:calc(13px * var(--s));font-weight:700;color:#fff;font-family:var(--num);font-variant-numeric:tabular-nums;white-space:nowrap}
+    .sl-row .sl-u{font-size:calc(10px * var(--s));font-weight:400;color:var(--t3);margin-left:1px}
+    /* 横向变体 */
+    .sum-hz{display:grid;grid-template-columns:1fr 1fr 1fr;gap:calc(5px * var(--s))}
+    .sh-cell{text-align:center;padding:calc(8px * var(--s)) calc(4px * var(--s));border-radius:calc(6px * var(--s));background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);transition:border-color .2s,background .2s;position:relative}
+    .sh-cell:hover{border-color:rgba(64,158,255,.15);background:rgba(64,158,255,.03)}
+    .sh-cell+.sh-cell::before{content:'';position:absolute;left:-3px;top:25%;height:50%;width:1px;background:linear-gradient(180deg,transparent,rgba(64,158,255,.15),transparent)}
+    .sh-cell .hc-val{font-size:calc(20px * var(--s));font-weight:800;color:var(--accent);font-family:var(--num);font-variant-numeric:tabular-nums;line-height:1.2}
+    .sh-cell .hc-unit{font-size:calc(11px * var(--s));font-weight:500;color:var(--t3);margin-left:1px}
+    .sh-cell .hc-label{font-size:calc(10px * var(--s));color:var(--t2);margin-top:calc(3px * var(--s));font-weight:500;letter-spacing:.5px}
+
+
+
+    .sec{transition:border-color .4s,box-shadow .4s}
+    .sec.glow{border:2px solid #3b82f6 !important;box-shadow:inset 0 0 30px rgba(59,130,246,.15);animation:glow-pulse 1.5s ease-in-out infinite}
+    @keyframes glow-pulse{0%,100%{border-color:#3b82f6;box-shadow:inset 0 0 30px rgba(59,130,246,.15)}50%{border-color:#60a5fa;box-shadow:inset 0 0 40px rgba(96,165,250,.25)}}
+
+    @media(prefers-reduced-motion:reduce){*,.feed-v-track,.feed-dot,.ctr{animation:none!important;transition:none!important}}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+    @keyframes pulse-glow{0%{box-shadow:0 0 0 0 rgba(0,245,212,.7)}70%{box-shadow:0 0 0 calc(6px * var(--s)) rgba(0,245,212,0)}100%{box-shadow:0 0 0 0 rgba(0,245,212,0)}}
+    .feed-v{position:absolute;left:calc(10px * var(--s));bottom:calc(20px * var(--s));max-height:35%;overflow:hidden;pointer-events:none;z-index:2;mask-image:linear-gradient(to bottom,transparent 0%,#000 15%,#000 85%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 15%,#000 85%,transparent 100%)}
+    .feed-v-track{display:flex;flex-direction:column;gap:calc(5px * var(--s));animation:scroll-feed-v 50s linear 1 forwards}
+    .feed-v-track:hover{animation-play-state:paused;pointer-events:auto}
+    .feed-v-item{background:rgba(14,21,38,.85);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(64,158,255,.12);border-left:3px solid var(--accent);border-radius:calc(3px * var(--s));padding:calc(4px * var(--s)) calc(8px * var(--s));font-size:calc(10px * var(--s));color:var(--t2);display:flex;align-items:center;gap:calc(4px * var(--s));white-space:nowrap}
+    .feed-dot{width:calc(5px * var(--s));height:calc(5px * var(--s));border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse-glow 2s infinite}
+    .feed-school{color:var(--green);font-weight:600}
+    @keyframes scroll-feed-v{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}
+
+    /* ── 过稿浮窗：可拖拽、不影响主页布局 ── */
+    #SB{position:fixed;top:60px;right:40px;width:min(88vw,480px);height:calc(100vh - 120px);min-width:320px;max-width:min(96vw,720px);min-height:260px;max-height:calc(100vh - 40px);background:#fafbfc;border:1px solid #cbd5e1;border-radius:12px;z-index:200;opacity:0;pointer-events:none;transform:scale(.96) translateY(8px);transition:opacity .3s var(--ease),transform .3s var(--ease);box-shadow:0 20px 60px rgba(0,0,0,.18),0 4px 16px rgba(0,0,0,.08);display:flex;flex-direction:column;overflow:hidden}
+    .sb-resize{position:absolute;right:0;bottom:0;width:18px;height:18px;cursor:nwse-resize;z-index:2;user-select:none}
+    .sb-resize::before{content:'';position:absolute;right:4px;bottom:4px;width:8px;height:8px;border-right:2px solid #94a3b8;border-bottom:2px solid #94a3b8;opacity:.5;transition:opacity .15s}
+    .sb-resize:hover::before{opacity:1}
+    #SB.open{opacity:1;pointer-events:auto;transform:scale(1) translateY(0)}
+    .sb-drag{display:flex;align-items:center;gap:6px;padding:8px 12px;background:#f1f5f9;cursor:grab;user-select:none;flex-shrink:0;border-bottom:1px solid #e2e8f0;min-height:36px}
+    .sb-drag:active{cursor:grabbing}
+    .sb-drag .sb-drag-dots{color:#94a3b8;font-size:11px;letter-spacing:1px;flex-shrink:0}
+    .sb-drag .sb-drag-title{flex:1;font-size:12px;font-weight:700;color:#0f172a;letter-spacing:.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .sb-drag .sb-close{width:22px;height:22px;border-radius:6px;border:none;background:transparent;color:#94a3b8;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s;flex-shrink:0;line-height:1}
+    .sb-drag .sb-close:hover{background:#fee2e2;color:#ef4444}
+    .sb-scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+    .sb-inner{padding:10px 12px 16px;width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+    .sb-sec{margin-bottom:5px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;transition:border-color .2s;background:#fff}
+    .sb-sec:hover{border-color:#cbd5e1}
+    .sb-sec.act{border-color:rgba(59,130,246,.45);box-shadow:0 0 0 1px rgba(59,130,246,.12)}
+    .sb-hd{display:flex;align-items:center;gap:5px;padding:6px 8px;cursor:pointer;background:#f8fafc;transition:background .15s;user-select:none;border-bottom:1px solid transparent}
+    .sb-hd:hover{background:#f1f5f9}
+    .sb-sec.op .sb-hd{background:#fff;border-bottom-color:#e2e8f0}
+    .sb-hd .no{width:18px;height:18px;border-radius:3px;font-size:9px;background:#3b82f6;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .sb-hd .tx{font-size:11px;font-weight:600;color:#1e293b;flex:1;min-width:0;letter-spacing:.1px;overflow-wrap:anywhere}
+    .sb-hd .ar{color:#94a3b8;font-size:9px;transition:transform .25s}
+    .sb-sec.op .sb-hd .ar{transform:rotate(90deg)}
+    .sb-bd{max-height:0;overflow:hidden;transition:max-height .4s ease;font-size:10px;line-height:1.7;color:#475569}
+    .sb-sec.op .sb-bd{max-height:20000px}
+    .sb-bi{padding:8px 8px 10px;min-width:0;overflow-wrap:anywhere;word-break:break-word}
+    .sb-bd h4{color:#0ea5e9;font-size:10px;margin:8px 0 3px;font-weight:600}
+    .sb-bd h4:first-child{margin-top:0}
+    .sb-bd p{margin:3px 0;color:#475569;overflow-wrap:anywhere;word-break:break-word;font-size:10px}
+    .sb-bd .ft{background:#f8fafc;border-left:2px solid #93c5fd;padding:5px 7px;margin:5px 0;border-radius:0 4px 4px 0;font-size:10px;line-height:1.6;color:#334155;max-width:100%;overflow-wrap:anywhere;word-break:break-word}
+    .sb-tbl{width:100%;border-collapse:collapse;font-size:9px;margin:5px 0;border:1px solid #e2e8f0;border-radius:4px}
+    .sb-tbl th:nth-child(3),.sb-tbl td:nth-child(3){min-width:0}
+    .sb-tbl th,.sb-tbl td{padding:4px 5px;border-bottom:1px solid #e2e8f0;vertical-align:top;text-align:left;word-break:break-word}
+    .sb-tbl tr:last-child td{border-bottom:none}
+    .sb-tbl thead th{background:#f1f5f9;color:#475569;font-weight:600;font-size:9px}
+    .sb-tbl .col-n{width:2em;text-align:center;color:#64748b}
+    .sb-td-path{color:#475569;font-family:var(--num);font-size:8px;line-height:1.4}
+    .sb-kpi-lead{margin:0 0 5px;font-size:10px;line-height:1.55;color:#334155}
+    .sb-kpi-sum{margin:5px 0 0;font-size:9px;color:#64748b;line-height:1.45}
+    .sb-bd .ft b{color:#1e293b}
+    .sb-bd .src{color:#0ea5e9;font-size:9px;margin-top:8px;padding-top:6px;border-top:1px dashed #e2e8f0;line-height:1.5}
+    .sb-bd .note{background:#fffbeb;border-left:2px solid #eab308;padding:5px 7px;margin:5px 0;border-radius:0 4px 4px 0;font-size:9px;color:#a16207;max-width:100%;overflow-wrap:anywhere;word-break:break-word;line-height:1.5}
+  </style>
+</head>
+<body>
+<div id="M">
+
+  <div class="hd">
+    <div class="hd-title">龙岗区教育局"<em>AI 龙老师</em>"数据驾驶舱</div>
+    <div class="mo" data-doc="hd-mode" data-prd="切换演示模式（纯展示，隐藏侧边栏）和过稿模式（展开右侧PRD批注栏，点击区块联动高亮）" data-track="/click/dashboardPage/modeSwitch | 切换模式 | mode#STRING">
+      <button type="button" class="on" id="bD" onclick="sw('demo')">演示</button>
+      <button type="button" id="bR" onclick="sw('review')">过稿</button>
+    </div>
+    <div class="hd-line" style="width:100%"></div>
+  </div>
+
+  <div class="kpi-row sec" data-s="1" data-doc="kpi-row" data-prd="四项核心KPI；累计服务次数=学生端8项count之和+教师端/click/DesignCompilePlanPage/generate WHERE feature_section IN(17~25) count；进入页面动画递增" data-track="/event/dashboardPage/view | 驾驶舱页面曝光 | 无">
+    <div class="kpi"><div class="label">累计覆盖学校</div><div class="val"><span class="ctr" data-to="128">0</span><span class="unit">所</span></div></div>
+    <div class="kpi"><div class="label">累计参与教师</div><div class="val"><span class="ctr" data-to="3265">0</span><span class="unit">人</span></div></div>
+    <div class="kpi"><div class="label">累计参与学生</div><div class="val"><span class="ctr" data-to="28566">0</span><span class="unit">人</span></div></div>
+    <div class="kpi"><div class="label">累计服务次数</div><div class="val"><span class="ctr" data-to="53.3" data-suffix="万" data-decimal="1">0</span><span class="unit">次</span></div></div>
+  </div>
+
+  <div class="body">
+
+    <!-- ── 左栏：趋势图 ── -->
+    <div class="col">
+      <div class="card sec" data-s="2" data-doc="dau-chart" data-prd="展示近30天日活趋势，支持学生/教师切换。学生DAU来源小程序登录UV，教师DAU来源AI 龙老师教师端登录UV" data-track="/event/dashboardPage/dauChartView | DAU图表曝光 | 无" style="flex:1">
+        <div class="card-h">
+          <h3><span class="ic"><svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span>每日活跃用户</h3>
+          <div class="tab-sw" data-doc="dau-tab" data-prd="切换学生/教师DAU视图，切换后数字、颜色、曲线联动变化" data-track="/click/dashboardPage/dauTab | 切换DAU类型 | tabType#STRING">
+            <button type="button" class="tab-btn on" id="tabStu" onclick="swDAU('stu')">学生</button>
+            <button type="button" class="tab-btn" id="tabTch" onclick="swDAU('tch')">教师</button>
+          </div>
+        </div>
+        <div id="dauMeta" style="display:flex;align-items:baseline;gap:calc(6px * var(--s));margin-bottom:calc(4px * var(--s));flex-shrink:0">
+          <span style="font-size:calc(11px * var(--s));color:var(--t3)">昨日</span>
+          <span id="dauVal" style="font-size:calc(26px * var(--s));font-weight:800;color:var(--cyan);font-family:var(--num)">4,231</span>
+          <span style="font-size:calc(11px * var(--s));color:var(--t2)">人</span>
+        </div>
+        <div style="flex:1;min-height:0;position:relative"><canvas id="chDAU"></canvas></div>
+      </div>
+      <div class="card sec" data-s="7" data-doc="grade-chart" data-prd="横向柱状图：各年级近30日活跃学生 UV，颜色按学段（绿=小学、青=初中）" data-track="/event/dashboardPage/gradeChartView | 年级分布图曝光 | 无" style="flex:1">
+        <div class="card-h"><h3><span class="ic"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>近 30 日活跃学生分布</h3></div>
+        <div style="flex:1;min-height:0;position:relative"><canvas id="chGrade"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ── 中栏：学校地图 + 排行 ── -->
+    <div class="col" style="gap:0">
+      <div class="card sec" data-s="3" data-doc="map-card" data-prd="ECharts地图展示龙岗区所有覆盖学校位置，气泡大小按该校参与教师数决定。hover显示学校名、参与学生数、参与老师数、资源创作总数。底部叠加实时活动弹幕" data-track="/click/dashboardPage/mapSchool | 点击地图学校 | schoolName#STRING" style="flex:4;border-radius:calc(12px * var(--s)) calc(12px * var(--s)) 0 0;padding-bottom:0;position:relative">
+        <div class="card-h" style="margin-bottom:4px"><h3><span class="ic"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>学校覆盖分布</h3><span class="tag">龙岗区 · 128 所</span></div>
+        <div id="eMap" data-doc="map-echarts" data-prd="地图使用GeoJSON渲染龙岗区边界，优先远程拉取阿里DataV数据，失败回退本地内联数据" data-track="/event/dashboardPage/mapLoad | 地图加载 | loadType#STRING" style="flex:1;min-height:0"></div>
+        <div class="feed-v" data-doc="map-feed" data-prd="纵向滚动实时弹幕，展示师生近期使用动态。CSS动画50s循环，hover暂停。当前为静态模拟数据，后续接入WebSocket" data-track="/event/dashboardPage/feedView | 弹幕区域曝光 | 无"><div class="feed-v-track">
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙城高级中学</span> 张明华老师 生成了互动课件</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>七年级学生<span class="feed-school">8273</span> 完成了AI作业批改</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙岗区外国语学校</span> 李文静老师 使用了AI组题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>三年级学生<span class="feed-school">0873</span> 使用了拍照答疑</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">南湾学校</span> 王建国老师 生成了大单元教案</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>九年级学生<span class="feed-school">5621</span> 上传了3道错题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">横岗中学</span> 陈思远老师 使用了AI命题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>四年级学生<span class="feed-school">3319</span> 完成了试卷擦除重做</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>五年级学生<span class="feed-school">7742</span> 观看了视频讲解</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">园山实验学校</span> 刘雅琴老师 使用了AI命题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>八年级学生<span class="feed-school">4406</span> 使用了AI讲解</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">百合外国语学校</span> 赵志强老师 生成了互动课件</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>六年级学生<span class="feed-school">2158</span> 打印了错题试卷</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">布吉中学</span> 吴海涛老师 生成了教学动画</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">平湖中学</span> 孙晓峰老师 生成了大单元教案</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">坂田学校</span> 周敏老师 生成了教学游戏</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙城高级中学</span> 张明华老师 生成了互动课件</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>七年级学生<span class="feed-school">8273</span> 完成了AI作业批改</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙岗区外国语学校</span> 李文静老师 使用了AI组题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>三年级学生<span class="feed-school">0873</span> 使用了拍照答疑</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">南湾学校</span> 王建国老师 生成了大单元教案</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>九年级学生<span class="feed-school">5621</span> 上传了3道错题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">横岗中学</span> 陈思远老师 使用了AI命题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>四年级学生<span class="feed-school">3319</span> 完成了试卷擦除重做</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙岗区实验学校</span> 林芳华老师 生成了教学动画</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>五年级学生<span class="feed-school">7742</span> 观看了视频讲解</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">园山实验学校</span> 刘雅琴老师 使用了AI命题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>八年级学生<span class="feed-school">4406</span> 使用了AI讲解</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">百合外国语学校</span> 赵志强老师 生成了教学游戏</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>六年级学生<span class="feed-school">2158</span> 打印了错题试卷</div>
+          <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">平湖中学</span> 孙晓峰老师 生成了大单元教案</div>
+        </div></div>
+      </div>
+      <div class="card sec" data-s="4" data-doc="rank-dual" data-prd="双列排行榜：左列为学校累计资源创作榜（按累计创作数降序 TOP7），右列为教师累计创作榜（按个人累计创作数降序 TOP7），累计口径" data-track="/event/dashboardPage/rankView | 排行榜曝光 | 无" style="flex:3;border-radius:0 0 calc(12px * var(--s)) calc(12px * var(--s));border-top:none">
+        <div class="rank-dual">
+          <div class="rank-col">
+            <div class="rank-hd"><h4><span class="ic"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>学校累计创作榜</h4></div>
+            <div style="display:flex;flex-direction:column;gap:1px;flex:1;min-height:0">
+              <div class="sch"><span class="s-rank" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#000">1</span><span class="s-name">龙岗区实验学校</span><span class="s-val">1,567<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:linear-gradient(135deg,#94a3b8,#64748b);color:#000">2</span><span class="s-name">龙城高级中学</span><span class="s-val">1,243<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:linear-gradient(135deg,#b45309,#92400e);color:#fff">3</span><span class="s-name">龙岗区外国语学校</span><span class="s-val">982<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:var(--bdr);color:var(--t3)">4</span><span class="s-name">布吉中学</span><span class="s-val">845<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:var(--bdr);color:var(--t3)">5</span><span class="s-name">平湖中学</span><span class="s-val">756<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:var(--bdr);color:var(--t3)">6</span><span class="s-name">龙城初级中学</span><span class="s-val">723<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:var(--bdr);color:var(--t3)">7</span><span class="s-name">横岗中学</span><span class="s-val">698<span class="s-unit">个</span></span></div>
+            </div>
+          </div>
+          <div class="rank-col">
+            <div class="rank-hd"><h4><span class="ic"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>教师累计创作榜</h4></div>
+            <div style="display:flex;flex-direction:column;gap:1px;flex:1;min-height:0">
+              <div class="sch"><span class="s-rank" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#000">1</span><span class="s-name">张明华<span style="color:var(--t3);margin-left:calc(3px * var(--s))">龙城高级中学 · 数学</span></span><span class="s-val">127<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:linear-gradient(135deg,#94a3b8,#64748b);color:#000">2</span><span class="s-name">李文静<span style="color:var(--t3);margin-left:calc(3px * var(--s))">龙岗区外国语学校 · 英语</span></span><span class="s-val">98<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:linear-gradient(135deg,#b45309,#92400e);color:#fff">3</span><span class="s-name">王建国<span style="color:var(--t3);margin-left:calc(3px * var(--s))">南湾学校 · 语文</span></span><span class="s-val">85<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:var(--bdr);color:var(--t3)">4</span><span class="s-name">陈思远<span style="color:var(--t3);margin-left:calc(3px * var(--s))">横岗中学 · 物理</span></span><span class="s-val">72<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:var(--bdr);color:var(--t3)">5</span><span class="s-name">刘雅琴<span style="color:var(--t3);margin-left:calc(3px * var(--s))">平湖中学 · 化学</span></span><span class="s-val">63<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:var(--bdr);color:var(--t3)">6</span><span class="s-name">赵志强<span style="color:var(--t3);margin-left:calc(3px * var(--s))">百合外国语学校 · 生物</span></span><span class="s-val">58<span class="s-unit">个</span></span></div>
+              <div class="sch"><span class="s-rank" style="background:var(--bdr);color:var(--t3)">7</span><span class="s-name">周婷婷<span style="color:var(--t3);margin-left:calc(3px * var(--s))">龙岗区实验学校 · 历史</span></span><span class="s-val">51<span class="s-unit">个</span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 右栏：助学 + 助教 ── -->
+    <div class="col">
+      <div class="card sec" data-s="5" data-doc="assist-student" data-prd="AI助学数据卡，拍照答疑+AI讲解突出展示（两列大数字），其余4项弱化为紧凑列表，累计口径" data-track="/event/dashboardPage/assistStudentView | 助学卡曝光 | 无" style="flex:0 0 auto">
+        <div class="card-h"><h3><span class="ic"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>AI 助学 · 学生端</h3></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:calc(5px * var(--s));margin-bottom:calc(6px * var(--s))">
+          <div class="sh-cell"><div class="hc-val">8,902<span class="hc-unit">次</span></div><div class="hc-label">拍照答疑</div></div>
+          <div class="sh-cell"><div class="hc-val">6,789<span class="hc-unit">次</span></div><div class="hc-label">AI 讲解</div></div>
+        </div>
+        <div class="sum-list" style="padding:0">
+          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--accent)"></span>作业批改</span><span class="sl-val">12,345<span class="sl-u">次</span></span></div>
+          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--struct)"></span>视频讲解</span><span class="sl-val">4.6<span class="sl-u">万次</span></span></div>
+          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--gold)"></span>错题本</span><span class="sl-val">12,345<span class="sl-u">题</span></span></div>
+          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--struct)"></span>试卷打印</span><span class="sl-val">3,891<span class="sl-u">套</span></span></div>
+        </div>
+      </div>
+
+      <div class="card sec" data-s="6" data-doc="assist-teacher" data-prd="AI助教数据卡：资源创作总数=/click/DesignCompilePlanPage/generate WHERE feature_section IN(17~25) count；右侧三项纵向明细（单位：个），累计口径" data-track="/event/dashboardPage/assistTeacherView | 助教卡曝光 | 无" style="flex:0 0 auto">
+        <div class="card-h"><h3><span class="ic"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>AI 助教 · 教师端</h3></div>
+        <div style="display:flex;align-items:stretch;gap:calc(10px * var(--s))">
+          <div style="flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:calc(4px * var(--s)) calc(14px * var(--s))">
+            <div style="font-size:calc(28px * var(--s));font-weight:800;color:var(--accent);font-family:var(--num);font-variant-numeric:tabular-nums;line-height:1.1;text-shadow:0 0 12px rgba(0,245,212,.15)">19,107</div>
+            <div style="font-size:calc(10px * var(--s));color:var(--t2);margin-top:calc(4px * var(--s));font-weight:500">生成资源总数</div>
+          </div>
+          <div style="width:1px;background:linear-gradient(180deg,transparent,rgba(64,158,255,.15),transparent)"></div>
+          <div class="sum-list" style="flex:1">
+            <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--purple)"></span>互动课件</span><span class="sl-val">8,306<span class="sl-u">个</span></span></div>
+            <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:#f59e0b"></span>教学动画</span><span class="sl-val">1,823<span class="sl-u">个</span></span></div>
+            <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:#ec4899"></span>教学游戏</span><span class="sl-val">1,206<span class="sl-u">个</span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card sec" data-s="8" data-doc="community-subject" data-prd="社区资源学科分布环形图，统计教师分享到社区的资源按学科维度分布，累计口径" data-track="/event/dashboardPage/communitySubjectView | 社区资源学科分布曝光 | 无" style="flex:1">
+        <div class="card-h"><h3><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 12l6.93-4"/><path d="M12 12l-6.93-4"/><path d="M12 12v8"/></svg></span>社区资源学科分布</h3><span class="tag" style="font-family:var(--num);font-variant-numeric:tabular-nums;color:var(--accent);font-weight:700">6,800 <span style="color:var(--t3);font-weight:500;font-family:'PingFang SC',sans-serif">个 · 合计</span></span></div>
+        <div id="eSubject" style="flex:1;min-height:calc(148px * var(--s))"></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="pg-br"></div>
+</div>
+
+<div id="SB">
+  <div class="sb-drag" id="sbDrag"><span class="sb-drag-dots">⋮⋮</span><span class="sb-drag-title">产品稿 · 数据口径定义</span><button type="button" class="sb-close" onclick="sw('demo')" title="关闭">✕</button></div>
+  <div class="sb-scroll"><div class="sb-inner">
+
+  <div class="sb-sec op" data-sb="1"><div class="sb-hd"><span class="no">1</span><span class="tx">顶部 KPI 指标栏</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>数据口径</h4>
+    <div class="ft">
+      <p class="sb-kpi-lead"><b>覆盖学校</b>：教师端（/active/muskWorkbenchWeb/loginsuccess）或学生端（/event/teacherLongLoginPage/loginSuccess）有过登录成功记录的学校去重 count，取两端 school_id 并集。</p>
+      <p class="sb-kpi-lead"><b>参与教师</b>：教师端累计登录成功的 distinct userId。口径 = /active/muskWorkbenchWeb/loginsuccess 累计 distinct userId。</p>
+      <p class="sb-kpi-lead"><b>参与学生</b>：学生端累计登录成功的 distinct userId。口径 = /event/teacherLongLoginPage/loginSuccess 累计 distinct userId。</p>
+      <p class="sb-kpi-lead"><b>累计服务次数</b> = 下表学生端 ①～⑧ 之和 + 教师端 ⑨ 一条埋点 PV。</p>
+    </div>
+    <table class="sb-tbl" aria-label="累计服务次数埋点构成">
+      <thead><tr><th class="col-n">#</th><th>端</th><th>项目</th><th>埋点路径 / 口径</th></tr></thead>
+      <tbody>
+        <tr><td class="col-n">①</td><td>学生</td><td>作业批改</td><td class="sb-td-path">/event/teacherLongCorrectionResultPage/pageView count</td></tr>
+        <tr><td class="col-n">②</td><td>学生</td><td>拍照答疑</td><td class="sb-td-path">/event/teacherLongQaResultPage/pageView count</td></tr>
+        <tr><td class="col-n">③</td><td>学生</td><td>AI 讲解</td><td class="sb-td-path">/click/teacherLongSocraticQaPage/sendMessage count（每条消息 = 1 次服务）</td></tr>
+        <tr><td class="col-n">④</td><td>学生</td><td>视频讲解</td><td class="sb-td-path">/click/teacherLongCorrectionResultPage/playVideo + /click/teacherLongQaResultPage/playVideo 两页 count 求和</td></tr>
+        <tr><td class="col-n">⑤</td><td>学生</td><td>错题本</td><td class="sb-td-path">/event/teacherLongWrongBookPage/pageView count</td></tr>
+        <tr><td class="col-n">⑥</td><td>学生</td><td>试卷打印</td><td class="sb-td-path">/click/teacherLongPrintSharePage/export count</td></tr>
+        <tr><td class="col-n">⑦</td><td>学生</td><td>上传错题</td><td class="sb-td-path">/event/teacherLongUploadWrongResultPage/wrongSaveSuccess count</td></tr>
+        <tr><td class="col-n">⑧</td><td>学生</td><td>试卷擦除</td><td class="sb-td-path">/event/teacherLongErasePage/eraseComplete count</td></tr>
+        <tr><td class="col-n">⑨</td><td>教师</td><td>教师端全部功能</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate count WHERE feature_section IN (17,18,19,20,21,22,23,24,25)</td></tr>
+      </tbody>
+    </table>
+    <p class="sb-kpi-sum">合计：SUM(①~⑧) + ⑨。</p>
+    <h4>交互逻辑</h4>
+    <p>页面加载时，四项 KPI 按累计口径查询并以动画递增展示。</p>
+    <div class="note">所有指标均为产品自采集数据，不依赖外部教务系统。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="2"><div class="sb-hd"><span class="no">2</span><span class="tx">每日活跃用户（DAU）</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>数据口径</h4>
+    <div class="ft">
+      <b>学生 DAU</b>：AI 龙老师小程序当日进入去重 UV。口径 = /event/teacherLongProgram/enter 按自然日（0:00-23:59）distinct userId。<br>
+      参数：enterTime（进入时间）、currenUrl（当前URL）、grade（年级）。<br><br>
+      <b>教师 DAU</b>：AI 龙老师教师端当日进入去重 UV。口径 = /event/muskWorkbenchWeb/enter 按自然日（0:00-23:59）distinct userId。<br><br>
+      <b>头部数值</b>：展示「昨日」DAU 值（与折线最后一个数据点一致）。<br><br>
+      <b>横轴日期</b>：近 30 个自然日，从左至右为「T-30」至「昨日」（共 30 个点）；卡片标题区不展示「近 30 日」标签，时间窗以横轴与产品口径为准。
+    </div>
+    <h4>交互逻辑</h4>
+    <p>默认选中「学生」Tab。点击切换时，数值、折线颜色同步变化。hover 折线显示当天具体 DAU 值。</p>
+    <div class="note">数据特征：工作日高、周末低的锯齿状，符合学生和教师的真实使用节奏。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="7"><div class="sb-hd"><span class="no">3</span><span class="tx">近 30 日活跃学生分布（按年级）</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>数据口径</h4>
+    <div class="ft">
+      <b>活跃学生数</b>：最近 30 日（含昨日在内的连续 30 天）进入过小程序的学生去重 UV。口径 = /event/teacherLongProgram/enter 近 30 日 distinct userId，按参数 grade 字段分组。<br><br>
+      <b>年级标签</b>：一年级~九年级，共 9 个年级。<br>
+      <b>颜色分段</b>：绿色 = 小学（一~六年级）、青色 = 初中（七~九年级）。
+    </div>
+    <div class="note">与左侧 DAU 同为「近 30 日」时间窗，维度为年级结构；地图 Tooltip「参与教师」为累计口径，统计对象相同但时间窗与维度均不同，勿混用。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="3"><div class="sb-hd"><span class="no">4</span><span class="tx">学校覆盖地图</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>数据口径</h4>
+    <div class="ft">
+      <b>气泡大小</b>：按该校<b>累计参与教师数</b>决定。公式 = 4 + 参与教师数 × 0.08（px）。<br>
+      口径 = /active/muskWorkbenchWeb/loginsuccess 按 school_id 分组 distinct userId。<br><br>
+      <b>Tooltip · 参与学生数</b>：该校<b>累计</b>登录成功的学生去重 UV。口径 = /event/teacherLongLoginPage/loginSuccess 按 school_id 分组 distinct userId。<br>
+      <b>Tooltip · 参与老师数</b>：该校<b>累计</b>登录成功的教师去重 UV。口径 = /active/muskWorkbenchWeb/loginsuccess 按 school_id 分组 distinct userId。<br>
+      <b>Tooltip · 资源创作总数</b>：该校教师的<b>累计</b>AI 资源创作总数。口径 = /click/DesignCompilePlanPage/generate WHERE feature_section IN (17~25) 按 school_id 分组 count。
+    </div>
+    <h4>实时动态弹幕</h4>
+    <p>地图左下角纵向滚动，展示师生近期使用动态，营造「系统正在被使用」的真实感。</p>
+    <p><b>① 教师创作类</b></p>
+    <div class="ft">格式：<b>{学校全称}</b> {教师姓名}老师 {动作}{功能名}<br>高亮规则：学校全称用绿色加粗（<code>.feed-school</code>）<br>不展示学科，按埋点 feature_section 区分功能；展示教师真实姓名+老师后缀</div>
+    <table class="sb-tbl" aria-label="教师创作类弹幕规则">
+      <thead><tr><th class="col-n">#</th><th>功能</th><th>动作词</th><th>展示文案示例</th><th>埋点来源</th></tr></thead>
+      <tbody>
+        <tr><td class="col-n">T1</td><td>互动课件</td><td>生成了</td><td>龙城高级中学 张明华老师 生成了互动课件</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate（feature_section=20）</td></tr>
+        <tr><td class="col-n">T2</td><td>AI命题</td><td>使用了</td><td>横岗中学 陈思远老师 使用了AI命题</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate &amp; feature_section=17</td></tr>
+        <tr><td class="col-n">T3</td><td>AI组题</td><td>使用了</td><td>龙岗区外国语学校 李文静老师 使用了AI组题</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate &amp; feature_section=18</td></tr>
+        <tr><td class="col-n">T4</td><td>大单元教案</td><td>生成了</td><td>南湾学校 王建国老师 生成了大单元教案</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate &amp; feature_section=19</td></tr>
+        <tr><td class="col-n">T5</td><td>教学动画</td><td>生成了</td><td>布吉中学 赵志强老师 生成了教学动画</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate &amp; feature_section=21</td></tr>
+        <tr><td class="col-n">T6</td><td>教学游戏</td><td>生成了</td><td>坂田学校 周敏老师 生成了教学游戏</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate &amp; feature_section=22</td></tr>
+      </tbody>
+    </table>
+    <div class="note">六个功能共用同一埋点路径，通过 feature_section 参数区分；动作词每个功能固定一个，不做随机。</div>
+
+    <p><b>② 学生使用类</b></p>
+    <div class="ft">格式：{年级}学生<b>{手机尾号后四位}</b> {动作描述}<br>高亮规则：手机尾号用绿色加粗；学生无学校信息，改用年级标识（一～九年级）</div>
+    <table class="sb-tbl" aria-label="学生使用类弹幕规则">
+      <thead><tr><th class="col-n">#</th><th>功能</th><th>动作描述</th><th>展示文案示例</th><th>埋点来源</th></tr></thead>
+      <tbody>
+        <tr><td class="col-n">S1</td><td>拍照答疑</td><td>使用了拍照答疑</td><td>七年级学生8273 使用了拍照答疑</td><td class="sb-td-path">/event/teacherLongQaResultPage/pageView</td></tr>
+        <tr><td class="col-n">S2</td><td>作业批改</td><td>完成了AI作业批改</td><td>三年级学生0873 完成了AI作业批改</td><td class="sb-td-path">/event/teacherLongCorrectionResultPage/pageView</td></tr>
+        <tr><td class="col-n">S3</td><td>AI讲解</td><td>使用了AI讲解</td><td>八年级学生4406 使用了AI讲解</td><td class="sb-td-path">/click/teacherLongSocraticQaPage/sendMessage</td></tr>
+        <tr><td class="col-n">S4</td><td>视频讲解</td><td>观看了视频讲解</td><td>五年级学生7742 观看了视频讲解</td><td class="sb-td-path">/click/teacherLongCorrectionResultPage/playVideo 或 /click/teacherLongQaResultPage/playVideo</td></tr>
+        <tr><td class="col-n">S5</td><td>上传错题</td><td>上传了{N}道错题</td><td>九年级学生5621 上传了3道错题</td><td class="sb-td-path">/event/teacherLongUploadWrongResultPage/wrongSaveSuccess</td></tr>
+        <tr><td class="col-n">S6</td><td>试卷擦除</td><td>完成了试卷擦除重做</td><td>四年级学生3319 完成了试卷擦除重做</td><td class="sb-td-path">/event/teacherLongErasePage/eraseComplete</td></tr>
+        <tr><td class="col-n">S7</td><td>错题打印</td><td>打印了错题试卷</td><td>六年级学生2158 打印了错题试卷</td><td class="sb-td-path">/click/teacherLongPrintSharePage/export</td></tr>
+      </tbody>
+    </table>
+    <div class="note">S5「上传错题」的 N 取自埋点参数中的题目数量字段；其余动作描述为固定文案。年级取自用户 profile 的 grade 字段，格式统一为中文（一年级～九年级）。</div>
+    <div class="ft">
+      <b>数据口径</b>：<br>
+      数据来源 = 各功能对应埋点的操作日志流，取最近 100 条事件。<br>
+      不去重，每条埋点事件直接展示为一条弹幕。<br>
+      排序 = 按事件时间倒序。<br>
+      不显示时间，避免 demo 演示时暴露静态数据。
+    </div>
+    <div class="ft">
+      <b>显示规则</b>：<br>
+      滚动方式 = CSS animation 纵向滚动，仅播放一次（50s），滚完停留在末尾。<br>
+      hover = 暂停滚动。<br>
+      条目上限 = 最多展示 20 条。<br>
+      每条格式 = ● + 身份标识（绿色加粗） + 动作描述。<br>
+      教师条目：● {学校全称}（绿色加粗） {教师姓名}老师 {动作}{功能名}<br>
+      学生条目：● {年级}学生{手机尾号后四位}（绿色加粗） {动作描述}
+    </div>
+    <div class="note">V1.0 使用静态模拟数据；V2.0 接入服务端接口轮询（30s 间隔）或 WebSocket 实时推送。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="4"><div class="sb-hd"><span class="no">5</span><span class="tx">双列排行榜（学校 + 教师）</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>学校累计创作榜</h4>
+    <div class="ft">
+      <b>排名指标（累计）</b>：该校教师的 AI 资源创作总数。<br>
+      口径 = /click/DesignCompilePlanPage/generate WHERE feature_section IN (17~25) 按 school_id 分组 count，降序取 TOP 7。<br><br>
+      <b>展示字段</b>：排名序号（金/银/铜奖牌色）、学校全称、创作总数（个）。
+    </div>
+    <h4>教师累计创作榜</h4>
+    <div class="ft">
+      <b>排名指标（累计）</b>：教师个人资源创作总数。<br>
+      口径 = /click/DesignCompilePlanPage/generate WHERE feature_section IN (17~25) 按 userId 分组 count，降序取 TOP 7。<br><br>
+      <b>展示字段</b>：排名序号（金/银/铜奖牌色）、教师真实姓名（非脱敏）、学校·学科、创作数（个）。与学校排行风格统一，不使用头像。<br>
+      <b>教师学科字段</b>：取自教师 profile 的 subject 字段。
+    </div>
+    <div class="note">双列均为<strong>累计</strong>创作口径，数据来源与助教卡「资源创作总数」一致，均基于 /click/DesignCompilePlanPage/generate WHERE feature_section IN (17~25) 聚合。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="5"><div class="sb-hd"><span class="no">6</span><span class="tx">AI 助学 · 学生端</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>突出指标（上方两列大数字卡片）</h4>
+    <table class="sb-tbl" aria-label="助学突出指标口径">
+      <thead><tr><th>指标</th><th>单位</th><th>埋点路径</th><th>计数规则</th></tr></thead>
+      <tbody>
+        <tr><td>拍照答疑</td><td>次</td><td class="sb-td-path">/event/teacherLongQaResultPage/pageView</td><td>count（进入结果页 = 1 次）</td></tr>
+        <tr><td>AI 讲解</td><td>次</td><td class="sb-td-path">/click/teacherLongSocraticQaPage/sendMessage</td><td>count（每条消息 = 1 次）</td></tr>
+      </tbody>
+    </table>
+    <h4>辅助指标（下方紧凑列表）</h4>
+    <table class="sb-tbl" aria-label="助学辅助指标口径">
+      <thead><tr><th>指标</th><th>单位</th><th>埋点路径</th><th>计数规则</th></tr></thead>
+      <tbody>
+        <tr><td>作业批改</td><td>次</td><td class="sb-td-path">/event/teacherLongCorrectionResultPage/pageView</td><td>count（进入结果页 = 1 次）</td></tr>
+        <tr><td>视频讲解</td><td>万次</td><td class="sb-td-path">/click/teacherLongCorrectionResultPage/playVideo + /click/teacherLongQaResultPage/playVideo</td><td>两页 playVideo count 求和</td></tr>
+        <tr><td>错题本</td><td>题</td><td class="sb-td-path">/event/teacherLongWrongBookPage/pageView</td><td>count（进入错题本 = 1 次）</td></tr>
+        <tr><td>试卷打印</td><td>套</td><td class="sb-td-path">/click/teacherLongPrintSharePage/export</td><td>count（下载分享 = 1 次）</td></tr>
+      </tbody>
+    </table>
+    <div class="note">拍照答疑和 AI 讲解作为核心 AI 能力突出展示，其余 4 项弱化为紧凑列表。所有数据为累计口径，不区分学期；卡片标题区不展示「累计」标签。埋点路径与 KPI 栏①~⑥完全一致。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="6"><div class="sb-hd"><span class="no">7</span><span class="tx">AI 助教 · 教师端</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>核心指标（左汇总 + 右明细）</h4>
+    <div class="ft">
+      <b>左侧汇总</b>：资源创作总数 = /click/DesignCompilePlanPage/generate WHERE feature_section IN (17~25) count，大字号突出。<br>
+      <b>右侧明细列表</b>（纵向排列，单位统一为"个"）：
+    </div>
+    <table class="sb-tbl" aria-label="助教指标口径">
+      <thead><tr><th>指标</th><th>埋点路径</th><th>计数规则</th></tr></thead>
+      <tbody>
+        <tr><td>互动课件</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate（feature_section=20）</td><td>count</td></tr>
+        <tr><td>教学动画</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate（feature_section=21）</td><td>count</td></tr>
+        <tr><td>教学游戏</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate（feature_section=22）</td><td>count</td></tr>
+      </tbody>
+    </table>
+    <div class="note">卡片上展示 3 项明细（互动课件/教学动画/教学游戏），汇总数包含全部 feature_section IN (17~25) 的数据。数据为累计口径；卡片标题区不展示「累计」标签。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="8"><div class="sb-hd"><span class="no">8</span><span class="tx">社区资源学科分布</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>说明</h4>
+    <p>本卡片独立于「AI 助教·教师端」，展示教师分享到社区的资源学科分布，与助教端的"生成资源"是不同口径——助教统计的是教师生成（创作）的资源总数，本卡片统计的是教师主动分享到社区的资源数量。</p>
+    <h4>学科分布环形图</h4>
+    <div class="ft">
+      <b>统计维度</b>：教师分享到社区的资源，按学科拆解。<br>
+      <b>学科枚举</b>：数学 / 英语 / 语文 / 物理 / 化学 / 生物 / 历史 / 地理 / 道法 / 其他。<br><br>
+      <b>展示方式</b>：ECharts 环形图（Donut Chart），标题行显示总分享资源数，右侧图例显示各学科名称和对应数量。<br>
+      <b>数据来源</b>：社区分享接口，按资源的 subject 字段分组 count。不取 frog 埋点（/click/DesignCompilePlanPage/generate）数据。
+    </div>
+    <div class="note">此卡片与「AI 助教·教师端」分离展示。助教端统计"生成了多少资源"，本卡片统计"分享到社区多少资源"，两者口径不同，数值也不同。数据为累计口径。</div>
+  </div></div></div>
+</div></div><div class="sb-resize" id="sbResize"></div></div>
+
+<script>
+var S=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--s'))||1;
+Chart.defaults.color='#475569';Chart.defaults.borderColor='rgba(64,158,255,.08)';Chart.defaults.font.family="'PingFang SC','Noto Sans SC',sans-serif";Chart.defaults.font.size=Math.round(10*S);
+
+var dauStu=[3200,3350,3280,3420,3180,1850,1620,3450,3580,3520,3650,3400,2010,1780,3720,3850,3790,3920,3680,2180,1950,4020,4150,4080,4230,3980,2350,2120,4310,4231];
+var dauTch=[380,420,395,450,410,120,85,430,460,440,475,435,140,100,465,490,480,510,470,165,115,500,520,505,540,510,185,135,530,486];
+var dauLabels=dauStu.map(function(_,i){var d=new Date();d.setDate(d.getDate()-30+i);return (d.getMonth()+1)+'/'+d.getDate()});
+var dauChart,dauMode='stu';
+(function(){
+  var el=document.getElementById('chDAU');
+  var ctx=el.getContext('2d');
+  function mkGrd(c){var g=ctx.createLinearGradient(0,0,0,el.parentElement.offsetHeight||120);g.addColorStop(0,c);g.addColorStop(1,'rgba(0,0,0,0)');return g;}
+  dauChart=new Chart(ctx,{type:'line',data:{labels:dauLabels,datasets:[{data:dauStu,borderColor:'#00f5d4',backgroundColor:mkGrd('rgba(0,245,212,.15)'),fill:true,tension:.35,pointRadius:0,pointHoverRadius:Math.round(3*S),pointHoverBackgroundColor:'#00f5d4',borderWidth:1.8}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:400},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(6,12,20,.95)',borderColor:'rgba(64,158,255,.3)',borderWidth:1,titleFont:{size:Math.round(10*S)},bodyFont:{size:Math.round(11*S),weight:'bold'},padding:Math.round(6*S),displayColors:false,callbacks:{label:function(c){return c.parsed.y.toLocaleString()+' 人'}}}},scales:{x:{grid:{display:false},ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:10,font:{size:Math.round(9*S)},color:'#475569'}},y:{grid:{color:'rgba(26,40,68,.5)',drawBorder:false},ticks:{font:{size:Math.round(10*S)},color:'#475569',callback:function(v){return v>=1000?(v/1000).toFixed(1)+'k':v}},beginAtZero:false}}}});
+  window.swDAU=function(m){
+    dauMode=m;
+    var isStu=(m==='stu');
+    document.getElementById('tabStu').classList.toggle('on',isStu);
+    document.getElementById('tabTch').classList.toggle('on',!isStu);
+    document.getElementById('dauVal').textContent=isStu?'4,231':'486';
+    document.getElementById('dauVal').style.color=isStu?'var(--cyan)':'var(--purple)';
+    var ds=dauChart.data.datasets[0];
+    ds.data=isStu?dauStu:dauTch;
+    ds.borderColor=isStu?'#00f5d4':'#a78bfa';
+    ds.pointHoverBackgroundColor=isStu?'#00f5d4':'#a78bfa';
+    var ctx2=document.getElementById('chDAU').getContext('2d');
+    var g=ctx2.createLinearGradient(0,0,0,120);
+    g.addColorStop(0,isStu?'rgba(6,182,212,.2)':'rgba(167,139,250,.2)');g.addColorStop(1,'rgba(0,0,0,0)');
+    ds.backgroundColor=g;
+    dauChart.update();
+  };
+})();
+
+(function(){
+  var el=document.getElementById('chGrade');
+  var ctx=el.getContext('2d');
+  var labels=['一年级','二年级','三年级','四年级','五年级','六年级','七年级','八年级','九年级'];
+  var colors=['#10b981','#10b981','#10b981','#10b981','#10b981','#10b981','#06b6d4','#06b6d4','#06b6d4'];
+  var data7d=[312,476,665,784,952,1036,1946,2184,2016];
+  new Chart(ctx,{type:'bar',data:{labels:labels,datasets:[{data:data7d,backgroundColor:colors,borderRadius:Math.round(3*S),borderSkipped:false,barPercentage:.65}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(6,12,20,.95)',borderColor:'rgba(64,158,255,.3)',borderWidth:1,titleFont:{size:Math.round(10*S)},bodyFont:{size:Math.round(11*S),weight:'bold'},padding:Math.round(6*S),displayColors:false,callbacks:{label:function(c){return c.parsed.x.toLocaleString()+' 人'}}}},scales:{x:{grid:{color:'rgba(26,40,68,.3)',drawBorder:false},ticks:{font:{size:Math.round(10*S)},color:'#475569',callback:function(v){return v>=1000?(v/1000).toFixed(1)+'k':v}}},y:{grid:{display:false},ticks:{autoSkip:false,font:{size:Math.round(9*S)},color:'#94a3b8'}}}}});
+})();
+
+(function(){
+  var schools=[
+    {name:'龙城高级中学',value:[114.285,22.733],students:1320,teachers:86,creates:1243},
+    {name:'龙岗区实验学校',value:[114.243,22.718],students:1856,teachers:102,creates:1567},
+    {name:'龙岗区外国语学校',value:[114.302,22.698],students:1105,teachers:73,creates:982},
+    {name:'平湖中学',value:[114.108,22.703],students:892,teachers:58,creates:756},
+    {name:'南湾学校',value:[114.135,22.653],students:673,teachers:45,creates:623},
+    {name:'横岗中学',value:[114.208,22.664],students:814,teachers:52,creates:698},
+    {name:'布吉中学',value:[114.105,22.632],students:976,teachers:64,creates:845},
+    {name:'百合外国语学校',value:[114.088,22.638],students:738,teachers:49,creates:612},
+    {name:'龙岗街道中心小学',value:[114.268,22.711],students:523,teachers:35,creates:478},
+    {name:'园山实验学校',value:[114.322,22.688],students:586,teachers:38,creates:502},
+    {name:'宝龙学校',value:[114.338,22.676],students:612,teachers:41,creates:534},
+    {name:'平湖实验学校',value:[114.118,22.718],students:705,teachers:47,creates:589},
+    {name:'吉华中学',value:[114.127,22.615],students:648,teachers:43,creates:567},
+    {name:'龙城初级中学',value:[114.265,22.742],students:842,teachers:56,creates:723},
+    {name:'坪地中学',value:[114.330,22.722],students:467,teachers:31,creates:412}
+  ];
+  var FALLBACK_GEO={"type":"FeatureCollection","features":[{"type":"Feature","properties":{"name":"龙岗区","adcode":440307},"geometry":{"type":"Polygon","coordinates":[[[114.054974,22.648973],[114.055934,22.642339],[114.056362,22.621145],[114.058404,22.611531],[114.060897,22.598111],[114.062158,22.595912],[114.071481,22.592809],[114.076293,22.594081],[114.089666,22.598512],[114.105993,22.588303],[114.119556,22.589984],[114.130823,22.586693],[114.139996,22.590333],[114.145693,22.592359],[114.150262,22.599341],[114.159944,22.60139],[114.166931,22.609287],[114.176012,22.614284],[114.191691,22.616085],[114.196862,22.613298],[114.200356,22.607741],[114.213676,22.59607],[114.219529,22.584581],[114.224919,22.585864],[114.230715,22.59849],[114.234752,22.609373],[114.240836,22.615646],[114.259888,22.618868],[114.265834,22.625268],[114.258702,22.634184],[114.259535,22.644135],[114.26979,22.65383],[114.26728,22.659711],[114.27167,22.668925],[114.276748,22.674816],[114.285082,22.678086],[114.291358,22.679627],[114.301167,22.683579],[114.316101,22.686661],[114.31857,22.69119],[114.323487,22.70041],[114.328947,22.707413],[114.340312,22.714105],[114.341815,22.719353],[114.340075,22.74646],[114.339577,22.751066],[114.344435,22.758543],[114.347836,22.762215],[114.351122,22.789689],[114.351711,22.79723],[114.351197,22.802929],[114.347871,22.809189],[114.337321,22.809485],[114.324065,22.804828],[114.311144,22.803569],[114.294851,22.806379],[114.28481,22.80826],[114.275967,22.797452],[114.268147,22.791082],[114.258338,22.782776],[114.246574,22.787516],[114.233849,22.796339],[114.229199,22.812515],[114.224254,22.812781],[114.216093,22.808173],[114.210165,22.792633],[114.198152,22.787486],[114.185335,22.781813],[114.179343,22.77916],[114.182657,22.775488],[114.187111,22.771703],[114.187602,22.76887],[114.182339,22.766757],[114.185023,22.765168],[114.197094,22.764936],[114.200425,22.763268],[114.204127,22.751051],[114.209349,22.748446],[114.208661,22.719818],[114.196718,22.710232],[114.199488,22.702033],[114.197192,22.689612],[114.191049,22.68794],[114.195891,22.680988],[114.186555,22.672214],[114.186706,22.667102],[114.164502,22.661608],[114.160829,22.664995],[114.155456,22.668209],[114.166335,22.678352],[114.161627,22.685274],[114.151783,22.690137],[114.14988,22.69945],[114.144664,22.714183],[114.131077,22.714112],[114.124559,22.715218],[114.117601,22.72315],[114.109278,22.714108],[114.104044,22.705531],[114.095964,22.702884],[114.093893,22.694205],[114.10191,22.68884],[114.095143,22.68479],[114.099614,22.675802],[114.100603,22.668647],[114.092615,22.663401],[114.085235,22.662036],[114.081302,22.668325],[114.076531,22.675206],[114.064905,22.669874],[114.054286,22.666101],[114.054974,22.648973]]]}}]};
+  function initMap(geoData){
+    try{
+      echarts.registerMap('longgang',geoData);var dom=document.getElementById('eMap');if(!dom)return;
+      var mc=echarts.init(dom);window._mapChart=mc;
+      mc.setOption({geo:{map:'longgang',roam:false,zoom:1.15,label:{show:false},itemStyle:{areaColor:'rgba(64,158,255,.03)',borderColor:'rgba(64,158,255,.2)',borderWidth:1.5},emphasis:{itemStyle:{areaColor:'rgba(64,158,255,.08)'},label:{show:false}}},
+        tooltip:{trigger:'item',backgroundColor:'rgba(6,12,20,.95)',borderColor:'rgba(64,158,255,.3)',borderWidth:1,padding:[Math.round(8*S),Math.round(12*S)],textStyle:{color:'#e2e8f0',fontSize:Math.round(11*S),fontFamily:"'PingFang SC',sans-serif"},
+          formatter:function(p){if(p.data){return '<b style="font-size:'+Math.round(13*S)+'px;font-family:PingFang SC,sans-serif">'+p.data.name+'</b><br/><span style="color:#94a3b8">参与学生</span> <b style="color:#00f5d4;font-family:JetBrains Mono,monospace">'+p.data.students.toLocaleString()+'</b> 人<br/><span style="color:#94a3b8">参与老师</span> <b style="color:#00f5d4;font-family:JetBrains Mono,monospace">'+p.data.teachers+'</b> 人<br/><span style="color:#94a3b8">资源创作</span> <b style="color:#00f5d4;font-family:JetBrains Mono,monospace">'+p.data.creates.toLocaleString()+'</b> 个';}}},
+        series:[{type:'effectScatter',coordinateSystem:'geo',data:schools.map(function(s){return{name:s.name,value:s.value.concat(s.teachers),students:s.students,teachers:s.teachers,creates:s.creates}}),symbolSize:function(v){return 4+v[2]*0.08},rippleEffect:{brushType:'stroke',period:4,scale:3},itemStyle:{color:'#00f5d4',shadowBlur:10,shadowColor:'rgba(0,245,212,.5)'},label:{show:false}},{type:'scatter',coordinateSystem:'geo',data:schools.map(function(s){return{name:s.name,value:s.value.concat(s.teachers),students:s.students,teachers:s.teachers,creates:s.creates}}),symbolSize:function(v){return 2+v[2]*0.04},itemStyle:{color:'#fff',opacity:.9},label:{show:false}}]
+      });window.addEventListener('resize',function(){mc.resize()});
+    }catch(e){console.error('Map init error:',e)}
+  }
+  setTimeout(function(){fetch('https://geo.datav.aliyun.com/areas_v3/bound/440307.json').then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()}).then(function(data){initMap(data)}).catch(function(){initMap(FALLBACK_GEO)})},100);
+})();
+
+(function(){
+  var dom=document.getElementById('eSubject');if(!dom)return;
+  var sc=echarts.init(dom);window._subjectChart=sc;
+  sc.setOption({
+    tooltip:{trigger:'item',backgroundColor:'rgba(6,12,20,.95)',borderColor:'rgba(64,158,255,.3)',borderWidth:1,
+      textStyle:{color:'#e2e8f0',fontSize:Math.round(11*S),fontFamily:"'PingFang SC',sans-serif"},
+      formatter:function(p){return '<b>'+p.name+'</b><br/>分享 <b style="color:'+p.color+'">'+p.value.toLocaleString()+'</b> 个（'+p.percent+'%）'}},
+    legend:{orient:'vertical',right:'2%',top:'middle',
+      textStyle:{color:'#94a3b8',fontSize:Math.round(10*S)},
+      itemWidth:Math.round(8*S),itemHeight:Math.round(8*S),itemGap:Math.round(4*S),
+      formatter:function(n){var d=sc.getOption().series[0].data;for(var i=0;i<d.length;i++){if(d[i].name===n)return n+' '+d[i].value.toLocaleString()}return n}},
+    series:[{type:'pie',radius:['30%','54%'],center:['40%','50%'],
+      avoidLabelOverlap:false,
+      label:{show:false},
+      emphasis:{label:{show:true,fontSize:Math.round(12*S),fontWeight:'bold',color:'#fff'},
+        itemStyle:{shadowBlur:12,shadowColor:'rgba(0,0,0,.3)'}},
+      labelLine:{show:false},
+      data:[
+        {value:1580,name:'数学',itemStyle:{color:'#00f5d4'}},
+        {value:1230,name:'英语',itemStyle:{color:'#3b82f6'}},
+        {value:1050,name:'语文',itemStyle:{color:'#a78bfa'}},
+        {value:780,name:'物理',itemStyle:{color:'#06b6d4'}},
+        {value:520,name:'化学',itemStyle:{color:'#f59e0b'}},
+        {value:430,name:'生物',itemStyle:{color:'#10b981'}},
+        {value:360,name:'历史',itemStyle:{color:'#f43f5e'}},
+        {value:310,name:'地理',itemStyle:{color:'#8b5cf6'}},
+        {value:250,name:'道法',itemStyle:{color:'#ec4899'}},
+        {value:290,name:'其他',itemStyle:{color:'#475569'}}
+      ]}]
+  });
+  window.addEventListener('resize',function(){sc.resize()});
+})();
+
+document.querySelectorAll('.ctr').forEach(function(el){
+  var to=parseFloat(el.dataset.to),suf=el.dataset.suffix||'',dec=parseInt(el.dataset.decimal)||0,dur=1400,steps=50,step=0;
+  function fmt(v){if(dec>0)return v.toFixed(dec)+suf;return Math.floor(v).toLocaleString()+suf;}
+  el.textContent=fmt(0);
+  var timer=setInterval(function(){step++;var p=Math.min(step/steps,1);p=1-Math.pow(1-p,3);el.textContent=fmt(to*p);if(p>=1){clearInterval(timer);el.textContent=fmt(to);}},dur/steps);
+});
+
+var isRev=false;
+function sw(m){
+  isRev=(m==='review');
+  try{sessionStorage.setItem('dashMode',isRev?'review':'demo');}catch(e){}
+  try{
+    if(location.protocol!=='file:'){
+      var u=new URL(location.href);
+      if(isRev){u.searchParams.set('mode','review');}else{u.searchParams.delete('mode');}
+      history.replaceState(null,'',u.pathname+u.search+u.hash);
+    }
+  }catch(e){}
+  document.getElementById('SB').classList.toggle('open',isRev);
+  document.getElementById('bD').classList.toggle('on',!isRev);
+  document.getElementById('bR').classList.toggle('on',isRev);
+}
+
+(function(){
+  var sb=document.getElementById('SB'),hd=document.getElementById('sbDrag');
+  var ox=0,oy=0,sx=0,sy=0,dragging=false;
+  function start(ex,ey){dragging=true;var r=sb.getBoundingClientRect();ox=ex-r.left;oy=ey-r.top;document.body.style.userSelect='none';}
+  function move(ex,ey){if(!dragging)return;var nx=ex-ox,ny=ey-oy;nx=Math.max(0,Math.min(nx,window.innerWidth-80));ny=Math.max(0,Math.min(ny,window.innerHeight-60));sb.style.left=nx+'px';sb.style.top=ny+'px';sb.style.right='auto';}
+  function end(){dragging=false;document.body.style.userSelect='';}
+  hd.addEventListener('mousedown',function(e){if(e.target.closest('.sb-close'))return;start(e.clientX,e.clientY);});
+  document.addEventListener('mousemove',function(e){move(e.clientX,e.clientY);});
+  document.addEventListener('mouseup',end);
+  hd.addEventListener('touchstart',function(e){if(e.target.closest('.sb-close'))return;var t=e.touches[0];start(t.clientX,t.clientY);},{passive:true});
+  document.addEventListener('touchmove',function(e){if(!dragging)return;var t=e.touches[0];move(t.clientX,t.clientY);},{passive:false});
+  document.addEventListener('touchend',end);
+
+  var rh=document.getElementById('sbResize'),resizing=false,rsx=0,rsy=0,rsw=0,rsh=0;
+  var minW=320,maxW=Math.min(window.innerWidth*0.96,720),minH=260,maxH=window.innerHeight-40;
+  rh.addEventListener('mousedown',function(e){e.preventDefault();e.stopPropagation();resizing=true;rsx=e.clientX;rsy=e.clientY;var r=sb.getBoundingClientRect();rsw=r.width;rsh=r.height;maxW=Math.min(window.innerWidth*0.96,720);maxH=window.innerHeight-40;document.body.style.userSelect='none';});
+  document.addEventListener('mousemove',function(e){if(!resizing)return;var nw=Math.max(minW,Math.min(maxW,rsw+(e.clientX-rsx)));var nh=Math.max(minH,Math.min(maxH,rsh+(e.clientY-rsy)));sb.style.width=nw+'px';sb.style.height=nh+'px';});
+  document.addEventListener('mouseup',function(){if(resizing){resizing=false;document.body.style.userSelect='';}});
+  rh.addEventListener('touchstart',function(e){e.stopPropagation();var t=e.touches[0];resizing=true;rsx=t.clientX;rsy=t.clientY;var r=sb.getBoundingClientRect();rsw=r.width;rsh=r.height;maxW=Math.min(window.innerWidth*0.96,720);maxH=window.innerHeight-40;},{passive:true});
+  document.addEventListener('touchmove',function(e){if(!resizing)return;var t=e.touches[0];var nw=Math.max(minW,Math.min(maxW,rsw+(t.clientX-rsx)));var nh=Math.max(minH,Math.min(maxH,rsh+(t.clientY-rsy)));sb.style.width=nw+'px';sb.style.height=nh+'px';});
+  document.addEventListener('touchend',function(){if(resizing){resizing=false;}});
+})();
+(function(){
+  var openReview=false;
+  try{openReview=sessionStorage.getItem('dashMode')==='review';}catch(e){}
+  if(openReview||location.search.includes('mode=review')||location.search.includes('mode=handoff'))sw('review');
+})();
+
+document.querySelectorAll('.sb-hd').forEach(function(hd){hd.addEventListener('click',function(e){e.stopPropagation();var sec=this.parentElement,was=sec.classList.contains('op');sec.classList.toggle('op');if(!was){var id=sec.dataset.sb;if(id){document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('glow')});var t=document.querySelector('.sec[data-s="'+id+'"]');if(t){t.scrollIntoView({behavior:'smooth',block:'center'});t.classList.add('glow');setTimeout(function(){t.classList.remove('glow')},5000);}}}});});
+document.querySelectorAll('.sec[data-s]').forEach(function(sec){sec.addEventListener('click',function(e){if(!isRev)return;if(e.target.closest('.tab-btn,button,.sel,select,canvas')){return;}var id=this.dataset.s;document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('glow')});document.querySelectorAll('.sb-sec').forEach(function(s){s.classList.remove('op','act')});var sb=document.querySelector('.sb-sec[data-sb="'+id+'"]');if(sb){if(!document.getElementById('SB').classList.contains('open'))sw('review');sb.classList.add('op','act');sb.scrollIntoView({behavior:'smooth',block:'start'});}this.classList.add('glow');var self=this;setTimeout(function(){self.classList.remove('glow')},5000);});});
+</script>
+</body>
+</html>

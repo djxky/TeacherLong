@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>产品稿变更标记系统 · Demo</title>
+  <style>
+    :root {
+      --bg:#060c14;--card:#0d1520;--bdr:#1e293b;
+      --accent:#00f5d4;--struct:#409eff;--blue:#3b82f6;
+      --t1:#e2e8f0;--t2:#94a3b8;--t3:#475569;
+      --new:#10b981;--updated:#f59e0b;--removed:#ef4444;
+      --num:'JetBrains Mono','SF Mono',monospace;
+      --ease:cubic-bezier(.22,1,.36,1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;overflow:hidden}
+    body{font-family:-apple-system,'PingFang SC','Noto Sans SC',sans-serif;background:var(--bg);color:var(--t1);font-size:14px}
+
+    /* ── 顶栏 ── */
+    .topbar{display:flex;align-items:center;gap:10px;padding:14px 20px;flex-shrink:0}
+    .topbar-title{flex:1;font-size:17px;font-weight:700;letter-spacing:2px;color:#fff}
+    .topbar-title em{font-style:normal;color:var(--accent);text-shadow:0 0 12px rgba(0,245,212,.4)}
+    .topbar-line{height:1px;background:linear-gradient(to right,transparent,var(--struct),var(--accent),var(--struct),transparent)}
+
+    /* ── 模式切换按钮组 ── */
+    .mode-group{display:flex;border:1px solid var(--bdr);border-radius:6px;overflow:hidden}
+    .mode-btn{padding:5px 14px;font-size:12px;cursor:pointer;background:transparent;color:var(--t2);border:none;font-family:inherit;transition:all .15s;letter-spacing:.5px}
+    .mode-btn.on{background:rgba(64,158,255,.15);color:var(--struct);font-weight:600}
+
+    /* ── 变更开关 ── */
+    .diff-toggle{display:none;align-items:center;gap:6px;padding:4px 12px;border-radius:6px;border:1px solid var(--bdr);cursor:pointer;transition:all .2s;user-select:none;font-size:12px;color:var(--t2)}
+    .diff-toggle:hover{border-color:var(--struct);color:var(--t1)}
+    .diff-toggle.active{border-color:var(--accent);background:rgba(0,245,212,.08);color:var(--accent)}
+    .diff-toggle .dt-dot{width:6px;height:6px;border-radius:50%;background:var(--t3);transition:background .2s}
+    .diff-toggle.active .dt-dot{background:var(--accent);box-shadow:0 0 6px rgba(0,245,212,.6)}
+    body.review-mode .diff-toggle{display:flex}
+
+    /* ── 主体布局 ── */
+    #main{height:100vh;display:flex;flex-direction:column;padding:0 16px 12px}
+    .body{flex:1;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;min-height:0;overflow:hidden;padding-top:10px}
+    .col{display:flex;flex-direction:column;gap:8px;min-height:0}
+
+    /* ── 卡片 ── */
+    .card{background:linear-gradient(180deg,rgba(16,24,40,.9),rgba(10,18,30,.85));border-radius:10px;padding:14px;border:1px solid rgba(64,158,255,.12);display:flex;flex-direction:column;min-height:0;position:relative;box-shadow:0 2px 12px rgba(0,0,0,.3);transition:all .3s}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(64,158,255,.2),transparent);pointer-events:none}
+    .card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-shrink:0}
+    .card-h h3{font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px}
+    .card-h h3::before{content:'';width:3px;height:14px;background:var(--struct);border-radius:2px;flex-shrink:0}
+    .card-h .tag{font-size:10px;color:var(--t2);background:rgba(255,255,255,.04);padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.04)}
+
+    /* ── KPI 行 ── */
+    .kpi-row{display:flex;margin-bottom:8px;background:linear-gradient(180deg,rgba(13,21,32,.7),rgba(13,21,32,.4));border:1px solid rgba(64,158,255,.1);border-radius:10px;position:relative;overflow:hidden}
+    .kpi-row::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 5%,rgba(64,158,255,.3) 30%,rgba(0,245,212,.2) 50%,rgba(64,158,255,.3) 70%,transparent 95%)}
+    .kpi{flex:1;padding:12px 16px;text-align:center;position:relative}
+    .kpi+.kpi::before{content:'';position:absolute;left:0;top:20%;height:60%;width:1px;background:linear-gradient(180deg,transparent,rgba(64,158,255,.2),transparent)}
+    .kpi .label{font-size:11px;color:var(--t3);margin-bottom:3px;letter-spacing:.5px;font-weight:500}
+    .kpi .val{font-size:24px;font-weight:800;color:#fff;font-family:var(--num)}
+    .kpi .val .unit{font-size:12px;font-weight:400;color:var(--t2);margin-left:2px}
+
+    .list-item{display:flex;align-items:center;justify-content:space-between;padding:5px 8px;border-radius:5px;transition:background .15s;font-size:12px}
+    .list-item:hover{background:rgba(255,255,255,.02)}
+    .list-item .dot{width:5px;height:5px;border-radius:50%;margin-right:6px;flex-shrink:0}
+    .list-item .name{color:var(--t2);display:flex;align-items:center;flex:1}
+    .list-item .num{font-weight:700;color:#fff;font-family:var(--num)}
+
+    .placeholder{flex:1;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:12px;border:1px dashed rgba(64,158,255,.1);border-radius:8px;min-height:80px}
+
+    /* ═══════════════════════════════════════════════
+       变更标记系统核心样式
+       ═══════════════════════════════════════════════ */
+
+    /* 变更角标 — 只在过稿模式显示 */
+    .change-badge{display:none;position:absolute;top:-1px;right:-1px;z-index:10;padding:2px 8px 2px 6px;font-size:9px;font-weight:700;letter-spacing:.5px;border-radius:0 9px 0 8px;pointer-events:none;line-height:1.4}
+    .change-badge.new{background:linear-gradient(135deg,var(--new),#059669);color:#fff;box-shadow:0 2px 8px rgba(16,185,129,.3)}
+    .change-badge.updated{background:linear-gradient(135deg,var(--updated),#d97706);color:#000;box-shadow:0 2px 8px rgba(245,158,11,.3)}
+    body.review-mode [data-change] .change-badge{display:block}
+
+    /* 变更边框高亮 — 仅 diff 模式开启时 */
+    body.review-mode.diff-on [data-change="new"]{border-color:rgba(16,185,129,.5)!important;box-shadow:0 0 0 1px rgba(16,185,129,.15),inset 0 0 20px rgba(16,185,129,.04)!important}
+    body.review-mode.diff-on [data-change="updated"]{border-color:rgba(245,158,11,.5)!important;box-shadow:0 0 0 1px rgba(245,158,11,.15),inset 0 0 20px rgba(245,158,11,.04)!important}
+
+    /* diff 模式：未变化区域灰显 */
+    body.review-mode.diff-on .card:not([data-change]),
+    body.review-mode.diff-on .kpi-row:not([data-change]){opacity:.35;filter:saturate(.3);transition:opacity .4s,filter .4s}
+    body.review-mode.diff-on .card:not([data-change]):hover,
+    body.review-mode.diff-on .kpi-row:not([data-change]):hover{opacity:.7;filter:saturate(.6)}
+
+    /* 变更脉冲动画 */
+    @keyframes change-pulse-new{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}50%{box-shadow:0 0 0 4px rgba(16,185,129,.15)}}
+    @keyframes change-pulse-upd{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}50%{box-shadow:0 0 0 4px rgba(245,158,11,.15)}}
+    body.review-mode.diff-on [data-change="new"]{animation:change-pulse-new 2.5s ease-in-out infinite}
+    body.review-mode.diff-on [data-change="updated"]{animation:change-pulse-upd 2.5s ease-in-out infinite}
+
+    /* ── 过稿侧边栏 ── */
+    #sidebar{position:fixed;top:60px;right:40px;width:440px;height:calc(100vh - 120px);background:#fafbfc;border:1px solid #cbd5e1;border-radius:12px;z-index:200;opacity:0;pointer-events:none;transform:scale(.96) translateY(8px);transition:opacity .3s var(--ease),transform .3s var(--ease);box-shadow:0 20px 60px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow:hidden}
+    #sidebar.open{opacity:1;pointer-events:auto;transform:scale(1) translateY(0)}
+    .sb-drag{display:flex;align-items:center;gap:6px;padding:8px 12px;background:#f1f5f9;cursor:grab;user-select:none;flex-shrink:0;border-bottom:1px solid #e2e8f0}
+    .sb-drag:active{cursor:grabbing}
+    .sb-drag-dots{color:#94a3b8;font-size:11px;letter-spacing:1px}
+    .sb-drag-title{flex:1;font-size:12px;font-weight:700;color:#0f172a}
+    .sb-close{width:22px;height:22px;border-radius:6px;border:none;background:transparent;color:#94a3b8;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+    .sb-close:hover{background:#fee2e2;color:#ef4444}
+    .sb-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+    .sb-inner{padding:10px 12px 16px}
+
+    /* ── 更新日志区块（侧边栏顶部） ── */
+    .changelog{margin-bottom:10px;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;background:#fff}
+    .changelog-header{display:flex;align-items:center;gap:6px;padding:8px 10px;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fff;cursor:pointer;user-select:none}
+    .changelog-header .ch-icon{width:16px;height:16px;border-radius:4px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#000;flex-shrink:0}
+    .changelog-header .ch-title{flex:1;font-size:11px;font-weight:700;letter-spacing:.3px}
+    .changelog-header .ch-ver{font-size:10px;color:var(--accent);font-family:var(--num);font-weight:600}
+    .changelog-header .ch-arrow{color:#64748b;font-size:9px;transition:transform .25s}
+    .changelog.open .changelog-header .ch-arrow{transform:rotate(90deg)}
+    .changelog-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+    .changelog.open .changelog-body{max-height:600px}
+    .changelog-content{padding:8px 10px 10px}
+
+    .ver-block{margin-bottom:8px}
+    .ver-block:last-child{margin-bottom:0}
+    .ver-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-bottom:4px;font-family:var(--num)}
+    .ver-tag.current{background:#dbeafe;color:#1d4ed8}
+    .ver-tag.old{background:#f1f5f9;color:#64748b}
+    .ver-tag .ver-date{font-weight:500;color:#64748b;font-family:'PingFang SC',sans-serif}
+    .ver-items{list-style:none;padding:0;margin:0}
+    .ver-items li{font-size:10px;line-height:1.7;color:#475569;padding:1px 0;display:flex;align-items:flex-start;gap:4px}
+    .ver-items .change-tag{display:inline-block;padding:0 5px;border-radius:3px;font-size:8px;font-weight:700;letter-spacing:.3px;flex-shrink:0;margin-top:2px;line-height:1.5}
+    .ver-items .change-tag.new{background:#d1fae5;color:#065f46}
+    .ver-items .change-tag.upd{background:#fef3c7;color:#92400e}
+    .ver-items .change-tag.del{background:#fee2e2;color:#991b1b}
+    .ver-items .change-tag.fix{background:#e0e7ff;color:#3730a3}
+
+    /* ── 普通 PRD 条目 ── */
+    .sb-sec{margin-bottom:5px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;background:#fff;transition:border-color .2s}
+    .sb-sec:hover{border-color:#cbd5e1}
+    .sb-hd{display:flex;align-items:center;gap:5px;padding:6px 8px;cursor:pointer;background:#f8fafc;transition:background .15s;user-select:none;border-bottom:1px solid transparent}
+    .sb-hd:hover{background:#f1f5f9}
+    .sb-sec.op .sb-hd{background:#fff;border-bottom-color:#e2e8f0}
+    .sb-hd .no{width:18px;height:18px;border-radius:3px;font-size:9px;background:#3b82f6;color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .sb-hd .tx{font-size:11px;font-weight:600;color:#1e293b;flex:1}
+    .sb-hd .ar{color:#94a3b8;font-size:9px;transition:transform .25s}
+    .sb-sec.op .sb-hd .ar{transform:rotate(90deg)}
+    .sb-hd .sec-badge{padding:1px 5px;border-radius:3px;font-size:8px;font-weight:700;letter-spacing:.3px;flex-shrink:0}
+    .sb-hd .sec-badge.new{background:#d1fae5;color:#065f46}
+    .sb-hd .sec-badge.updated{background:#fef3c7;color:#92400e}
+    .sb-bd{max-height:0;overflow:hidden;transition:max-height .4s ease;font-size:10px;line-height:1.7;color:#475569}
+    .sb-sec.op .sb-bd{max-height:2000px}
+    .sb-bi{padding:8px 10px}
+    .sb-bd .ft{background:#f8fafc;border-left:2px solid #93c5fd;padding:5px 7px;margin:5px 0;border-radius:0 4px 4px 0;font-size:10px;line-height:1.6;color:#334155}
+    .sb-bd .note{background:#fffbeb;border-left:2px solid #eab308;padding:5px 7px;margin:5px 0;border-radius:0 4px 4px 0;font-size:9px;color:#a16207;line-height:1.5}
+    .sb-bd h4{color:#0ea5e9;font-size:10px;margin:8px 0 3px;font-weight:600}
+    .sb-bd h4:first-child{margin-top:0}
+
+    /* diff 变更行内高亮（侧边栏内） */
+    .diff-line{position:relative;padding:2px 4px;border-radius:3px;margin:1px 0}
+    .diff-line.added{background:rgba(16,185,129,.08);border-left:2px solid var(--new)}
+    .diff-line.changed{background:rgba(245,158,11,.08);border-left:2px solid var(--updated)}
+    .diff-line .diff-marker{font-size:8px;font-weight:700;margin-right:3px;vertical-align:middle}
+    .diff-line.added .diff-marker{color:var(--new)}
+    .diff-line.changed .diff-marker{color:var(--updated)}
+
+    /* ── 统计浮标 ── */
+    .diff-stats{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(6,12,20,.95);border:1px solid rgba(64,158,255,.2);border-radius:10px;padding:6px 16px;z-index:300;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+    body.review-mode.diff-on .diff-stats{display:flex;gap:16px;align-items:center;animation:slide-up .3s var(--ease)}
+    @keyframes slide-up{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+    .ds-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t2)}
+    .ds-item .ds-dot{width:8px;height:8px;border-radius:50%}
+    .ds-item .ds-count{font-weight:800;font-family:var(--num);font-size:13px}
+    .ds-item.new .ds-dot{background:var(--new);box-shadow:0 0 6px rgba(16,185,129,.4)}
+    .ds-item.new .ds-count{color:var(--new)}
+    .ds-item.upd .ds-dot{background:var(--updated);box-shadow:0 0 6px rgba(245,158,11,.4)}
+    .ds-item.upd .ds-count{color:var(--updated)}
+
+    @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+<div id="main">
+
+  <div class="topbar">
+    <div class="topbar-title">"<em>AI 龙老师</em>" 数据驾驶舱 <span style="font-size:11px;color:var(--t3);font-weight:400;margin-left:6px;font-family:var(--num)">v1.3</span></div>
+
+    <div class="diff-toggle" id="diffToggle" onclick="toggleDiff()">
+      <span class="dt-dot"></span>
+      <span>显示变更</span>
+    </div>
+
+    <div class="mode-group">
+      <button type="button" class="mode-btn on" id="bDemo" onclick="switchMode('demo')">演示</button>
+      <button type="button" class="mode-btn" id="bReview" onclick="switchMode('review')">过稿</button>
+    </div>
+    <div class="topbar-line" style="position:absolute;bottom:0;left:16px;right:16px"></div>
+  </div>
+
+  <!-- ─── KPI 行（未变化，diff 模式下灰显） ─── -->
+  <div class="kpi-row">
+    <div class="kpi"><div class="label">累计覆盖学校</div><div class="val">128<span class="unit">所</span></div></div>
+    <div class="kpi"><div class="label">累计参与教师</div><div class="val">3,265<span class="unit">人</span></div></div>
+    <div class="kpi"><div class="label">累计参与学生</div><div class="val">28,566<span class="unit">人</span></div></div>
+
+    <!-- 这个 KPI 是 v1.3 新增的 -->
+    <div class="kpi" data-change="new" style="position:relative">
+      <span class="change-badge new">NEW</span>
+      <div class="label">累计服务次数</div>
+      <div class="val">53.3<span class="unit">万次</span></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- ── 左栏 ── -->
+    <div class="col">
+      <div class="card" style="flex:1">
+        <div class="card-h"><h3>每日活跃用户</h3><div class="tag">近30日</div></div>
+        <div class="placeholder">DAU 趋势折线图</div>
+      </div>
+
+      <!-- v1.3 新增卡片 -->
+      <div class="card" data-change="new" style="flex:1">
+        <span class="change-badge new">NEW</span>
+        <div class="card-h"><h3>近 30 日活跃学生分布</h3><div class="tag">按年级</div></div>
+        <div class="placeholder" style="color:var(--new)">v1.3 新增 · 横向柱状图</div>
+      </div>
+    </div>
+
+    <!-- ── 中栏 ── -->
+    <div class="col">
+      <div class="card" style="flex:3">
+        <div class="card-h"><h3>学校覆盖分布</h3><div class="tag">龙岗区 · 128 所</div></div>
+        <div class="placeholder">ECharts 地图</div>
+      </div>
+
+      <!-- v1.3 修改了排行榜结构 -->
+      <div class="card" data-change="updated" style="flex:2">
+        <span class="change-badge updated">UPDATED</span>
+        <div class="card-h"><h3>双列排行榜</h3><div class="tag">学校 + 教师</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1">
+          <div>
+            <div style="font-size:11px;color:var(--t2);margin-bottom:6px;font-weight:600">学校累计创作榜</div>
+            <div class="list-item"><span class="name"><span class="dot" style="background:#f59e0b"></span>龙岗区实验学校</span><span class="num">1,567</span></div>
+            <div class="list-item"><span class="name"><span class="dot" style="background:#94a3b8"></span>龙城高级中学</span><span class="num">1,243</span></div>
+            <div class="list-item"><span class="name"><span class="dot" style="background:#b45309"></span>龙岗区外国语学校</span><span class="num">982</span></div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--t2);margin-bottom:6px;font-weight:600">教师累计创作榜</div>
+            <div class="list-item"><span class="name"><span class="dot" style="background:#f59e0b"></span>张明华</span><span class="num">127</span></div>
+            <div class="list-item"><span class="name"><span class="dot" style="background:#94a3b8"></span>李文静</span><span class="num">98</span></div>
+            <div class="list-item"><span class="name"><span class="dot" style="background:#b45309"></span>王建国</span><span class="num">85</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 右栏 ── -->
+    <div class="col">
+      <!-- v1.3 修改了助学卡布局 -->
+      <div class="card" data-change="updated">
+        <span class="change-badge updated">UPDATED</span>
+        <div class="card-h"><h3>AI 助学 · 学生端</h3></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+          <div style="text-align:center;padding:10px;background:rgba(255,255,255,.02);border-radius:6px;border:1px solid rgba(255,255,255,.04)">
+            <div style="font-size:20px;font-weight:800;color:var(--accent);font-family:var(--num)">8,902<span style="font-size:11px;color:var(--t3);margin-left:1px">次</span></div>
+            <div style="font-size:10px;color:var(--t2);margin-top:2px">拍照答疑</div>
+          </div>
+          <div style="text-align:center;padding:10px;background:rgba(255,255,255,.02);border-radius:6px;border:1px solid rgba(255,255,255,.04)">
+            <div style="font-size:20px;font-weight:800;color:var(--accent);font-family:var(--num)">6,789<span style="font-size:11px;color:var(--t3);margin-left:1px">次</span></div>
+            <div style="font-size:10px;color:var(--t2);margin-top:2px">AI 讲解</div>
+          </div>
+        </div>
+        <div class="list-item"><span class="name"><span class="dot" style="background:var(--accent)"></span>作业批改</span><span class="num">12,345<span style="font-size:10px;color:var(--t3);font-weight:400;margin-left:1px">次</span></span></div>
+        <div class="list-item"><span class="name"><span class="dot" style="background:var(--struct)"></span>视频讲解</span><span class="num">4.6<span style="font-size:10px;color:var(--t3);font-weight:400;margin-left:1px">万次</span></span></div>
+        <div class="list-item"><span class="name"><span class="dot" style="background:var(--updated)"></span>错题本</span><span class="num">12,345<span style="font-size:10px;color:var(--t3);font-weight:400;margin-left:1px">题</span></span></div>
+        <div class="list-item"><span class="name"><span class="dot" style="background:var(--struct)"></span>试卷打印</span><span class="num">3,891<span style="font-size:10px;color:var(--t3);font-weight:400;margin-left:1px">套</span></span></div>
+      </div>
+
+      <div class="card" style="flex:1">
+        <div class="card-h"><h3>AI 助教 · 教师端</h3></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <div style="text-align:center">
+            <div style="font-size:26px;font-weight:800;color:var(--accent);font-family:var(--num)">19,107</div>
+            <div style="font-size:10px;color:var(--t2);margin-top:2px">资源创作总数</div>
+          </div>
+          <div style="width:1px;height:36px;background:linear-gradient(180deg,transparent,rgba(64,158,255,.15),transparent)"></div>
+          <div style="flex:1">
+            <div class="list-item"><span class="name"><span class="dot" style="background:#a78bfa"></span>互动课件</span><span class="num">8,306</span></div>
+            <div class="list-item"><span class="name"><span class="dot" style="background:#f59e0b"></span>教学动画</span><span class="num">1,823</span></div>
+            <div class="list-item"><span class="name"><span class="dot" style="background:#ec4899"></span>教学游戏</span><span class="num">1,206</span></div>
+          </div>
+        </div>
+        <div class="placeholder">学科分布环形图</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── 变更统计浮标 ─── -->
+<div class="diff-stats">
+  <span style="font-size:10px;color:var(--t3);font-weight:600;letter-spacing:.5px">本次变更</span>
+  <div class="ds-item new"><span class="ds-dot"></span><span class="ds-count" id="countNew">0</span><span>新增</span></div>
+  <div class="ds-item upd"><span class="ds-dot"></span><span class="ds-count" id="countUpd">0</span><span>修改</span></div>
+</div>
+
+<!-- ─── 过稿侧边栏 ─── -->
+<div id="sidebar">
+  <div class="sb-drag" id="sbDrag">
+    <span class="sb-drag-dots">⋮⋮</span>
+    <span class="sb-drag-title">产品稿 · 数据口径定义</span>
+    <button type="button" class="sb-close" onclick="switchMode('demo')" title="关闭">✕</button>
+  </div>
+  <div class="sb-scroll"><div class="sb-inner">
+
+    <!-- ═══ 更新日志 ═══ -->
+    <div class="changelog open" id="changelog">
+      <div class="changelog-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="ch-icon">△</span>
+        <span class="ch-title">更新日志</span>
+        <span class="ch-ver">v1.3</span>
+        <span class="ch-arrow">▶</span>
+      </div>
+      <div class="changelog-body"><div class="changelog-content">
+        <div class="ver-block">
+          <div class="ver-tag current">v1.3 <span class="ver-date">· 2026-03-31</span></div>
+          <ul class="ver-items">
+            <li><span class="change-tag new">新增</span>KPI 栏增加「累计服务次数」指标（学生端8项 + 教师端1项汇总）</li>
+            <li><span class="change-tag new">新增</span>左栏增加「近30日活跃学生分布」横向柱状图（按年级）</li>
+            <li><span class="change-tag upd">修改</span>排行榜：教师排行从右栏移至中栏，与学校排行组成双列排行</li>
+            <li><span class="change-tag upd">修改</span>助学卡：拍照答疑 & AI 讲解改为两列大数字卡片突出展示</li>
+            <li><span class="change-tag del">移除</span>右栏顶部旧版教师排行独立卡片</li>
+          </ul>
+        </div>
+        <div class="ver-block">
+          <div class="ver-tag old">v1.2 <span class="ver-date">· 2026-03-24</span></div>
+          <ul class="ver-items">
+            <li><span class="change-tag new">新增</span>地图实时活动弹幕（教师创作 + 学生使用）</li>
+            <li><span class="change-tag upd">修改</span>地图 Tooltip 增加「资源创作总数」字段</li>
+            <li><span class="change-tag fix">修复</span>DAU 折线图周末数据显示异常</li>
+          </ul>
+        </div>
+        <div class="ver-block">
+          <div class="ver-tag old">v1.1 <span class="ver-date">· 2026-03-17</span></div>
+          <ul class="ver-items">
+            <li><span class="change-tag new">新增</span>学科分布环形图（教师端卡片下方）</li>
+            <li><span class="change-tag upd">修改</span>KPI 数字加入进入动画（递增效果）</li>
+          </ul>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- ═══ PRD 条目（带变更标记） ═══ -->
+    <div class="sb-sec" data-sb="1"><div class="sb-hd" onclick="toggleSec(this)"><span class="no">1</span><span class="tx">顶部 KPI 指标栏</span><span class="sec-badge updated">UPDATED</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+      <h4>数据口径</h4>
+      <div class="ft">
+        <p><b>覆盖学校</b>：教师端或学生端有过登录成功记录的学校去重 count。</p>
+        <p><b>参与教师</b>：教师端累计登录成功的 distinct userId。</p>
+        <p><b>参与学生</b>：学生端累计登录成功的 distinct userId。</p>
+        <div class="diff-line added"><span class="diff-marker">+</span><b>累计服务次数</b> = 学生端 ①～⑧ 之和 + 教师端 ⑨ 一条埋点 PV。<i style="color:var(--new);font-style:normal;font-size:9px;margin-left:4px">v1.3 新增</i></div>
+      </div>
+    </div></div></div>
+
+    <div class="sb-sec" data-sb="2"><div class="sb-hd" onclick="toggleSec(this)"><span class="no">2</span><span class="tx">每日活跃用户（DAU）</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+      <h4>数据口径</h4>
+      <div class="ft">
+        <b>学生 DAU</b>：AI 龙老师小程序当日进入去重 UV。<br>
+        <b>教师 DAU</b>：AI 龙老师教师端当日进入去重 UV。
+      </div>
+    </div></div></div>
+
+    <div class="sb-sec" data-sb="3"><div class="sb-hd" onclick="toggleSec(this)"><span class="no">3</span><span class="tx">近 30 日活跃学生分布</span><span class="sec-badge new">NEW</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+      <h4>数据口径</h4>
+      <div class="diff-line added"><span class="diff-marker">+</span>本节为 v1.3 新增</div>
+      <div class="ft">
+        <b>活跃学生数</b>：最近 30 日进入过小程序的学生去重 UV，按 grade 字段分组。<br><br>
+        <b>年级标签</b>：一年级~九年级。<br>
+        <b>颜色分段</b>：绿色 = 小学、青色 = 初中。
+      </div>
+    </div></div></div>
+
+    <div class="sb-sec" data-sb="4"><div class="sb-hd" onclick="toggleSec(this)"><span class="no">4</span><span class="tx">学校覆盖地图</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+      <h4>数据口径</h4>
+      <div class="ft">
+        <b>气泡大小</b>：按该校累计参与教师数决定。<br>
+        <b>Tooltip</b>：展示参与学生数、参与老师数、资源创作总数。
+      </div>
+    </div></div></div>
+
+    <div class="sb-sec" data-sb="5"><div class="sb-hd" onclick="toggleSec(this)"><span class="no">5</span><span class="tx">双列排行榜</span><span class="sec-badge updated">UPDATED</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+      <h4>变更说明</h4>
+      <div class="diff-line changed"><span class="diff-marker">~</span>教师排行从右栏独立卡片移至中栏，与学校排行组成双列布局</div>
+      <div class="ft">
+        <b>学校榜</b>：按 school_id 分组 count 降序 TOP 7。<br>
+        <b>教师榜</b>：按 userId 分组 count 降序 TOP 7。
+      </div>
+    </div></div></div>
+
+    <div class="sb-sec" data-sb="6"><div class="sb-hd" onclick="toggleSec(this)"><span class="no">6</span><span class="tx">AI 助学 · 学生端</span><span class="sec-badge updated">UPDATED</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+      <h4>变更说明</h4>
+      <div class="diff-line changed"><span class="diff-marker">~</span>拍照答疑 & AI 讲解改为两列大数字卡片突出展示，其余 4 项弱化为紧凑列表</div>
+      <div class="ft">
+        <b>突出指标</b>：拍照答疑（次）、AI 讲解（次）。<br>
+        <b>辅助指标</b>：作业批改、视频讲解、错题本、试卷打印。
+      </div>
+    </div></div></div>
+
+    <div class="sb-sec" data-sb="7"><div class="sb-hd" onclick="toggleSec(this)"><span class="no">7</span><span class="tx">AI 助教 · 教师端</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+      <h4>数据口径</h4>
+      <div class="ft">
+        <b>资源创作总数</b> = /click/DesignCompilePlanPage/generate WHERE feature_section IN (17~25) count。<br>
+        <b>学科分布</b>：按 subject 字段分组 count。
+      </div>
+    </div></div></div>
+
+  </div></div>
+</div>
+
+<script>
+var isReview = false;
+var isDiffOn = false;
+
+function switchMode(m) {
+  isReview = (m === 'review');
+  document.body.classList.toggle('review-mode', isReview);
+  document.getElementById('sidebar').classList.toggle('open', isReview);
+  document.getElementById('bDemo').classList.toggle('on', !isReview);
+  document.getElementById('bReview').classList.toggle('on', isReview);
+  if (!isReview) {
+    isDiffOn = false;
+    document.body.classList.remove('diff-on');
+    document.getElementById('diffToggle').classList.remove('active');
+  }
+}
+
+function toggleDiff() {
+  isDiffOn = !isDiffOn;
+  document.body.classList.toggle('diff-on', isDiffOn);
+  document.getElementById('diffToggle').classList.toggle('active', isDiffOn);
+}
+
+function toggleSec(hd) {
+  hd.parentElement.classList.toggle('op');
+}
+
+(function() {
+  var newCount = document.querySelectorAll('[data-change="new"]').length;
+  var updCount = document.querySelectorAll('[data-change="updated"]').length;
+  document.getElementById('countNew').textContent = newCount;
+  document.getElementById('countUpd').textContent = updCount;
+})();
+
+(function() {
+  var sb = document.getElementById('sidebar'), hd = document.getElementById('sbDrag');
+  var ox = 0, oy = 0, dragging = false;
+  function start(ex, ey) { dragging = true; var r = sb.getBoundingClientRect(); ox = ex - r.left; oy = ey - r.top; document.body.style.userSelect = 'none'; }
+  function move(ex, ey) { if (!dragging) return; sb.style.left = Math.max(0, Math.min(ex - ox, window.innerWidth - 80)) + 'px'; sb.style.top = Math.max(0, Math.min(ey - oy, window.innerHeight - 60)) + 'px'; sb.style.right = 'auto'; }
+  function end() { dragging = false; document.body.style.userSelect = ''; }
+  hd.addEventListener('mousedown', function(e) { if (e.target.closest('.sb-close')) return; start(e.clientX, e.clientY); });
+  document.addEventListener('mousemove', function(e) { move(e.clientX, e.clientY); });
+  document.addEventListener('mouseup', end);
+})();
+</script>
+</body>
+</html>
