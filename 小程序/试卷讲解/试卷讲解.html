@@ -14,8 +14,11 @@
         .ep-topbar-title{position:absolute;left:0;right:0;text-align:center;font-size:1.0625rem;font-weight:700;color:#18181b;letter-spacing:-.02em;pointer-events:none}
         .ep-topbar-spacer{width:var(--app-capsule-clearance,96px);height:40px;flex-shrink:0;pointer-events:none}
 
+        /* 机身内页面根：遮罩/底部弹层相对此层定位，避免 fixed 铺满浏览器视口 */
+        .ep-frame-page{position:relative;overflow:hidden}
         .ep-filters{display:flex;align-items:center;padding:0;flex-shrink:0;border-bottom:1px solid rgba(226,232,240,.5);position:relative;z-index:110}
-        .ep-filter-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;background:none;border:none;font-size:.875rem;font-weight:500;color:#475569;cursor:pointer;padding:12px 0;-webkit-tap-highlight-color:transparent;transition:color .15s,background .15s;position:relative}
+        .ep-filter-btn{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:4px;background:none;border:none;font-size:.875rem;font-weight:500;color:#475569;cursor:pointer;padding:12px 4px;-webkit-tap-highlight-color:transparent;transition:color .15s,background .15s;position:relative}
+        .ep-filter-btn > span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
         .ep-filter-btn:active{background:rgba(0,0,0,.02)}
         .ep-filter-btn.active{color:#0f172a;font-weight:600}
         .ep-filter-btn.open{color:#ea580c;font-weight:600}
@@ -25,8 +28,7 @@
         .ep-list{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 16px 20px}
         .ep-list::-webkit-scrollbar{display:none}
 
-        .ep-card{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid rgba(226,232,240,.6);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s}
-        .ep-card:active{background:rgba(0,0,0,.01)}
+        .ep-card{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid rgba(226,232,240,.6);-webkit-tap-highlight-color:transparent;transition:background .12s}
         .ep-card:last-child{border-bottom:none}
 
         .ep-cover{width:80px;height:100px;border-radius:8px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)}
@@ -44,7 +46,11 @@
         .ep-title{font-size:.875rem;font-weight:700;color:#0f172a;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
         .ep-meta-row{display:flex;align-items:center;justify-content:space-between}
         .ep-count{font-size:.6875rem;color:#94a3b8}
-        .ep-video-link{font-size:.8125rem;font-weight:600;color:#ea580c;display:flex;align-items:center;gap:2px;flex-shrink:0}
+        .ep-btn-row{display:flex;align-items:center;gap:8px;flex-shrink:0}
+        .ep-btn-view{font-size:.75rem;font-weight:600;color:#475569;background:#f1f5f9;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;display:flex;align-items:center;gap:3px}
+        .ep-btn-view:active{background:#e2e8f0;transform:scale(.96)}
+        .ep-btn-video{font-size:.75rem;font-weight:600;color:#fff;background:linear-gradient(135deg,#ea580c,#f97316);border:none;border-radius:6px;padding:5px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;display:flex;align-items:center;gap:3px;box-shadow:0 2px 6px rgba(234,88,12,.2)}
+        .ep-btn-video:active{transform:scale(.96);box-shadow:0 1px 3px rgba(234,88,12,.15)}
 
         /* 筛选弹窗 */
         .ep-dd-wrap{position:relative;flex-shrink:0}
@@ -54,10 +60,153 @@
         .ep-dd-item{padding:14px 20px;font-size:.875rem;font-weight:400;color:#475569;cursor:pointer;transition:background .12s;-webkit-tap-highlight-color:transparent}
         .ep-dd-item:active{background:#fafafa}
         .ep-dd-item.selected{color:#ea580c;font-weight:600}
-        .ep-dd-overlay{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.2);display:none}
+        .ep-dd-overlay{position:absolute;inset:0;z-index:100;background:rgba(0,0,0,.2);display:none}
         .ep-dd-overlay.open{display:block}
 
+        /* 地区筛选 · 底部弹层（省 / 市 / 区分段 + 列表，常见电商/本地生活样式） */
+        /* 低于 .ep-filters(110)，顶栏筛选项仍可点按切换收起 */
+        .ep-rs-overlay{position:absolute;inset:0;z-index:105;background:rgba(15,23,42,.45);display:none;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+        .ep-rs-overlay.open{display:block}
+        .ep-region-sheet{
+            position:absolute;left:0;right:0;bottom:0;z-index:112;width:100%;
+            background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -8px 32px rgba(0,0,0,.12);
+            max-height:min(58%,520px);display:flex;flex-direction:column;
+            transform:translateY(105%);transition:transform .28s cubic-bezier(.32,.72,0,1);padding-bottom:max(12px,env(safe-area-inset-bottom))
+        }
+        .ep-region-sheet.open{transform:translateY(0)}
+        .ep-rs-handle{width:36px;height:4px;background:#e2e8f0;border-radius:99px;margin:10px auto 2px;flex-shrink:0}
+        .ep-rs-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 16px 8px;flex-shrink:0;border-bottom:1px solid #f1f5f9}
+        .ep-rs-title{font-size:1rem;font-weight:700;color:#0f172a;letter-spacing:-.02em;flex:1;min-width:0}
+        .ep-rs-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+        .ep-rs-reset{font-size:.8125rem;font-weight:600;color:#64748b;background:none;border:none;padding:6px 10px;border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+        .ep-rs-reset:active{background:#f1f5f9}
+        .ep-rs-done{font-size:.8125rem;font-weight:700;color:#fff;background:linear-gradient(135deg,#ea580c,#f97316);border:none;padding:6px 14px;border-radius:8px;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 6px rgba(234,88,12,.2)}
+        .ep-rs-done:active{transform:scale(.98);opacity:.95}
+        .ep-rs-sub{font-size:.6875rem;color:#64748b;line-height:1.5;padding:6px 16px 8px;flex-shrink:0;background:#f8fafc;border-bottom:1px solid #f1f5f9}
+        .ep-rs-tabs{display:flex;align-items:stretch;border-bottom:1px solid #f1f5f9;flex-shrink:0;background:#fafafa}
+        .ep-rs-tab{flex:1;padding:12px 6px;font-size:.8125rem;font-weight:500;color:#64748b;border:none;background:transparent;cursor:pointer;position:relative;-webkit-tap-highlight-color:transparent;transition:color .15s}
+        .ep-rs-tab.active{color:#0f172a;font-weight:700}
+        .ep-rs-tab.active::after{content:'';position:absolute;left:16%;right:16%;bottom:0;height:2.5px;background:#ea580c;border-radius:2px 2px 0 0}
+        .ep-rs-tab:disabled{color:#cbd5e1;cursor:default}
+        .ep-rs-tab:not(:disabled):active{background:rgba(0,0,0,.02)}
+        .ep-rs-list{flex:1;min-height:120px;min-width:0;max-height:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
+        .ep-rs-list::-webkit-scrollbar{width:4px}
+        .ep-rs-list::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:2px}
+        .ep-rs-item{padding:14px 20px;font-size:.9375rem;color:#334155;cursor:pointer;border-bottom:1px solid #f8fafc;-webkit-tap-highlight-color:transparent;transition:background .12s}
+        .ep-rs-item:active{background:#f8fafc}
+        .ep-rs-item.selected{color:#ea580c;font-weight:600;background:rgba(234,88,12,.06)}
+        .ep-rs-hint{padding:40px 24px;text-align:center;color:#94a3b8;font-size:.8125rem;line-height:1.6}
+
         .ep-empty{padding:60px 20px;text-align:center;color:#94a3b8;font-size:.8125rem;line-height:1.6}
+
+        /* 模式切换按钮（页面右上角） */
+        .mode-toggle {
+            position: fixed; top: 24px; right: 32px; z-index: 900;
+            display: flex; background: #fff; border-radius: 12px;
+            box-shadow: 0 4px 24px -4px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .mode-toggle button {
+            padding: 10px 24px; border: none; background: transparent;
+            color: #94a3b8; cursor: pointer; font-family: inherit;
+            font-size: 0.8125rem; font-weight: 600; transition: all 0.2s;
+        }
+        .mode-toggle button.active { background: #7c3aed; color: #fff; }
+
+        /* ── 过稿面板 ── */
+        .review-panel {
+            position: fixed; top: 60px; right: 32px;
+            width: 380px; height: 520px; min-width: 280px; min-height: 300px;
+            background: #fff; z-index: 1500; border-radius: 16px;
+            box-shadow: 0 12px 48px -8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06);
+            display: none; flex-direction: column;
+            font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+            overflow: hidden;
+        }
+        .review-panel.open { display: flex; }
+        .rp-header {
+            padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+            cursor: move; user-select: none; -webkit-user-select: none;
+            background: linear-gradient(180deg, #faf8ff, #fff);
+        }
+        .rp-header h2 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0; pointer-events: none; }
+        .rp-header span { font-size: 11px; color: #94a3b8; pointer-events: none; }
+        .rp-close {
+            width: 26px; height: 26px; border-radius: 8px; border: none;
+            background: #f8fafc; color: #64748b; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+        }
+        .rp-close:hover { background: #fee2e2; color: #ef4444; }
+        .rp-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+        .rp-body::-webkit-scrollbar { width: 4px; }
+        .rp-body::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 2px; }
+        .rp-section { margin-bottom: 16px; }
+        .rp-section-title {
+            font-size: 11px; font-weight: 700; color: #7c3aed; text-transform: uppercase;
+            letter-spacing: 0.05em; margin-bottom: 8px;
+            padding-bottom: 6px; border-bottom: 1px solid #f5f3ff;
+        }
+        .rp-item {
+            padding: 10px 12px; margin-bottom: 6px;
+            border-radius: 10px; background: #faf8ff; border: 1px solid #f0ecff;
+            cursor: pointer; transition: all .15s;
+        }
+        .rp-item:hover { background: #f0ecff; border-color: #c4b5fd; }
+        .rp-item.rp-highlight { background: #ede9fe; border-color: #8b5cf6; }
+        .rp-item-id {
+            font-size: 10px; font-weight: 600; color: #a78bfa;
+            font-family: 'SF Mono', 'Menlo', monospace; margin-bottom: 3px;
+        }
+        .rp-item-prd { font-size: 12px; color: #334155; line-height: 1.5; }
+        .rp-item-track {
+            font-size: 10px; color: #94a3b8; margin-top: 4px;
+            font-family: 'SF Mono', 'Menlo', monospace; word-break: break-all;
+        }
+
+        [data-doc].review-highlight {
+            outline: 2px solid #8b5cf6 !important;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        .rp-tabs {
+            display: flex; border-bottom: 1px solid #f1f5f9; flex-shrink: 0;
+            padding: 0 12px; gap: 2px; background: #faf8ff;
+        }
+        .rp-tab {
+            flex: 1; padding: 8px 0; font-size: 12px; font-weight: 600;
+            color: #94a3b8; background: none; border: none; border-bottom: 2px solid transparent;
+            cursor: pointer; font-family: inherit; transition: all .15s;
+        }
+        .rp-tab.active { color: #7c3aed; border-bottom-color: #7c3aed; }
+        .rp-tab:hover:not(.active) { color: #64748b; }
+
+        .rp-mdoc { padding: 16px; font-size: 13px; color: #334155; line-height: 1.7; }
+        .rp-mdoc h1 { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 2px solid #ede9fe; }
+        .rp-mdoc h2 { font-size: 14px; font-weight: 700; color: #1e1b4b; margin: 20px 0 8px; padding: 6px 10px; background: #f5f3ff; border-radius: 6px; border-left: 3px solid #7c3aed; }
+        .rp-mdoc h3 { font-size: 13px; font-weight: 700; color: #0f172a; margin: 14px 0 4px; }
+        .rp-mdoc h4 { font-size: 12px; font-weight: 700; color: #475569; margin: 10px 0 4px; }
+        .rp-mdoc p { margin: 0 0 6px; }
+        .rp-mdoc ul { padding-left: 16px; margin: 0 0 8px; }
+        .rp-mdoc li { margin-bottom: 3px; }
+        .rp-mdoc table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 12px; }
+        .rp-mdoc th { background: #f8fafc; font-weight: 600; color: #475569; text-align: left; padding: 6px 8px; border: 1px solid #e2e8f0; }
+        .rp-mdoc td { padding: 5px 8px; border: 1px solid #e2e8f0; vertical-align: top; }
+        .rp-mdoc blockquote { margin: 6px 0; padding: 6px 10px; background: #f0fdf4; border-left: 3px solid #22c55e; border-radius: 0 6px 6px 0; font-size: 12px; color: #166534; }
+        .rp-mdoc code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 11px; font-family: 'SF Mono', 'Menlo', monospace; }
+        .rp-mdoc hr { border: none; border-top: 1px solid #e2e8f0; margin: 16px 0; }
+        .rp-mdoc .prd-note { margin: 6px 0; padding: 6px 10px; background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 0 6px 6px 0; font-size: 11px; color: #991b1b; }
+
+        .rp-resize { position: absolute; z-index: 10; }
+        .rp-resize-e { top: 0; right: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-w { top: 0; left: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-s { bottom: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-n { top: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-se { bottom: -4px; right: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
+        .rp-resize-sw { bottom: -4px; left: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-ne { top: -4px; right: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-nw { top: -4px; left: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
     </style>
 </head>
 <body>
@@ -69,7 +218,7 @@
             <button class="wx-capsule-btn" aria-label="关闭"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M2 2l8 8M10 2l-8 8"/></svg></button>
         </div>
 
-        <div class="flex-1 min-h-0 flex flex-col pt-[50px]" style="position:relative">
+        <div class="ep-frame-page flex-1 min-h-0 flex flex-col pt-[50px]">
             <header class="ep-topbar"
                 data-doc="ep-topbar"
                 data-prd="顶部导航栏，点击返回按钮回到首页"
@@ -83,14 +232,14 @@
 
             <div class="ep-filters" id="filterBar"
                 data-doc="filter-bar"
-                data-prd="三个筛选项：科目、版本、年级；点击展开对应下拉列表，选中后筛选试卷列表；支持组合筛选"
+                data-prd="科目、地区、年级；地区为省→市→区数据级联，但筛选可在任一层结束（不限=不继续缩小）；选好后点完成或点遮罩关闭"
                 data-track="/click/examExplainListPage/filter | 点击筛选项 | filterType#String,filterValue#String">
                 <button class="ep-filter-btn active" data-filter="subject" onclick="toggleFilter('subject')">
                     <span id="filterSubjectLabel">数学</span>
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </button>
-                <button class="ep-filter-btn" data-filter="edition" onclick="toggleFilter('edition')">
-                    <span id="filterEditionLabel">不限</span>
+                <button class="ep-filter-btn" data-filter="region" onclick="toggleFilter('region')">
+                    <span id="filterRegionLabel">全国</span>
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <button class="ep-filter-btn" data-filter="grade" onclick="toggleFilter('grade')">
@@ -104,6 +253,21 @@
                 <div class="ep-dropdown" id="ddPanel"></div>
             </div>
 
+            <div class="ep-rs-overlay" id="regionOverlay" onclick="closeAllFilters()" aria-hidden="true"></div>
+            <div class="ep-region-sheet" id="regionSheet" role="dialog" aria-modal="true" aria-labelledby="regionSheetTitle">
+                <div class="ep-rs-handle" aria-hidden="true"></div>
+                <div class="ep-rs-head">
+                    <span class="ep-rs-title" id="regionSheetTitle">选择地区</span>
+                    <div class="ep-rs-actions">
+                        <button type="button" class="ep-rs-reset" onclick="resetRegionFilters(); syncRegionSheetUI(); renderList();">重置</button>
+                        <button type="button" class="ep-rs-done" onclick="confirmRegionFilter()">完成</button>
+                    </div>
+                </div>
+                <div class="ep-rs-sub" id="regionScopeLine" aria-live="polite"></div>
+                <div class="ep-rs-tabs" id="regionTabs"></div>
+                <div class="ep-rs-list" id="regionList"></div>
+            </div>
+
             <div class="ep-list" id="paperList"
                 data-doc="paper-list"
                 data-prd="试卷卡片列表，点击整张卡片或视频讲解按钮跳转到该试卷的视频讲解详情页；按筛选条件动态过滤"
@@ -112,34 +276,90 @@
         </div>
     </div>
 
+    <!-- 过稿面板 -->
+    <div class="review-panel" id="reviewPanel">
+        <div class="rp-resize rp-resize-n" data-dir="n"></div>
+        <div class="rp-resize rp-resize-s" data-dir="s"></div>
+        <div class="rp-resize rp-resize-e" data-dir="e"></div>
+        <div class="rp-resize rp-resize-w" data-dir="w"></div>
+        <div class="rp-resize rp-resize-ne" data-dir="ne"></div>
+        <div class="rp-resize rp-resize-nw" data-dir="nw"></div>
+        <div class="rp-resize rp-resize-se" data-dir="se"></div>
+        <div class="rp-resize rp-resize-sw" data-dir="sw"></div>
+        <div class="rp-header" id="rpHeader">
+            <div>
+                <h2>📋 产品稿 · 试卷讲解</h2>
+                <span id="rpCount"></span>
+            </div>
+            <button class="rp-close" onclick="setMode('demo')">✕</button>
+        </div>
+        <div class="rp-tabs">
+            <button class="rp-tab active" data-tab="doc" onclick="switchTab('doc')">📄 产品文档</button>
+            <button class="rp-tab" data-tab="els" onclick="switchTab('els')">📌 元素标注</button>
+        </div>
+        <div class="rp-body" id="rpBody">
+            <div class="rp-tab-content" id="rpTabDoc">
+                <div class="rp-mdoc" id="rpDocContent">加载中…</div>
+            </div>
+            <div class="rp-tab-content" id="rpTabEls" style="display:none"></div>
+        </div>
+    </div>
+
+    <!-- 模式切换（右上角） -->
+    <div class="mode-toggle" id="modeToggle">
+        <button class="active" onclick="setMode('demo')">演示</button>
+        <button onclick="setMode('review')">过稿</button>
+    </div>
+
     <script>
     /* ══════════ Mock 数据 ══════════ */
     const SUBJECTS = ['数学', '语文', '英语'];
-    const EDITIONS = ['不限', '人教版', '北师版', '沪教版', '苏教版', '青岛五四版', '西师版'];
     const GRADES = ['三年级', '四年级', '五年级', '六年级'];
 
+    /** 省 → 市 → 区（直辖市为「市名→市名→区」） */
+    const REGION_TREE = {
+        '北京市': { '北京市': ['东城区', '西城区', '朝阳区', '海淀区'] },
+        '上海市': { '上海市': ['黄浦区', '徐汇区', '长宁区', '浦东新区'] },
+        '浙江省': {
+            '杭州市': ['上城区', '拱墅区', '西湖区', '余杭区'],
+            '宁波市': ['海曙区', '江北区', '鄞州区'],
+        },
+        '江苏省': {
+            '南京市': ['玄武区', '秦淮区', '鼓楼区'],
+            '苏州市': ['姑苏区', '虎丘区', '吴中区'],
+        },
+        '广东省': {
+            '广州市': ['越秀区', '海珠区', '天河区'],
+            '深圳市': ['福田区', '罗湖区', '南山区'],
+        },
+    };
+    const PROVINCE_NAMES = Object.keys(REGION_TREE);
+
     const PAPERS = [
-        { id:'p1', title:'2023-2024 学年北师版五年级上学期期末试卷：数学', subject:'数学', edition:'北师版', grade:'五年级', year:'2024', count:'3.2万', recommended:true, qCount:25 },
-        { id:'p2', title:'2023-2024 学年沪教版五年级上学期期末试卷：数学', subject:'数学', edition:'沪教版', grade:'五年级', year:'2024', count:'4648', recommended:true, qCount:22 },
-        { id:'p3', title:'2023-2024 学年青岛五四版五年级上学期期末试卷：数学', subject:'数学', edition:'青岛五四版', grade:'五年级', year:'2024', count:'3128', recommended:true, qCount:20 },
-        { id:'p4', title:'2022-2023 学年西师版五年级下学期期中试卷：数学', subject:'数学', edition:'西师版', grade:'五年级', year:'2023', count:'2.0万', recommended:true, qCount:24 },
-        { id:'p5', title:'2022-2023 学年人教版五年级上学期期末试卷：数学', subject:'数学', edition:'人教版', grade:'五年级', year:'2023', count:'9432', recommended:true, qCount:28 },
-        { id:'p6', title:'2023-2024 学年人教版五年级下学期期末试卷：数学', subject:'数学', edition:'人教版', grade:'五年级', year:'2024', count:'1.8万', recommended:true, qCount:26 },
-        { id:'p7', title:'2023-2024 学年北师版四年级上学期期末试卷：数学', subject:'数学', edition:'北师版', grade:'四年级', year:'2024', count:'2.6万', recommended:true, qCount:23 },
-        { id:'p8', title:'2023-2024 学年苏教版五年级上学期期末试卷：数学', subject:'数学', edition:'苏教版', grade:'五年级', year:'2024', count:'5210', recommended:false, qCount:22 },
-        { id:'p9', title:'2023-2024 学年人教版五年级上学期期末试卷：语文', subject:'语文', edition:'人教版', grade:'五年级', year:'2024', count:'2.1万', recommended:true, qCount:18 },
-        { id:'p10', title:'2023-2024 学年部编版五年级下学期期中试卷：语文', subject:'语文', edition:'人教版', grade:'五年级', year:'2024', count:'1.5万', recommended:true, qCount:16 },
-        { id:'p11', title:'2023-2024 学年人教版(PEP)五年级上学期期末试卷：英语', subject:'英语', edition:'人教版', grade:'五年级', year:'2024', count:'1.2万', recommended:true, qCount:30 },
-        { id:'p12', title:'2023-2024 学年外研版五年级上学期期末试卷：英语', subject:'英语', edition:'人教版', grade:'五年级', year:'2024', count:'6820', recommended:true, qCount:28 },
-        { id:'p13', title:'2022-2023 学年人教版六年级上学期期末试卷：数学', subject:'数学', edition:'人教版', grade:'六年级', year:'2023', count:'4.5万', recommended:true, qCount:30 },
-        { id:'p14', title:'2023-2024 学年北师版三年级上学期期末试卷：数学', subject:'数学', edition:'北师版', grade:'三年级', year:'2024', count:'1.9万', recommended:true, qCount:20 },
+        { id:'p1', title:'2023-2024 学年杭州市西湖区五年级上学期期末试卷：数学', subject:'数学', grade:'五年级', year:'2024', count:'3.2万', recommended:true, qCount:25, province:'浙江省', city:'杭州市', district:'西湖区' },
+        { id:'p2', title:'2023-2024 学年杭州市拱墅区五年级上学期期末试卷：数学', subject:'数学', grade:'五年级', year:'2024', count:'4648', recommended:true, qCount:22, province:'浙江省', city:'杭州市', district:'拱墅区' },
+        { id:'p3', title:'2023-2024 学年宁波市鄞州区五年级上学期期末试卷：数学', subject:'数学', grade:'五年级', year:'2024', count:'3128', recommended:true, qCount:20, province:'浙江省', city:'宁波市', district:'鄞州区' },
+        { id:'p4', title:'2022-2023 学年南京市鼓楼区五年级下学期期中试卷：数学', subject:'数学', grade:'五年级', year:'2023', count:'2.0万', recommended:true, qCount:24, province:'江苏省', city:'南京市', district:'鼓楼区' },
+        { id:'p5', title:'2022-2023 学年苏州市姑苏区五年级上学期期末试卷：数学', subject:'数学', grade:'五年级', year:'2023', count:'9432', recommended:true, qCount:28, province:'江苏省', city:'苏州市', district:'姑苏区' },
+        { id:'p6', title:'2023-2024 学年北京市海淀区五年级下学期期末试卷：数学', subject:'数学', grade:'五年级', year:'2024', count:'1.8万', recommended:true, qCount:26, province:'北京市', city:'北京市', district:'海淀区' },
+        { id:'p7', title:'2023-2024 学年上海市浦东新区四年级上学期期末试卷：数学', subject:'数学', grade:'四年级', year:'2024', count:'2.6万', recommended:true, qCount:23, province:'上海市', city:'上海市', district:'浦东新区' },
+        { id:'p8', title:'2023-2024 学年广州市天河区五年级上学期期末试卷：数学', subject:'数学', grade:'五年级', year:'2024', count:'5210', recommended:false, qCount:22, province:'广东省', city:'广州市', district:'天河区' },
+        { id:'p9', title:'2023-2024 学年深圳市南山区五年级上学期期末试卷：语文', subject:'语文', grade:'五年级', year:'2024', count:'2.1万', recommended:true, qCount:18, province:'广东省', city:'深圳市', district:'南山区' },
+        { id:'p10', title:'2023-2024 学年北京市西城区五年级下学期期中试卷：语文', subject:'语文', grade:'五年级', year:'2024', count:'1.5万', recommended:true, qCount:16, province:'北京市', city:'北京市', district:'西城区' },
+        { id:'p11', title:'2023-2024 学年杭州市余杭区五年级上学期期末试卷：英语', subject:'英语', grade:'五年级', year:'2024', count:'1.2万', recommended:true, qCount:30, province:'浙江省', city:'杭州市', district:'余杭区' },
+        { id:'p12', title:'2023-2024 学年宁波市海曙区五年级上学期期末试卷：英语', subject:'英语', grade:'五年级', year:'2024', count:'6820', recommended:true, qCount:28, province:'浙江省', city:'宁波市', district:'海曙区' },
+        { id:'p13', title:'2022-2023 学年江苏省南京市玄武区六年级上学期期末试卷：数学', subject:'数学', grade:'六年级', year:'2023', count:'4.5万', recommended:true, qCount:30, province:'江苏省', city:'南京市', district:'玄武区' },
+        { id:'p14', title:'2023-2024 学年浙江省杭州市上城区三年级上学期期末试卷：数学', subject:'数学', grade:'三年级', year:'2024', count:'1.9万', recommended:true, qCount:20, province:'浙江省', city:'杭州市', district:'上城区' },
     ];
 
     /* ══════════ 状态 ══════════ */
     let filterSubject = '数学';
-    let filterEdition = '不限';
+    let filterProvince = '不限';
+    let filterCity = '不限';
+    let filterDistrict = '不限';
     let filterGrade = '五年级';
     let openFilter = null;
+    let regionActiveTab = 'province';
 
     const $ = id => document.getElementById(id);
 
@@ -150,11 +370,18 @@
     }
 
     /* ══════════ 渲染 ══════════ */
+    function paperMatchesRegion(p) {
+        if (filterProvince !== '不限' && p.province !== filterProvince) return false;
+        if (filterCity !== '不限' && p.city !== filterCity) return false;
+        if (filterDistrict !== '不限' && p.district !== filterDistrict) return false;
+        return true;
+    }
+
     function renderList() {
         const list = $('paperList');
         const filtered = PAPERS.filter(p => {
             if (p.subject !== filterSubject) return false;
-            if (filterEdition !== '不限' && p.edition !== filterEdition) return false;
+            if (!paperMatchesRegion(p)) return false;
             if (p.grade !== filterGrade) return false;
             return true;
         });
@@ -165,7 +392,7 @@
         }
 
         list.innerHTML = filtered.map(p => `
-            <div class="ep-card" onclick="goDetail('${p.id}')">
+            <div class="ep-card">
                 <div class="ep-cover ${COVER_CLASS[p.subject] || 'math'}">
                     <span class="ep-cover-subj">${p.subject}</span>
                     <span class="ep-cover-year">${p.year}</span>
@@ -178,13 +405,171 @@
                     </div>
                     <div class="ep-meta-row">
                         <span class="ep-count">${formatCount(p.count)}</span>
-                        <span class="ep-video-link">视频讲解
-                            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-                        </span>
+                        <div class="ep-btn-row">
+                            <button class="ep-btn-view" onclick="goPreview('${p.id}')">
+                                <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                查看
+                            </button>
+                            <button class="ep-btn-video" onclick="goVideo('${p.id}')">
+                                <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                视频讲解
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         `).join('');
+    }
+
+    /* ══════════ 地区文案 ══════════ */
+    /** 列表里「不限」的展示：强调「不必选到末级」 */
+    function regionRowLabel(tab, val) {
+        if (val !== '不限') return val;
+        if (tab === 'province') return '不限（全国）';
+        if (tab === 'city') return '不限（全省）';
+        return '不限（全市）';
+    }
+
+    function regionScopeSummary() {
+        if (filterProvince === '不限') return '任选省 / 市 / 区一级即可；「不限」表示不继续缩小范围';
+        if (filterCity === '不限')
+            return '当前：' + filterProvince + '（全省）· 可直接点「完成」，或切换到「城市」继续缩小';
+        if (filterDistrict === '不限')
+            return '当前：' + filterProvince + ' ' + filterCity + '（全市）· 可直接点「完成」，或切换到「区县」继续缩小';
+        return '当前：' + filterProvince + ' ' + filterCity + ' ' + filterDistrict + ' · 点完成关闭';
+    }
+
+    function updateRegionBarLabel() {
+        const el = $('filterRegionLabel');
+        if (filterProvince === '不限') { el.textContent = '全国'; return; }
+        const muni = filterProvince === filterCity && filterCity !== '不限';
+        if (filterCity === '不限') { el.textContent = filterProvince; return; }
+        if (muni && filterDistrict === '不限') { el.textContent = filterProvince; return; }
+        if (muni && filterDistrict !== '不限') { el.textContent = filterProvince + ' ' + filterDistrict; return; }
+        if (filterDistrict === '不限') { el.textContent = filterProvince + ' ' + filterCity; return; }
+        el.textContent = filterProvince + ' ' + filterCity + ' ' + filterDistrict;
+    }
+
+    function getCitiesForProvince(pv) {
+        if (!pv || pv === '不限') return [];
+        const m = REGION_TREE[pv];
+        return m ? Object.keys(m) : [];
+    }
+
+    function getDistrictsFor(pv, ct) {
+        if (!pv || pv === '不限' || !ct || ct === '不限') return [];
+        const m = REGION_TREE[pv];
+        if (!m || !m[ct]) return [];
+        return m[ct];
+    }
+
+    function confirmRegionFilter() {
+        closeAllFilters();
+    }
+
+    function syncRegionSheetUI() {
+        updateRegionBarLabel();
+        const scopeEl = $('regionScopeLine');
+        if (scopeEl) scopeEl.textContent = regionScopeSummary();
+
+        const tabs = $('regionTabs');
+        const pvOk = filterProvince !== '不限';
+        const ctOk = filterCity !== '不限';
+        const tabBtn = (id, label, disabled) =>
+            `<button type="button" class="ep-rs-tab${regionActiveTab === id ? ' active' : ''}"${disabled ? ' disabled' : ''} onclick="setRegionTab('${id}')">${label}</button>`;
+        tabs.innerHTML =
+            tabBtn('province', '省份', false) +
+            tabBtn('city', '城市', !pvOk) +
+            tabBtn('district', '区县', !pvOk || !ctOk);
+
+        const list = $('regionList');
+        if (regionActiveTab === 'province') {
+            const rows = ['不限', ...PROVINCE_NAMES];
+            list.innerHTML = rows.map(v =>
+                `<div class="ep-rs-item${v === filterProvince ? ' selected' : ''}" onclick="pickProvince('${v.replace(/'/g, "\\'")}')">${regionRowLabel('province', v)}</div>`
+            ).join('');
+            return;
+        }
+        if (regionActiveTab === 'city') {
+            if (!pvOk) {
+                list.innerHTML = '<div class="ep-rs-hint">请先到「省份」选择具体省<br/>或「不限（全国）」<br/><br/>只需全省时：选好省后点「完成」即可</div>';
+                return;
+            }
+            const cities = ['不限', ...getCitiesForProvince(filterProvince)];
+            list.innerHTML = cities.map(v =>
+                `<div class="ep-rs-item${v === filterCity ? ' selected' : ''}" onclick="pickCity('${v.replace(/'/g, "\\'")}')">${regionRowLabel('city', v)}</div>`
+            ).join('');
+            return;
+        }
+        if (regionActiveTab === 'district') {
+            if (!pvOk) {
+                list.innerHTML = '<div class="ep-rs-hint">请先到「省份」选择具体省</div>';
+                return;
+            }
+            if (!ctOk) {
+                list.innerHTML = '<div class="ep-rs-hint">请先到「城市」选择市或「不限（全省）」<br/><br/>全市筛选：选好市后点「完成」即可</div>';
+                return;
+            }
+            const ds = ['不限', ...getDistrictsFor(filterProvince, filterCity)];
+            list.innerHTML = ds.map(v =>
+                `<div class="ep-rs-item${v === filterDistrict ? ' selected' : ''}" onclick="pickDistrict('${v.replace(/'/g, "\\'")}')">${regionRowLabel('district', v)}</div>`
+            ).join('');
+        }
+    }
+
+    function setRegionTab(tab) {
+        if (tab === 'city' && filterProvince === '不限') return;
+        if (tab === 'district' && (filterProvince === '不限' || filterCity === '不限')) return;
+        regionActiveTab = tab;
+        syncRegionSheetUI();
+    }
+
+    function pickProvince(v) {
+        filterProvince = v;
+        filterCity = '不限';
+        filterDistrict = '不限';
+        /* 选具体省后进入「城市」：默认仍为「不限（全省）」，可点完成或再选市 */
+        regionActiveTab = v === '不限' ? 'province' : 'city';
+        syncRegionSheetUI();
+        renderList();
+    }
+
+    function pickCity(v) {
+        filterCity = v;
+        filterDistrict = '不限';
+        /* 选具体市后进入「区县」：默认「不限（全市）」 */
+        regionActiveTab = v === '不限' ? 'city' : 'district';
+        syncRegionSheetUI();
+        renderList();
+    }
+
+    function pickDistrict(v) {
+        filterDistrict = v;
+        regionActiveTab = 'district';
+        syncRegionSheetUI();
+        renderList();
+    }
+
+    function resetRegionFilters() {
+        filterProvince = '不限';
+        filterCity = '不限';
+        filterDistrict = '不限';
+        regionActiveTab = 'province';
+    }
+
+    function openRegionSheet() {
+        if (filterDistrict !== '不限') regionActiveTab = 'district';
+        else if (filterCity !== '不限') regionActiveTab = 'city';
+        else if (filterProvince !== '不限') regionActiveTab = 'province';
+        else regionActiveTab = 'province';
+        $('regionOverlay').classList.add('open');
+        $('regionSheet').classList.add('open');
+        syncRegionSheetUI();
+    }
+
+    function closeRegionSheet() {
+        $('regionOverlay').classList.remove('open');
+        $('regionSheet').classList.remove('open');
     }
 
     /* ══════════ 筛选 ══════════ */
@@ -197,10 +582,18 @@
             b.classList.toggle('active', b.dataset.filter === type);
         });
 
+        if (type === 'region') {
+            $('ddPanel').classList.remove('open');
+            $('ddOverlay').classList.remove('open');
+            openRegionSheet();
+            return;
+        }
+
+        closeRegionSheet();
+
         let items = [];
         let current = '';
         if (type === 'subject') { items = SUBJECTS; current = filterSubject; }
-        else if (type === 'edition') { items = EDITIONS; current = filterEdition; }
         else if (type === 'grade') { items = GRADES; current = filterGrade; }
 
         $('ddPanel').innerHTML = items.map(v =>
@@ -213,7 +606,6 @@
 
     function selectFilter(type, val) {
         if (type === 'subject') { filterSubject = val; $('filterSubjectLabel').textContent = val; }
-        else if (type === 'edition') { filterEdition = val; $('filterEditionLabel').textContent = val; }
         else if (type === 'grade') { filterGrade = val; $('filterGradeLabel').textContent = val; }
         closeAllFilters();
         renderList();
@@ -223,6 +615,7 @@
         openFilter = null;
         $('ddPanel').classList.remove('open');
         $('ddOverlay').classList.remove('open');
+        closeRegionSheet();
         document.querySelectorAll('.ep-filter-btn').forEach(b => b.classList.remove('open'));
     }
 
@@ -232,7 +625,14 @@
         window.location.href = v === 'v1' ? '../首页.html' : '../首页-v3.html';
     }
 
-    function goDetail(paperId) {
+    function goPreview(paperId) {
+        const paper = PAPERS.find(p => p.id === paperId);
+        if (!paper) return;
+        const qs = new URLSearchParams({ id: paperId, title: paper.title });
+        window.location.href = '../试卷/试卷详情.html?' + qs.toString();
+    }
+
+    function goVideo(paperId) {
         const paper = PAPERS.find(p => p.id === paperId);
         if (!paper) return;
         const qs = new URLSearchParams({ id: paperId, title: paper.title, subject: paper.subject });
@@ -248,8 +648,255 @@
 
     $('filterSubjectLabel').textContent = filterSubject;
     $('filterGradeLabel').textContent = filterGrade;
+    updateRegionBarLabel();
 
     renderList();
+
+    /* ══════════ 过稿模式 ══════════ */
+    var reviewOpen = false;
+    var reviewNodes = [];
+    var rpPanel = null;
+    var prdLoaded = false;
+    var elsBuilt = false;
+
+    function renderMd(md) {
+        var inCode = false, codeLines = [], inTable = false, tableLines = [];
+        var out = [];
+        md.split('\n').forEach(function(line) {
+            if (line.match(/^```/)) {
+                if (inCode) { out.push('<pre><code>' + codeLines.join('\n') + '</code></pre>'); codeLines = []; }
+                inCode = !inCode; return;
+            }
+            if (inCode) { codeLines.push(line.replace(/</g,'&lt;')); return; }
+            if (line.match(/^\|.+\|$/)) {
+                if (line.match(/^\|[\s:|-]+\|$/)) return;
+                var cells = line.split('|').filter(function(c,i,a){return i>0&&i<a.length-1;}).map(function(c){return c.trim();});
+                if (!inTable) { inTable = true; tableLines = []; }
+                tableLines.push(cells);
+                return;
+            }
+            if (inTable) { flushTable(); inTable = false; }
+            if (line.match(/^#{1}\s/)) { out.push('<h1>'+inlineMd(line.replace(/^#\s+/,''))+'</h1>'); return; }
+            if (line.match(/^#{2}\s/)) { out.push('<h2>'+inlineMd(line.replace(/^##\s+/,''))+'</h2>'); return; }
+            if (line.match(/^#{3}\s/)) { out.push('<h3>'+inlineMd(line.replace(/^###\s+/,''))+'</h3>'); return; }
+            if (line.match(/^#{4}\s/)) { out.push('<h4>'+inlineMd(line.replace(/^####\s+/,''))+'</h4>'); return; }
+            if (line.match(/^>\s+/)) { out.push('<blockquote>'+inlineMd(line.replace(/^>\s+/,''))+'</blockquote>'); return; }
+            if (line.match(/^\[!\]/)) { out.push('<div class="prd-note">'+inlineMd(line.replace(/^\[!\]\s*/,''))+'</div>'); return; }
+            if (line.match(/^---$/)) { out.push('<hr>'); return; }
+            if (line.match(/^[-*]\s/)) { out.push('<li>'+inlineMd(line.replace(/^[-*]\s+/,''))+'</li>'); return; }
+            if (line.match(/^\d+\.\s/)) { out.push('<li>'+inlineMd(line.replace(/^\d+\.\s+/,''))+'</li>'); return; }
+            if (line.trim()) out.push('<p>'+inlineMd(line)+'</p>');
+        });
+        if (inTable) flushTable();
+        function flushTable() {
+            var h='<table><thead><tr>'+tableLines[0].map(function(c){return '<th>'+inlineMd(c)+'</th>';}).join('')+'</tr></thead><tbody>';
+            for(var i=1;i<tableLines.length;i++) h+='<tr>'+tableLines[i].map(function(c){return '<td>'+inlineMd(c)+'</td>';}).join('')+'</tr>';
+            out.push(h+'</tbody></table>');
+        }
+        function inlineMd(s) {
+            return s
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+        }
+        return out.join('\n');
+    }
+
+    function loadPrdDoc() {
+        prdLoaded = true;
+        fetch('../docs/prd/试卷讲解.md')
+            .then(function(r) { return r.ok ? r.text() : Promise.reject(); })
+            .then(function(md) {
+                document.getElementById('rpDocContent').innerHTML = renderMd(md);
+            })
+            .catch(function() {
+                document.getElementById('rpDocContent').textContent = '未找到 docs/prd/试卷讲解.md 文件';
+            });
+    }
+
+    function buildElsPanel() {
+        elsBuilt = true;
+        var els = document.querySelectorAll('[data-doc]');
+        var sections = {};
+        els.forEach(function(el) {
+            var doc = el.getAttribute('data-doc') || '';
+            var prd = el.getAttribute('data-prd') || '';
+            var track = el.getAttribute('data-track') || '';
+            if (!prd && !track) return;
+            var sec = doc.split('-')[0] || '其他';
+            if (!sections[sec]) sections[sec] = [];
+            sections[sec].push({ el: el, doc: doc, prd: prd, track: track });
+        });
+        var container = document.getElementById('rpTabEls');
+        container.innerHTML = '';
+        var total = 0;
+        var sectionNames = {
+            'ep': '📄 试卷讲解', 'filter': '🔍 筛选', 'paper': '📋 试卷列表'
+        };
+        Object.keys(sections).forEach(function(sec) {
+            var div = document.createElement('div');
+            div.className = 'rp-section';
+            div.innerHTML = '<div class="rp-section-title">' + (sectionNames[sec] || sec) + '</div>';
+            sections[sec].forEach(function(item) {
+                total++;
+                var card = document.createElement('div');
+                card.className = 'rp-item';
+                card.innerHTML =
+                    '<div class="rp-item-id">' + item.doc + '</div>' +
+                    (item.prd ? '<div class="rp-item-prd">' + item.prd + '</div>' : '') +
+                    (item.track ? '<div class="rp-item-track">📊 ' + item.track + '</div>' : '');
+                card.onclick = function() {
+                    reviewNodes.forEach(function(n) { n.el.classList.remove('review-highlight'); });
+                    document.querySelectorAll('.rp-item').forEach(function(i) { i.classList.remove('rp-highlight'); });
+                    item.el.classList.add('review-highlight');
+                    card.classList.add('rp-highlight');
+                    item.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+                div.appendChild(card);
+                reviewNodes.push(item);
+            });
+            container.appendChild(div);
+        });
+        document.getElementById('rpCount').textContent = total + ' 个标注项';
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.rp-tab').forEach(function(t) { t.classList.toggle('active', t.dataset.tab === tab); });
+        document.getElementById('rpTabDoc').style.display = tab === 'doc' ? '' : 'none';
+        document.getElementById('rpTabEls').style.display = tab === 'els' ? '' : 'none';
+        if (tab === 'doc' && !prdLoaded) loadPrdDoc();
+        if (tab === 'els' && !elsBuilt) buildElsPanel();
+    }
+
+    var _currentMode = 'demo';
+    function setMode(mode) {
+        if (mode === _currentMode) return;
+        _currentMode = mode;
+        var btns = document.querySelectorAll('#modeToggle button');
+        btns.forEach(function(b, i) { b.classList.toggle('active', mode === 'demo' ? i === 0 : i === 1); });
+        rpPanel = document.getElementById('reviewPanel');
+        if (mode === 'review') {
+            reviewOpen = true;
+            rpPanel.classList.add('open');
+            if (!prdLoaded) loadPrdDoc();
+        } else {
+            reviewOpen = false;
+            rpPanel.classList.remove('open');
+            reviewNodes.forEach(function(n) { n.el.classList.remove('review-highlight'); });
+        }
+    }
+
+    document.getElementById('modeToggle').addEventListener('click', function(e) { e.stopPropagation(); });
+
+    if (new URLSearchParams(window.location.search).get('mode') === 'review') {
+        setTimeout(function() { _currentMode = 'demo'; setMode('review'); }, 100);
+    }
+
+    /* ── 拖拽移动 ── */
+    (function() {
+        var panel, header, dragging = false, ox, oy, sx, sy;
+        document.addEventListener('DOMContentLoaded', function() {
+            panel = document.getElementById('reviewPanel');
+            header = document.getElementById('rpHeader');
+            header.addEventListener('mousedown', startDrag);
+            header.addEventListener('touchstart', startDragTouch, { passive: false });
+            panel.querySelectorAll('.rp-resize').forEach(function(h) {
+                h.addEventListener('mousedown', startResize);
+                h.addEventListener('touchstart', startResizeTouch, { passive: false });
+            });
+        });
+        function startDrag(e) {
+            if (e.target.closest('.rp-close')) return;
+            dragging = true;
+            ox = e.clientX; oy = e.clientY;
+            sx = panel.offsetLeft; sy = panel.offsetTop;
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', stopDrag);
+            e.preventDefault();
+        }
+        function startDragTouch(e) {
+            if (e.target.closest('.rp-close')) return;
+            dragging = true;
+            var t = e.touches[0];
+            ox = t.clientX; oy = t.clientY;
+            sx = panel.offsetLeft; sy = panel.offsetTop;
+            document.addEventListener('touchmove', onDragTouch, { passive: false });
+            document.addEventListener('touchend', stopDrag);
+            e.preventDefault();
+        }
+        function onDrag(e) { if (dragging) moveTo(e.clientX, e.clientY); }
+        function onDragTouch(e) {
+            if (!dragging) return;
+            var t = e.touches[0];
+            moveTo(t.clientX, t.clientY);
+            e.preventDefault();
+        }
+        function moveTo(cx, cy) {
+            var nx = sx + (cx - ox);
+            var ny = sy + (cy - oy);
+            nx = Math.max(0, Math.min(nx, window.innerWidth - 80));
+            ny = Math.max(0, Math.min(ny, window.innerHeight - 40));
+            panel.style.left = nx + 'px';
+            panel.style.top = ny + 'px';
+            panel.style.right = 'auto';
+        }
+        function stopDrag() {
+            dragging = false;
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', stopDrag);
+            document.removeEventListener('touchmove', onDragTouch);
+            document.removeEventListener('touchend', stopDrag);
+        }
+
+        var resizing = false, rDir, rox, roy, rRect;
+        function startResize(e) {
+            rDir = e.target.dataset.dir;
+            resizing = true;
+            rox = e.clientX; roy = e.clientY;
+            rRect = { l: panel.offsetLeft, t: panel.offsetTop, w: panel.offsetWidth, h: panel.offsetHeight };
+            document.addEventListener('mousemove', onResize);
+            document.addEventListener('mouseup', stopResize);
+            e.preventDefault(); e.stopPropagation();
+        }
+        function startResizeTouch(e) {
+            rDir = e.target.dataset.dir;
+            resizing = true;
+            var t = e.touches[0];
+            rox = t.clientX; roy = t.clientY;
+            rRect = { l: panel.offsetLeft, t: panel.offsetTop, w: panel.offsetWidth, h: panel.offsetHeight };
+            document.addEventListener('touchmove', onResizeTouch, { passive: false });
+            document.addEventListener('touchend', stopResize);
+            e.preventDefault(); e.stopPropagation();
+        }
+        function onResize(e) { if (resizing) applyResize(e.clientX, e.clientY); }
+        function onResizeTouch(e) {
+            if (!resizing) return;
+            var t = e.touches[0];
+            applyResize(t.clientX, t.clientY);
+            e.preventDefault();
+        }
+        function applyResize(cx, cy) {
+            var dx = cx - rox, dy = cy - roy;
+            var minW = 280, minH = 300;
+            var nl = rRect.l, nt = rRect.t, nw = rRect.w, nh = rRect.h;
+            if (rDir.indexOf('e') >= 0) nw = Math.max(minW, rRect.w + dx);
+            if (rDir.indexOf('w') >= 0) { nw = Math.max(minW, rRect.w - dx); nl = rRect.l + rRect.w - nw; }
+            if (rDir.indexOf('s') >= 0) nh = Math.max(minH, rRect.h + dy);
+            if (rDir.indexOf('n') >= 0) { nh = Math.max(minH, rRect.h - dy); nt = rRect.t + rRect.h - nh; }
+            panel.style.width = nw + 'px';
+            panel.style.height = nh + 'px';
+            panel.style.left = nl + 'px';
+            panel.style.top = nt + 'px';
+            panel.style.right = 'auto';
+        }
+        function stopResize() {
+            resizing = false;
+            document.removeEventListener('mousemove', onResize);
+            document.removeEventListener('mouseup', stopResize);
+            document.removeEventListener('touchmove', onResizeTouch);
+            document.removeEventListener('touchend', stopResize);
+        }
+    })();
     </script>
 </body>
 </html>

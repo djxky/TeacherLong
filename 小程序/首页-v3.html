@@ -131,6 +131,24 @@
         }
         .ai-input-btn:active { transform: scale(0.9); background: rgba(139,92,246,0.1); }
 
+        /* 按住说话按钮（微信风格） */
+        .ai-voice-hold-btn {
+            flex: 1; height: 36px; border-radius: 18px;
+            border: 1.5px solid #d4d0e0; background: #f5f3fa;
+            font-size: 0.8125rem; font-weight: 600; color: #6b5b95;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.15s; display: none; font-family: inherit;
+            align-items: center; justify-content: center;
+            user-select: none; -webkit-user-select: none;
+        }
+        .ai-input-bar.voice-mode .ai-voice-hold-btn { display: flex; }
+        .ai-input-bar.voice-mode .ai-input-placeholder { display: none; }
+        .ai-voice-hold-btn.recording {
+            background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+            border-color: #a78bfa; color: #7c3aed;
+            transform: scale(0.97);
+        }
+
         /* 语音录入浮层 */
         .voice-overlay {
             position: fixed; inset: 0; z-index: 9999;
@@ -189,7 +207,7 @@
 
         /* ── 通用 section ── */
         .sec { padding: 0 20px; margin-top: 28px; position: relative; z-index: 1; }
-        .sec-hd { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+        .sec-hd { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 14px; }
         .sec-hd h2 {
             font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;
             display: flex; align-items: center; gap: 6px;
@@ -313,8 +331,7 @@
         .minor-tool-icon.mi-amber { color: #d97706; }
         .minor-tool-icon.mi-teal { color: #0d9488; }
 
-        /* ── 年级选择器 & 筛选按钮 ── */
-        .grade-picker { position: relative; flex-shrink: 0; }
+        /* ── 年级触发按钮 ── */
         .grade-btn {
             display: flex; align-items: center; gap: 3px;
             padding: 5px 12px; font-size: 0.625rem; font-weight: 600;
@@ -322,42 +339,82 @@
             border: 1px solid rgba(99,102,241,0.3);
             border-radius: 16px; cursor: pointer; font-family: inherit;
             -webkit-tap-highlight-color: transparent; transition: all .18s;
+            flex-shrink: 0;
         }
         .grade-btn svg { transition: transform .2s; }
         .grade-btn.open svg { transform: rotate(180deg); }
-        .grade-popup {
-            position: absolute; top: calc(100% + 6px); left: 0;
-            width: 200px; padding: 8px;
-            background: rgba(255,255,255,0.9);
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            border-radius: 14px;
-            box-shadow: 0 8px 32px -4px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.6);
-            z-index: 100; opacity: 0; pointer-events: none;
-            transform: translateY(-4px);
-            transition: all .18s cubic-bezier(0.16,1,0.3,1);
+
+        /* ── 底部筛选弹窗 ── */
+        .bs-overlay {
+            position: absolute; inset: 0; z-index: 8000;
+            background: rgba(0,0,0,0.35);
+            opacity: 0; pointer-events: none;
+            transition: opacity .25s;
         }
-        .grade-popup.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        .semester-toggle {
-            display: flex; gap: 4px; margin-bottom: 8px;
-            background: rgba(0,0,0,0.03); border-radius: 8px; padding: 3px;
+        .bs-overlay.open { opacity: 1; pointer-events: auto; }
+        .bs-sheet {
+            position: absolute; left: 0; right: 0; bottom: 0; z-index: 8001;
+            background: #fff;
+            border-radius: 20px 20px 0 0;
+            padding: 0 24px 34px;
+            transform: translateY(100%);
+            transition: transform .32s cubic-bezier(.32,.72,0,1);
+            max-height: 70%; overflow-y: auto;
         }
-        .semester-btn {
-            flex: 1; padding: 5px 0; font-size: 0.625rem; font-weight: 600;
-            color: #94a3b8; background: transparent; border: none; border-radius: 6px;
+        .bs-overlay.open + .bs-sheet,
+        .bs-sheet.open { transform: translateY(0); }
+        .bs-handle {
+            display: flex; justify-content: center; padding: 10px 0 4px;
+        }
+        .bs-handle::after {
+            content: ''; width: 36px; height: 4px;
+            background: #e2e8f0; border-radius: 2px;
+        }
+        .bs-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 0 16px;
+        }
+        .bs-title { font-size: 1rem; font-weight: 700; color: #0f172a; }
+        .bs-close {
+            width: 30px; height: 30px; border-radius: 50%;
+            border: none; background: #f1f5f9; color: #64748b;
+            font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .bs-close:active { background: #e2e8f0; }
+        .bs-label {
+            font-size: 0.75rem; font-weight: 600; color: #94a3b8;
+            margin: 0 0 10px;
+        }
+        .bs-grade-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+            margin-bottom: 20px;
+        }
+        .bs-grade-opt {
+            padding: 10px 0; text-align: center;
+            font-size: 0.8125rem; font-weight: 500; color: #475569;
+            border: 1.5px solid #e2e8f0; background: #fff; border-radius: 10px;
             cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent;
             transition: all .15s;
         }
-        .semester-btn.active { color: #0f172a; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-        .grade-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
-        .grade-option {
-            padding: 7px 0; text-align: center;
-            font-size: 0.6875rem; font-weight: 500; color: #475569;
-            border: none; background: transparent; border-radius: 8px;
-            cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent;
-            transition: background .12s;
+        .bs-grade-opt:active { background: #f8fafc; }
+        .bs-grade-opt.active {
+            color: #6366f1; font-weight: 700;
+            border-color: #a5b4fc; background: rgba(99,102,241,0.04);
         }
-        .grade-option:active { background: rgba(99,102,241,0.08); }
-        .grade-option.active { color: #6366f1; font-weight: 700; background: rgba(99,102,241,0.06); }
+        .bs-sem-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .bs-sem-btn {
+            flex: 1; padding: 10px 0; text-align: center;
+            font-size: 0.8125rem; font-weight: 500; color: #475569;
+            border: 1.5px solid #e2e8f0; background: #fff; border-radius: 10px;
+            cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent;
+            transition: all .15s;
+        }
+        .bs-sem-btn:active { background: #f8fafc; }
+        .bs-sem-btn.active {
+            color: #6366f1; font-weight: 700;
+            border-color: #a5b4fc; background: rgba(99,102,241,0.04);
+        }
         .paper-filters {
             display: flex; gap: 6px; margin-bottom: 12px;
             overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap;
@@ -627,16 +684,17 @@
                         <div class="ai-top">
                             <img src="assets/logo.png" alt="AI 龙老师" class="ai-avatar">
                             <div class="ai-info">
-                                <h1 class="ai-name">Hi，我是 <strong>AI 龙老师</strong></h1>
+                                <h1 class="ai-name">Hi 小明同学，我是 <strong>AI 龙老师</strong></h1>
                                 <div class="ai-sub">
                                     <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                                     <div class="ai-sub-track" id="carouselTrack"></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="ai-input-bar" onclick="goToChat()" data-doc="ai-entry" data-prd="点击输入条区域跳转对话页，自动弹出键盘；是文字提问的主入口" data-track="/click/teacherLongHomePage/enterChat | 进入对话 | 无">
+                        <div class="ai-input-bar" id="aiInputBar" onclick="handleInputBarClick()" data-doc="ai-entry" data-prd="文字模式：点击跳转对话页弹键盘；语音模式：按住说话录音，短按进入对话页语音模式" data-track="/click/teacherLongHomePage/enterChat | 进入对话 | 无">
                             <span class="ai-input-placeholder">给 AI 龙老师发消息</span>
-                            <button class="ai-input-btn" onclick="event.stopPropagation(); startVoice()" data-doc="voice-btn" data-prd="弹出语音录入浮层，识别完毕后携带文字跳转对话页自动发送" data-track="/click/teacherLongHomePage/voiceInput | 语音输入 | 无">
+                            <button class="ai-voice-hold-btn" id="aiVoiceHoldBtn">按住说话</button>
+                            <button class="ai-input-btn" id="aiVoiceToggle" onclick="event.stopPropagation(); toggleVoiceMode()" data-doc="voice-btn" data-prd="切换文字/语音输入模式" data-track="/click/teacherLongHomePage/voiceToggle | 语音切换 | 无">
                                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>
                             </button>
                             <button class="ai-input-btn" onclick="event.stopPropagation(); window.location.href='作业/作业批改.html'" data-doc="cam-btn" data-prd="直接跳转拍照页（作业批改模式），底部可切换批改/搜题/错因等模式" data-track="/click/teacherLongHomePage/enterCamera | 点击拍照 | 无">
@@ -719,6 +777,10 @@
                     <section class="sec anim d3">
                         <div class="sec-hd">
                             <h2><svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>视频课堂</h2>
+                            <button class="grade-btn" id="videoGradeBtn" onclick="openGradeSheet('video')">
+                                <span id="videoGradeBtnText">七年级上</span>
+                                <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
                         </div>
                         <div class="vid-big" onclick="openKnowledgeVideos('new-standard')" data-doc="video-new-standard" data-prd="跳转视频课堂·新课标重点讲，紧扣新课标考点的重点题型讲解" data-track="/click/teacherLongHomePage/enterVideo | 新课标重点讲 | category#STRING">
                             <div class="vb-badge"><svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>重磅推荐</div>
@@ -742,13 +804,10 @@
                         <div style="margin-top:18px;">
                             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
                                 <div style="font-size:0.8125rem;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:5px;"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>专项大招课</div>
-                                <div class="grade-picker" id="zkGradePicker">
-                                    <button class="grade-btn" id="zkGradeBtn">
-                                        <span id="zkGradeBtnText">七年级</span>
-                                        <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                                    </button>
-                                    <div class="grade-popup" id="zkGradePopup"></div>
-                                </div>
+                                <button class="grade-btn" id="zkGradeBtn" onclick="openGradeSheet('zk')">
+                                    <span id="zkGradeBtnText">七年级</span>
+                                    <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                                </button>
                             </div>
                             <div class="zk-cards" id="zkCards"></div>
                         </div>
@@ -766,13 +825,10 @@
                             <button class="pt-btn" data-subj="science">科学</button>
                         </div>
                         <div class="paper-filters" id="paperFilters">
-                            <div class="grade-picker" id="paperGradePicker">
-                                <button class="grade-btn" id="paperGradeBtn">
-                                    <span id="paperGradeBtnText">七年级上</span>
-                                    <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                                </button>
-                                <div class="grade-popup" id="paperGradePopup"></div>
-                            </div>
+                            <button class="grade-btn" id="paperGradeBtn" onclick="openGradeSheet('paper')">
+                                <span id="paperGradeBtnText">七年级上</span>
+                                <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
                             <button class="paper-filter active" data-filter="热门推荐">热门推荐</button>
                             <button class="paper-filter" data-filter="小升初真题">小升初真题</button>
                             <button class="paper-filter" data-filter="小升初模拟">小升初模拟</button>
@@ -788,6 +844,19 @@
 
                 </div>
             </div>
+        </div>
+        <!-- 底部筛选弹窗 -->
+        <div class="bs-overlay" id="bsOverlay" onclick="closeGradeSheet()"></div>
+        <div class="bs-sheet" id="bsSheet">
+            <div class="bs-handle"></div>
+            <div class="bs-header">
+                <span class="bs-title">筛选</span>
+                <button class="bs-close" onclick="closeGradeSheet()">✕</button>
+            </div>
+            <div class="bs-label">年级</div>
+            <div class="bs-grade-grid" id="bsGradeGrid"></div>
+            <div class="bs-label" id="bsSemLabel">学期</div>
+            <div class="bs-sem-row" id="bsSemRow"></div>
         </div>
     </div>
 
@@ -870,9 +939,13 @@
             sessionStorage.setItem('aiSource', 'home-focus');
             window.location.href = '对话.html';
         }
+        function handleInputBarClick() {
+            if (!document.getElementById('aiInputBar').classList.contains('voice-mode')) {
+                goToChat();
+            }
+        }
 
-        /* ── 语音输入 ── */
-        var voiceTimer = null;
+        /* ── 语音模式 toggle ── */
         var voiceQuestions = [
             '这道数学题怎么解',
             '帮我批改一下作业',
@@ -880,31 +953,51 @@
             '光合作用的原理是什么',
             '英语作文怎么写好开头'
         ];
-        function startVoice() {
-            var ol = document.getElementById('voiceOverlay');
-            document.getElementById('voiceStatus').textContent = '正在聆听…';
-            document.getElementById('voiceHint').textContent = '请说出你的问题';
-            document.getElementById('voiceText').textContent = '';
-            document.getElementById('voiceRing').style.background = 'linear-gradient(135deg, #8b5cf6, #7c3aed)';
-            ol.classList.add('show');
-            voiceTimer = setTimeout(function() {
-                document.getElementById('voiceStatus').textContent = '识别中…';
-                document.getElementById('voiceHint').textContent = '正在转文字';
-                voiceTimer = setTimeout(function() {
-                    var q = voiceQuestions[Math.floor(Math.random() * voiceQuestions.length)];
-                    document.getElementById('voiceStatus').textContent = '识别完成';
-                    document.getElementById('voiceHint').textContent = '';
-                    document.getElementById('voiceText').textContent = '「' + q + '」';
-                    document.getElementById('voiceRing').style.background = 'linear-gradient(135deg, #10b981, #059669)';
-                    voiceTimer = setTimeout(function() {
-                        ol.classList.remove('show');
-                        sessionStorage.setItem('aiQuestion', q);
-                        sessionStorage.setItem('aiSource', 'home-voice');
-                        window.location.href = '对话.html';
-                    }, 1200);
-                }, 1000);
-            }, 2000);
+        var micSvg = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>';
+        var kbSvg = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 16h8"/></svg>';
+
+        function toggleVoiceMode() {
+            var bar = document.getElementById('aiInputBar');
+            var toggle = document.getElementById('aiVoiceToggle');
+            bar.classList.toggle('voice-mode');
+            toggle.innerHTML = bar.classList.contains('voice-mode') ? kbSvg : micSvg;
         }
+
+        /* ── 按住说话（点击触发识别演示） ── */
+        var voiceTimer = null;
+        (function() {
+            var btn = document.getElementById('aiVoiceHoldBtn');
+            if (!btn) return;
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                btn.classList.add('recording');
+                btn.textContent = '正在录音…';
+                setTimeout(function() {
+                    btn.classList.remove('recording');
+                    btn.textContent = '按住说话';
+                    var ol = document.getElementById('voiceOverlay');
+                    document.getElementById('voiceStatus').textContent = '识别中…';
+                    document.getElementById('voiceHint').textContent = '正在转文字';
+                    document.getElementById('voiceText').textContent = '';
+                    document.getElementById('voiceRing').style.background = 'linear-gradient(135deg, #8b5cf6, #7c3aed)';
+                    ol.classList.add('show');
+                    voiceTimer = setTimeout(function() {
+                        var q = voiceQuestions[Math.floor(Math.random() * voiceQuestions.length)];
+                        document.getElementById('voiceStatus').textContent = '识别完成';
+                        document.getElementById('voiceHint').textContent = '';
+                        document.getElementById('voiceText').textContent = '「' + q + '」';
+                        document.getElementById('voiceRing').style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                        voiceTimer = setTimeout(function() {
+                            ol.classList.remove('show');
+                            sessionStorage.setItem('aiQuestion', q);
+                            sessionStorage.setItem('aiSource', 'home-voice');
+                            window.location.href = '对话.html';
+                        }, 1200);
+                    }, 800);
+                }, 1000);
+            });
+        })();
+
         function cancelVoice() {
             if (voiceTimer) { clearTimeout(voiceTimer); voiceTimer = null; }
             document.getElementById('voiceOverlay').classList.remove('show');
@@ -931,6 +1024,89 @@
         var GRADES=['一年级','二年级','三年级','四年级','五年级','六年级','七年级','八年级','九年级'];
         var SEMESTERS=['上学期','下学期'];
 
+        /* ── 底部筛选弹窗（共享） ── */
+        var bsOverlay = document.getElementById('bsOverlay');
+        var bsSheet = document.getElementById('bsSheet');
+        var bsGradeGrid = document.getElementById('bsGradeGrid');
+        var bsSemRow = document.getElementById('bsSemRow');
+        var bsSemLabel = document.getElementById('bsSemLabel');
+        var bsCurrentTarget = null;
+        var bsTempGrade = '';
+        var bsTempSem = '';
+        var bsHasSemester = false;
+
+        var videoActiveGrade = sessionStorage.getItem('gradeClass') || '七年级';
+        var videoActiveSemester = '上学期';
+        if (GRADES.indexOf(videoActiveGrade) === -1) videoActiveGrade = '七年级';
+        document.getElementById('videoGradeBtnText').textContent = videoActiveGrade + videoActiveSemester.replace('学期','');
+
+        function openGradeSheet(target) {
+            bsCurrentTarget = target;
+            if (target === 'video') {
+                bsTempGrade = videoActiveGrade; bsTempSem = videoActiveSemester; bsHasSemester = true;
+            } else if (target === 'zk') {
+                bsTempGrade = zkActiveGrade; bsTempSem = ''; bsHasSemester = false;
+            } else if (target === 'paper') {
+                bsTempGrade = activeGrade; bsTempSem = activeSemester; bsHasSemester = true;
+            }
+            renderBsContent();
+            bsOverlay.classList.add('open');
+            bsSheet.classList.add('open');
+        }
+
+        function renderBsContent() {
+            bsGradeGrid.innerHTML = GRADES.map(function(g) {
+                return '<button class="bs-grade-opt' + (g === bsTempGrade ? ' active' : '') + '" data-grade="' + g + '">' + g + '</button>';
+            }).join('');
+            if (bsHasSemester) {
+                bsSemLabel.style.display = '';
+                bsSemRow.style.display = '';
+                bsSemRow.innerHTML = SEMESTERS.map(function(s) {
+                    return '<button class="bs-sem-btn' + (s === bsTempSem ? ' active' : '') + '" data-sem="' + s + '">' + s + '</button>';
+                }).join('');
+            } else {
+                bsSemLabel.style.display = 'none';
+                bsSemRow.style.display = 'none';
+            }
+        }
+
+        bsGradeGrid.addEventListener('click', function(e) {
+            var opt = e.target.closest('.bs-grade-opt');
+            if (!opt) return;
+            bsTempGrade = opt.dataset.grade;
+            bsGradeGrid.querySelectorAll('.bs-grade-opt').forEach(function(o) { o.classList.toggle('active', o.dataset.grade === bsTempGrade); });
+        });
+
+        bsSemRow.addEventListener('click', function(e) {
+            var btn = e.target.closest('.bs-sem-btn');
+            if (!btn) return;
+            bsTempSem = btn.dataset.sem;
+            bsSemRow.querySelectorAll('.bs-sem-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.sem === bsTempSem); });
+        });
+
+        function closeGradeSheet() {
+            bsOverlay.classList.remove('open');
+            bsSheet.classList.remove('open');
+            if (!bsCurrentTarget) return;
+            if (bsCurrentTarget === 'video') {
+                videoActiveGrade = bsTempGrade;
+                videoActiveSemester = bsTempSem;
+                document.getElementById('videoGradeBtnText').textContent = videoActiveGrade + videoActiveSemester.replace('学期','');
+            } else if (bsCurrentTarget === 'zk') {
+                zkActiveGrade = bsTempGrade;
+                document.getElementById('zkGradeBtnText').textContent = zkActiveGrade;
+                renderZkCards();
+            } else if (bsCurrentTarget === 'paper') {
+                activeGrade = bsTempGrade;
+                activeSemester = bsTempSem;
+                updateGradeBtnText();
+                activePaperFilter = '热门推荐';
+                document.querySelectorAll('#paperFilters .paper-filter').forEach(function(f) { f.classList.toggle('active', f.dataset.filter === '热门推荐'); });
+                renderPapers();
+            }
+            bsCurrentTarget = null;
+        }
+
         /* ── 专项大招课 ── */
         var ZK={
             primary:[
@@ -950,37 +1126,7 @@
         };
         var zkActiveGrade=sessionStorage.getItem('gradeClass')||'七年级';
         if(GRADES.indexOf(zkActiveGrade)===-1) zkActiveGrade='七年级';
-
-        var zkGradeBtn=document.getElementById('zkGradeBtn');
-        var zkGradeBtnText=document.getElementById('zkGradeBtnText');
-        var zkGradePopup=document.getElementById('zkGradePopup');
-
-        function renderZkGradePopup(){
-            zkGradeBtnText.textContent=zkActiveGrade;
-            zkGradePopup.innerHTML='<div class="grade-grid">'+
-                GRADES.map(function(g){return '<button class="grade-option'+(g===zkActiveGrade?' active':'')+'" data-grade="'+g+'">'+g+'</button>';}).join('')+
-                '</div>';
-        }
-
-        zkGradeBtn.addEventListener('click',function(e){
-            e.stopPropagation();
-            var isOpen=zkGradePopup.classList.contains('open');
-            if(isOpen){zkGradePopup.classList.remove('open');zkGradeBtn.classList.remove('open');}
-            else{renderZkGradePopup();zkGradePopup.classList.add('open');zkGradeBtn.classList.add('open');}
-        });
-
-        zkGradePopup.addEventListener('click',function(e){
-            e.stopPropagation();
-            var opt=e.target.closest('.grade-option');
-            if(!opt) return;
-            zkActiveGrade=opt.dataset.grade;
-            zkGradeBtnText.textContent=zkActiveGrade;
-            zkGradePopup.classList.remove('open');
-            zkGradeBtn.classList.remove('open');
-            renderZkCards();
-        });
-
-        renderZkGradePopup();
+        document.getElementById('zkGradeBtnText').textContent=zkActiveGrade;
 
         function renderZkCards(){
             var mid=/[七八九]年级/.test(zkActiveGrade), cards=mid?ZK.middle:ZK.primary;
@@ -1160,67 +1306,11 @@
         var activePaperSubj = 'chinese';
         var activePaperFilter = '热门推荐';
 
-        var gradeBtn = document.getElementById('paperGradeBtn');
-        var gradeBtnText = document.getElementById('paperGradeBtnText');
-        var gradePopup = document.getElementById('paperGradePopup');
-
         function updateGradeBtnText(){
             var short = activeSemester==='上学期'?'上':'下';
-            gradeBtnText.textContent = activeGrade + short;
+            document.getElementById('paperGradeBtnText').textContent = activeGrade + short;
         }
-
-        function renderGradePopup(){
-            updateGradeBtnText();
-            gradePopup.innerHTML =
-                '<div class="semester-toggle">'+
-                    SEMESTERS.map(function(s){return '<button class="semester-btn'+(s===activeSemester?' active':'')+'" data-sem="'+s+'">'+s+'</button>';}).join('')+
-                '</div>'+
-                '<div class="grade-grid">'+
-                    GRADES.map(function(g){return '<button class="grade-option'+(g===activeGrade?' active':'')+'" data-grade="'+g+'">'+g+'</button>';}).join('')+
-                '</div>';
-        }
-
-        function toggleGradePopup(){
-            var isOpen=gradePopup.classList.contains('open');
-            if(isOpen){gradePopup.classList.remove('open');gradeBtn.classList.remove('open');}
-            else{renderGradePopup();gradePopup.classList.add('open');gradeBtn.classList.add('open');}
-        }
-
-        gradeBtn.addEventListener('click',function(e){
-            e.stopPropagation();
-            toggleGradePopup();
-        });
-
-        gradePopup.addEventListener('click',function(e){
-            e.stopPropagation();
-            var semBtn=e.target.closest('.semester-btn');
-            if(semBtn){
-                activeSemester=semBtn.dataset.sem;
-                renderGradePopup();
-                activePaperFilter='热门推荐';
-                document.querySelectorAll('#paperFilters .paper-filter').forEach(function(f){f.classList.toggle('active',f.dataset.filter==='热门推荐');});
-                renderPapers();
-                return;
-            }
-            var opt=e.target.closest('.grade-option');
-            if(!opt) return;
-            activeGrade=opt.dataset.grade;
-            updateGradeBtnText();
-            gradePopup.classList.remove('open');
-            gradeBtn.classList.remove('open');
-            activePaperFilter='热门推荐';
-            document.querySelectorAll('#paperFilters .paper-filter').forEach(function(f){f.classList.toggle('active',f.dataset.filter==='热门推荐');});
-            renderPapers();
-        });
-
-        document.addEventListener('click',function(){
-            gradePopup.classList.remove('open');
-            gradeBtn.classList.remove('open');
-            zkGradePopup.classList.remove('open');
-            zkGradeBtn.classList.remove('open');
-        });
-
-        renderGradePopup();
+        updateGradeBtnText();
 
         function renderPapers(){
             var list=document.getElementById('paperList');

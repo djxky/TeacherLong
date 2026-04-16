@@ -6,518 +6,228 @@
     <title>试卷讲解 - AI 龙老师</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/app-shell.css">
     <style>
-        /* ── 视频播放区 ── */
-        .vd-player{position:relative;width:100%;height:240px;background:#1a1a2e;flex-shrink:0;overflow:hidden}
-        .vd-video{width:100%;height:100%;object-fit:contain;background:#000}
-        .vd-poster{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:linear-gradient(145deg,#1e1b4b 0%,#312e81 40%,#4338ca 100%);transition:opacity .3s}
-        .vd-poster::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.08),transparent 55%);pointer-events:none}
-        .vd-poster.hidden{opacity:0;pointer-events:none}
-        .vd-poster-play{position:relative;z-index:2;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.92);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(0,0,0,.25);transition:transform .12s}
-        .vd-poster-play:active{transform:scale(.9)}
-        .vd-poster-play svg{color:#6366f1;margin-left:3px}
-        .vd-poster-title{position:relative;z-index:2;color:rgba(255,255,255,.85);font-size:.75rem;font-weight:500;max-width:80%;text-align:center;line-height:1.4}
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #000; overflow: hidden; font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif; }
 
-        .vd-q-overlay{position:absolute;top:0;left:0;right:0;z-index:8;padding:12px 16px;color:#fff;font-size:.75rem;line-height:1.65;background:linear-gradient(180deg,rgba(0,0,0,.6) 0%,rgba(0,0,0,.35) 70%,transparent 100%);pointer-events:none;display:none;max-height:50%;overflow:hidden}
-        .vd-q-overlay.show{display:block}
-        .vd-q-options{margin-top:6px;display:flex;flex-direction:column;gap:2px}
-        .vd-q-opt{font-size:.6875rem;color:rgba(255,255,255,.9)}
+        .fs-page { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; }
+        .fs-video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+
+        .fs-tap { position: absolute; inset: 0; z-index: 6; cursor: pointer; }
 
         /* 控制层 */
-        .vd-controls{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;justify-content:space-between;opacity:1;transition:opacity .25s;pointer-events:none}
-        .vd-controls.hidden{opacity:0}
-        .vd-controls>*{pointer-events:auto}
+        .fs-controls { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; opacity: 1; transition: opacity .25s; pointer-events: none; }
+        .fs-controls.hidden { opacity: 0; }
+        .fs-controls > * { pointer-events: auto; }
 
-        .vd-ctrl-top{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 6px;background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,transparent 100%)}
-        .vd-ctrl-back{width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;flex-shrink:0}
-        .vd-ctrl-back:active{background:rgba(255,255,255,.2)}
-        
+        .fs-ctrl-top { display: flex; align-items: center; justify-content: space-between; padding: env(safe-area-inset-top, 12px) 16px 8px; background: linear-gradient(180deg, rgba(0,0,0,.5) 0%, transparent 100%); }
+        .fs-ctrl-back { width: 32px; height: 32px; border-radius: 50%; border: none; background: rgba(255,255,255,.12); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; flex-shrink: 0; }
+        .fs-ctrl-back:active { background: rgba(255,255,255,.2); }
 
-        .vd-ctrl-center{flex:1;display:flex;align-items:center;justify-content:center}
-        .vd-ctrl-play-lg{width:44px;height:44px;border-radius:50%;border:none;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;opacity:0;transition:opacity .2s}
-        .vd-controls:not(.hidden) .vd-ctrl-play-lg{opacity:1}
+        .fs-center { flex: 1; display: flex; align-items: center; justify-content: center; }
+        .fs-center-play { width: 52px; height: 52px; border-radius: 50%; border: none; background: rgba(255,255,255,.18); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; opacity: 0; transition: opacity .2s; }
+        .fs-controls:not(.hidden) .fs-center-play { opacity: 1; }
 
-        .vd-ctrl-bottom{padding:0 12px 8px;background:linear-gradient(0deg,rgba(0,0,0,.55) 0%,transparent 100%)}
+        .fs-ctrl-bottom { padding: 0 16px max(env(safe-area-inset-bottom, 8px), 12px); background: linear-gradient(0deg, rgba(0,0,0,.55) 0%, transparent 100%); }
 
         /* 分段进度条 */
-        .vd-seg-bar{display:flex;align-items:center;gap:0;height:28px;position:relative;cursor:pointer;touch-action:none}
-        .vd-seg{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative}
-        .vd-seg-track{width:100%;height:3px;background:rgba(255,255,255,.2);border-radius:1.5px;position:relative;overflow:hidden}
-        .vd-seg:first-child .vd-seg-track{border-radius:1.5px 0 0 1.5px}
-        .vd-seg:last-child .vd-seg-track{border-radius:0 1.5px 1.5px 0}
-        .vd-seg-fill{position:absolute;left:0;top:0;height:100%;background:#fbbf24;border-radius:inherit;transition:width .15s linear}
-        .vd-seg-label{font-size:.5rem;color:rgba(255,255,255,.5);font-weight:600;white-space:nowrap;margin-top:1px}
-        .vd-seg.active .vd-seg-label{color:rgba(255,255,255,.85)}
-        .vd-seg-gap{width:3px;height:3px;flex-shrink:0}
+        .fs-seg-bar { display: flex; align-items: center; gap: 0; height: 32px; position: relative; cursor: pointer; touch-action: none; margin-bottom: 4px; }
+        .fs-seg { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; position: relative; }
+        .fs-seg-track { width: 100%; height: 3px; background: rgba(255,255,255,.2); border-radius: 1.5px; position: relative; overflow: hidden; }
+        .fs-seg:first-child .fs-seg-track { border-radius: 1.5px 0 0 1.5px; }
+        .fs-seg:last-child .fs-seg-track { border-radius: 0 1.5px 1.5px 0; }
+        .fs-seg-fill { position: absolute; left: 0; top: 0; height: 100%; background: #fbbf24; border-radius: inherit; transition: width .15s linear; }
+        .fs-seg-label { font-size: .625rem; color: rgba(255,255,255,.45); font-weight: 600; white-space: nowrap; }
+        .fs-seg.active .fs-seg-label { color: rgba(255,255,255,.85); }
+        .fs-seg-gap { width: 4px; height: 3px; flex-shrink: 0; }
 
-        .vd-ctrl-row{display:flex;align-items:center;gap:4px;margin-top:2px}
-        .vd-play-sm{width:28px;height:28px;border:none;background:none;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;border-radius:6px;flex-shrink:0}
-        .vd-play-sm:active{background:rgba(255,255,255,.1)}
-        .vd-time{color:rgba(255,255,255,.75);font-size:.6875rem;font-weight:500;white-space:nowrap}
-        .vd-spacer{flex:1}
-        .vd-watermark{font-size:.5625rem;color:rgba(255,255,255,.35);font-weight:600;display:flex;align-items:center;gap:4px}
-        .vd-watermark svg{opacity:.5}
-        .vd-speed-btn{height:24px;padding:0 8px;border:none;border-radius:5px;background:rgba(255,255,255,.1);color:#fff;font-size:.6875rem;font-weight:600;cursor:pointer;flex-shrink:0}
-        .vd-speed-btn:active{background:rgba(255,255,255,.18)}
+        .fs-ctrl-row { display: flex; align-items: center; gap: 8px; }
+        .fs-play-sm { width: 28px; height: 28px; border: none; background: none; display: flex; align-items: center; justify-content: center; color: #fff; cursor: pointer; border-radius: 6px; flex-shrink: 0; }
+        .fs-play-sm:active { background: rgba(255,255,255,.1); }
+        .fs-time { color: rgba(255,255,255,.75); font-size: .6875rem; font-weight: 500; white-space: nowrap; }
+        .fs-spacer { flex: 1; }
+        .fs-watermark { font-size: .5625rem; color: rgba(255,255,255,.35); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        .fs-watermark svg { opacity: .5; }
 
-        .vd-tap-area{position:absolute;inset:0;z-index:6;cursor:pointer}
-
-        /* ── 内容区 ── */
-        .vd-content{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#fff}
-        .vd-content::-webkit-scrollbar{display:none}
-
-        .vd-paper-title{padding:16px 16px 12px;font-size:.9375rem;font-weight:800;color:#0f172a;line-height:1.4;letter-spacing:-.01em}
-
-        /* 题号条 */
-        .vd-qnums{display:flex;gap:0;padding:0 16px 14px;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-shrink:0}
-        .vd-qnums::-webkit-scrollbar{display:none}
-        .vd-qnum{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8125rem;font-weight:700;color:#94a3b8;cursor:pointer;flex-shrink:0;transition:all .2s;-webkit-tap-highlight-color:transparent;border:none;background:none}
-        .vd-qnum:active{transform:scale(.92)}
-        .vd-qnum.active{background:#fbbf24;color:#0f172a;box-shadow:0 2px 8px rgba(251,191,36,.3)}
-
-        /* 题目卡片 */
-        .vd-qcard{margin:0 16px 14px;background:#fafafa;border-radius:14px;padding:18px 16px;border:1px solid rgba(226,232,240,.5)}
-        .vd-qcard-hd{font-size:.9375rem;font-weight:800;color:#0f172a;margin-bottom:10px}
-        .vd-qcard-body{font-size:.875rem;color:#334155;line-height:1.75}
-        .vd-qcard-body .math-line{margin:2px 0;font-family:'Inter',monospace}
-        .vd-qcard-body .indent{padding-left:1.5em}
-
-        .vd-divider{height:8px;background:#f8fafc;flex-shrink:0}
-
-        /* 倍速面板 */
-        .vd-speed-panel{position:absolute;bottom:0;left:0;right:0;z-index:200;background:rgba(0,0,0,.5);display:none;align-items:flex-end}
-        .vd-speed-panel.open{display:flex}
-        .vd-speed-sheet{width:100%;background:#fff;border-radius:16px 16px 0 0;padding:16px 0 24px}
-        .vd-speed-title{font-size:.875rem;font-weight:700;color:#0f172a;text-align:center;padding:0 16px 12px;border-bottom:1px solid #f1f5f9}
-        .vd-speed-options{display:flex;flex-direction:column;padding:8px 0}
-        .vd-speed-opt{padding:12px 20px;font-size:.875rem;font-weight:500;color:#475569;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent}
-        .vd-speed-opt:active{background:#f8fafc}
-        .vd-speed-opt.active{color:#ea580c;font-weight:700}
-
-        /* toast */
-        .vd-toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);color:#fff;padding:6px 16px;border-radius:8px;font-size:.75rem;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
-        .vd-toast.show{opacity:1}
-
-        /* ── 全屏模式 ── */
-        .vd-fs-overlay{position:fixed;inset:0;z-index:9999;background:#000;display:none;flex-direction:column}
-        .vd-fs-overlay.open{display:flex}
-        .vd-fs-video{width:100%;height:100%;object-fit:contain;background:#000}
-        .vd-fs-controls{position:absolute;inset:0;z-index:10;display:flex;flex-direction:column;justify-content:space-between;opacity:1;transition:opacity .25s;pointer-events:none}
-        .vd-fs-controls.hidden{opacity:0}
-        .vd-fs-controls>*{pointer-events:auto}
-        .vd-fs-ctrl-top{display:flex;align-items:center;justify-content:space-between;padding:env(safe-area-inset-top,12px) 16px 8px;background:linear-gradient(180deg,rgba(0,0,0,.5) 0%,transparent 100%)}
-        .vd-fs-ctrl-bottom{padding:0 16px max(env(safe-area-inset-bottom,8px),12px);background:linear-gradient(0deg,rgba(0,0,0,.55) 0%,transparent 100%)}
-
-        /* 全屏分段进度条 */
-        .vd-fs-seg-bar{display:flex;align-items:center;gap:0;height:32px;position:relative;cursor:pointer;touch-action:none;margin-bottom:4px}
-        .vd-fs-seg{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
-        .vd-fs-seg-track{width:100%;height:3px;background:rgba(255,255,255,.2);border-radius:1.5px;position:relative;overflow:hidden}
-        .vd-fs-seg:first-child .vd-fs-seg-track{border-radius:1.5px 0 0 1.5px}
-        .vd-fs-seg:last-child .vd-fs-seg-track{border-radius:0 1.5px 1.5px 0}
-        .vd-fs-seg-fill{position:absolute;left:0;top:0;height:100%;background:#fbbf24;border-radius:inherit;transition:width .15s linear}
-        .vd-fs-seg-label{font-size:.625rem;color:rgba(255,255,255,.45);font-weight:600;white-space:nowrap}
-        .vd-fs-seg.active .vd-fs-seg-label{color:rgba(255,255,255,.85)}
-        .vd-fs-seg-gap{width:4px;height:3px;flex-shrink:0}
+        .fs-btn { height: 24px; padding: 0 10px; border: none; border-radius: 5px; background: rgba(255,255,255,.1); color: #fff; font-size: .6875rem; font-weight: 600; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; gap: 3px; }
+        .fs-btn:active { background: rgba(255,255,255,.18); }
+        .fs-btn svg { flex-shrink: 0; }
 
         /* 重播覆盖层 */
-        .vd-replay{position:absolute;inset:0;z-index:15;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:rgba(0,0,0,.55)}
-        .vd-replay.show{display:flex}
-        .vd-replay-btn{width:60px;height:60px;border-radius:50%;border:none;background:rgba(255,255,255,.2);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;transition:transform .12s}
-        .vd-replay-btn:active{transform:scale(.9)}
-        .vd-replay-label{color:rgba(255,255,255,.85);font-size:.8125rem;font-weight:600}
-        .vd-fs-ctrl-row{display:flex;align-items:center;gap:8px}
-        .vd-fs-tap{position:absolute;inset:0;z-index:6;cursor:pointer}
-        .vd-fs-center{flex:1;display:flex;align-items:center;justify-content:center}
-        .vd-fs-center-play{width:52px;height:52px;border-radius:50%;border:none;background:rgba(255,255,255,.18);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;opacity:0;transition:opacity .2s}
-        .vd-fs-controls:not(.hidden) .vd-fs-center-play{opacity:1}
-        .vd-fs-toast{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:100;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);color:#fff;padding:6px 16px;border-radius:8px;font-size:.8125rem;font-weight:600;opacity:0;transition:opacity .2s;pointer-events:none}
-        .vd-fs-toast.show{opacity:1}
+        .fs-replay { position: absolute; inset: 0; z-index: 15; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 12px; background: rgba(0,0,0,.55); }
+        .fs-replay.show { display: flex; }
+        .fs-replay-btn { width: 60px; height: 60px; border-radius: 50%; border: none; background: rgba(255,255,255,.2); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: transform .12s; }
+        .fs-replay-btn:active { transform: scale(.9); }
+        .fs-replay-label { color: rgba(255,255,255,.85); font-size: .8125rem; font-weight: 600; }
+
+        /* 无视频提示 */
+        .fs-novideo { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 120; display: none; flex-direction: column; align-items: center; gap: 12px; color: rgba(255,255,255,.75); text-align: center; }
+        .fs-novideo.show { display: flex; }
+        .fs-novideo-icon { width: 48px; height: 48px; border-radius: 50%; background: rgba(255,255,255,.08); display: flex; align-items: center; justify-content: center; }
+        .fs-novideo-text { font-size: .875rem; font-weight: 600; }
+        .fs-novideo-sub { font-size: .75rem; color: rgba(255,255,255,.4); }
+
+        /* 底部弹窗 — 通用样式（倍速 + 切题共用） */
+        .fs-sheet-overlay { position: absolute; inset: 0; z-index: 200; background: rgba(0,0,0,.5); display: none; align-items: flex-end; }
+        .fs-sheet-overlay.open { display: flex; }
+        .fs-sheet { width: 100%; background: #fff; border-radius: 16px 16px 0 0; padding: 0 0 max(env(safe-area-inset-bottom, 16px), 16px); max-height: 70vh; display: flex; flex-direction: column; }
+        .fs-sheet-title { font-size: .875rem; font-weight: 700; color: #0f172a; text-align: center; padding: 16px 16px 12px; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; }
+
+        /* 倍速选项 */
+        .fs-speed-options { display: flex; flex-direction: column; padding: 8px 0; }
+        .fs-speed-opt { padding: 12px 20px; font-size: .875rem; font-weight: 500; color: #475569; cursor: pointer; text-align: center; -webkit-tap-highlight-color: transparent; }
+        .fs-speed-opt:active { background: #f8fafc; }
+        .fs-speed-opt.active { color: #ea580c; font-weight: 700; }
+
+        /* 题目选择面板 */
+        .fs-q-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 20px 6px; justify-content: center; }
+        .fs-q-item {
+            width: 42px; height: 42px; border-radius: 50%; display: flex;
+            align-items: center; justify-content: center;
+            font-size: .875rem; font-weight: 700; color: #475569;
+            background: #f1f5f9; border: 2px solid transparent;
+            cursor: pointer; -webkit-tap-highlight-color: transparent; transition: all .15s;
+            position: relative;
+        }
+        .fs-q-item:active { transform: scale(.92); }
+        .fs-q-item.active { background: #fbbf24; border-color: #f59e0b; color: #0f172a; box-shadow: 0 2px 8px rgba(251,191,36,.35); }
+        .fs-q-item.disabled { color: #d4d4d8; background: #f8f8f8; border-color: transparent; cursor: not-allowed; }
+        .fs-q-item.disabled::after { content: ''; position: absolute; bottom: 2px; width: 12px; height: 2px; border-radius: 1px; background: #e5e5e5; }
+        .fs-q-hint { width: 100%; padding: 0 20px 12px; font-size: .6875rem; color: #94a3b8; text-align: center; }
+
+        /* toast */
+        .fs-toast { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); z-index: 100; background: rgba(0,0,0,.75); backdrop-filter: blur(12px); color: #fff; padding: 6px 16px; border-radius: 8px; font-size: .8125rem; font-weight: 600; opacity: 0; transition: opacity .2s; pointer-events: none; }
+        .fs-toast.show { opacity: 1; }
     </style>
 </head>
 <body>
-    <div class="iphone-frame is-column" id="app">
-        <div class="dynamic-island"></div>
+    <div class="fs-page" id="fsPage">
+        <video class="fs-video" id="fsVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline
+               src="https://www.w3schools.com/html/mov_bbb.mp4"></video>
 
-        <!-- 视频播放区 -->
-        <div class="vd-player" id="playerSection"
-            data-doc="video-player"
-            data-prd="视频播放区域，展示当前题号对应的讲解视频；支持播放/暂停、进度拖动、倍速切换；进度条分三段标注：分析题干/步骤书写/本题小结"
-            data-track="/event/examExplainDetailPage/videoPlay | 播放视频 | questionNum#Int,paperId#String">
+        <div class="fs-tap" id="fsTapArea"></div>
 
-            <video class="vd-video" id="vdVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline
-                   src="https://www.w3schools.com/html/mov_bbb.mp4"></video>
-
-            <div class="vd-poster" id="vdPoster">
-                <button class="vd-poster-play" id="vdPosterPlay">
-                    <svg width="26" height="26" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                </button>
-                <p class="vd-poster-title" id="vdPosterTitle">点击播放讲解视频</p>
-            </div>
-
-            <div class="vd-q-overlay" id="qOverlay"></div>
-
-            <div class="vd-tap-area" id="vdTapArea"></div>
-
-            <div class="vd-controls" id="vdControls">
-                <div class="vd-ctrl-top">
-                    <button class="vd-ctrl-back" id="vdBack" onclick="goBack()">
-                        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                    <div></div>
-                </div>
-                <div class="vd-ctrl-center">
-                    <button class="vd-ctrl-play-lg" id="vdCenterPlay">
-                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" id="vdCenterIcon"><path d="M8 5v14l11-7z"/></svg>
-                    </button>
-                </div>
-                <div class="vd-ctrl-bottom">
-                    <div class="vd-seg-bar" id="vdSegBar">
-                        <div class="vd-seg active" data-seg="0">
-                            <div class="vd-seg-track"><div class="vd-seg-fill" id="segFill0" style="width:0"></div></div>
-                            <span class="vd-seg-label">分析题干</span>
-                        </div>
-                        <div class="vd-seg-gap"></div>
-                        <div class="vd-seg" data-seg="1">
-                            <div class="vd-seg-track"><div class="vd-seg-fill" id="segFill1" style="width:0"></div></div>
-                            <span class="vd-seg-label">步骤书写</span>
-                        </div>
-                        <div class="vd-seg-gap"></div>
-                        <div class="vd-seg" data-seg="2">
-                            <div class="vd-seg-track"><div class="vd-seg-fill" id="segFill2" style="width:0"></div></div>
-                            <span class="vd-seg-label">本题小结</span>
-                        </div>
-                    </div>
-                    <div class="vd-ctrl-row">
-                        <button class="vd-play-sm" id="vdPlayBtn">
-                            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" id="vdPlayIcon"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>
-                        </button>
-                        <span class="vd-time"><span id="vdCur">00:00</span></span>
-                        <div class="vd-spacer"></div>
-                        <span class="vd-watermark">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
-                            AI 龙老师
-                        </span>
-                        <span class="vd-time" style="margin-left:6px"><span id="vdDur">00:00</span></span>
-                        <button class="vd-speed-btn" id="vdFullscreenBtn" onclick="enterFullscreen(event)">
-                            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/></svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="vd-replay" id="vdReplay">
-                <button class="vd-replay-btn" onclick="replayVideo()">
-                    <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5"/><path stroke-linecap="round" stroke-linejoin="round" d="M20.49 9A9 9 0 005.64 5.64L4 4m16 16l-1.64-1.64A9 9 0 013.51 15"/></svg>
-                </button>
-                <span class="vd-replay-label">重新播放</span>
-            </div>
-
-            <div class="vd-toast" id="vdToast"></div>
-        </div>
-
-        <!-- 内容区 -->
-        <div class="vd-content" id="contentArea">
-            <h1 class="vd-paper-title" id="paperTitle"
-                data-doc="paper-title"
-                data-prd="试卷标题，从列表页携带过来">
-            </h1>
-
-            <div class="vd-qnums" id="qnumBar"
-                data-doc="qnum-bar"
-                data-prd="题号横向滚动条，点击切换当前题号；选中题号高亮为金色圆形；切换题号同时更新视频和下方题目内容"
-                data-track="/click/examExplainDetailPage/switchQuestion | 切换题号 | questionNum#Int">
-            </div>
-
-            <div id="questionContent"
-                data-doc="question-content"
-                data-prd="题目内容区域，包含题目文本、答案解析、题目解析三个卡片；随题号切换动态更新">
-            </div>
-        </div>
-
-        <!-- 倍速面板（竖屏不使用，全屏内使用） -->
-        <div class="vd-speed-panel" id="speedPanel" onclick="closeSpeedPanel(event)">
-            <div class="vd-speed-sheet" onclick="event.stopPropagation()">
-                <div class="vd-speed-title">播放速度</div>
-                <div class="vd-speed-options" id="speedOptions"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 全屏播放器覆盖层 -->
-    <div class="vd-fs-overlay" id="fsOverlay">
-        <video class="vd-fs-video" id="fsVideo" preload="metadata" playsinline webkit-playsinline x5-playsinline></video>
-
-        <div class="vd-fs-tap" id="fsTapArea"></div>
-
-        <div class="vd-fs-controls" id="fsControls">
-            <div class="vd-fs-ctrl-top">
-                <button class="vd-ctrl-back" onclick="closeFs()">
+        <div class="fs-controls" id="fsControls">
+            <div class="fs-ctrl-top">
+                <button class="fs-ctrl-back" onclick="goBack()">
                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                 </button>
                 <span id="fsTitle" style="color:rgba(255,255,255,.85);font-size:.8125rem;font-weight:600;flex:1;text-align:center;padding:0 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
                 <div style="width:32px"></div>
             </div>
-            <div class="vd-fs-center">
-                <button class="vd-fs-center-play" id="fsCenterPlay">
+            <div class="fs-center">
+                <button class="fs-center-play" id="fsCenterPlay">
                     <svg width="28" height="28" fill="currentColor" viewBox="0 0 24 24" id="fsCenterIcon"><path d="M8 5v14l11-7z"/></svg>
                 </button>
             </div>
-            <div class="vd-fs-ctrl-bottom">
-                <div class="vd-fs-seg-bar" id="fsSegBar">
-                    <div class="vd-fs-seg active" data-fsseg="0">
-                        <div class="vd-fs-seg-track"><div class="vd-fs-seg-fill" id="fsSegFill0" style="width:0"></div></div>
-                        <span class="vd-fs-seg-label">分析题干</span>
+            <div class="fs-ctrl-bottom">
+                <div class="fs-seg-bar" id="fsSegBar">
+                    <div class="fs-seg active" data-seg="0">
+                        <div class="fs-seg-track"><div class="fs-seg-fill" id="segFill0" style="width:0"></div></div>
+                        <span class="fs-seg-label">分析题干</span>
                     </div>
-                    <div class="vd-fs-seg-gap"></div>
-                    <div class="vd-fs-seg" data-fsseg="1">
-                        <div class="vd-fs-seg-track"><div class="vd-fs-seg-fill" id="fsSegFill1" style="width:0"></div></div>
-                        <span class="vd-fs-seg-label">步骤书写</span>
+                    <div class="fs-seg-gap"></div>
+                    <div class="fs-seg" data-seg="1">
+                        <div class="fs-seg-track"><div class="fs-seg-fill" id="segFill1" style="width:0"></div></div>
+                        <span class="fs-seg-label">步骤书写</span>
                     </div>
-                    <div class="vd-fs-seg-gap"></div>
-                    <div class="vd-fs-seg" data-fsseg="2">
-                        <div class="vd-fs-seg-track"><div class="vd-fs-seg-fill" id="fsSegFill2" style="width:0"></div></div>
-                        <span class="vd-fs-seg-label">本题小结</span>
+                    <div class="fs-seg-gap"></div>
+                    <div class="fs-seg" data-seg="2">
+                        <div class="fs-seg-track"><div class="fs-seg-fill" id="segFill2" style="width:0"></div></div>
+                        <span class="fs-seg-label">本题小结</span>
                     </div>
                 </div>
-                <div class="vd-fs-ctrl-row">
-                    <button class="vd-play-sm" id="fsPlayBtn">
+                <div class="fs-ctrl-row">
+                    <button class="fs-play-sm" id="fsPlayBtn">
                         <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24" id="fsPlayIcon"><path d="M8 5v14l11-7z"/></svg>
                     </button>
-                    <span class="vd-time"><span id="fsCur">00:00</span></span>
-                    <div class="vd-spacer"></div>
-                    <span class="vd-watermark">
+                    <span class="fs-time"><span id="fsCur">00:00</span></span>
+                    <div class="fs-spacer"></div>
+                    <span class="fs-watermark">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></svg>
                         AI 龙老师
                     </span>
-                    <span class="vd-time" style="margin-left:6px"><span id="fsDur">00:00</span></span>
-                    <button class="vd-speed-btn" id="fsSpeedBtn" onclick="openFsSpeedPanel()">倍速</button>
+                    <span class="fs-time" style="margin-left:6px"><span id="fsDur">00:00</span></span>
+                    <button class="fs-btn" id="fsQBtn" onclick="openQPanel()">
+                        <span id="fsQBtnLabel">第1题</span>
+                        <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <button class="fs-btn" id="fsSpeedBtn" onclick="openSpeedPanel()">倍速</button>
                 </div>
             </div>
         </div>
 
-        <!-- 全屏倍速面板 -->
-        <div class="vd-speed-panel" id="fsSpeedPanel" onclick="closeFsSpeedPanel(event)">
-            <div class="vd-speed-sheet" onclick="event.stopPropagation()">
-                <div class="vd-speed-title">播放速度</div>
-                <div class="vd-speed-options" id="fsSpeedOptions"></div>
+        <!-- 重播 -->
+        <div class="fs-replay" id="fsReplay">
+            <button class="fs-ctrl-back" onclick="goBack()" style="position:absolute;top:env(safe-area-inset-top,12px);left:16px;">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <button class="fs-replay-btn" onclick="replayVideo()">
+                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5"/><path stroke-linecap="round" stroke-linejoin="round" d="M20.49 9A9 9 0 005.64 5.64L4 4m16 16l-1.64-1.64A9 9 0 013.51 15"/></svg>
+            </button>
+            <span class="fs-replay-label">重新播放</span>
+        </div>
+
+        <!-- 无视频 -->
+        <div class="fs-novideo" id="fsNoVideo">
+            <div class="fs-novideo-icon">
+                <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072M12 12h.01M18.364 5.636a9 9 0 010 12.728"/><line x1="4" y1="4" x2="20" y2="20" stroke-linecap="round"/></svg>
+            </div>
+            <span class="fs-novideo-text">本题暂无视频讲解</span>
+            <span class="fs-novideo-sub">点击下方「第X题」切换至其他题目</span>
+        </div>
+
+        <!-- 倍速面板 -->
+        <div class="fs-sheet-overlay" id="speedPanel" onclick="closeSpeedPanel(event)">
+            <div class="fs-sheet" onclick="event.stopPropagation()">
+                <div class="fs-sheet-title">播放速度</div>
+                <div class="fs-speed-options" id="speedOptions"></div>
             </div>
         </div>
 
-        <div class="vd-replay" id="fsReplay">
-            <button class="vd-ctrl-back" onclick="closeFs()" style="position:absolute;top:env(safe-area-inset-top,12px);left:16px;">
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-            </button>
-            <button class="vd-replay-btn" onclick="replayFs()">
-                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5"/><path stroke-linecap="round" stroke-linejoin="round" d="M20.49 9A9 9 0 005.64 5.64L4 4m16 16l-1.64-1.64A9 9 0 013.51 15"/></svg>
-            </button>
-            <span class="vd-replay-label">重新播放</span>
+        <!-- 题目选择面板 -->
+        <div class="fs-sheet-overlay" id="qPanel" onclick="closeQPanel(event)">
+            <div class="fs-sheet" onclick="event.stopPropagation()">
+                <div class="fs-sheet-title">选择题目</div>
+                <div class="fs-q-list" id="qGrid"></div>
+                <div class="fs-q-hint">灰色题目暂无视频讲解</div>
+            </div>
         </div>
 
-        <div class="vd-fs-toast" id="fsToast"></div>
+        <div class="fs-toast" id="fsToast"></div>
     </div>
 
     <script>
     /* ══════════ Mock 题目数据 ══════════ */
     const QUESTIONS = [
-        {
-            num: 1,
-            text: '甲数是4.2，比乙数的4倍多1，求乙数。',
-            options: null,
-            answer: '乙数＝(甲数－1)÷4\n＝(4.2－1)÷4\n＝3.2÷4\n＝0.8\n答：乙数是0.8。',
-            analysis: '此题寻找关系，甲数＝乙数×4＋1，求解乙数即\n(甲数－1)÷4＝乙数，代入数值计算即可。',
-            dur: 72,
-            segments: [0, 0.35, 0.75, 1]
-        },
-        {
-            num: 2,
-            text: '一个长方形的周长是36厘米，长是宽的2倍，求这个长方形的面积。',
-            options: null,
-            answer: '宽＋长＝36÷2＝18（厘米）\n设宽为x厘米，则长为2x厘米\nx＋2x＝18\n3x＝18\nx＝6\n长＝2×6＝12（厘米）\n面积＝12×6＝72（平方厘米）\n答：长方形的面积是72平方厘米。',
-            analysis: '先用周长÷2得到长与宽的和，再根据长是宽的2倍列方程求出宽，进而算出长，最后用长×宽求面积。',
-            dur: 95,
-            segments: [0, 0.3, 0.7, 1]
-        },
-        {
-            num: 3,
-            text: '为了践行"绿水青山就是金山银山"的理念，"环保卫士"小分队28人参加植树活动。女生每人栽2棵树，男生每人栽3棵树，小分队一共栽了71棵树，其中男生一共栽了（  ）棵。',
-            options: ['A: 13', 'B: 15', 'C: 26', 'D: 45'],
-            answer: '设男生有x人，则女生有(28-x)人\n3x＋2(28-x)＝71\n3x＋56-2x＝71\nx＝15\n男生栽树＝15×3＝45（棵）\n答：选D，男生一共栽了45棵。',
-            analysis: '这是一道鸡兔同笼类型题。用假设法或方程法：假设全部28人都种2棵，共56棵，差71-56=15棵，每多一个男生多种1棵，所以男生15人，男生栽树15×3=45棵。',
-            dur: 154,
-            segments: [0, 0.25, 0.65, 1]
-        },
-        {
-            num: 4,
-            text: '小明有42元钱，买了3本笔记本后还剩12元，每本笔记本多少元？',
-            options: null,
-            answer: '每本笔记本价格＝(42-12)÷3\n＝30÷3\n＝10（元）\n答：每本笔记本10元。',
-            analysis: '总钱数减去剩余钱数等于花掉的钱数，再除以笔记本的数量即可。',
-            dur: 58,
-            segments: [0, 0.3, 0.7, 1]
-        },
-        {
-            num: 5,
-            text: '一块平行四边形土地，底是25米，高是16米，在这块地上种小麦，每平方米收小麦0.6千克，这块地共收小麦多少千克？',
-            options: null,
-            answer: '平行四边形面积＝底×高\n＝25×16\n＝400（平方米）\n总产量＝400×0.6\n＝240（千克）\n答：这块地共收小麦240千克。',
-            analysis: '分两步计算：先求平行四边形面积（底×高），再用面积×每平方米产量得到总产量。注意单位统一。',
-            dur: 88,
-            segments: [0, 0.35, 0.7, 1]
-        },
-        {
-            num: 6,
-            text: '把一根5米长的绳子平均截成8段，每段是全长的几分之几？每段长多少米？',
-            options: null,
-            answer: '每段是全长的 1/8\n每段长＝5÷8＝5/8（米）\n答：每段是全长的1/8，每段长5/8米。',
-            analysis: '注意区分"几分之几"和"多少米"：几分之几问的是分率（与总长无关），多少米问的是具体长度（与总长有关）。',
-            dur: 76,
-            segments: [0, 0.4, 0.75, 1]
-        },
-        {
-            num: 7,
-            text: '一个水池能蓄水120吨。进水管每小时进水15吨，出水管每小时放水7吨。如果两管同时开启，几小时能蓄满水池？',
-            options: null,
-            answer: '每小时实际进水＝15-7＝8（吨）\n蓄满时间＝120÷8＝15（小时）\n答：两管同时开启15小时能蓄满。',
-            analysis: '两管同时开启，进水量要减去出水量，得到每小时实际增加的水量，再用水池容量除以实际进水速度。',
-            dur: 82,
-            segments: [0, 0.3, 0.7, 1]
-        },
-        {
-            num: 8,
-            text: '学校图书室有故事书240本，科技书的本数是故事书的3/4，科技书有多少本？',
-            options: null,
-            answer: '科技书＝240×3/4\n＝240×3÷4\n＝720÷4\n＝180（本）\n答：科技书有180本。',
-            analysis: '求一个数的几分之几是多少，用乘法。240×(3/4) 即可。',
-            dur: 65,
-            segments: [0, 0.35, 0.75, 1]
-        },
-        {
-            num: 9,
-            text: '两个完全一样的直角三角形可以拼成一个（  ）。\nA. 长方形  B. 正方形  C. 平行四边形  D. 以上都有可能',
-            options: ['A: 长方形', 'B: 正方形', 'C: 平行四边形', 'D: 以上都有可能'],
-            answer: '两个完全一样的直角三角形可以拼成长方形、正方形或平行四边形，取决于三角形的具体形状。\n如果是等腰直角三角形，可以拼成正方形；\n如果是一般直角三角形，可以拼成长方形或平行四边形。\n答：选D，以上都有可能。',
-            analysis: '两个全等三角形一定能拼成平行四边形，而直角三角形拼出的平行四边形就是长方形。当两直角边相等时还能拼成正方形。',
-            dur: 110,
-            segments: [0, 0.3, 0.65, 1]
-        },
-        {
-            num: 10,
-            text: '一辆汽车从甲地到乙地，去时每小时行60千米，用了5小时；返回时每小时行75千米，返回用了多少小时？',
-            options: null,
-            answer: '甲乙两地距离＝60×5＝300（千米）\n返回时间＝300÷75＝4（小时）\n答：返回用了4小时。',
-            analysis: '路程不变（往返相同），先求路程（速度×时间），再用路程÷返回速度求返回时间。',
-            dur: 78,
-            segments: [0, 0.35, 0.75, 1]
-        }
+        { num: 1, hasVideo: true, dur: 72, segments: [0, 0.35, 0.75, 1] },
+        { num: 2, hasVideo: true, dur: 95, segments: [0, 0.3, 0.7, 1] },
+        { num: 3, hasVideo: true, dur: 154, segments: [0, 0.25, 0.65, 1] },
+        { num: 4, hasVideo: false, dur: 58, segments: [0, 0.3, 0.7, 1] },
+        { num: 5, hasVideo: true, dur: 88, segments: [0, 0.35, 0.7, 1] },
+        { num: 6, hasVideo: true, dur: 76, segments: [0, 0.4, 0.75, 1] },
+        { num: 7, hasVideo: true, dur: 82, segments: [0, 0.3, 0.7, 1] },
+        { num: 8, hasVideo: false, dur: 65, segments: [0, 0.35, 0.75, 1] },
+        { num: 9, hasVideo: true, dur: 110, segments: [0, 0.3, 0.65, 1] },
+        { num: 10, hasVideo: true, dur: 78, segments: [0, 0.35, 0.75, 1] },
     ];
 
     /* ══════════ 状态 ══════════ */
     const $ = id => document.getElementById(id);
-    const video = $('vdVideo');
+    const video = $('fsVideo');
     let currentQ = 0;
-    let posterDismissed = false;
     let controlsTimer = null;
     let currentSpeed = 1.0;
     const SPEEDS = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
     const PLAY_D = 'M8 5v14l11-7z';
     const PAUSE_D = 'M6 4h4v16H6V4zm8 0h4v16h-4V4z';
-    const SEG_LABELS = ['分析题干', '步骤书写', '本题小结'];
 
     /* ══════════ URL 参数 ══════════ */
     const params = new URLSearchParams(window.location.search);
     const paperTitle = decodeURIComponent(params.get('title') || '试卷讲解');
-    $('paperTitle').textContent = paperTitle;
     document.title = paperTitle + ' - AI 龙老师';
 
-    /* ══════════ 渲染题号条 ══════════ */
-    function renderQnumBar() {
-        $('qnumBar').innerHTML = QUESTIONS.map((q, i) =>
-            `<button class="vd-qnum${i === currentQ ? ' active' : ''}" data-qi="${i}">${q.num}</button>`
-        ).join('');
-
-        const active = $('qnumBar').querySelector('.vd-qnum.active');
-        if (active) active.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    }
-
-    $('qnumBar').addEventListener('click', e => {
-        const btn = e.target.closest('.vd-qnum');
-        if (!btn) return;
-        const qi = parseInt(btn.dataset.qi);
-        if (qi === currentQ) return;
-        switchQuestion(qi);
-    });
-
-    /* ══════════ 渲染题目内容 ══════════ */
-    function escHtml(s) { return s.replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-    function formatMath(text) {
-        return escHtml(text).split('\n').map(line => {
-            const trimmed = line.trim();
-            if (/^[＝=]/.test(trimmed)) return `<div class="math-line indent">${trimmed}</div>`;
-            return `<div class="math-line">${trimmed}</div>`;
-        }).join('');
-    }
-
-    function renderQuestion() {
-        const q = QUESTIONS[currentQ];
-        let qText = escHtml(q.text);
-        if (q.options) {
-            qText += '<div style="margin-top:10px">' + q.options.map(o => `<div style="margin:4px 0;color:#475569">${escHtml(o)}</div>`).join('') + '</div>';
-        }
-
-        $('questionContent').innerHTML = `
-            <div class="vd-qcard">
-                <h3 class="vd-qcard-hd">题目</h3>
-                <div class="vd-qcard-body">${qText}</div>
-            </div>
-            <div class="vd-qcard">
-                <h3 class="vd-qcard-hd">答案解析</h3>
-                <div class="vd-qcard-body">${formatMath(q.answer)}</div>
-            </div>
-            <div class="vd-qcard">
-                <h3 class="vd-qcard-hd">题目解析</h3>
-                <div class="vd-qcard-body">${escHtml(q.analysis).replace(/\n/g, '<br>')}</div>
-            </div>
-            <div style="height:40px"></div>
-        `;
-
-        renderQOverlay();
-    }
-
-    function renderQOverlay() {
-        const q = QUESTIONS[currentQ];
-        if (q.options) {
-            $('qOverlay').innerHTML = `
-                <div style="font-size:.6875rem;line-height:1.6">${escHtml(q.text.split('\n')[0])}</div>
-                <div class="vd-q-options">${q.options.map(o => `<span class="vd-q-opt">${escHtml(o)}</span>`).join('')}</div>
-            `;
-        } else {
-            $('qOverlay').innerHTML = `<div style="font-size:.6875rem;line-height:1.6">${escHtml(q.text)}</div>`;
-        }
-    }
-
-    /* ══════════ 切换题号 ══════════ */
-    function switchQuestion(qi) {
-        currentQ = qi;
-        renderQnumBar();
-        renderQuestion();
-        resetVideo();
-        $('contentArea').scrollTop = 0;
-    }
-
-    function resetVideo() {
-        video.currentTime = 0;
-        video.pause();
-        posterDismissed = false;
-        $('vdPoster').classList.remove('hidden');
-        $('qOverlay').classList.remove('show');
-        $('vdReplay').classList.remove('show');
-        updateSegProgress();
-        syncPlayIcon();
-    }
-
-    /* ══════════ 视频播放器 ══════════ */
+    /* ══════════ 播放器 ══════════ */
     function fmt(sec) {
         if (!sec || !isFinite(sec)) return '00:00';
         const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
@@ -526,8 +236,8 @@
 
     function syncPlayIcon() {
         const d = video.paused ? PLAY_D : PAUSE_D;
-        $('vdPlayIcon').innerHTML = '<path d="' + d + '"/>';
-        $('vdCenterIcon').innerHTML = '<path d="' + d + '"/>';
+        $('fsPlayIcon').innerHTML = '<path d="' + d + '"/>';
+        $('fsCenterIcon').innerHTML = '<path d="' + d + '"/>';
     }
 
     function togglePlay() {
@@ -535,32 +245,22 @@
         else video.pause();
     }
 
-    function startFromPoster() {
-        posterDismissed = true;
-        $('vdPoster').classList.add('hidden');
-        $('qOverlay').classList.add('show');
-        video.play().catch(()=>{});
-        showControls();
-    }
+    $('fsPlayBtn').addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
+    $('fsCenterPlay').addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
 
-    $('vdPosterPlay').addEventListener('click', startFromPoster);
-    $('vdPlayBtn').addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
-    $('vdCenterPlay').addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
-
-    video.addEventListener('play', () => { syncPlayIcon(); showControls(); $('qOverlay').classList.add('show'); $('vdReplay').classList.remove('show'); });
+    video.addEventListener('play', () => { syncPlayIcon(); showControls(); $('fsReplay').classList.remove('show'); });
     video.addEventListener('pause', () => { syncPlayIcon(); showControls(); clearTimeout(controlsTimer); });
     video.addEventListener('ended', () => {
         syncPlayIcon();
         clearTimeout(controlsTimer);
-        $('vdReplay').classList.add('show');
-        $('vdControls').classList.add('hidden');
+        $('fsReplay').classList.add('show');
     });
     video.addEventListener('timeupdate', () => {
-        $('vdCur').textContent = fmt(video.currentTime);
+        $('fsCur').textContent = fmt(video.currentTime);
         updateSegProgress();
     });
     video.addEventListener('loadedmetadata', () => {
-        $('vdDur').textContent = fmt(video.duration);
+        $('fsDur').textContent = fmt(video.duration);
     });
 
     /* ── 分段进度条 ── */
@@ -568,10 +268,9 @@
         const q = QUESTIONS[currentQ];
         const pct = video.duration ? (video.currentTime / video.duration) : 0;
         const segs = q.segments;
-
         for (let i = 0; i < 3; i++) {
             const start = segs[i], end = segs[i + 1];
-            const segEl = document.querySelector(`.vd-seg[data-seg="${i}"]`);
+            const segEl = document.querySelector(`.fs-seg[data-seg="${i}"]`);
             let fill = 0;
             if (pct >= end) fill = 100;
             else if (pct > start) fill = ((pct - start) / (end - start)) * 100;
@@ -582,21 +281,19 @@
 
     /* ── 控制层显隐 ── */
     function showControls() {
-        $('vdControls').classList.remove('hidden');
+        $('fsControls').classList.remove('hidden');
         clearTimeout(controlsTimer);
-        if (!video.paused && posterDismissed) {
-            controlsTimer = setTimeout(hideControls, 4000);
+        if (!video.paused) {
+            controlsTimer = setTimeout(() => $('fsControls').classList.add('hidden'), 4000);
         }
     }
-    function hideControls() { $('vdControls').classList.add('hidden'); }
 
     let tapTimer = null, tapCount = 0;
-    $('vdTapArea').addEventListener('click', e => {
-        if (!posterDismissed) { startFromPoster(); return; }
+    $('fsTapArea').addEventListener('click', () => {
         tapCount++;
         if (tapCount === 1) {
             tapTimer = setTimeout(() => {
-                $('vdControls').classList.contains('hidden') ? showControls() : hideControls();
+                $('fsControls').classList.contains('hidden') ? showControls() : $('fsControls').classList.add('hidden');
                 tapCount = 0;
             }, 250);
         } else if (tapCount === 2) {
@@ -606,11 +303,72 @@
         }
     });
 
-    /* ── 倍速 ── */
-    function openSpeedPanel(e) {
-        e.stopPropagation();
+    /* ══════════ 切换题目 ══════════ */
+    function switchQuestion(qi) {
+        currentQ = qi;
+        const q = QUESTIONS[currentQ];
+
+        $('fsTitle').textContent = '第' + q.num + '题';
+        $('fsQBtnLabel').textContent = '第' + q.num + '题';
+        $('fsReplay').classList.remove('show');
+        $('fsNoVideo').classList.remove('show');
+
+        if (q.hasVideo) {
+            video.src = 'https://www.w3schools.com/html/mov_bbb.mp4';
+            video.currentTime = 0;
+            video.playbackRate = currentSpeed;
+            video.play().catch(()=>{});
+            syncPlayIcon();
+            showControls();
+        } else {
+            video.pause();
+            video.removeAttribute('src');
+            video.load();
+            $('fsNoVideo').classList.add('show');
+            $('fsControls').classList.remove('hidden');
+            clearTimeout(controlsTimer);
+            syncPlayIcon();
+            for (let i = 0; i < 3; i++) $('segFill' + i).style.width = '0';
+            $('fsCur').textContent = '00:00';
+            $('fsDur').textContent = '00:00';
+        }
+    }
+
+    /* ══════════ 题目选择面板 ══════════ */
+    function renderQGrid() {
+        $('qGrid').innerHTML = QUESTIONS.map((q, i) => {
+            let cls = 'fs-q-item';
+            if (i === currentQ) cls += ' active';
+            if (!q.hasVideo) cls += ' disabled';
+            return `<div class="${cls}" data-qi="${i}">${q.num}</div>`;
+        }).join('');
+    }
+
+    $('qGrid').addEventListener('click', e => {
+        const item = e.target.closest('.fs-q-item');
+        if (!item || item.classList.contains('disabled')) return;
+        const qi = parseInt(item.dataset.qi);
+        closeQPanel();
+        if (qi === currentQ) return;
+        switchQuestion(qi);
+    });
+
+    function openQPanel() {
+        renderQGrid();
+        $('qPanel').classList.add('open');
+        clearTimeout(controlsTimer);
+    }
+
+    function closeQPanel(e) {
+        if (e && e.target !== $('qPanel')) return;
+        $('qPanel').classList.remove('open');
+        showControls();
+    }
+
+    /* ══════════ 倍速面板 ══════════ */
+    function openSpeedPanel() {
         $('speedOptions').innerHTML = SPEEDS.map(s =>
-            `<div class="vd-speed-opt${s === currentSpeed ? ' active' : ''}" data-speed="${s}" onclick="setSpeed(${s})">${s === 1 ? '1.0x 正常' : s + 'x'}</div>`
+            `<div class="fs-speed-opt${s === currentSpeed ? ' active' : ''}" data-speed="${s}" onclick="setSpeed(${s})">${s === 1 ? '1.0x 正常' : s + 'x'}</div>`
         ).join('');
         $('speedPanel').classList.add('open');
         clearTimeout(controlsTimer);
@@ -625,191 +383,43 @@
     function setSpeed(s) {
         currentSpeed = s;
         video.playbackRate = s;
+        $('fsSpeedBtn').textContent = s === 1 ? '倍速' : s + 'x';
         $('speedPanel').classList.remove('open');
-        showToast('播放速度 ' + s + 'x');
+        showFsToast('播放速度 ' + s + 'x');
         showControls();
     }
 
     /* ── toast ── */
     let toastT = null;
-    function showToast(msg) {
-        $('vdToast').textContent = msg;
-        $('vdToast').classList.add('show');
+    function showFsToast(msg) {
+        $('fsToast').textContent = msg;
+        $('fsToast').classList.add('show');
         clearTimeout(toastT);
-        toastT = setTimeout(() => $('vdToast').classList.remove('show'), 1200);
+        toastT = setTimeout(() => $('fsToast').classList.remove('show'), 1200);
     }
 
     /* ── 导航 ── */
     function goBack() {
         video.pause();
-        window.location.href = '试卷讲解.html';
+        history.back();
     }
 
     function replayVideo() {
-        $('vdReplay').classList.remove('show');
+        $('fsReplay').classList.remove('show');
         video.currentTime = 0;
         video.play().catch(()=>{});
     }
 
-    /* ══════════ 全屏模式 ══════════ */
-    const fsVideo = $('fsVideo');
-    let fsControlsTimer = null;
-    let isFullscreen = false;
-
-    function enterFullscreen(e) {
-        if (e) e.stopPropagation();
-        isFullscreen = true;
-
-        fsVideo.src = video.src;
-        fsVideo.currentTime = video.currentTime;
-        fsVideo.playbackRate = currentSpeed;
-        $('fsSpeedBtn').textContent = currentSpeed === 1 ? '倍速' : currentSpeed + 'x';
-
-        const q = QUESTIONS[currentQ];
-        $('fsTitle').textContent = '第' + q.num + '题';
-        $('fsDur').textContent = fmt(video.duration);
-
-        $('fsOverlay').classList.add('open');
-
-        if (!video.paused) {
-            video.pause();
-            fsVideo.play().catch(()=>{});
-        }
-        syncFsPlayIcon();
-        showFsControls();
-
-        try { screen.orientation.lock('landscape').catch(()=>{}); } catch(ex) {}
-    }
-
-    function closeFs() {
-        isFullscreen = false;
-
-        video.currentTime = fsVideo.currentTime;
-        video.playbackRate = currentSpeed;
-
-        fsVideo.pause();
-        $('fsReplay').classList.remove('show');
-        $('fsOverlay').classList.remove('open');
-        $('fsSpeedPanel').classList.remove('open');
-        $('fsControls').classList.remove('hidden');
-        clearTimeout(fsControlsTimer);
-        syncPlayIcon();
-        updateSegProgress();
-
-        try { screen.orientation.unlock(); } catch(ex) {}
-    }
-
-    function syncFsPlayIcon() {
-        const d = fsVideo.paused ? PLAY_D : PAUSE_D;
-        $('fsPlayIcon').innerHTML = '<path d="' + d + '"/>';
-        $('fsCenterIcon').innerHTML = '<path d="' + d + '"/>';
-    }
-
-    function toggleFsPlay() {
-        if (fsVideo.paused) fsVideo.play().catch(()=>{});
-        else fsVideo.pause();
-    }
-
-    $('fsPlayBtn').addEventListener('click', e => { e.stopPropagation(); toggleFsPlay(); });
-    $('fsCenterPlay').addEventListener('click', e => { e.stopPropagation(); toggleFsPlay(); });
-
-    fsVideo.addEventListener('play', () => { syncFsPlayIcon(); showFsControls(); $('fsReplay').classList.remove('show'); });
-    fsVideo.addEventListener('pause', () => { syncFsPlayIcon(); showFsControls(); clearTimeout(fsControlsTimer); });
-    fsVideo.addEventListener('ended', () => {
-        syncFsPlayIcon();
-        clearTimeout(fsControlsTimer);
-        $('fsReplay').classList.add('show');
-        $('fsControls').classList.add('hidden');
-    });
-    fsVideo.addEventListener('timeupdate', () => {
-        $('fsCur').textContent = fmt(fsVideo.currentTime);
-        updateFsSegProgress();
-    });
-    fsVideo.addEventListener('loadedmetadata', () => {
-        $('fsDur').textContent = fmt(fsVideo.duration);
-    });
-
-    function showFsControls() {
-        $('fsControls').classList.remove('hidden');
-        clearTimeout(fsControlsTimer);
-        if (!fsVideo.paused) {
-            fsControlsTimer = setTimeout(() => $('fsControls').classList.add('hidden'), 4000);
-        }
-    }
-
-    let fsTapTimer = null, fsTapCount = 0;
-    $('fsTapArea').addEventListener('click', () => {
-        fsTapCount++;
-        if (fsTapCount === 1) {
-            fsTapTimer = setTimeout(() => {
-                $('fsControls').classList.contains('hidden') ? showFsControls() : $('fsControls').classList.add('hidden');
-                fsTapCount = 0;
-            }, 250);
-        } else if (fsTapCount === 2) {
-            clearTimeout(fsTapTimer);
-            fsTapCount = 0;
-            toggleFsPlay();
-        }
-    });
-
-    function updateFsSegProgress() {
-        const q = QUESTIONS[currentQ];
-        const pct = fsVideo.duration ? (fsVideo.currentTime / fsVideo.duration) : 0;
-        const segs = q.segments;
-        for (let i = 0; i < 3; i++) {
-            const start = segs[i], end = segs[i + 1];
-            const segEl = document.querySelector(`.vd-fs-seg[data-fsseg="${i}"]`);
-            let fill = 0;
-            if (pct >= end) fill = 100;
-            else if (pct > start) fill = ((pct - start) / (end - start)) * 100;
-            $('fsSegFill' + i).style.width = fill + '%';
-            segEl.classList.toggle('active', pct >= start && pct < end);
-        }
-    }
-
-    function replayFs() {
-        $('fsReplay').classList.remove('show');
-        fsVideo.currentTime = 0;
-        fsVideo.play().catch(()=>{});
-    }
-
-    /* 全屏倍速面板 */
-    function openFsSpeedPanel() {
-        $('fsSpeedOptions').innerHTML = SPEEDS.map(s =>
-            `<div class="vd-speed-opt${s === currentSpeed ? ' active' : ''}" data-speed="${s}" onclick="setFsSpeed(${s})">${s === 1 ? '1.0x 正常' : s + 'x'}</div>`
-        ).join('');
-        $('fsSpeedPanel').classList.add('open');
-        clearTimeout(fsControlsTimer);
-    }
-
-    function closeFsSpeedPanel(e) {
-        if (e && e.target !== $('fsSpeedPanel')) return;
-        $('fsSpeedPanel').classList.remove('open');
-        showFsControls();
-    }
-
-    function setFsSpeed(s) {
-        currentSpeed = s;
-        fsVideo.playbackRate = s;
-        video.playbackRate = s;
-        $('fsSpeedBtn').textContent = s === 1 ? '倍速' : s + 'x';
-        $('fsSpeedPanel').classList.remove('open');
-        showFsToast('播放速度 ' + s + 'x');
-        showFsControls();
-    }
-
-    let fsToastT = null;
-    function showFsToast(msg) {
-        $('fsToast').textContent = msg;
-        $('fsToast').classList.add('show');
-        clearTimeout(fsToastT);
-        fsToastT = setTimeout(() => $('fsToast').classList.remove('show'), 1200);
-    }
-
     /* ══════════ 初始化 ══════════ */
-    renderQnumBar();
-    renderQuestion();
+    const q = QUESTIONS[currentQ];
+    $('fsTitle').textContent = '第' + q.num + '题';
+    $('fsQBtnLabel').textContent = '第' + q.num + '题';
     syncPlayIcon();
+    showControls();
+
+    if (q.hasVideo) {
+        video.play().catch(()=>{});
+    }
     </script>
 </body>
 </html>

@@ -168,6 +168,29 @@
         .ci-btn-mic { background: rgba(139,92,246,0.08); color: #7c3aed; }
         .ci-btn-mic:active { background: rgba(139,92,246,0.15); }
 
+        /* 语音/键盘切换 */
+        .ci-btn-toggle { background: rgba(139,92,246,0.08); color: #7c3aed; }
+        .ci-btn-toggle:active { background: rgba(139,92,246,0.15); }
+
+        /* 按住说话按钮（对话页语音模式） */
+        .ci-voice-hold {
+            flex: 1; height: 40px; border-radius: 20px;
+            border: 1.5px solid #d4d0e0; background: #f5f3fa;
+            font-size: 0.875rem; font-weight: 600; color: #6b5b95;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.15s; display: none; font-family: inherit;
+            align-items: center; justify-content: center;
+            user-select: none; -webkit-user-select: none;
+        }
+        .ci-voice-hold.recording {
+            background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+            border-color: #a78bfa; color: #7c3aed;
+            transform: scale(0.97);
+        }
+        .chat-input-bar.voice-mode .ci-voice-hold { display: flex; }
+        .chat-input-bar.voice-mode .ci-textarea { display: none; }
+        .chat-input-bar.voice-mode .ci-btn-send { display: none; }
+
         /* 语音录入浮层 */
         .voice-overlay {
             position: fixed; inset: 0; z-index: 9999;
@@ -363,18 +386,19 @@
             </div>
 
             <!-- 底部输入 -->
-            <div class="chat-input-bar">
+            <div class="chat-input-bar" id="chatInputBar">
                 <div class="ci-img-preview" id="ciImgPreview">
                     <img id="ciImgThumb" src="" alt="图片">
                     <button class="ci-img-remove" id="ciImgRemove">&times;</button>
                 </div>
                 <div class="ci-row">
-                    <button class="ci-btn ci-btn-cam" id="ciCamBtn" title="拍照/上传图片">
-                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <button class="ci-btn ci-btn-toggle" id="ciVoiceToggle" title="语音/键盘切换" onclick="toggleChatVoiceMode()">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>
                     </button>
                     <textarea class="ci-textarea" id="ciInput" placeholder="输入问题，或拍照给我看…" rows="1"></textarea>
-                    <button class="ci-btn ci-btn-mic" id="ciMicBtn" title="语音输入" onclick="startVoice()">
-                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>
+                    <button class="ci-voice-hold" id="ciVoiceHold">按住说话</button>
+                    <button class="ci-btn ci-btn-cam" id="ciCamBtn" title="拍照/上传图片">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     </button>
                     <button class="ci-btn ci-btn-send" id="ciSendBtn" title="发送">
                         <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -444,8 +468,7 @@ var socraticStep = 0;
 var hasImage = false;
 var lastCardType = null;
 
-/* ── 语音输入 ── */
-var voiceTimer = null;
+/* ── 语音模式 ── */
 var voiceQuestions = [
     '帮我批改一下作业',
     '这道数学题怎么解',
@@ -453,31 +476,61 @@ var voiceQuestions = [
     '光合作用的原理是什么',
     '英语作文怎么写好开头'
 ];
-function startVoice() {
-    var ol = document.getElementById('voiceOverlay');
-    document.getElementById('voiceStatus').textContent = '正在聆听…';
-    document.getElementById('voiceHint').textContent = '请说出你的问题';
-    document.getElementById('voiceText').textContent = '';
-    document.getElementById('voiceRing').style.background = 'linear-gradient(135deg, #8b5cf6, #7c3aed)';
-    ol.classList.add('show');
-    voiceTimer = setTimeout(function() {
-        document.getElementById('voiceStatus').textContent = '识别中…';
-        document.getElementById('voiceHint').textContent = '正在转文字';
-        voiceTimer = setTimeout(function() {
-            var q = voiceQuestions[Math.floor(Math.random() * voiceQuestions.length)];
-            document.getElementById('voiceStatus').textContent = '识别完成';
-            document.getElementById('voiceHint').textContent = '';
-            document.getElementById('voiceText').textContent = '「' + q + '」';
-            document.getElementById('voiceRing').style.background = 'linear-gradient(135deg, #10b981, #059669)';
-            voiceTimer = setTimeout(function() {
-                ol.classList.remove('show');
-                hideEmpty();
-                appendUserMsg(q, null);
-                routeReply(q, false);
-            }, 1200);
-        }, 1000);
-    }, 2000);
+var chatVoiceMode = false;
+var voiceTimer = null;
+var ciMicSvg = '<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>';
+var ciKbSvg = '<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 16h8"/></svg>';
+
+function toggleChatVoiceMode(forceVoice) {
+    var bar = document.getElementById('chatInputBar');
+    var toggleBtn = document.getElementById('ciVoiceToggle');
+    if (forceVoice === true) {
+        chatVoiceMode = true;
+        bar.classList.add('voice-mode');
+    } else if (forceVoice === false) {
+        chatVoiceMode = false;
+        bar.classList.remove('voice-mode');
+    } else {
+        chatVoiceMode = !chatVoiceMode;
+        bar.classList.toggle('voice-mode', chatVoiceMode);
+    }
+    toggleBtn.innerHTML = chatVoiceMode ? ciKbSvg : ciMicSvg;
+    if (!chatVoiceMode) setTimeout(function() { ciInput.focus(); }, 100);
 }
+
+/* ── 按住说话（点击触发识别演示） ── */
+(function() {
+    var btn = document.getElementById('ciVoiceHold');
+    if (!btn) return;
+    btn.addEventListener('click', function() {
+        btn.classList.add('recording');
+        btn.textContent = '正在录音…';
+        setTimeout(function() {
+            btn.classList.remove('recording');
+            btn.textContent = '按住说话';
+            var ol = document.getElementById('voiceOverlay');
+            document.getElementById('voiceStatus').textContent = '识别中…';
+            document.getElementById('voiceHint').textContent = '正在转文字';
+            document.getElementById('voiceText').textContent = '';
+            document.getElementById('voiceRing').style.background = 'linear-gradient(135deg, #8b5cf6, #7c3aed)';
+            ol.classList.add('show');
+            voiceTimer = setTimeout(function() {
+                var q = voiceQuestions[Math.floor(Math.random() * voiceQuestions.length)];
+                document.getElementById('voiceStatus').textContent = '识别完成';
+                document.getElementById('voiceHint').textContent = '';
+                document.getElementById('voiceText').textContent = '「' + q + '」';
+                document.getElementById('voiceRing').style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                voiceTimer = setTimeout(function() {
+                    document.getElementById('voiceOverlay').classList.remove('show');
+                    hideEmpty();
+                    appendUserMsg(q, null);
+                    routeReply(q, false);
+                }, 1200);
+            }, 800);
+        }, 1000);
+    });
+})();
+
 function cancelVoice() {
     if (voiceTimer) { clearTimeout(voiceTimer); voiceTimer = null; }
     document.getElementById('voiceOverlay').classList.remove('show');
@@ -943,6 +996,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (source === 'home-focus') {
             sessionStorage.removeItem('aiSource');
             setTimeout(function() { ciInput.focus(); }, 300);
+            return;
+        }
+
+        if (source === 'home-voice-mode') {
+            sessionStorage.removeItem('aiSource');
+            toggleChatVoiceMode(true);
             return;
         }
 

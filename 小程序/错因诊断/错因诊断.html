@@ -86,6 +86,115 @@
             display: flex; align-items: center; gap: 8px;
         }
         #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* 模式切换按钮（页面右上角） */
+        .mode-toggle {
+            position: fixed; top: 24px; right: 32px; z-index: 900;
+            display: flex; background: #fff; border-radius: 12px;
+            box-shadow: 0 4px 24px -4px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .mode-toggle button {
+            padding: 10px 24px; border: none; background: transparent;
+            color: #94a3b8; cursor: pointer; font-family: inherit;
+            font-size: 0.8125rem; font-weight: 600; transition: all 0.2s;
+        }
+        .mode-toggle button.active { background: #7c3aed; color: #fff; }
+
+        /* ── 过稿面板 ── */
+        .review-panel {
+            position: fixed; top: 60px; right: 32px;
+            width: 380px; height: 520px; min-width: 280px; min-height: 300px;
+            background: #fff; z-index: 1500; border-radius: 16px;
+            box-shadow: 0 12px 48px -8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06);
+            display: none; flex-direction: column;
+            font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+            overflow: hidden;
+        }
+        .review-panel.open { display: flex; }
+        .rp-header {
+            padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+            cursor: move; user-select: none; -webkit-user-select: none;
+            background: linear-gradient(180deg, #faf8ff, #fff);
+        }
+        .rp-header h2 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0; pointer-events: none; }
+        .rp-header span { font-size: 11px; color: #94a3b8; pointer-events: none; }
+        .rp-close {
+            width: 26px; height: 26px; border-radius: 8px; border: none;
+            background: #f8fafc; color: #64748b; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+        }
+        .rp-close:hover { background: #fee2e2; color: #ef4444; }
+        .rp-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+        .rp-body::-webkit-scrollbar { width: 4px; }
+        .rp-body::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 2px; }
+        .rp-section { margin-bottom: 16px; }
+        .rp-section-title {
+            font-size: 11px; font-weight: 700; color: #7c3aed; text-transform: uppercase;
+            letter-spacing: 0.05em; margin-bottom: 8px;
+            padding-bottom: 6px; border-bottom: 1px solid #f5f3ff;
+        }
+        .rp-item {
+            padding: 10px 12px; margin-bottom: 6px;
+            border-radius: 10px; background: #faf8ff; border: 1px solid #f0ecff;
+            cursor: pointer; transition: all .15s;
+        }
+        .rp-item:hover { background: #f0ecff; border-color: #c4b5fd; }
+        .rp-item.rp-highlight { background: #ede9fe; border-color: #8b5cf6; }
+        .rp-item-id {
+            font-size: 10px; font-weight: 600; color: #a78bfa;
+            font-family: 'SF Mono', 'Menlo', monospace; margin-bottom: 3px;
+        }
+        .rp-item-prd { font-size: 12px; color: #334155; line-height: 1.5; }
+        .rp-item-track {
+            font-size: 10px; color: #94a3b8; margin-top: 4px;
+            font-family: 'SF Mono', 'Menlo', monospace; word-break: break-all;
+        }
+
+        [data-doc].review-highlight {
+            outline: 2px solid #8b5cf6 !important;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        .rp-tabs {
+            display: flex; border-bottom: 1px solid #f1f5f9; flex-shrink: 0;
+            padding: 0 12px; gap: 2px; background: #faf8ff;
+        }
+        .rp-tab {
+            flex: 1; padding: 8px 0; font-size: 12px; font-weight: 600;
+            color: #94a3b8; background: none; border: none; border-bottom: 2px solid transparent;
+            cursor: pointer; font-family: inherit; transition: all .15s;
+        }
+        .rp-tab.active { color: #7c3aed; border-bottom-color: #7c3aed; }
+        .rp-tab:hover:not(.active) { color: #64748b; }
+
+        .rp-mdoc { padding: 16px; font-size: 13px; color: #334155; line-height: 1.7; }
+        .rp-mdoc h1 { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 2px solid #ede9fe; }
+        .rp-mdoc h2 { font-size: 14px; font-weight: 700; color: #1e1b4b; margin: 20px 0 8px; padding: 6px 10px; background: #f5f3ff; border-radius: 6px; border-left: 3px solid #7c3aed; }
+        .rp-mdoc h3 { font-size: 13px; font-weight: 700; color: #0f172a; margin: 14px 0 4px; }
+        .rp-mdoc h4 { font-size: 12px; font-weight: 700; color: #475569; margin: 10px 0 4px; }
+        .rp-mdoc p { margin: 0 0 6px; }
+        .rp-mdoc ul { padding-left: 16px; margin: 0 0 8px; }
+        .rp-mdoc li { margin-bottom: 3px; }
+        .rp-mdoc table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 12px; }
+        .rp-mdoc th { background: #f8fafc; font-weight: 600; color: #475569; text-align: left; padding: 6px 8px; border: 1px solid #e2e8f0; }
+        .rp-mdoc td { padding: 5px 8px; border: 1px solid #e2e8f0; vertical-align: top; }
+        .rp-mdoc blockquote { margin: 6px 0; padding: 6px 10px; background: #f0fdf4; border-left: 3px solid #22c55e; border-radius: 0 6px 6px 0; font-size: 12px; color: #166534; }
+        .rp-mdoc code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 11px; font-family: 'SF Mono', 'Menlo', monospace; }
+        .rp-mdoc hr { border: none; border-top: 1px solid #e2e8f0; margin: 16px 0; }
+        .rp-mdoc .prd-note { margin: 6px 0; padding: 6px 10px; background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 0 6px 6px 0; font-size: 11px; color: #991b1b; }
+
+        .rp-resize { position: absolute; z-index: 10; }
+        .rp-resize-e { top: 0; right: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-w { top: 0; left: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-s { bottom: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-n { top: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-se { bottom: -4px; right: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
+        .rp-resize-sw { bottom: -4px; left: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-ne { top: -4px; right: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-nw { top: -4px; left: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
     </style>
 </head>
 <body>
@@ -170,6 +279,41 @@
                 <button onclick="goBackFromSingle()" class="app-btn-primary app-btn-row w-full">返回错题本</button>
             </div>
         </div>
+    </div>
+
+    <!-- 过稿面板 -->
+    <div class="review-panel" id="reviewPanel">
+        <div class="rp-resize rp-resize-n" data-dir="n"></div>
+        <div class="rp-resize rp-resize-s" data-dir="s"></div>
+        <div class="rp-resize rp-resize-e" data-dir="e"></div>
+        <div class="rp-resize rp-resize-w" data-dir="w"></div>
+        <div class="rp-resize rp-resize-ne" data-dir="ne"></div>
+        <div class="rp-resize rp-resize-nw" data-dir="nw"></div>
+        <div class="rp-resize rp-resize-se" data-dir="se"></div>
+        <div class="rp-resize rp-resize-sw" data-dir="sw"></div>
+        <div class="rp-header" id="rpHeader">
+            <div>
+                <h2>📋 产品稿 · 错因诊断</h2>
+                <span id="rpCount"></span>
+            </div>
+            <button class="rp-close" onclick="setMode('demo')">✕</button>
+        </div>
+        <div class="rp-tabs">
+            <button class="rp-tab active" data-tab="doc" onclick="switchTab('doc')">📄 产品文档</button>
+            <button class="rp-tab" data-tab="els" onclick="switchTab('els')">📌 元素标注</button>
+        </div>
+        <div class="rp-body" id="rpBody">
+            <div class="rp-tab-content" id="rpTabDoc">
+                <div class="rp-mdoc" id="rpDocContent">加载中…</div>
+            </div>
+            <div class="rp-tab-content" id="rpTabEls" style="display:none"></div>
+        </div>
+    </div>
+
+    <!-- 模式切换（右上角） -->
+    <div class="mode-toggle" id="modeToggle">
+        <button class="active" onclick="setMode('demo')">演示</button>
+        <button onclick="setMode('review')">过稿</button>
     </div>
 
     <script>
@@ -653,6 +797,249 @@
                 setTimeout(function() { openDetail(wrongIndices[0]); }, 300);
             }
         }
+
+        /* ── 过稿模式 ── */
+        var reviewOpen = false;
+        var reviewNodes = [];
+        var rpPanel = null;
+        var prdLoaded = false;
+        var elsBuilt = false;
+
+        function renderMd(md) {
+            var inCode = false, codeLines = [], inTable = false, tableLines = [];
+            var out = [];
+            md.split('\n').forEach(function(line) {
+                if (line.match(/^```/)) {
+                    if (inCode) { out.push('<pre><code>' + codeLines.join('\n') + '</code></pre>'); codeLines = []; }
+                    inCode = !inCode; return;
+                }
+                if (inCode) { codeLines.push(line.replace(/</g,'&lt;')); return; }
+                if (line.match(/^\|.+\|$/)) {
+                    if (line.match(/^\|[\s:|-]+\|$/)) return;
+                    var cells = line.split('|').filter(function(c,i,a){return i>0&&i<a.length-1;}).map(function(c){return c.trim();});
+                    if (!inTable) { inTable = true; tableLines = []; }
+                    tableLines.push(cells);
+                    return;
+                }
+                if (inTable) { flushTable(); inTable = false; }
+                if (line.match(/^#{1}\s/)) { out.push('<h1>'+inline(line.replace(/^#\s+/,''))+'</h1>'); return; }
+                if (line.match(/^#{2}\s/)) { out.push('<h2>'+inline(line.replace(/^##\s+/,''))+'</h2>'); return; }
+                if (line.match(/^#{3}\s/)) { out.push('<h3>'+inline(line.replace(/^###\s+/,''))+'</h3>'); return; }
+                if (line.match(/^#{4}\s/)) { out.push('<h4>'+inline(line.replace(/^####\s+/,''))+'</h4>'); return; }
+                if (line.match(/^>\s+/)) { out.push('<blockquote>'+inline(line.replace(/^>\s+/,''))+'</blockquote>'); return; }
+                if (line.match(/^\[!\]/)) { out.push('<div class="prd-note">'+inline(line.replace(/^\[!\]\s*/,''))+'</div>'); return; }
+                if (line.match(/^---$/)) { out.push('<hr>'); return; }
+                if (line.match(/^[-*]\s/)) { out.push('<li>'+inline(line.replace(/^[-*]\s+/,''))+'</li>'); return; }
+                if (line.match(/^\d+\.\s/)) { out.push('<li>'+inline(line.replace(/^\d+\.\s+/,''))+'</li>'); return; }
+                if (line.trim()) out.push('<p>'+inline(line)+'</p>');
+            });
+            if (inTable) flushTable();
+            function flushTable() {
+                var h='<table><thead><tr>'+tableLines[0].map(function(c){return '<th>'+inline(c)+'</th>';}).join('')+'</tr></thead><tbody>';
+                for(var i=1;i<tableLines.length;i++) h+='<tr>'+tableLines[i].map(function(c){return '<td>'+inline(c)+'</td>';}).join('')+'</tr>';
+                out.push(h+'</tbody></table>');
+            }
+            function inline(s) {
+                return s
+                    .replace(/`([^`]+)`/g, '<code>$1</code>')
+                    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            }
+            return out.join('\n');
+        }
+
+        function loadPrdDoc() {
+            prdLoaded = true;
+            fetch('../docs/prd/错因诊断.md')
+                .then(function(r) { return r.ok ? r.text() : Promise.reject(); })
+                .then(function(md) {
+                    document.getElementById('rpDocContent').innerHTML = renderMd(md);
+                })
+                .catch(function() {
+                    document.getElementById('rpDocContent').textContent = '未找到 docs/prd/错因诊断.md 文件';
+                });
+        }
+
+        function buildElsPanel() {
+            elsBuilt = true;
+            var els = document.querySelectorAll('[data-doc]');
+            var sections = {};
+            els.forEach(function(el) {
+                var doc = el.getAttribute('data-doc') || '';
+                var prd = el.getAttribute('data-prd') || '';
+                var track = el.getAttribute('data-track') || '';
+                if (!prd && !track) return;
+                var sec = doc.split('-')[0] || '其他';
+                if (!sections[sec]) sections[sec] = [];
+                sections[sec].push({ el: el, doc: doc, prd: prd, track: track });
+            });
+            var container = document.getElementById('rpTabEls');
+            container.innerHTML = '';
+            var total = 0;
+            Object.keys(sections).forEach(function(sec) {
+                var div = document.createElement('div');
+                div.className = 'rp-section';
+                div.innerHTML = '<div class="rp-section-title">' + sec + '</div>';
+                sections[sec].forEach(function(item) {
+                    total++;
+                    var card = document.createElement('div');
+                    card.className = 'rp-item';
+                    card.innerHTML =
+                        '<div class="rp-item-id">' + item.doc + '</div>' +
+                        (item.prd ? '<div class="rp-item-prd">' + item.prd + '</div>' : '') +
+                        (item.track ? '<div class="rp-item-track">📊 ' + item.track + '</div>' : '');
+                    card.onclick = function() {
+                        reviewNodes.forEach(function(n) { n.el.classList.remove('review-highlight'); });
+                        document.querySelectorAll('.rp-item').forEach(function(i) { i.classList.remove('rp-highlight'); });
+                        item.el.classList.add('review-highlight');
+                        card.classList.add('rp-highlight');
+                        item.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    };
+                    div.appendChild(card);
+                    reviewNodes.push(item);
+                });
+                container.appendChild(div);
+            });
+            document.getElementById('rpCount').textContent = total + ' 个标注项';
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.rp-tab').forEach(function(t) { t.classList.toggle('active', t.dataset.tab === tab); });
+            document.getElementById('rpTabDoc').style.display = tab === 'doc' ? '' : 'none';
+            document.getElementById('rpTabEls').style.display = tab === 'els' ? '' : 'none';
+            if (tab === 'doc' && !prdLoaded) loadPrdDoc();
+            if (tab === 'els' && !elsBuilt) buildElsPanel();
+        }
+
+        var _currentMode = 'demo';
+        function setMode(mode) {
+            if (mode === _currentMode) return;
+            _currentMode = mode;
+            var btns = document.querySelectorAll('#modeToggle button');
+            btns.forEach(function(b, i) { b.classList.toggle('active', mode === 'demo' ? i === 0 : i === 1); });
+            rpPanel = document.getElementById('reviewPanel');
+            if (mode === 'review') {
+                reviewOpen = true;
+                rpPanel.classList.add('open');
+                if (!prdLoaded) loadPrdDoc();
+            } else {
+                reviewOpen = false;
+                rpPanel.classList.remove('open');
+                reviewNodes.forEach(function(n) { n.el.classList.remove('review-highlight'); });
+            }
+        }
+
+        document.getElementById('modeToggle').addEventListener('click', function(e) { e.stopPropagation(); });
+
+        if (new URLSearchParams(window.location.search).get('mode') === 'review') {
+            setTimeout(function() { _currentMode = 'demo'; setMode('review'); }, 100);
+        }
+
+        /* ── 拖拽移动 ── */
+        (function() {
+            var panel, header, dragging = false, ox, oy, sx, sy;
+            document.addEventListener('DOMContentLoaded', function() {
+                panel = document.getElementById('reviewPanel');
+                header = document.getElementById('rpHeader');
+                header.addEventListener('mousedown', startDrag);
+                header.addEventListener('touchstart', startDragTouch, { passive: false });
+                panel.querySelectorAll('.rp-resize').forEach(function(h) {
+                    h.addEventListener('mousedown', startResize);
+                    h.addEventListener('touchstart', startResizeTouch, { passive: false });
+                });
+            });
+            function startDrag(e) {
+                if (e.target.closest('.rp-close')) return;
+                dragging = true;
+                ox = e.clientX; oy = e.clientY;
+                sx = panel.offsetLeft; sy = panel.offsetTop;
+                document.addEventListener('mousemove', onDrag);
+                document.addEventListener('mouseup', stopDrag);
+                e.preventDefault();
+            }
+            function startDragTouch(e) {
+                if (e.target.closest('.rp-close')) return;
+                dragging = true;
+                var t = e.touches[0];
+                ox = t.clientX; oy = t.clientY;
+                sx = panel.offsetLeft; sy = panel.offsetTop;
+                document.addEventListener('touchmove', onDragTouch, { passive: false });
+                document.addEventListener('touchend', stopDrag);
+                e.preventDefault();
+            }
+            function onDrag(e) { if (dragging) moveTo(e.clientX, e.clientY); }
+            function onDragTouch(e) {
+                if (!dragging) return;
+                var t = e.touches[0];
+                moveTo(t.clientX, t.clientY);
+                e.preventDefault();
+            }
+            function moveTo(cx, cy) {
+                var nx = sx + (cx - ox);
+                var ny = sy + (cy - oy);
+                nx = Math.max(0, Math.min(nx, window.innerWidth - 80));
+                ny = Math.max(0, Math.min(ny, window.innerHeight - 40));
+                panel.style.left = nx + 'px';
+                panel.style.top = ny + 'px';
+                panel.style.right = 'auto';
+            }
+            function stopDrag() {
+                dragging = false;
+                document.removeEventListener('mousemove', onDrag);
+                document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchmove', onDragTouch);
+                document.removeEventListener('touchend', stopDrag);
+            }
+
+            var resizing = false, rDir, rox, roy, rRect;
+            function startResize(e) {
+                rDir = e.target.dataset.dir;
+                resizing = true;
+                rox = e.clientX; roy = e.clientY;
+                rRect = { l: panel.offsetLeft, t: panel.offsetTop, w: panel.offsetWidth, h: panel.offsetHeight };
+                document.addEventListener('mousemove', onResize);
+                document.addEventListener('mouseup', stopResize);
+                e.preventDefault(); e.stopPropagation();
+            }
+            function startResizeTouch(e) {
+                rDir = e.target.dataset.dir;
+                resizing = true;
+                var t = e.touches[0];
+                rox = t.clientX; roy = t.clientY;
+                rRect = { l: panel.offsetLeft, t: panel.offsetTop, w: panel.offsetWidth, h: panel.offsetHeight };
+                document.addEventListener('touchmove', onResizeTouch, { passive: false });
+                document.addEventListener('touchend', stopResize);
+                e.preventDefault(); e.stopPropagation();
+            }
+            function onResize(e) { if (resizing) applyResize(e.clientX, e.clientY); }
+            function onResizeTouch(e) {
+                if (!resizing) return;
+                var t = e.touches[0];
+                applyResize(t.clientX, t.clientY);
+                e.preventDefault();
+            }
+            function applyResize(cx, cy) {
+                var dx = cx - rox, dy = cy - roy;
+                var minW = 280, minH = 300;
+                var nl = rRect.l, nt = rRect.t, nw = rRect.w, nh = rRect.h;
+                if (rDir.indexOf('e') >= 0) nw = Math.max(minW, rRect.w + dx);
+                if (rDir.indexOf('w') >= 0) { nw = Math.max(minW, rRect.w - dx); nl = rRect.l + rRect.w - nw; }
+                if (rDir.indexOf('s') >= 0) nh = Math.max(minH, rRect.h + dy);
+                if (rDir.indexOf('n') >= 0) { nh = Math.max(minH, rRect.h - dy); nt = rRect.t + rRect.h - nh; }
+                panel.style.width = nw + 'px';
+                panel.style.height = nh + 'px';
+                panel.style.left = nl + 'px';
+                panel.style.top = nt + 'px';
+                panel.style.right = 'auto';
+            }
+            function stopResize() {
+                resizing = false;
+                document.removeEventListener('mousemove', onResize);
+                document.removeEventListener('mouseup', stopResize);
+                document.removeEventListener('touchmove', onResizeTouch);
+                document.removeEventListener('touchend', stopResize);
+            }
+        })();
     </script>
 </body>
 </html>
