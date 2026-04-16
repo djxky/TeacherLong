@@ -70,7 +70,8 @@
                 <div class="topbar-spacer"></div>
             </div>
             <div class="flex gap-5 px-5 border-b border-gray-100">
-                <button class="mode-tab active" data-mode="correction" onclick="switchMode('correction', this)">作业批改</button>
+                <button class="mode-tab active" data-mode="chat" onclick="switchMode('chat', this)">对话</button>
+                <button class="mode-tab" data-mode="correction" onclick="switchMode('correction', this)">作业批改</button>
                 <button class="mode-tab" data-mode="qa" onclick="switchMode('qa', this)">拍照答疑</button>
                 <button class="mode-tab" data-mode="diagnosis" onclick="switchMode('diagnosis', this)">错因诊断</button>
             </div>
@@ -90,10 +91,18 @@
     </div>
 
     <script>
-        var currentMode = 'correction';
+        var currentMode = 'chat';
         var currentFilter = 'all';
 
         var HISTORY_DATA = {
+            chat: [
+                { id: 'ch01', date: '今天', time: '14:32', subject: '数学', title: '方程求解的方法', preview: '太棒了！你自己想出来的…', questionCount: 12 },
+                { id: 'ch02', date: '今天', time: '14:06', subject: '数学', title: '作业批改 · 数学 14题', preview: '批改完了！有 3 道错题…', questionCount: 8 },
+                { id: 'ch03', date: '今天', time: '11:20', subject: '科学', title: '天空为什么是蓝色的', preview: '因为「瑞利散射」…', questionCount: 6 },
+                { id: 'ch04', date: '昨天', time: '16:45', subject: '英语', title: '英语作文开头怎么写', preview: '好的开头可以用这几种…', questionCount: 10 },
+                { id: 'ch05', date: '昨天', time: '14:10', subject: '数学', title: '错因诊断 · 计算类分析', preview: '计算类错误最多…', questionCount: 14 },
+                { id: 'ch07', date: '1月20日', time: '20:15', subject: '科学', title: '恐龙灭绝的原因', preview: '最被认可的理论是小行星撞击…', questionCount: 8 },
+            ],
             correction: [
                 { id: 'c1', date: '今天', time: '14:06', subject: '数学', image: 'assets/homework-sample.png', questionCount: 14 },
                 { id: 'c2', date: '昨天', time: '16:30', subject: '数学', image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop', questionCount: 8 },
@@ -164,8 +173,26 @@
             var html = '';
             Object.keys(grouped).forEach(function(date) {
                 html += '<div class="mt-4"><div class="date-label">' + date + '</div>';
-                html += '<div class="grid grid-cols-2 gap-3">';
+                html += '<div class="grid ' + (currentMode === 'chat' ? 'grid-cols-1' : 'grid-cols-2') + ' gap-3">';
                 grouped[date].forEach(function(item) {
+                    if (currentMode === 'chat') {
+                        var chatHref = '对话.html?id=' + item.id;
+                        html += '<div class="history-card" style="grid-column:1/-1;" onclick="sessionStorage.setItem(\'aiSource\',\'history-resume\');sessionStorage.setItem(\'aiChatId\',\'' + item.id + '\');window.location.href=\'' + chatHref + '\'">';
+                        html += '  <div class="px-4 py-3">';
+                        html += '    <div class="flex items-center justify-between mb-1">';
+                        html += '      <div class="text-sm text-slate-800 font-semibold" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (item.title || '对话') + '</div>';
+                        html += '      <div class="text-xs text-slate-400 flex-shrink-0 ml-2">' + item.time + '</div>';
+                        html += '    </div>';
+                        html += '    <div class="text-xs text-slate-400" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (item.preview || '') + '</div>';
+                        html += '    <div class="flex items-center gap-2 mt-1.5">';
+                        html += '      <span class="text-xs px-2 py-0.5 rounded bg-violet-50 text-violet-500 font-medium">' + item.subject + '</span>';
+                        html += '      <span class="text-xs text-slate-300">' + item.questionCount + ' 条消息</span>';
+                        html += '    </div>';
+                        html += '  </div>';
+                        html += '</div>';
+                        return;
+                    }
+
                     var subtitle = '共' + item.questionCount + '题';
                     if (currentMode === 'diagnosis' && item.wrongCount !== undefined) {
                         subtitle = item.wrongCount + '题错误';
