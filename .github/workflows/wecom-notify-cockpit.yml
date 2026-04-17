@@ -1,0 +1,38 @@
+# 驾驶舱目录有推送到 main 时，向指定企业微信群发通知
+# GitHub → Settings → Secrets → Actions：WEWORK_WEBHOOK_COCKPIT = 驾驶舱群机器人 Webhook
+
+name: 企微通知 · 驾驶舱
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "驾驶舱/**"
+
+jobs:
+  notify-wecom-cockpit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 发送到企业微信（驾驶舱群）
+        env:
+          WEWORK_WEBHOOK_URL: ${{ secrets.WEWORK_WEBHOOK_COCKPIT }}
+        run: |
+          if [ -z "${WEWORK_WEBHOOK_URL:-}" ]; then
+            echo "未配置 Secret：WEWORK_WEBHOOK_COCKPIT，跳过企微通知。"
+            exit 0
+          fi
+          PREVIEW_URL='https://djxky.github.io/TeacherLong/%E9%A9%BE%E9%A9%B6%E8%88%B1/%E9%BE%99%E8%80%81%E5%B8%88%E6%95%B0%E6%8D%AE%E9%A9%BE%E9%A9%B6%E8%88%B1-demo.html'
+
+          MSG="$(printf '%s\n' \
+            "产品稿变更通知" \
+            "" \
+            "产品稿链接：" \
+            "${PREVIEW_URL}")"
+
+          jq -n --arg text "$MSG" '{msgtype:"text",text:{content:$text}}' | \
+            curl -sfS -X POST "$WEWORK_WEBHOOK_URL" \
+              -H 'Content-Type: application/json' \
+              -d @- \
+            || { echo "企微 Webhook 请求失败"; exit 1; }
+          echo "企微通知已发送（驾驶舱）。"
