@@ -16,24 +16,20 @@
 
         /* ── 顶栏 ── */
         .chat-header {
-            padding: 50px 16px 10px;
+            padding: 56px 20px 8px;
             padding-right: var(--app-capsule-clearance, 96px);
-            display: flex; align-items: center; gap: 12px;
+            display: flex; align-items: center; gap: 8px;
             flex-shrink: 0; position: relative; z-index: 20;
         }
-        .ch-back { padding: 6px; margin: -6px; color: #1e293b; background: none; border: none; cursor: pointer; }
-        .ch-avatar {
+        .ch-back {
             width: 32px; height: 32px; border-radius: 50%;
-            object-fit: cover; object-position: top center;
-            border: 2px solid rgba(139,92,246,0.15);
+            display: flex; align-items: center; justify-content: center;
+            color: #1e293b; background: none; border: none; cursor: pointer;
+            transition: all 0.18s; -webkit-tap-highlight-color: transparent;
         }
+        .ch-back:active { transform: scale(0.9); background: rgba(0,0,0,0.03); }
         .ch-info { flex: 1; min-width: 0; }
-        .ch-name { font-size: 15px; font-weight: 700; color: #1e1b4b; }
-        .ch-status {
-            font-size: 11px; color: #22c55e; font-weight: 600;
-            display: flex; align-items: center; gap: 4px;
-        }
-        .ch-dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
+        .ch-name { font-size: 1.0625rem; font-weight: 700; color: #0f172a; }
         .ch-action-btn {
             width: 34px; height: 34px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
@@ -258,31 +254,52 @@
         .voice-panel.cancelling .vp-status { color: #ef4444; }
         .voice-panel.cancelling .vp-wave-bar { background: #fca5a5; }
 
-        /* ── 快捷提示（空状态） ── */
+        /* ── 空状态（参考 ChatGPT / Kimi / 豆包风格） ── */
         .chat-empty {
             flex: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; gap: 16px;
-            padding: 40px 20px;
+            align-items: center; justify-content: space-between;
+            padding: 0 20px;
+            min-height: 0;
         }
-        .ce-avatar {
-            width: 64px; height: 64px; border-radius: 50%;
-            object-fit: cover; object-position: top center;
-            border: 3px solid rgba(139,92,246,0.12);
+        .ce-hero {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 6px; padding-bottom: 32px;
         }
-        .ce-title { font-size: 16px; font-weight: 700; color: #1e1b4b; }
-        .ce-desc { font-size: 12.5px; color: #94a3b8; text-align: center; line-height: 1.5; }
-        .ce-chips {
-            display: flex; flex-wrap: wrap; justify-content: center;
-            gap: 8px; margin-top: 4px;
+        .ce-greeting {
+            font-size: 1.375rem; font-weight: 800; line-height: 1.4;
+            text-align: center; letter-spacing: -0.01em; white-space: nowrap;
+            background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 50%, #6d28d9 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .ce-chip {
-            padding: 8px 14px; border-radius: 20px;
-            background: #fff; border: 1px solid #e8e5f0;
-            font-size: 12px; font-weight: 600; color: #6d28d9;
-            cursor: pointer; transition: all 0.15s;
+        .ce-sub {
+            font-size: 0.875rem; color: #94a3b8; font-weight: 400;
+            text-align: center;
+        }
+        .ce-prompts {
+            width: 100%; display: flex; flex-direction: column;
+            gap: 8px; padding-bottom: 16px;
+        }
+        .ce-prompt {
+            display: flex; align-items: center; gap: 10px;
+            padding: 13px 16px; border-radius: 12px;
+            background: rgba(255,255,255,0.65);
+            border: 1px solid rgba(0,0,0,0.04);
             box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            cursor: pointer; transition: all 0.18s;
+            -webkit-tap-highlight-color: transparent;
         }
-        .ce-chip:active { transform: scale(0.96); background: #f5f3ff; border-color: #c4b5fd; }
+        .ce-prompt:active { transform: scale(0.98); background: rgba(255,255,255,0.85); }
+        .ce-prompt-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
+        .ce-prompt-text {
+            font-size: 0.8125rem; font-weight: 500; color: #475569;
+            line-height: 1.4; flex: 1; min-width: 0;
+        }
+        .ce-prompt-arrow {
+            flex-shrink: 0; color: #c4b5fd; transition: transform 0.18s;
+        }
+        .ce-prompt:active .ce-prompt-arrow { transform: translateX(2px); }
 
         @keyframes msgIn {
             from { opacity: 0; transform: translateY(8px); }
@@ -380,15 +397,11 @@
 
         <div class="page-wrap">
             <!-- 顶栏 -->
-            <div class="chat-header" data-doc="chat-header" data-prd="对话页顶栏：返回、AI头像与状态、对话历史入口">
+            <div class="chat-header" data-doc="chat-header" data-prd="对话页顶栏：返回 + 对话历史入口">
                 <button class="ch-back" onclick="goBack()" data-doc="back" data-prd="返回上一页">
                     <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                 </button>
-                <img src="assets/logo.png" alt="AI 龙老师" class="ch-avatar">
-                <div class="ch-info">
-                    <div class="ch-name">AI 龙老师</div>
-                    <div class="ch-status"><span class="ch-dot"></span>在线</div>
-                </div>
+                <div class="ch-info"><div class="ch-name">AI 龙老师</div></div>
                 <button class="ch-action-btn" onclick="goToHistory()" title="对话历史" data-doc="chat-history" data-prd="跳转对话历史列表页" data-track="/click/chat/history | 对话历史 | 无">
                     <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </button>
@@ -398,14 +411,31 @@
             <div class="chat-body" id="chatBody">
                 <!-- 空状态 -->
                 <div class="chat-empty" id="emptyState">
-                    <img src="assets/logo.png" alt="AI 龙老师" class="ce-avatar">
-                    <div class="ce-title">有什么我能帮你的？</div>
-                    <div class="ce-desc">直接打字提问，我来帮你解答</div>
-                    <div class="ce-chips">
-                        <div class="ce-chip" onclick="quickSend('为什么天空是蓝色的')">🌏 天空为什么是蓝色的</div>
-                        <div class="ce-chip" onclick="quickSend('恐龙是怎么灭绝的')">🦕 恐龙灭绝之谜</div>
-                        <div class="ce-chip" onclick="quickSend('人体有多少块骨头')">🦴 人体的骨头</div>
-                        <div class="ce-chip" onclick="quickSend('光的速度有多快')">⚡ 光速有多快</div>
+                    <div class="ce-hero">
+                        <div class="ce-greeting">Hi，我是 AI 龙老师</div>
+                        <div class="ce-sub">有什么问题，尽管问我</div>
+                    </div>
+                    <div class="ce-prompts">
+                        <div class="ce-prompt" onclick="quickSend('为什么天空是蓝色的')">
+                            <span class="ce-prompt-icon">🌏</span>
+                            <span class="ce-prompt-text">天空为什么是蓝色的</span>
+                            <svg class="ce-prompt-arrow" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </div>
+                        <div class="ce-prompt" onclick="quickSend('恐龙是怎么灭绝的')">
+                            <span class="ce-prompt-icon">🦕</span>
+                            <span class="ce-prompt-text">恐龙是怎么灭绝的</span>
+                            <svg class="ce-prompt-arrow" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </div>
+                        <div class="ce-prompt" onclick="quickSend('人体有多少块骨头')">
+                            <span class="ce-prompt-icon">🦴</span>
+                            <span class="ce-prompt-text">人体有多少块骨头</span>
+                            <svg class="ce-prompt-arrow" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </div>
+                        <div class="ce-prompt" onclick="quickSend('光的速度有多快')">
+                            <span class="ce-prompt-icon">⚡</span>
+                            <span class="ce-prompt-text">光速有多快</span>
+                            <svg class="ce-prompt-arrow" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </div>
                     </div>
                 </div>
             </div>
