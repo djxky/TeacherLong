@@ -264,6 +264,73 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* ── 模式切换按钮（页面右上角） ── */
+        .mode-toggle {
+            position: fixed; top: 24px; right: 32px; z-index: 900;
+            display: flex; background: #fff; border-radius: 12px;
+            box-shadow: 0 4px 24px -4px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .mode-toggle button {
+            padding: 10px 24px; border: none; background: transparent;
+            color: #94a3b8; cursor: pointer; font-family: inherit;
+            font-size: 0.8125rem; font-weight: 600; transition: all 0.2s;
+        }
+        .mode-toggle button.active { background: #7c3aed; color: #fff; }
+
+        /* ── 过稿面板 ── */
+        .review-panel {
+            position: fixed; top: 60px; right: 32px;
+            width: 380px; height: 520px; min-width: 280px; min-height: 300px;
+            background: #fff; z-index: 1500; border-radius: 16px;
+            box-shadow: 0 12px 48px -8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06);
+            display: none; flex-direction: column;
+            font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+            overflow: hidden;
+        }
+        .review-panel.open { display: flex; }
+        .rp-header {
+            padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+            cursor: move; user-select: none; -webkit-user-select: none;
+            background: linear-gradient(180deg, #faf8ff, #fff);
+        }
+        .rp-header h2 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0; pointer-events: none; }
+        .rp-header span { font-size: 11px; color: #94a3b8; pointer-events: none; }
+        .rp-close {
+            width: 26px; height: 26px; border-radius: 8px; border: none;
+            background: #f8fafc; color: #64748b; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+        }
+        .rp-close:hover { background: #fee2e2; color: #ef4444; }
+        .rp-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+        .rp-body::-webkit-scrollbar { width: 4px; }
+        .rp-body::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 2px; }
+        .rp-mdoc { padding: 16px; font-size: 13px; color: #334155; line-height: 1.7; }
+        .rp-mdoc h1 { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 2px solid #ede9fe; }
+        .rp-mdoc h2 { font-size: 14px; font-weight: 700; color: #1e1b4b; margin: 20px 0 8px; padding: 6px 10px; background: #f5f3ff; border-radius: 6px; border-left: 3px solid #7c3aed; }
+        .rp-mdoc h3 { font-size: 13px; font-weight: 700; color: #0f172a; margin: 14px 0 4px; }
+        .rp-mdoc h4 { font-size: 12px; font-weight: 700; color: #475569; margin: 10px 0 4px; }
+        .rp-mdoc p { margin: 0 0 6px; }
+        .rp-mdoc ul { padding-left: 16px; margin: 0 0 8px; }
+        .rp-mdoc li { margin-bottom: 3px; }
+        .rp-mdoc table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 12px; }
+        .rp-mdoc th { background: #f8fafc; font-weight: 600; color: #475569; text-align: left; padding: 6px 8px; border: 1px solid #e2e8f0; }
+        .rp-mdoc td { padding: 5px 8px; border: 1px solid #e2e8f0; vertical-align: top; }
+        .rp-mdoc blockquote { margin: 6px 0; padding: 6px 10px; background: #f0fdf4; border-left: 3px solid #22c55e; border-radius: 0 6px 6px 0; font-size: 12px; color: #166534; }
+        .rp-mdoc code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 11px; font-family: 'SF Mono', 'Menlo', monospace; }
+        .rp-mdoc hr { border: none; border-top: 1px solid #e2e8f0; margin: 16px 0; }
+        .rp-mdoc .prd-note { margin: 6px 0; padding: 6px 10px; background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 0 6px 6px 0; font-size: 11px; color: #991b1b; }
+        .rp-resize { position: absolute; z-index: 10; }
+        .rp-resize-e { top: 0; right: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-w { top: 0; left: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-s { bottom: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-n { top: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-se { bottom: -4px; right: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
+        .rp-resize-sw { bottom: -4px; left: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-ne { top: -4px; right: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-nw { top: -4px; left: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
     </style>
 </head>
 <body>
@@ -462,9 +529,9 @@
                 </div>
                 <!-- 错因诊断入口 -->
                 <div id="detail-diagnosis-section" class="hidden">
-                    <button onclick="openDiagnosisFromDetail()" class="app-btn-primary-block flex items-center justify-center gap-2">
+                    <button id="detail-diagnosis-btn" onclick="openDiagnosisFromDetail()" class="app-btn-primary-block flex items-center justify-center gap-2">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-1.754-.988-2.386l-.548-.547z"/></svg>
-                        查看错因诊断
+                        <span id="detail-diagnosis-text">查看错因诊断</span>
                     </button>
                 </div>
             </main>
@@ -479,6 +546,286 @@
         </div>
     </div>
 
+    <!-- 过稿面板 -->
+    <div class="review-panel" id="reviewPanel">
+        <div class="rp-resize rp-resize-n" data-dir="n"></div>
+        <div class="rp-resize rp-resize-s" data-dir="s"></div>
+        <div class="rp-resize rp-resize-e" data-dir="e"></div>
+        <div class="rp-resize rp-resize-w" data-dir="w"></div>
+        <div class="rp-resize rp-resize-ne" data-dir="ne"></div>
+        <div class="rp-resize rp-resize-nw" data-dir="nw"></div>
+        <div class="rp-resize rp-resize-se" data-dir="se"></div>
+        <div class="rp-resize rp-resize-sw" data-dir="sw"></div>
+        <div class="rp-header" id="rpHeader">
+            <div>
+                <h2>📋 产品稿 · 错题本</h2>
+                <span id="rpCount"></span>
+            </div>
+            <button class="rp-close" onclick="setMode('demo')">✕</button>
+        </div>
+        <div class="rp-body" id="rpBody">
+            <div class="rp-mdoc" id="rpDocContent">
+
+                <h1>错题本 产品稿</h1>
+                <blockquote>版本：v1.0 · 2026-04-16</blockquote>
+
+                <!-- ══════ 1. 页面概述 ══════ -->
+                <h2>1. 页面概述</h2>
+
+                <h3>功能说明</h3>
+                <p>错题本是学生在作业批改后，自动收录和手动上传错题的管理工具。支持按学科和题型筛选、查看题目详情（含拍照原图、题目文字、讲解视频、答案解析），以及批量管理（删除）和打印错题。</p>
+                <p>核心价值：帮助学生集中复习错题，避免重复犯错。</p>
+                <p><strong>功能边界</strong>：错题本只做错题的"收集-浏览-管理-打印"，不做在线答题和重新作答。</p>
+
+                <h3>入口</h3>
+                <p>从首页点击"错题本"入口进入。</p>
+
+                <h3>整体流程</h3>
+                <p>进入错题本 → 按学科/题型筛选 → 点击卡片查看详情 → 查看/生成错因诊断（仅数学） → 上传新错题 / 管理已有错题 / 打印错题</p>
+
+                <hr>
+
+                <!-- ══════ 2. 错题列表页 ══════ -->
+                <h2>2. 错题列表页</h2>
+
+                <h3>功能说明</h3>
+                <p>以时间倒序展示所有错题，每道错题以图片卡片形式呈现。支持按学科 Tab 和题型胶囊筛选。</p>
+
+                <h3>页面结构</h3>
+                <p>1. <strong>顶部导航栏</strong>：返回箭头 + 标题"错题本"</p>
+                <p>2. <strong>学科 Tab 栏</strong>：横向滑动，包含"数学、语文、英语、科学、物理、化学、历史、道法、地理、生物、其他"。默认选中"数学"。仅在有错题数据时展示。</p>
+                <p>3. <strong>题型筛选行</strong>：毛玻璃胶囊按钮，"全部"固定展示，其余按当前学科动态展示（数学：单选题/填空题/解答题；英语：阅读理解/写作/语法 等）。仅在当前学科有错题时展示。</p>
+                <p>4. <strong>错题卡片列表</strong>：纵向滚动，每张卡片包含题目拍照图片（120px 高）+ 底部信息行（日期时间）</p>
+                <p>5. <strong>底部操作栏</strong>：吸底毛玻璃，包含"管理"按钮（左侧）+ "上传错题"按钮 + "打印错题"按钮</p>
+
+                <h3>交互流程</h3>
+                <p>1. <strong>切换学科</strong>：点击学科 Tab → 切换到该学科 → 题型筛选重置为"全部" → 重新渲染列表</p>
+                <p>2. <strong>筛选题型</strong>：点击题型胶囊 → 过滤当前学科下该题型的错题</p>
+                <p>3. <strong>查看详情</strong>：点击卡片 → 从右侧滑入详情页</p>
+                <p>4. <strong>上传错题</strong>：点击底部"上传错题" → 跳转到作业批改页面的"录错题"模式</p>
+                <p>5. <strong>打印错题</strong>：点击底部"打印错题" → 跳转到打印错题页面</p>
+
+                <h3>业务规则</h3>
+                <ul>
+                    <li>错题按<strong>时间倒序</strong>排列，最新添加的排最前面</li>
+                    <li>学科 Tab 和题型筛选仅在有错题数据时展示，无任何错题时整个筛选区域隐藏</li>
+                    <li>"管理"按钮仅在有错题时展示</li>
+                    <li>卡片底部信息行的日期格式：当天显示"今天 HH:MM"，昨天显示"昨天 HH:MM"，更早显示"M月D日 HH:MM"</li>
+                </ul>
+
+                <h3>数据说明</h3>
+                <ul>
+                    <li>每道错题包含字段：题目 ID、学科、题型、拍照图片、收录日期、题目文字、讲解视频（可选）、答案解析、是否有学生原始作答、是否已生成错因诊断</li>
+                    <li>数据来源：作业批改后自动收录 + 用户手动拍照上传</li>
+                </ul>
+
+                <h3>异常场景</h3>
+                <table>
+                    <thead><tr><th>场景</th><th>处理方式</th></tr></thead>
+                    <tbody>
+                        <tr><td>无任何错题（整体空状态）</td><td>居中灰色文件图标（48px 圆底）+ "还没有错题记录"（14px 深灰）+ "完成作业批改后，错题会自动收录到这里"（12px 浅灰）+ "去做作业"按钮</td></tr>
+                        <tr><td>当前学科/题型无错题</td><td>居中搜索图标 + "该科目暂无错题" + "切换其他科目看看"</td></tr>
+                        <tr><td>图片加载失败</td><td>卡片图片区域展示灰色占位 + 重试图标</td></tr>
+                    </tbody>
+                </table>
+
+                <hr>
+
+                <!-- ══════ 3. 管理模式 ══════ -->
+                <h2>3. 管理模式</h2>
+
+                <h3>功能说明</h3>
+                <p>进入管理模式后可批量选择错题并删除。不支持批量移动或归类。</p>
+
+                <h3>交互流程</h3>
+                <p>1. <strong>进入</strong>：点击底部"管理"按钮 → 按钮文字变为"完成" → 每张卡片左上角出现圆形复选框 → 底部操作栏替换为"全选"+"删除"</p>
+                <p>2. <strong>选择</strong>：点击卡片复选框 → toggle 选中态（蓝底白勾）；点击"全选" → 所有卡片复选框选中</p>
+                <p>3. <strong>删除</strong>：点击"删除" → 选中的卡片缩小淡出消失（0.3s）→ Toast "删除成功" → 自动退出管理模式</p>
+                <p>4. <strong>退出</strong>：点击"完成"按钮 → 清除所有选中态 → 恢复正常底部栏</p>
+
+                <h3>业务规则</h3>
+                <ul>
+                    <li>管理模式下点击卡片不触发详情页跳转，只能点复选框</li>
+                    <li>未选中任何题目时点击"删除"，Toast 提示"请先选择要删除的题目"</li>
+                    <li>管理模式下底部Tab导航隐藏，操作栏上移</li>
+                    <li>切换学科时自动退出管理模式</li>
+                </ul>
+
+                <h3>异常场景</h3>
+                <table>
+                    <thead><tr><th>场景</th><th>处理方式</th></tr></thead>
+                    <tbody>
+                        <tr><td>未选择题目点击删除</td><td>Toast "请先选择要删除的题目"</td></tr>
+                        <tr><td>删除后当前学科无题目</td><td>展示该学科空状态</td></tr>
+                    </tbody>
+                </table>
+
+                <hr>
+
+                <!-- ══════ 4. 题目详情页 ══════ -->
+                <h2>4. 题目详情页</h2>
+
+                <h3>功能说明</h3>
+                <p>全屏子页面，从右侧滑入。展示单道错题的完整信息：拍照原图、题目文字、讲解视频、答案解析，以及错因诊断入口（仅限已开放学科）。</p>
+
+                <h3>页面结构</h3>
+                <p>1. <strong>顶部导航栏</strong>：返回箭头 + 标题"题目详情"</p>
+                <p>2. <strong>拍照原图</strong>：圆角卡片展示题目照片</p>
+                <p>3. <strong>题目内容</strong>：毛玻璃卡片，标题"题目内容"（紫色小标签）+ 题目文字（保留换行和排版）</p>
+                <p>4. <strong>讲解视频</strong>：毛玻璃卡片，标题"讲解视频" + 视频播放器。无视频时展示"暂无讲解视频"灰色占位</p>
+                <p>5. <strong>答案解析</strong>：毛玻璃卡片，标题"答案解析" + 解析文字</p>
+                <p>6. <strong>错因诊断入口</strong>：仅当题目所属学科属于已开放诊断学科时展示。按钮文字根据状态动态变化（见第 6 节）</p>
+
+                <h3>交互流程</h3>
+                <p>1. <strong>进入</strong>：从列表页点击卡片 → 详情页从右侧滑入</p>
+                <p>2. <strong>浏览</strong>：纵向滚动查看各个内容板块</p>
+                <p>3. <strong>播放视频</strong>：点击视频区域 → 原生播放器播放</p>
+                <p>4. <strong>错因诊断</strong>：点击底部诊断按钮 → 跳转到错因诊断页面</p>
+                <p>5. <strong>返回</strong>：点击左上角返回箭头 → 详情页向右滑出</p>
+
+                <h3>数据说明</h3>
+                <ul>
+                    <li>题目内容：原始题目文字，保留数学公式和选项格式</li>
+                    <li>讲解视频：可选字段，无视频时展示"暂无讲解视频"</li>
+                    <li>答案解析：解题思路和答案说明</li>
+                </ul>
+
+                <h3>异常场景</h3>
+                <table>
+                    <thead><tr><th>场景</th><th>处理方式</th></tr></thead>
+                    <tbody>
+                        <tr><td>无题目文字</td><td>展示"暂无题目文字"灰色占位</td></tr>
+                        <tr><td>无讲解视频</td><td>展示"暂无讲解视频"灰色占位</td></tr>
+                        <tr><td>无答案解析</td><td>展示"暂无答案解析"灰色占位</td></tr>
+                        <tr><td>视频加载失败</td><td>视频区域展示错误提示 + 重试按钮</td></tr>
+                    </tbody>
+                </table>
+
+                <hr>
+
+                <!-- ══════ 5. 上传错题 ══════ -->
+                <h2>5. 上传错题</h2>
+
+                <h3>功能说明</h3>
+                <p>用户手动拍照上传错题到错题本。点击"上传错题"后跳转到作业批改页面的"录错题"模式，复用其拍照 → 智能识别 → 手动框题 → 确认上传的完整流程。</p>
+
+                <h3>交互流程</h3>
+                <p>1. <strong>入口</strong>：点击底部"上传错题"按钮</p>
+                <p>2. <strong>跳转</strong>：携带录错题模式参数跳转到作业批改相机页面</p>
+                <p>3. <strong>拍照/选择</strong>：在相机页面拍照或选择图片</p>
+                <p>4. <strong>智能框题</strong>：系统自动识别题目区域，展示蓝色虚线框。支持多选（点击 toggle）</p>
+                <p>5. <strong>手动框题</strong>（可选）：若自动识别不准确，可手动拖拽绿色框选定区域</p>
+                <p>6. <strong>上传</strong>：点击上传按钮 → Loading 1.5s → Toast "成功添加 N 道错题" → 返回错题本并刷新列表</p>
+
+                <h3>业务规则</h3>
+                <ul>
+                    <li>自动识别的题目框支持多选，手动框题的框也可叠加选择</li>
+                    <li>至少选中一个题目区域才能上传（否则上传按钮禁用）</li>
+                    <li>新上传的错题默认归属到当前选中的学科</li>
+                </ul>
+
+                <hr>
+
+                <!-- ══════ 6. 错因诊断入口（来自错题本） ══════ -->
+                <h2>6. 错因诊断入口</h2>
+
+                <h3>功能说明</h3>
+                <p>对于已开放诊断的学科（<strong>当前仅数学</strong>），在错题卡片和详情页提供错因诊断入口。根据是否已生成过诊断结果，区分"查看"和"生成"两种状态。</p>
+
+                <h3>已开放学科</h3>
+                <blockquote>当前仅开放：数学。后续视 AI 能力和准确率逐步扩展到其他学科。</blockquote>
+
+                <h3>入口位置</h3>
+                <p>错因诊断入口<strong>仅在题目详情页</strong>展示，卡片列表不展示诊断标签（避免"错因诊断"和"AI 诊断"两种文案让用户困惑）。</p>
+
+                <h3>详情页的入口</h3>
+                <p>在题目详情页底部展示全宽按钮：</p>
+                <ul>
+                    <li>已生成诊断：按钮文字"查看错因诊断"</li>
+                    <li>未生成诊断：按钮文字"生成错因诊断"</li>
+                </ul>
+
+                <h3>导航逻辑</h3>
+                <p>1. 点击诊断按钮 → 跳转到错因诊断页面，携带参数：来源=错题本、题目 ID、是否已分析</p>
+                <p>2. 已分析的题目 → 诊断页面直接渲染结果（无 loading）</p>
+                <p>3. 未分析的题目 → 诊断页面先展示约 20 秒 loading 动画，完成后展示结果</p>
+
+                <h3>业务规则</h3>
+                <ul>
+                    <li>非已开放学科的题目不展示任何诊断入口</li>
+                    <li>诊断按钮的点击不触发卡片的详情页跳转（事件阻止冒泡）</li>
+                    <li>是否已生成诊断由后端返回的标记字段决定</li>
+                </ul>
+
+                <hr>
+
+                <!-- ══════ 7. 打印错题 ══════ -->
+                <h2>7. 打印错题</h2>
+
+                <h3>功能说明</h3>
+                <p>将当前学科下的错题整理为可打印的格式，跳转到打印错题专用页面。</p>
+
+                <h3>交互流程</h3>
+                <p>1. 点击底部"打印错题"按钮 → 跳转到打印错题页面</p>
+                <p>2. 打印页面读取错题数据并排版 → 用户可预览和打印</p>
+
+                <h3>业务规则</h3>
+                <ul>
+                    <li>打印内容为当前错题本的全部错题数据</li>
+                    <li>打印排版和预览在打印错题页面内完成</li>
+                </ul>
+
+                <hr>
+
+                <!-- ══════ 8. 关联模块 ══════ -->
+                <h2>8. 关联模块</h2>
+
+                <h3>页面跳转关系</h3>
+                <table>
+                    <thead><tr><th>起始页</th><th>操作</th><th>目标页</th></tr></thead>
+                    <tbody>
+                        <tr><td>首页</td><td>点击"错题本"</td><td>错题本列表页</td></tr>
+                        <tr><td>错题本列表页</td><td>点击卡片</td><td>题目详情页（右滑入）</td></tr>
+                        <tr><td>错题本列表页/详情页</td><td>点击诊断按钮</td><td>错因诊断页（携带题目 ID 和分析状态）</td></tr>
+                        <tr><td>错题本列表页</td><td>点击"上传错题"</td><td>作业批改相机页（录错题模式）</td></tr>
+                        <tr><td>错题本列表页</td><td>点击"打印错题"</td><td>打印错题页面</td></tr>
+                        <tr><td>错题本列表页</td><td>点击返回</td><td>上一页（首页）</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>共享数据</h3>
+                <ul>
+                    <li>作业批改后产生的错题数据会同步到错题本</li>
+                    <li>错因诊断的结果会更新错题的"已诊断"状态</li>
+                    <li>打印功能读取错题本的当前数据</li>
+                </ul>
+
+                <hr>
+
+                <!-- ══════ 9. 不做（本期） ══════ -->
+                <h2>9. 不做（本期）</h2>
+                <ul>
+                    <li>除数学以外的学科错因诊断（后续视 AI 准确率逐步开放）</li>
+                    <li>错题的手动编辑（修改题目文字、答案等）</li>
+                    <li>错题分组/标签/文件夹管理</li>
+                    <li>错题的导出（PDF / 图片）</li>
+                    <li>错题的分享功能</li>
+                    <li>错题的搜索功能</li>
+                    <li>错题的排序切换（当前固定时间倒序）</li>
+                    <li>错题的批量移动到其他学科</li>
+                    <li>基于错题数据的统计分析（薄弱知识点、错误趋势等）</li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 模式切换（右上角） -->
+    <div class="mode-toggle" id="modeToggle">
+        <button class="active" onclick="setMode('demo')">演示</button>
+        <button onclick="setMode('review')">过稿</button>
+    </div>
+
     <script>
         // 全局状态
         let isEditMode = false;
@@ -491,14 +838,17 @@
         let currentSubject = 'math'; // 默认选择数学
         let currentFilter = 'all';
         
+        // 已开放错因诊断的学科
+        const DIAGNOSIS_OPEN_SUBJECTS = ['math'];
+
         // 模拟错题数据（按时间倒序）- 含题目拍照图片、题目、题目视频、答案解析
         const mockQuestions = [
-            { id: 1, subject: 'math', type: 'fill', image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&h=267&fit=crop', date: '2025-01-27 14:30', dateLabel: '今天', title: '已知线性方程组\nx₁ + x₂ - 3x₃ = -10\n6x₂ - 2x₃ + x₄ = 7\n求方程组的通解。', video: 'https://www.w3school.com.cn/example/html5/mov_bbb.mp4', analysis: '① 写出增广矩阵并做初等行变换化为行阶梯形；② 确定自由未知量（如 x₃、x₄），用其表示 x₁、x₂；③ 令自由未知量取 (t₁, t₂)，得到通解形式。', hasStudentWork: true },
-            { id: 2, subject: 'math', type: 'single', image: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&h=267&fit=crop', date: '2025-01-27 10:15', dateLabel: '今天', title: '若向量组 α₁, α₂, α₃ 线性无关，则下列向量组中线性无关的是（　　）\nA. α₁+α₂, α₂+α₃, α₃+α₁\nB. α₁-α₂, α₂-α₃, α₃-α₁', video: '', analysis: '设 k₁(α₁+α₂)+k₂(α₂+α₃)+k₃(α₃+α₁)=0，整理得 (k₁+k₃)α₁+(k₁+k₂)α₂+(k₂+k₃)α₃=0。由 α₁,α₂,α₃ 线性无关得系数全为 0，解得 k₁=k₂=k₃=0，故 A 线性无关。答案选 A。', hasStudentWork: false },
-            { id: 3, subject: 'eng', type: 'reading', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=267&fit=crop', date: '2025-01-26 16:20', dateLabel: '昨天', title: '阅读材料：What is the main idea of the passage? (Paragraph 2-3)', video: 'https://www.w3school.com.cn/example/html5/mov_bbb.mp4', analysis: '主旨题需看段落首尾句与重复出现的概念。第二段首句提出...，第三段进一步说明...，故 main idea 为...。', hasStudentWork: true },
-            { id: 4, subject: 'math', type: 'fill', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=267&fit=crop', date: '2025-01-26 09:00', dateLabel: '昨天', title: '设 A 为 3 阶矩阵，|A|=2，则 |(-2A)*|= ______ 。', video: '', analysis: '利用 |kA|=kⁿ|A| 与 A* 与 A⁻¹ 的关系：|(-2A)*|=|(-2A)|²=(-2)⁶|A|²=64×4=256。', hasStudentWork: true },
-            { id: 5, subject: 'eng', type: 'writing', image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=267&fit=crop', date: '2025-01-25 15:45', dateLabel: '1月25日', title: '书面表达：请以 "My Favorite Season" 为题写一篇短文。', video: '', analysis: '建议结构：开头点题（最喜欢的季节）；中间 2–3 段写天气、活动、感受；结尾总结。注意时态一致、适当使用连接词。', hasStudentWork: false },
-            { id: 6, subject: 'eng', type: 'grammar', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=267&fit=crop', date: '2025-01-24 11:20', dateLabel: '1月24日', title: '语法填空：He asked me ______ I had finished the work.', video: 'https://www.w3school.com.cn/example/html5/mov_bbb.mp4', analysis: '宾语从句中若为疑问意义，且不缺成分用 whether/if。此处为“是否”之意，填 whether 或 if。', hasStudentWork: true },
+            { id: 1, subject: 'math', type: 'fill', image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&h=267&fit=crop', date: '2025-01-27 14:30', dateLabel: '今天', title: '已知线性方程组\nx₁ + x₂ - 3x₃ = -10\n6x₂ - 2x₃ + x₄ = 7\n求方程组的通解。', video: 'https://www.w3school.com.cn/example/html5/mov_bbb.mp4', analysis: '① 写出增广矩阵并做初等行变换化为行阶梯形；② 确定自由未知量（如 x₃、x₄），用其表示 x₁、x₂；③ 令自由未知量取 (t₁, t₂)，得到通解形式。', hasStudentWork: true, diagnosisReady: true },
+            { id: 2, subject: 'math', type: 'single', image: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&h=267&fit=crop', date: '2025-01-27 10:15', dateLabel: '今天', title: '若向量组 α₁, α₂, α₃ 线性无关，则下列向量组中线性无关的是（　　）\nA. α₁+α₂, α₂+α₃, α₃+α₁\nB. α₁-α₂, α₂-α₃, α₃-α₁', video: '', analysis: '设 k₁(α₁+α₂)+k₂(α₂+α₃)+k₃(α₃+α₁)=0，整理得 (k₁+k₃)α₁+(k₁+k₂)α₂+(k₂+k₃)α₃=0。由 α₁,α₂,α₃ 线性无关得系数全为 0，解得 k₁=k₂=k₃=0，故 A 线性无关。答案选 A。', hasStudentWork: false, diagnosisReady: false },
+            { id: 3, subject: 'eng', type: 'reading', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=267&fit=crop', date: '2025-01-26 16:20', dateLabel: '昨天', title: '阅读材料：What is the main idea of the passage? (Paragraph 2-3)', video: 'https://www.w3school.com.cn/example/html5/mov_bbb.mp4', analysis: '主旨题需看段落首尾句与重复出现的概念。第二段首句提出...，第三段进一步说明...，故 main idea 为...。', hasStudentWork: true, diagnosisReady: true },
+            { id: 4, subject: 'math', type: 'fill', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=267&fit=crop', date: '2025-01-26 09:00', dateLabel: '昨天', title: '设 A 为 3 阶矩阵，|A|=2，则 |(-2A)*|= ______ 。', video: '', analysis: '利用 |kA|=kⁿ|A| 与 A* 与 A⁻¹ 的关系：|(-2A)*|=|(-2A)|²=(-2)⁶|A|²=64×4=256。', hasStudentWork: true, diagnosisReady: true },
+            { id: 5, subject: 'eng', type: 'writing', image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=267&fit=crop', date: '2025-01-25 15:45', dateLabel: '1月25日', title: '书面表达：请以 "My Favorite Season" 为题写一篇短文。', video: '', analysis: '建议结构：开头点题（最喜欢的季节）；中间 2–3 段写天气、活动、感受；结尾总结。注意时态一致、适当使用连接词。', hasStudentWork: false, diagnosisReady: false },
+            { id: 6, subject: 'eng', type: 'grammar', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=267&fit=crop', date: '2025-01-24 11:20', dateLabel: '1月24日', title: '语法填空：He asked me ______ I had finished the work.', video: 'https://www.w3school.com.cn/example/html5/mov_bbb.mp4', analysis: '宾语从句中若为疑问意义，且不缺成分用 whether/if。此处为“是否”之意，填 whether 或 if。', hasStudentWork: true, diagnosisReady: true },
         ];
 
         // 页面初始化
@@ -559,17 +909,13 @@
                 const timeStr = q.date.split(' ')[1] || q.date;
                 const dateStr = q.dateLabel;
                 
-                var diagnosisBtn = q.hasStudentWork
-                    ? '<button onclick="event.stopPropagation(); goToDiagnosis(' + q.id + ')" class="text-[11px] font-medium text-indigo-500 rounded-full px-2.5 py-0.5 active:scale-95 transition-all whitespace-nowrap" style="background:rgba(99,102,241,0.08);">错因诊断</button>'
-                    : '';
                 card.innerHTML = `
                     <div class="question-checkbox" onclick="event.stopPropagation(); toggleQuestionSelect(this)"></div>
                     <div class="w-full h-[120px] overflow-hidden relative" style="border-bottom:1px solid rgba(255,255,255,0.4);">
                         <img src="${q.image}" class="w-full h-full object-cover" alt="错题">
                     </div>
-                    <div class="px-3 py-2.5 flex items-center justify-between">
+                    <div class="px-3 py-2.5">
                         <span class="text-xs text-slate-400">${dateStr} ${timeStr}</span>
-                        ${diagnosisBtn}
                     </div>
                 `;
                 questionList.appendChild(card);
@@ -616,8 +962,10 @@
             }
         }
 
-        function goToDiagnosis(questionId) {
-            window.location.href = '../错因诊断/错因诊断.html?from=notebook&qid=' + questionId;
+        function goToDiagnosis(questionId, isReady) {
+            var url = '../错因诊断/错因诊断.html?from=notebook&qid=' + questionId;
+            if (isReady) url += '&analyzed=1';
+            window.location.href = url;
         }
 
         // 打开详情页：展示题目拍照图片、题目、题目视频、题目答案解析
@@ -647,8 +995,10 @@
             }
             var diagSection = document.getElementById('detail-diagnosis-section');
             if (diagSection) {
-                if (q && q.hasStudentWork) {
+                if (q && DIAGNOSIS_OPEN_SUBJECTS.indexOf(q.subject) !== -1) {
                     diagSection.classList.remove('hidden');
+                    var diagText = document.getElementById('detail-diagnosis-text');
+                    if (diagText) diagText.textContent = q.diagnosisReady ? '查看错因诊断' : '生成错因诊断';
                 } else {
                     diagSection.classList.add('hidden');
                 }
@@ -660,7 +1010,10 @@
 
         function openDiagnosisFromDetail() {
             var qid = document.getElementById('page-detail').dataset.currentQid;
-            window.location.href = '../错因诊断/错因诊断.html?from=notebook&qid=' + (qid || '1');
+            var q = mockQuestions.find(function(x) { return x.id === parseInt(qid, 10); });
+            var url = '../错因诊断/错因诊断.html?from=notebook&qid=' + (qid || '1');
+            if (q && q.diagnosisReady) url += '&analyzed=1';
+            window.location.href = url;
         }
 
         function closeDetail() {
@@ -1145,6 +1498,162 @@
         document.addEventListener('DOMContentLoaded', function() {
             initPage();
         });
+    </script>
+
+    <script>
+        /* ── 过稿模式 ── */
+        var _currentMode = 'demo';
+        function setMode(mode) {
+            if (mode === _currentMode) return;
+            _currentMode = mode;
+            var btns = document.querySelectorAll('#modeToggle button');
+            btns.forEach(function(b, i) { b.classList.toggle('active', mode === 'demo' ? i === 0 : i === 1); });
+            var rpPanel = document.getElementById('reviewPanel');
+            if (mode === 'review') {
+                rpPanel.classList.add('open');
+            } else {
+                rpPanel.classList.remove('open');
+            }
+        }
+
+        document.getElementById('modeToggle').addEventListener('click', function(e) { e.stopPropagation(); });
+
+        if (new URLSearchParams(window.location.search).get('mode') === 'review') {
+            setTimeout(function() { _currentMode = 'demo'; setMode('review'); }, 100);
+        }
+
+        /* ── 拖拽移动 ── */
+        (function() {
+            var panel, header, dragging = false, ox, oy, sx, sy;
+            document.addEventListener('DOMContentLoaded', function() {
+                panel = document.getElementById('reviewPanel');
+                header = document.getElementById('rpHeader');
+                header.addEventListener('mousedown', startDrag);
+                header.addEventListener('touchstart', startDragTouch, { passive: false });
+                panel.querySelectorAll('.rp-resize').forEach(function(h) {
+                    h.addEventListener('mousedown', startResize);
+                    h.addEventListener('touchstart', startResizeTouch, { passive: false });
+                });
+            });
+            function startDrag(e) {
+                if (e.target.closest('.rp-close')) return;
+                dragging = true;
+                ox = e.clientX; oy = e.clientY;
+                sx = panel.offsetLeft; sy = panel.offsetTop;
+                document.addEventListener('mousemove', onDrag);
+                document.addEventListener('mouseup', stopDrag);
+                e.preventDefault();
+            }
+            function startDragTouch(e) {
+                if (e.target.closest('.rp-close')) return;
+                dragging = true;
+                var t = e.touches[0];
+                ox = t.clientX; oy = t.clientY;
+                sx = panel.offsetLeft; sy = panel.offsetTop;
+                document.addEventListener('touchmove', onDragTouch, { passive: false });
+                document.addEventListener('touchend', stopDrag);
+                e.preventDefault();
+            }
+            function onDrag(e) { if (dragging) moveTo(e.clientX, e.clientY); }
+            function onDragTouch(e) {
+                if (!dragging) return;
+                var t = e.touches[0];
+                moveTo(t.clientX, t.clientY);
+                e.preventDefault();
+            }
+            function moveTo(cx, cy) {
+                var nx = sx + (cx - ox);
+                var ny = sy + (cy - oy);
+                nx = Math.max(0, Math.min(nx, window.innerWidth - 80));
+                ny = Math.max(0, Math.min(ny, window.innerHeight - 40));
+                panel.style.left = nx + 'px';
+                panel.style.top = ny + 'px';
+                panel.style.right = 'auto';
+            }
+            function stopDrag() {
+                dragging = false;
+                document.removeEventListener('mousemove', onDrag);
+                document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchmove', onDragTouch);
+                document.removeEventListener('touchend', stopDrag);
+            }
+
+            var resizing = false, rDir, rox, roy, rRect;
+            function startResize(e) {
+                rDir = e.target.dataset.dir;
+                resizing = true;
+                rox = e.clientX; roy = e.clientY;
+                rRect = { l: panel.offsetLeft, t: panel.offsetTop, w: panel.offsetWidth, h: panel.offsetHeight };
+                document.addEventListener('mousemove', onResize);
+                document.addEventListener('mouseup', stopResize);
+                e.preventDefault(); e.stopPropagation();
+            }
+            function startResizeTouch(e) {
+                rDir = e.target.dataset.dir;
+                resizing = true;
+                var t = e.touches[0];
+                rox = t.clientX; roy = t.clientY;
+                rRect = { l: panel.offsetLeft, t: panel.offsetTop, w: panel.offsetWidth, h: panel.offsetHeight };
+                document.addEventListener('touchmove', onResizeTouch, { passive: false });
+                document.addEventListener('touchend', stopResize);
+                e.preventDefault(); e.stopPropagation();
+            }
+            function onResize(e) { if (resizing) applyResize(e.clientX, e.clientY); }
+            function onResizeTouch(e) {
+                if (!resizing) return;
+                var t = e.touches[0];
+                applyResize(t.clientX, t.clientY);
+                e.preventDefault();
+            }
+            function applyResize(cx, cy) {
+                var dx = cx - rox, dy = cy - roy;
+                var minW = 280, minH = 300;
+                var nl = rRect.l, nt = rRect.t, nw = rRect.w, nh = rRect.h;
+                if (rDir.indexOf('e') >= 0) nw = Math.max(minW, rRect.w + dx);
+                if (rDir.indexOf('w') >= 0) { nw = Math.max(minW, rRect.w - dx); nl = rRect.l + rRect.w - nw; }
+                if (rDir.indexOf('s') >= 0) nh = Math.max(minH, rRect.h + dy);
+                if (rDir.indexOf('n') >= 0) { nh = Math.max(minH, rRect.h - dy); nt = rRect.t + rRect.h - nh; }
+                panel.style.width = nw + 'px';
+                panel.style.height = nh + 'px';
+                panel.style.left = nl + 'px';
+                panel.style.top = nt + 'px';
+                panel.style.right = 'auto';
+            }
+            function stopResize() {
+                resizing = false;
+                document.removeEventListener('mousemove', onResize);
+                document.removeEventListener('mouseup', stopResize);
+                document.removeEventListener('touchmove', onResizeTouch);
+                document.removeEventListener('touchend', stopResize);
+            }
+        })();
+    </script>
+
+    <script src="../assets/demo-mode.js"></script>
+    <script>
+    DemoMode.register({
+        empty: {
+            label: '暂无错题',
+            panelIcon: '📭',
+            render(c) {
+                c.innerHTML = DemoMode.emptyState({
+                    icon: 'check', title: '还没有错题记录',
+                    desc: '完成作业批改后，错题会自动收录到这里',
+                    actionLabel: '去做作业'
+                });
+            }
+        },
+        noSubject: {
+            label: '该科目无错题',
+            panelIcon: '📚',
+            render(c) {
+                c.innerHTML = DemoMode.emptyState({
+                    icon: 'search', title: '该科目暂无错题',
+                    desc: '切换其他科目看看'
+                });
+            }
+        }
+    });
     </script>
 </body>
 </html>

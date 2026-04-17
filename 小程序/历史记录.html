@@ -49,6 +49,68 @@
         #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 0; }
+
+        /* ── 过稿面板 ── */
+        .mode-toggle {
+            position: fixed; top: 24px; right: 32px; z-index: 900;
+            display: flex; background: #fff; border-radius: 12px;
+            box-shadow: 0 4px 24px -4px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .mode-toggle button {
+            padding: 10px 24px; border: none; background: transparent;
+            color: #94a3b8; cursor: pointer; font-family: inherit;
+            font-size: 0.8125rem; font-weight: 600; transition: all 0.2s;
+        }
+        .mode-toggle button.active { background: #7c3aed; color: #fff; }
+        .review-panel {
+            position: fixed; top: 60px; right: 32px;
+            width: 380px; height: 520px; min-width: 280px; min-height: 300px;
+            background: #fff; z-index: 1500; border-radius: 16px;
+            box-shadow: 0 12px 48px -8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06);
+            display: none; flex-direction: column;
+            font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+            overflow: hidden;
+        }
+        .review-panel.open { display: flex; }
+        .rp-header {
+            padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+            cursor: move; user-select: none; -webkit-user-select: none;
+            background: linear-gradient(180deg, #faf8ff, #fff);
+        }
+        .rp-header h2 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0; pointer-events: none; }
+        .rp-close {
+            width: 26px; height: 26px; border-radius: 8px; border: none;
+            background: #f8fafc; color: #64748b; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+        }
+        .rp-close:hover { background: #fee2e2; color: #ef4444; }
+        .rp-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+        .rp-body::-webkit-scrollbar { width: 4px; }
+        .rp-body::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 2px; }
+        .rp-mdoc { padding: 0; font-size: 13px; color: #334155; line-height: 1.7; }
+        .rp-mdoc h1 { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 2px solid #ede9fe; }
+        .rp-mdoc h2 { font-size: 14px; font-weight: 700; color: #1e1b4b; margin: 20px 0 8px; padding: 6px 10px; background: #f5f3ff; border-radius: 6px; border-left: 3px solid #7c3aed; }
+        .rp-mdoc h3 { font-size: 13px; font-weight: 700; color: #0f172a; margin: 14px 0 4px; }
+        .rp-mdoc p { margin: 0 0 6px; }
+        .rp-mdoc ul { padding-left: 16px; margin: 0 0 8px; }
+        .rp-mdoc li { margin-bottom: 3px; }
+        .rp-mdoc table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 12px; }
+        .rp-mdoc th { background: #f8fafc; font-weight: 600; color: #475569; text-align: left; padding: 6px 8px; border: 1px solid #e2e8f0; }
+        .rp-mdoc td { padding: 5px 8px; border: 1px solid #e2e8f0; vertical-align: top; }
+        .rp-mdoc code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 11px; font-family: 'SF Mono','Menlo',monospace; color: #7c3aed; }
+        .rp-mdoc hr { border: none; border-top: 1px solid #f1f5f9; margin: 16px 0; }
+        .rp-mdoc blockquote { margin: 8px 0; padding: 8px 12px; background: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 0 6px 6px 0; font-size: 12px; color: #92400e; }
+        .rp-resize { position: absolute; z-index: 10; }
+        .rp-resize-e { top: 0; right: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-w { top: 0; left: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-s { bottom: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-n { top: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-se { bottom: -4px; right: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
+        .rp-resize-sw { bottom: -4px; left: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-ne { top: -4px; right: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-nw { top: -4px; left: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
     </style>
 </head>
 <body>
@@ -70,8 +132,7 @@
                 <div class="topbar-spacer"></div>
             </div>
             <div class="flex gap-5 px-5 border-b border-gray-100">
-                <button class="mode-tab active" data-mode="chat" onclick="switchMode('chat', this)">对话</button>
-                <button class="mode-tab" data-mode="correction" onclick="switchMode('correction', this)">作业批改</button>
+                <button class="mode-tab active" data-mode="correction" onclick="switchMode('correction', this)">作业批改</button>
                 <button class="mode-tab" data-mode="qa" onclick="switchMode('qa', this)">拍照答疑</button>
                 <button class="mode-tab" data-mode="diagnosis" onclick="switchMode('diagnosis', this)">错因诊断</button>
             </div>
@@ -90,19 +151,178 @@
         </div>
     </div>
 
+    <!-- 过稿面板 -->
+    <div class="review-panel" id="reviewPanel">
+        <div class="rp-resize rp-resize-n" data-dir="n"></div>
+        <div class="rp-resize rp-resize-s" data-dir="s"></div>
+        <div class="rp-resize rp-resize-e" data-dir="e"></div>
+        <div class="rp-resize rp-resize-w" data-dir="w"></div>
+        <div class="rp-resize rp-resize-ne" data-dir="ne"></div>
+        <div class="rp-resize rp-resize-nw" data-dir="nw"></div>
+        <div class="rp-resize rp-resize-se" data-dir="se"></div>
+        <div class="rp-resize rp-resize-sw" data-dir="sw"></div>
+        <div class="rp-header" id="rpHeader">
+            <div>
+                <h2>📋 产品稿 · 历史记录</h2>
+            </div>
+            <button class="rp-close" onclick="setMode('demo')">✕</button>
+        </div>
+        <div class="rp-body" id="rpBody">
+            <div class="rp-mdoc" id="rpDocContent">
+
+                <h1>历史记录 产品稿</h1>
+                <blockquote>版本：v1.0 · 2026-04-17</blockquote>
+
+                <!-- ══════ 1. 页面概述 ══════ -->
+                <h2>1. 页面概述</h2>
+
+                <h3>功能说明</h3>
+                <p>历史记录页汇总用户使用 AI 工具产生的所有结果记录，按功能类型分 Tab 展示（作业批改、拍照答疑、错因诊断），支持按学科筛选，点击卡片可回看历史结果。</p>
+                <p>定位是"学习轨迹回顾"——让学生和家长能随时查看之前的批改结果、答疑记录和诊断报告，不用每次重新拍照。</p>
+                <p>功能边界：本页面只负责展示和导航到历史记录，不支持编辑或重新分析。</p>
+
+                <hr>
+
+                <!-- ══════ 2. 顶部 Tab 切换 ══════ -->
+                <h2>2. 顶部 Tab 切换</h2>
+
+                <h3>交互流程</h3>
+                <p>1. 点击"作业批改/拍照答疑/错因诊断"Tab → 切换到对应类型的记录列表</p>
+                <p>2. 切换 Tab 时学科筛选重置为"全部"</p>
+
+                <h3>业务规则</h3>
+                <ul>
+                    <li>三个 Tab 固定展示，不因无数据而隐藏</li>
+                    <li>当前激活 Tab 有下划线指示器</li>
+                    <li>默认进入"作业批改"Tab</li>
+                </ul>
+
+                <hr>
+
+                <!-- ══════ 3. 学科筛选 ══════ -->
+                <h2>3. 学科筛选</h2>
+
+                <h3>交互流程</h3>
+                <p>1. 顶部横向滚动的筛选药丸按钮：全部 (N) / 数学 (N) / 英语 (N) / …</p>
+                <p>2. 点击筛选按钮 → 列表按学科过滤 → 筛选按钮高亮</p>
+
+                <h3>业务规则</h3>
+                <ul>
+                    <li>筛选项动态生成：根据当前 Tab 下有数据的学科自动列出，无数据的学科不展示</li>
+                    <li>每个筛选项后面显示记录数</li>
+                    <li>默认选中"全部"</li>
+                </ul>
+
+                <h3>数据说明</h3>
+                <blockquote>学科从记录数据中自动提取去重，不依赖后端配置</blockquote>
+
+                <hr>
+
+                <!-- ══════ 4. 记录卡片列表 ══════ -->
+                <h2>4. 记录卡片列表</h2>
+
+                <h3>功能说明</h3>
+                <p>按日期分组展示历史记录，每条记录以卡片形式呈现，包含作业缩略图和摘要信息。</p>
+
+                <h3>交互流程</h3>
+                <p>1. 上下滚动浏览记录，按日期分组（今天 / 昨天 / 具体日期）</p>
+                <p>2. 点击卡片 → 跳转到对应的结果页面</p>
+                <table>
+                    <thead><tr><th>Tab 类型</th><th>卡片展示</th><th>跳转目标</th></tr></thead>
+                    <tbody>
+                        <tr><td>作业批改</td><td>作业缩略图 + "共N题"</td><td>批改结果页</td></tr>
+                        <tr><td>拍照答疑</td><td>题目缩略图 + "共N题"</td><td>答疑结果页</td></tr>
+                        <tr><td>错因诊断</td><td>作业缩略图 + "N题错误"</td><td>错因诊断页</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>业务规则</h3>
+                <ul>
+                    <li>双列网格布局（2 列）</li>
+                    <li>同一日期的记录归入同一组</li>
+                    <li>日期显示规则：今天 → "今天"，昨天 → "昨天"，更早 → "X月X日"</li>
+                    <li>列表滚动到底部显示"已到底部"提示</li>
+                </ul>
+
+                <h3>数据说明</h3>
+                <blockquote>每条记录包含：ID、日期、时间、学科、缩略图 URL、题目数量。错因诊断额外包含错题数量。</blockquote>
+                <blockquote>数据按时间倒序排列，最新的在最前。</blockquote>
+
+                <h3>异常场景</h3>
+                <table>
+                    <thead><tr><th>场景</th><th>处理方式</th></tr></thead>
+                    <tbody>
+                        <tr><td>当前 Tab 无任何记录</td><td>居中灰色时钟图标 48px +「还没有使用记录」（14px #333）+「拍照解题、作业批改、错因分析的记录都会出现在这里」（12px #999）+ 按钮「去首页看看」→ 跳转首页</td></tr>
+                        <tr><td>筛选后无数据</td><td>居中灰色搜索图标 48px +「暂无相关记录」（14px #333）+「当前筛选条件下没有找到记录」（12px #999），无引导按钮</td></tr>
+                        <tr><td>缩略图加载失败</td><td>显示灰色占位图（与卡片等宽等高），不影响卡片点击</td></tr>
+                        <tr><td>列表加载中</td><td>双列骨架屏占位（与卡片尺寸对齐），每列 2 个骨架卡片</td></tr>
+                        <tr><td>列表加载失败</td><td>页面中部显示「加载失败」+ 重试按钮，点击重新请求数据</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>关联模块</h3>
+                <ul>
+                    <li>← 首页顶栏历史记录图标（入口）</li>
+                    <li>→ 作业批改结果页</li>
+                    <li>→ 拍照答疑结果页</li>
+                    <li>→ 错因诊断页</li>
+                </ul>
+
+                <hr>
+
+                <!-- ══════ 5. 底部管理按钮 ══════ -->
+                <h2>5. 底部管理按钮</h2>
+
+                <h3>功能说明</h3>
+                <p>底部固定"管理"按钮，用于后续支持批量删除、导出等操作。当前版本仅展示占位。</p>
+
+                <h3>业务规则</h3>
+                <ul>
+                    <li>点击"管理"按钮 → Toast 提示"管理功能（即将上线）"</li>
+                </ul>
+
+                <hr>
+
+                <!-- ══════ 6. 导航 ══════ -->
+                <h2>6. 导航</h2>
+
+                <h3>交互流程</h3>
+                <p>1. <strong>返回</strong>：点击左上角返回按钮 → 回到进入时的首页版本</p>
+
+                <h3>业务规则</h3>
+                <ul>
+                    <li>返回首页时需记住用户之前使用的首页版本，跳转到对应版本</li>
+                    <li>无浏览历史时兜底返回默认首页</li>
+                </ul>
+
+                <hr>
+
+                <!-- ══════ 7. 不做（本期） ══════ -->
+                <h2>7. 不做（本期）</h2>
+                <ul>
+                    <li>记录的批量删除、单条删除</li>
+                    <li>记录导出（导出为 PDF / 图片）</li>
+                    <li>按时间范围筛选（近一周 / 近一月）</li>
+                    <li>记录搜索</li>
+                    <li>记录数据云端同步（当前为本地 mock 数据）</li>
+                    <li>对话历史 Tab（AI 对话记录由独立的对话历史页承载）</li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 模式切换（右上角） -->
+    <div class="mode-toggle" id="modeToggle">
+        <button class="active" onclick="setMode('demo')">演示</button>
+        <button onclick="setMode('review')">过稿</button>
+    </div>
+
     <script>
-        var currentMode = 'chat';
+        var currentMode = 'correction';
         var currentFilter = 'all';
 
         var HISTORY_DATA = {
-            chat: [
-                { id: 'ch01', date: '今天', time: '14:32', subject: '数学', title: '方程求解的方法', preview: '太棒了！你自己想出来的…', questionCount: 12 },
-                { id: 'ch02', date: '今天', time: '14:06', subject: '数学', title: '作业批改 · 数学 14题', preview: '批改完了！有 3 道错题…', questionCount: 8 },
-                { id: 'ch03', date: '今天', time: '11:20', subject: '科学', title: '天空为什么是蓝色的', preview: '因为「瑞利散射」…', questionCount: 6 },
-                { id: 'ch04', date: '昨天', time: '16:45', subject: '英语', title: '英语作文开头怎么写', preview: '好的开头可以用这几种…', questionCount: 10 },
-                { id: 'ch05', date: '昨天', time: '14:10', subject: '数学', title: '错因诊断 · 计算类分析', preview: '计算类错误最多…', questionCount: 14 },
-                { id: 'ch07', date: '1月20日', time: '20:15', subject: '科学', title: '恐龙灭绝的原因', preview: '最被认可的理论是小行星撞击…', questionCount: 8 },
-            ],
             correction: [
                 { id: 'c1', date: '今天', time: '14:06', subject: '数学', image: 'assets/homework-sample.png', questionCount: 14 },
                 { id: 'c2', date: '昨天', time: '16:30', subject: '数学', image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=400&h=300&fit=crop', questionCount: 8 },
@@ -173,26 +393,8 @@
             var html = '';
             Object.keys(grouped).forEach(function(date) {
                 html += '<div class="mt-4"><div class="date-label">' + date + '</div>';
-                html += '<div class="grid ' + (currentMode === 'chat' ? 'grid-cols-1' : 'grid-cols-2') + ' gap-3">';
+                html += '<div class="grid grid-cols-2 gap-3">';
                 grouped[date].forEach(function(item) {
-                    if (currentMode === 'chat') {
-                        var chatHref = '对话.html?id=' + item.id;
-                        html += '<div class="history-card" style="grid-column:1/-1;" onclick="sessionStorage.setItem(\'aiSource\',\'history-resume\');sessionStorage.setItem(\'aiChatId\',\'' + item.id + '\');window.location.href=\'' + chatHref + '\'">';
-                        html += '  <div class="px-4 py-3">';
-                        html += '    <div class="flex items-center justify-between mb-1">';
-                        html += '      <div class="text-sm text-slate-800 font-semibold" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (item.title || '对话') + '</div>';
-                        html += '      <div class="text-xs text-slate-400 flex-shrink-0 ml-2">' + item.time + '</div>';
-                        html += '    </div>';
-                        html += '    <div class="text-xs text-slate-400" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (item.preview || '') + '</div>';
-                        html += '    <div class="flex items-center gap-2 mt-1.5">';
-                        html += '      <span class="text-xs px-2 py-0.5 rounded bg-violet-50 text-violet-500 font-medium">' + item.subject + '</span>';
-                        html += '      <span class="text-xs text-slate-300">' + item.questionCount + ' 条消息</span>';
-                        html += '    </div>';
-                        html += '  </div>';
-                        html += '</div>';
-                        return;
-                    }
-
                     var subtitle = '共' + item.questionCount + '题';
                     if (currentMode === 'diagnosis' && item.wrongCount !== undefined) {
                         subtitle = item.wrongCount + '题错误';
@@ -227,6 +429,137 @@
 
         renderFilters();
         renderList();
+
+        /* ── 过稿模式 ── */
+        var _currentMode = 'demo';
+        function setMode(mode) {
+            if (mode === _currentMode) return;
+            _currentMode = mode;
+            var btns = document.querySelectorAll('#modeToggle button');
+            btns.forEach(function(b, i) { b.classList.toggle('active', mode === 'demo' ? i === 0 : i === 1); });
+            var rpPanel = document.getElementById('reviewPanel');
+            if (mode === 'review') {
+                rpPanel.classList.add('open');
+            } else {
+                rpPanel.classList.remove('open');
+            }
+        }
+
+        document.getElementById('modeToggle').addEventListener('click', function(e) { e.stopPropagation(); });
+
+        if (new URLSearchParams(window.location.search).get('mode') === 'review') {
+            setTimeout(function() { _currentMode = 'demo'; setMode('review'); }, 100);
+        }
+
+        /* ── 拖拽移动 ── */
+        (function() {
+            var panel, header, dragging = false, ox, oy, sx, sy;
+            document.addEventListener('DOMContentLoaded', function() {
+                panel = document.getElementById('reviewPanel');
+                header = document.getElementById('rpHeader');
+                if (!header) return;
+                header.addEventListener('mousedown', startDrag);
+                header.addEventListener('touchstart', startDragTouch, { passive: false });
+                panel.querySelectorAll('.rp-resize').forEach(function(h) {
+                    h.addEventListener('mousedown', startResize);
+                    h.addEventListener('touchstart', startResizeTouch, { passive: false });
+                });
+            });
+            function startDrag(e) {
+                if (e.target.closest('.rp-close')) return;
+                dragging = true; ox = e.clientX; oy = e.clientY;
+                sx = panel.offsetLeft; sy = panel.offsetTop;
+                document.addEventListener('mousemove', onDrag);
+                document.addEventListener('mouseup', stopDrag);
+                e.preventDefault();
+            }
+            function startDragTouch(e) {
+                if (e.target.closest('.rp-close')) return;
+                dragging = true; var t = e.touches[0];
+                ox = t.clientX; oy = t.clientY;
+                sx = panel.offsetLeft; sy = panel.offsetTop;
+                document.addEventListener('touchmove', onDragTouch, { passive: false });
+                document.addEventListener('touchend', stopDrag);
+                e.preventDefault();
+            }
+            function onDrag(e) { if (dragging) moveTo(e.clientX, e.clientY); }
+            function onDragTouch(e) { if (dragging) { moveTo(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); } }
+            function moveTo(cx, cy) {
+                panel.style.left = Math.max(0, Math.min(sx + cx - ox, window.innerWidth - 80)) + 'px';
+                panel.style.top = Math.max(0, Math.min(sy + cy - oy, window.innerHeight - 40)) + 'px';
+                panel.style.right = 'auto';
+            }
+            function stopDrag() {
+                dragging = false;
+                document.removeEventListener('mousemove', onDrag);
+                document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchmove', onDragTouch);
+                document.removeEventListener('touchend', stopDrag);
+            }
+            var resizing = false, rDir, rox, roy, rRect;
+            function startResize(e) {
+                rDir = e.target.dataset.dir; resizing = true;
+                rox = e.clientX; roy = e.clientY;
+                rRect = { l: panel.offsetLeft, t: panel.offsetTop, w: panel.offsetWidth, h: panel.offsetHeight };
+                document.addEventListener('mousemove', onResize);
+                document.addEventListener('mouseup', stopResize);
+                e.preventDefault(); e.stopPropagation();
+            }
+            function startResizeTouch(e) {
+                rDir = e.target.dataset.dir; resizing = true;
+                var t = e.touches[0]; rox = t.clientX; roy = t.clientY;
+                rRect = { l: panel.offsetLeft, t: panel.offsetTop, w: panel.offsetWidth, h: panel.offsetHeight };
+                document.addEventListener('touchmove', onResizeTouch, { passive: false });
+                document.addEventListener('touchend', stopResize);
+                e.preventDefault(); e.stopPropagation();
+            }
+            function onResize(e) { if (resizing) applyResize(e.clientX, e.clientY); }
+            function onResizeTouch(e) { if (resizing) { applyResize(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); } }
+            function applyResize(cx, cy) {
+                var dx = cx - rox, dy = cy - roy, minW = 280, minH = 300;
+                var nl = rRect.l, nt = rRect.t, nw = rRect.w, nh = rRect.h;
+                if (rDir.indexOf('e') >= 0) nw = Math.max(minW, rRect.w + dx);
+                if (rDir.indexOf('w') >= 0) { nw = Math.max(minW, rRect.w - dx); nl = rRect.l + rRect.w - nw; }
+                if (rDir.indexOf('s') >= 0) nh = Math.max(minH, rRect.h + dy);
+                if (rDir.indexOf('n') >= 0) { nh = Math.max(minH, rRect.h - dy); nt = rRect.t + rRect.h - nh; }
+                panel.style.width = nw + 'px'; panel.style.height = nh + 'px';
+                panel.style.left = nl + 'px'; panel.style.top = nt + 'px'; panel.style.right = 'auto';
+            }
+            function stopResize() {
+                resizing = false;
+                document.removeEventListener('mousemove', onResize);
+                document.removeEventListener('mouseup', stopResize);
+                document.removeEventListener('touchmove', onResizeTouch);
+                document.removeEventListener('touchend', stopResize);
+            }
+        })();
+    </script>
+
+    <script src="assets/demo-mode.js"></script>
+    <script>
+    DemoMode.register({
+        empty: {
+            label: '暂无使用记录',
+            panelIcon: '📋',
+            render(c) {
+                c.innerHTML = DemoMode.emptyState({
+                    icon: 'list', title: '还没有使用记录',
+                    desc: '拍照解题、作业批改、错因分析的记录都会出现在这里',
+                    actionLabel: '去首页看看'
+                });
+            }
+        },
+        emptyFilter: {
+            label: '筛选无结果',
+            panelIcon: '🔍',
+            render(c) {
+                c.innerHTML = DemoMode.emptyState({
+                    icon: 'search', title: '暂无相关记录',
+                    desc: '当前筛选条件下没有找到记录'
+                });
+            }
+        }
+    });
     </script>
 </body>
 </html>

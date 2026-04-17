@@ -427,7 +427,7 @@
             var hintText = document.getElementById('scan-hint-text');
             if (currentMode === 'correction') hintText.innerText = 'AI 正在识别试卷...';
             else if (currentMode === 'qa') hintText.innerText = 'AI 正在聚焦题目...';
-            else if (currentMode === 'diagnosis') hintText.innerText = '拍照成功，正在搜题...';
+            else if (currentMode === 'diagnosis') hintText.innerText = '拍照成功，正在分析...';
             else if (currentMode === 'wrong') hintText.innerText = '正在加入错题本...';
             else if (currentMode === 'erase') hintText.innerText = '正在擦除笔迹...';
             setTimeout(function() {
@@ -546,7 +546,7 @@
             } else if (currentMode === 'qa') {
                 hintText.innerText = "AI 正在聚焦题目...";
             } else if (currentMode === 'diagnosis') {
-                hintText.innerText = "拍照成功，正在搜题...";
+                hintText.innerText = "拍照成功，正在分析...";
             } else if (currentMode === 'wrong') {
                 hintText.innerText = "正在加入错题本...";
             } else if (currentMode === 'erase') {

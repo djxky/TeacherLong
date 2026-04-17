@@ -551,6 +551,33 @@ function buildSections(md) {
 })();
     </script>
 
+    <script src="../assets/demo-mode.js"></script>
+    <script>
+    DemoMode.register({
+        empty: {
+            label: '暂无试卷',
+            panelIcon: '📄',
+            render(c) {
+                c.innerHTML = DemoMode.emptyState({
+                    icon: 'doc', title: '该科目暂无试卷',
+                    desc: '试卷资源正在整理中，敬请期待'
+                });
+            }
+        },
+        noFilter: {
+            label: '筛选无结果',
+            panelIcon: '🔍',
+            render(c) {
+                c.innerHTML = DemoMode.emptyState({
+                    icon: 'search', title: '没有匹配的试卷',
+                    desc: '当前筛选条件下没有找到试卷<br>试试调整筛选条件',
+                    actionLabel: '清除筛选'
+                });
+            }
+        }
+    });
+    </script>
+
     <script type="text/markdown" id="prd-changelog">
 ### v1.0 · 2026-04-03
 - [新增] 试卷列表产品稿初版

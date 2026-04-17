@@ -299,7 +299,124 @@
         </div>
         <div class="rp-body" id="rpBody">
             <div class="rp-tab-content" id="rpTabDoc">
-                <div class="rp-mdoc" id="rpDocContent">加载中…</div>
+                <div class="rp-mdoc" id="rpDocContent">
+
+                    <h1>试卷讲解 产品稿</h1>
+                    <blockquote>版本：v1.0 · 2026-04-15</blockquote>
+
+                    <!-- ══════ 1. 页面概述 ══════ -->
+                    <h2>1. 页面概述</h2>
+
+                    <h3>功能说明</h3>
+                    <p>试卷讲解列表页展示可观看 AI 视频讲解的试卷资源，支持按科目、版本、年级三维筛选，用户选择试卷后进入该试卷的视频讲解详情页。</p>
+                    <p>定位是"精品试卷资源库"——汇集各版本教材对应的期中/期末试卷，由 AI 龙老师逐题讲解，适合考前复习和查漏补缺。</p>
+                    <p>功能边界：本页面只负责试卷列表的展示和筛选，不包含视频播放和题目解析（由视频讲解详情页承载）。</p>
+
+                    <hr>
+
+                    <!-- ══════ 2. 筛选功能 ══════ -->
+                    <h2>2. 筛选功能</h2>
+
+                    <h3>功能说明</h3>
+                    <p>页面顶部三个筛选维度，支持快速定位目标试卷。筛选结果实时更新，无需手动刷新。</p>
+
+                    <h3>交互流程</h3>
+                    <p>1. <strong>展开筛选</strong>：点击任一筛选项（科目/版本/年级）→ 展开下拉列表 + 显示遮罩层</p>
+                    <p>2. <strong>选中选项</strong>：点击下拉列表中的选项 → 列表收起 → 试卷列表自动刷新</p>
+                    <p>3. <strong>切换筛选项</strong>：已展开一个筛选项时点击另一个 → 当前收起，新的展开</p>
+                    <p>4. <strong>收起筛选</strong>：点击已展开的筛选项或遮罩层 → 下拉列表收起</p>
+
+                    <h3>业务规则</h3>
+                    <ul>
+                        <li><strong>科目选项</strong>：数学、语文、英语</li>
+                        <li><strong>版本选项</strong>：不限、人教版、北师版、沪教版、苏教版、青岛五四版、西师版</li>
+                        <li><strong>年级选项</strong>：三年级、四年级、五年级、六年级</li>
+                        <li><strong>默认值</strong>：科目默认"数学"，版本默认"不限"，年级根据用户学生信息自动填充</li>
+                        <li><strong>组合筛选</strong>：三个筛选项独立生效，交叉过滤</li>
+                        <li>支持 URL 参数 <code>subject</code> 和 <code>grade</code> 预设筛选值</li>
+                    </ul>
+
+                    <h3>数据说明</h3>
+                    <blockquote><strong>筛选联动</strong>：三个筛选项独立过滤，不做级联（即不会因为选了"语文"就只显示语文版本的教材版本列表）</blockquote>
+                    <blockquote><strong>默认年级</strong>：优先取用户绑定学生的年级信息，无学生信息时默认"五年级"</blockquote>
+
+                    <h3>异常场景</h3>
+                    <table>
+                        <thead><tr><th>场景</th><th>处理方式</th></tr></thead>
+                        <tbody>
+                            <tr><td>筛选结果为空</td><td>列表区居中灰色试卷图标 48px +「暂无符合条件的试卷」（14px #333）+「请调整筛选条件后重试」（12px #999），无引导按钮</td></tr>
+                            <tr><td>同时点击多个筛选项</td><td>同一时间只有一个筛选项展开</td></tr>
+                        </tbody>
+                    </table>
+
+                    <hr>
+
+                    <!-- ══════ 3. 试卷卡片列表 ══════ -->
+                    <h2>3. 试卷卡片列表</h2>
+
+                    <h3>功能说明</h3>
+                    <p>展示筛选后的试卷列表，每张卡片包含试卷封面、标题、学习人数等信息，点击进入视频讲解详情页。</p>
+
+                    <h3>交互流程</h3>
+                    <p>1. <strong>浏览列表</strong>：上下滚动浏览试卷卡片</p>
+                    <p>2. <strong>进入详情</strong>：点击整张卡片或"视频讲解"链接 → 跳转到该试卷的视频讲解详情页，携带试卷 ID、标题、科目参数</p>
+
+                    <h3>业务规则</h3>
+                    <ul>
+                        <li>推荐试卷显示"推荐"标签</li>
+                        <li>试卷封面根据科目自动匹配颜色主题：数学（橙色）、语文（红色）、英语（蓝色）</li>
+                        <li>封面展示科目名称 + 年份 + "龙老师官方"标识</li>
+                        <li>卡片右下角显示"视频讲解 >"引导文字</li>
+                    </ul>
+
+                    <h3>数据说明</h3>
+                    <blockquote><strong>学习人数</strong>：展示格式如"3.2万人学过""4648人学过"，超过 1 万时显示"X.X万"</blockquote>
+                    <blockquote><strong>推荐标签</strong>：由后端标记，非所有试卷都有</blockquote>
+                    <blockquote><strong>试卷排序</strong>：推荐试卷优先，同级别按学习人数降序</blockquote>
+
+                    <h3>异常场景</h3>
+                    <table>
+                        <thead><tr><th>场景</th><th>处理方式</th></tr></thead>
+                        <tbody>
+                            <tr><td>列表加载中</td><td>显示骨架屏占位</td></tr>
+                            <tr><td>列表加载失败</td><td>显示加载失败提示 + 重试按钮</td></tr>
+                            <tr><td>试卷封面图加载失败</td><td>使用科目对应的默认渐变色封面</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>关联模块</h3>
+                    <ul>
+                        <li>→ 视频讲解详情页（点击卡片跳转）</li>
+                        <li>← 首页试卷讲解入口（进入来源）</li>
+                    </ul>
+
+                    <hr>
+
+                    <!-- ══════ 4. 导航 ══════ -->
+                    <h2>4. 导航</h2>
+
+                    <h3>交互流程</h3>
+                    <p>1. <strong>返回</strong>：点击左上角返回按钮 → 回到首页</p>
+
+                    <h3>业务规则</h3>
+                    <ul>
+                        <li>返回首页时保留首页状态，不重新加载</li>
+                    </ul>
+
+                    <hr>
+
+                    <!-- ══════ 5. 不做（本期） ══════ -->
+                    <h2>5. 不做（本期）</h2>
+                    <ul>
+                        <li>试卷搜索功能（通过关键词搜索试卷名称）</li>
+                        <li>试卷收藏/下载功能</li>
+                        <li>按地区/学校筛选</li>
+                        <li>用户自上传试卷</li>
+                        <li>试卷难度标签</li>
+                        <li>学习进度跟踪（已看/未看标记）</li>
+                    </ul>
+
+                </div>
             </div>
             <div class="rp-tab-content" id="rpTabEls" style="display:none"></div>
         </div>
@@ -704,14 +821,6 @@
 
     function loadPrdDoc() {
         prdLoaded = true;
-        fetch('../docs/prd/试卷讲解.md')
-            .then(function(r) { return r.ok ? r.text() : Promise.reject(); })
-            .then(function(md) {
-                document.getElementById('rpDocContent').innerHTML = renderMd(md);
-            })
-            .catch(function() {
-                document.getElementById('rpDocContent').textContent = '未找到 docs/prd/试卷讲解.md 文件';
-            });
     }
 
     function buildElsPanel() {

@@ -306,5 +306,22 @@ if (new URLSearchParams(window.location.search).get('mode') === 'review') {
 
 renderList();
 </script>
+
+<script src="assets/demo-mode.js"></script>
+<script>
+DemoMode.register({
+    empty: {
+        label: '暂无对话',
+        panelIcon: '💬',
+        render(c) {
+            c.innerHTML = DemoMode.emptyState({
+                icon: 'chat', title: '还没有对话记录',
+                desc: '返回首页开始第一次对话吧',
+                actionLabel: '开始对话'
+            });
+        }
+    }
+});
+</script>
 </body>
 </html>
