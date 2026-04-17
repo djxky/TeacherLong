@@ -4,3 +4,8 @@
 # IDE / Editor
 .cursor/skills/
 .cursor/mcp.json
+
+# 驾驶舱：仓库内仅保留 HTML 产品稿；本地说明文档、大图、测试稿勿提交
+驾驶舱/*.md
+驾驶舱/image.png
+驾驶舱/test.md
