@@ -137,7 +137,20 @@
     .sb-hd .tx{font-size:11px;font-weight:600;color:#1e293b;flex:1}.sb-hd .ar{color:#94a3b8;font-size:9px;transition:transform .25s}.sb-sec.op .sb-hd .ar{transform:rotate(90deg)}
     .sb-bd{max-height:0;overflow:hidden;transition:max-height .4s ease;font-size:10px;line-height:1.7;color:#475569}.sb-sec.op .sb-bd{max-height:20000px}.sb-bi{padding:8px 8px 10px}
     .sb-bd h4{color:#7c5cfc;font-size:10px;margin:8px 0 3px;font-weight:600}.sb-bd h4:first-child{margin-top:0}.sb-bd p{margin:3px 0;font-size:10px}
-    .sb-bd .ft{background:#f8fafc;border-left:2px solid #a78bfa;padding:5px 7px;margin:5px 0;border-radius:0 4px 4px 0;font-size:10px;line-height:1.6;color:#334155}.sb-bd .ft b{color:#1e293b}
+    .sb-bd .ft{background:#f8fafc;border-left:2px solid #a78bfa;padding:5px 7px;margin:5px 0;border-radius:0 4px 4px 0;font-size:10px;line-height:1.6;color:#334155;overflow-wrap:anywhere;word-break:break-word}.sb-bd .ft b{color:#1e293b}
+    .sb-bd .note{background:#fffbeb;border-left:2px solid #eab308;padding:5px 7px;margin:5px 0;border-radius:0 4px 4px 0;font-size:9px;color:#a16207;overflow-wrap:anywhere;word-break:break-word;line-height:1.5}
+    .sb-bd code{background:#f1f5f9;color:#7c5cfc;padding:0 3px;border-radius:3px;font-family:var(--num);font-size:9px}
+    .sb-bd .src{color:#7c5cfc;font-size:9px;margin-top:8px;padding-top:6px;border-top:1px dashed #e2e8f0;line-height:1.5}
+    .sb-tbl{width:100%;border-collapse:collapse;font-size:9px;margin:5px 0;border:1px solid #e2e8f0;border-radius:4px;table-layout:fixed}
+    .sb-tbl th,.sb-tbl td{padding:4px 5px;border-bottom:1px solid #e2e8f0;vertical-align:top;text-align:left;word-break:break-word}
+    .sb-tbl tr:last-child td{border-bottom:none}
+    .sb-tbl thead th{background:#f1f5f9;color:#475569;font-weight:600;font-size:9px}
+    .sb-tbl .col-n{width:2em;text-align:center;color:#64748b}
+    .sb-td-path{color:#475569;font-family:var(--num);font-size:8px;line-height:1.4;overflow-wrap:anywhere}
+    .sb-kpi-lead{margin:0 0 5px;font-size:10px;line-height:1.55;color:#334155}
+    .sb-kpi-lead b{color:#1e293b}
+    .sb-kpi-sum{margin:5px 0 0;font-size:9px;color:#64748b;line-height:1.45;font-style:italic}
+    .sb-tag-new{display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:8px;padding:1px 4px;border-radius:3px;margin-left:4px;font-weight:700;letter-spacing:.3px;vertical-align:middle;font-style:normal}
     .sec{transition:border-color .4s,box-shadow .4s}.sec.glow{border:2px solid var(--struct)!important;box-shadow:inset 0 0 30px rgba(124,92,252,.15);animation:glow-pulse 1.5s ease-in-out infinite}
     @keyframes glow-pulse{0%,100%{box-shadow:inset 0 0 30px rgba(124,92,252,.15)}50%{box-shadow:inset 0 0 40px rgba(167,139,250,.25)}}
     @media(prefers-reduced-motion:reduce){*,.feed-v-track,.feed-dot,.ctr{animation:none!important;transition:none!important}}
@@ -172,7 +185,7 @@
     <div class="kpi-card"><div class="kl">使用学校</div><div class="kv"><span class="ctr" data-to="128">0</span><span class="ku">所</span></div></div>
     <div class="kpi-card"><div class="kl">使用教师</div><div class="kv"><span id="kTA" class="ctr" data-to="3265">0</span><span class="ku">人</span></div></div>
     <div class="kpi-card"><div class="kl">使用学生</div><div class="kv"><span id="kSA" class="ctr" data-to="28566">0</span><span class="ku">人</span></div></div>
-    <div class="kpi-card"><div class="kl">累计服务次数</div><div class="kv"><span class="ctr" data-to="53.3" data-suffix="万" data-decimal="1">0</span><span class="ku">次</span></div></div>
+    <div class="kpi-card"><div class="kl">累计服务次数</div><div class="kv"><span class="ctr" data-to="69.9" data-suffix="万" data-decimal="1">0</span><span class="ku">次</span></div></div>
   </div>
 
   <div class="body">
@@ -201,23 +214,33 @@
         <div class="feed-v"><div class="feed-v-track">
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙城高级中学</span> 张明华老师 生成了互动课件</div>
           <div class="feed-v-item"><span class="feed-dot"></span>七年级学生<span class="feed-school">8273</span> 完成了AI作业批改</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>五年级学生<span class="feed-school">2047</span> 发起了AI对话</div>
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙岗区外国语学校</span> 李文静老师 使用了AI组题</div>
           <div class="feed-v-item"><span class="feed-dot"></span>三年级学生<span class="feed-school">0873</span> 使用了拍照答疑</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>八年级学生<span class="feed-school">6142</span> 完成了错因诊断</div>
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">南湾学校</span> 王建国老师 生成了大单元教案</div>
           <div class="feed-v-item"><span class="feed-dot"></span>九年级学生<span class="feed-school">5621</span> 上传了3道错题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>六年级学生<span class="feed-school">3358</span> 观看了试卷讲解</div>
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">横岗中学</span> 陈思远老师 使用了AI命题</div>
           <div class="feed-v-item"><span class="feed-dot"></span>四年级学生<span class="feed-school">3319</span> 完成了试卷擦除重做</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>七年级学生<span class="feed-school">9041</span> 发起了AI对话</div>
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">园山实验学校</span> 刘雅琴老师 使用了AI命题</div>
           <div class="feed-v-item"><span class="feed-dot"></span>八年级学生<span class="feed-school">4406</span> 使用了AI讲解</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>五年级学生<span class="feed-school">7812</span> 完成了错因诊断</div>
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">百合外国语学校</span> 赵志强老师 生成了互动课件</div>
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">布吉中学</span> 吴海涛老师 生成了教学动画</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>九年级学生<span class="feed-school">1056</span> 观看了试卷讲解</div>
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">平湖中学</span> 孙晓峰老师 生成了大单元教案</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>七年级学生<span class="feed-school">4591</span> 发起了AI对话</div>
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙城高级中学</span> 张明华老师 生成了互动课件</div>
           <div class="feed-v-item"><span class="feed-dot"></span>七年级学生<span class="feed-school">8273</span> 完成了AI作业批改</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>三年级学生<span class="feed-school">2684</span> 完成了错因诊断</div>
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">南湾学校</span> 王建国老师 生成了大单元教案</div>
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">横岗中学</span> 陈思远老师 使用了AI命题</div>
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">龙岗区实验学校</span> 林芳华老师 生成了教学动画</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>八年级学生<span class="feed-school">5573</span> 观看了试卷讲解</div>
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">园山实验学校</span> 刘雅琴老师 使用了AI命题</div>
+          <div class="feed-v-item"><span class="feed-dot"></span>六年级学生<span class="feed-school">6820</span> 发起了AI对话</div>
           <div class="feed-v-item"><span class="feed-dot"></span><span class="feed-school">百合外国语学校</span> 赵志强老师 生成了教学游戏</div>
         </div></div>
       </div>
@@ -247,16 +270,18 @@
     <div class="col">
       <div class="card sec" data-s="5" style="flex:0 0 auto">
         <div class="card-h"><h3><span class="ic"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>AI 助学 · 学生端</h3></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:calc(5px*var(--s));margin-bottom:calc(6px*var(--s))">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:calc(5px*var(--s));margin-bottom:calc(6px*var(--s))">
           <div class="sh-cell"><div class="hc-val">8,902<span class="hc-unit">次</span></div><div class="hc-label">拍照答疑</div></div>
+          <div class="sh-cell"><div class="hc-val" style="color:#22d3ee">11,430<span class="hc-unit">次</span></div><div class="hc-label">AI 对话</div></div>
           <div class="sh-cell"><div class="hc-val">6,789<span class="hc-unit">次</span></div><div class="hc-label">AI 讲解</div></div></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 calc(6px*var(--s))">
           <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--accent)"></span>作业批改</span><span class="sl-val">12,345<span class="sl-u">次</span></span></div>
+          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:#f97316"></span>错因诊断</span><span class="sl-val">5,218<span class="sl-u">次</span></span></div>
+          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:#f43f5e"></span>试卷讲解</span><span class="sl-val">4,230<span class="sl-u">次</span></span></div>
           <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--struct)"></span>视频讲解</span><span class="sl-val">4.6<span class="sl-u">万次</span></span></div>
           <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--gold)"></span>错题本</span><span class="sl-val">12,345<span class="sl-u">题</span></span></div>
           <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:var(--blue)"></span>试卷打印</span><span class="sl-val">3,891<span class="sl-u">套</span></span></div>
           <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:#06b6d4"></span>试卷下载</span><span class="sl-val">2,780<span class="sl-u">次</span></span></div>
-          <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:#f43f5e"></span>试卷讲解</span><span class="sl-val">4,230<span class="sl-u">次</span></span></div>
           <div class="sl-row"><span class="sl-name"><span class="sl-dot" style="background:#8b5cf6"></span>视频课程</span><span class="sl-val">3,560<span class="sl-u">次</span></span></div></div>
       </div>
       <div class="card sec" data-s="6" style="flex:0 0 auto">
@@ -316,15 +341,194 @@
 <div id="SB">
   <div class="sb-drag" id="sbDrag"><span class="sb-drag-dots">⋮⋮</span><span class="sb-drag-title">产品稿 · 数据口径</span><button type="button" class="sb-close" onclick="sw('demo')" title="关闭">✕</button></div>
   <div class="sb-scroll"><div class="sb-inner">
-  <div class="sb-sec op" data-sb="1"><div class="sb-hd"><span class="no">1</span><span class="tx">KPI 指标栏</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft"><b>使用学校</b>：两端登录学校去重。<b>使用教师 / 使用学生</b>：选定时间段内有使用记录的去重人数（不展示使用率和应参与人数）。<b>累计服务次数</b>= 学生端功能 PV + 教师端功能 PV。支持日期范围切换（7/30/90天预设 + 自由选日期）。</div></div></div></div>
-  <div class="sb-sec" data-sb="2"><div class="sb-hd"><span class="no">2</span><span class="tx">每日使用人数</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">学生 / 教师每日使用人数，Tab 切换，折线图 30 天。昨日数据突出显示。</div></div></div></div>
-  <div class="sb-sec" data-sb="9"><div class="sb-hd"><span class="no">3</span><span class="tx">学生年级分布</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">全区学生按年级使用人数分布，横向柱状图。小学（一～六年级）金色，中学（七～九年级）紫色。</div></div></div></div>
-  <div class="sb-sec" data-sb="3"><div class="sb-hd"><span class="no">4</span><span class="tx">学校覆盖地图</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft"><b>地图气泡</b>：按学校使用教师数映射气泡大小，15 所学校。<b>hover 卡片</b>：展示使用教师（人数+使用率）、使用学生（人数+使用率）、资源创作数。使用率仅在 hover 时可见，首页不直接展示。<b>点击气泡</b>：打开全屏学校详情页。左下角实时活动弹幕（教师创作、学生使用动态）。</div></div></div></div>
-  <div class="sb-sec"><div class="sb-hd"><span class="no">5</span><span class="tx">学校数据详情页（下钻）</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">点击地图气泡或排行榜学校进入，全屏覆盖展示单校数据。</div><h4>顶部</h4><div class="ft">← 返回按钮 + 学校名 + 日期选择器（7/30/90天预设 + 自由选日期，默认30天）+ 导出全部数据（CSV）。</div><h4>KPI 栏</h4><div class="ft">使用教师（人数）、使用学生（人数）、资源创作（个数）、累计服务（次数）。不展示使用率和应参与人数。</div><h4>学生行（4 列 grid，学生每日使用跨 2 列）</h4><div class="ft"><b>学生年级分布</b>：横向柱状图，按年级展示使用学生数，小学金色、中学紫色。<br/><b>学生每日使用</b>：折线图，Tab 切换「人数」/「使用率」。选人数时上方显示"使用人数 X 人"，选使用率时显示"使用率 X%"。<br/><b>学生使用情况</b>：顶部 3 个重点卡片（拍照答疑、作业批改、视频课堂），下方 2 列列表（AI讲解、试卷讲解、视频讲解、错题本、试卷打印、试卷下载）。</div><h4>教师行（4 列 grid）</h4><div class="ft"><b>教师创作排行</b>：按资源创作数排名，金银铜样式前三名，展示教师姓名、学科、创作数。<br/><b>教师每日使用</b>：折线图，Tab 切换「人数」/「使用率」，逻辑同学生端。<br/><b>教师使用数据</b>：资源总数突出 + 互动课件/教学动画/教学游戏/教学设计/习题组卷分项列表。<br/><b>教师资源学科分布</b>：饼图，按学科（数学/英语/语文/物理/化学/生物/其他）分布，底部水平 legend。</div></div></div></div>
-  <div class="sb-sec" data-sb="4"><div class="sb-hd"><span class="no">6</span><span class="tx">排行榜</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">学校创作榜 TOP7（点击可下钻到该校详情页）+ 教师创作榜 TOP7（展示教师姓名、学校、学科、创作数）。</div></div></div></div>
-  <div class="sb-sec" data-sb="5"><div class="sb-hd"><span class="no">7</span><span class="tx">AI 助学 · 学生端</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">拍照答疑 + AI 讲解（突出展示），其余功能（作业批改、视频讲解、错题本、试卷打印、试卷下载、试卷讲解、视频课程）2 列列表，累计口径。</div></div></div></div>
-  <div class="sb-sec" data-sb="6"><div class="sb-hd"><span class="no">8</span><span class="tx">AI 助教 · 教师端</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">生成资源总数（突出）+ 互动课件 / 教学动画 / 教学游戏分项列表，累计口径。</div></div></div></div>
-  <div class="sb-sec" data-sb="8"><div class="sb-hd"><span class="no">9</span><span class="tx">社区资源学科分布</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi"><div class="ft">环形图，按学科（数学/英语/语文/物理/化学/生物/历史/地理/道法/其他）分布，右侧 legend 带数量，累计口径。</div></div></div></div>
+  <div class="sb-sec op" data-sb="1"><div class="sb-hd"><span class="no">1</span><span class="tx">顶部 KPI 指标栏</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>数据口径</h4>
+    <div class="ft">
+      <p class="sb-kpi-lead"><b>使用学校</b>：教师端或学生端有过登录成功记录的学校去重 count，取两端 school_id 并集。口径 = <code>/active/muskWorkbenchWeb/loginsuccess</code>（教师端）∪ <code>/event/teacherLongLoginPage/loginSuccess</code>（学生端）按 school_id 去重。</p>
+      <p class="sb-kpi-lead"><b>使用教师</b>：选定时间段内教师端累计登录成功的 distinct userId。口径 = <code>/active/muskWorkbenchWeb/loginsuccess</code> distinct userId。</p>
+      <p class="sb-kpi-lead"><b>使用学生</b>：选定时间段内学生端累计登录成功的 distinct userId。口径 = <code>/event/teacherLongLoginPage/loginSuccess</code> distinct userId。</p>
+      <p class="sb-kpi-lead"><b>累计服务次数</b> = 学生端 ①～⑩ 功能 PV 之和 + 教师端 ⑪ 一条埋点 PV。</p>
+    </div>
+    <table class="sb-tbl" aria-label="累计服务次数埋点构成">
+      <thead><tr><th class="col-n">#</th><th>端</th><th>项目</th><th>埋点路径 / 口径</th></tr></thead>
+      <tbody>
+        <tr><td class="col-n">①</td><td>学生</td><td>作业批改</td><td class="sb-td-path">/event/teacherLongCorrectionResultPage/pageView count</td></tr>
+        <tr><td class="col-n">②</td><td>学生</td><td>拍照答疑</td><td class="sb-td-path">/event/teacherLongQaResultPage/pageView count</td></tr>
+        <tr><td class="col-n">③</td><td>学生</td><td>AI 对话 <em class="sb-tag-new">新</em></td><td class="sb-td-path">/click/teacherLongChatPage/sendMessage count（首页发起的主动对话，每条消息 = 1 次服务）</td></tr>
+        <tr><td class="col-n">④</td><td>学生</td><td>AI 讲解</td><td class="sb-td-path">/click/teacherLongSocraticQaPage/sendMessage count（结果页苏氏追问，每条消息 = 1 次服务）</td></tr>
+        <tr><td class="col-n">⑤</td><td>学生</td><td>错因诊断 <em class="sb-tag-new">新</em></td><td class="sb-td-path">/event/teacherLongErrorAnalysisPage/diagnosisComplete count（每完成一次错因维度诊断 = 1 次服务）</td></tr>
+        <tr><td class="col-n">⑥</td><td>学生</td><td>试卷讲解 <em class="sb-tag-new">新</em></td><td class="sb-td-path">/click/teacherLongPaperExplainPage/playVideo count（播放一次试卷逐题讲解视频 = 1 次服务）</td></tr>
+        <tr><td class="col-n">⑦</td><td>学生</td><td>视频讲解</td><td class="sb-td-path">/click/teacherLongCorrectionResultPage/playVideo + /click/teacherLongQaResultPage/playVideo 两页 count 求和</td></tr>
+        <tr><td class="col-n">⑧</td><td>学生</td><td>错题本</td><td class="sb-td-path">/event/teacherLongWrongBookPage/pageView count</td></tr>
+        <tr><td class="col-n">⑨</td><td>学生</td><td>试卷打印</td><td class="sb-td-path">/click/teacherLongPrintSharePage/export count</td></tr>
+        <tr><td class="col-n">⑩</td><td>学生</td><td>试卷下载</td><td class="sb-td-path">/click/teacherLongPaperDownloadPage/download count</td></tr>
+        <tr><td class="col-n">⑪</td><td>教师</td><td>教师端全部功能</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate count WHERE feature_section IN (17,18,19,20,21,22,23,24,25)</td></tr>
+      </tbody>
+    </table>
+    <p class="sb-kpi-sum">合计：SUM(①~⑩) + ⑪。新增 AI 对话、错因诊断、试卷讲解三项后，日均服务次数约 +31%。</p>
+    <h4>交互逻辑</h4>
+    <p>支持日期范围切换（7/30/90 天预设 + 自由选日期），默认 30 天；页面加载时四项 KPI 按选定范围查询并以动画递增展示。</p>
+    <div class="note">所有指标均为产品自采集数据，不依赖外部教务系统。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="2"><div class="sb-hd"><span class="no">2</span><span class="tx">每日使用人数（DAU）</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>数据口径</h4>
+    <div class="ft">
+      <b>学生 DAU</b>：AI 龙老师小程序当日进入去重 UV。口径 = <code>/event/teacherLongProgram/enter</code> 按自然日（0:00-23:59）distinct userId。参数：enterTime、currenUrl、grade。<br><br>
+      <b>教师 DAU</b>：AI 龙老师教师端当日进入去重 UV。口径 = <code>/event/muskWorkbenchWeb/enter</code> 按自然日 distinct userId。<br><br>
+      <b>头部数值</b>：展示「昨日」DAU 值（与折线最后一个数据点一致）。<br>
+      <b>横轴日期</b>：近 30 个自然日，从左至右为 T-30 至昨日。
+    </div>
+    <h4>交互逻辑</h4>
+    <p>默认选中「学生」Tab。点击切换时，头部数值、折线颜色同步变化。hover 折线显示当天具体 DAU。</p>
+    <div class="note">数据特征：工作日高、周末低的锯齿状，符合学生和教师真实使用节奏。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="9"><div class="sb-hd"><span class="no">3</span><span class="tx">学生年级分布</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>数据口径</h4>
+    <div class="ft">
+      <b>活跃学生数</b>：选定时间段内进入过小程序的学生去重 UV。口径 = <code>/event/teacherLongProgram/enter</code> distinct userId，按参数 <code>grade</code> 字段分组。<br><br>
+      <b>年级标签</b>：一年级～九年级，共 9 个年级。<br>
+      <b>颜色分段</b>：金色 = 小学（一～六年级），紫色 = 初中（七～九年级）。
+    </div>
+    <div class="note">用于辅助判断不同学段的渗透率；与 KPI「使用学生」口径一致，维度为年级结构。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="3"><div class="sb-hd"><span class="no">4</span><span class="tx">学校覆盖地图</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>数据口径</h4>
+    <div class="ft">
+      <b>气泡大小</b>：按该校<b>累计使用教师数</b>映射，公式 = 4 + 教师数 × 0.08（px）。<br>
+      口径 = <code>/active/muskWorkbenchWeb/loginsuccess</code> 按 school_id 分组 distinct userId。<br><br>
+      <b>Tooltip · 使用教师 / 使用学生</b>：该校累计登录成功的师生去重 UV，分别含人数与使用率（分母为该校应参与师生数）。<br>
+      <b>Tooltip · 资源创作数</b>：该校教师累计 AI 资源创作数。口径 = <code>/click/DesignCompilePlanPage/generate</code> WHERE feature_section IN (17~25) 按 school_id 分组 count。
+    </div>
+    <h4>实时活动弹幕（左下角）</h4>
+    <p>纵向滚动展示师生近期使用动态，营造「系统正在被使用」的真实感。教师条目绿色高亮学校全称，学生条目绿色高亮手机尾号或身份 ID。</p>
+    <p><b>① 教师创作类</b>：<code>{学校全称} {教师姓名}老师 {动作}{功能名}</code></p>
+    <table class="sb-tbl" aria-label="教师弹幕规则">
+      <thead><tr><th class="col-n">#</th><th>功能</th><th>动作词</th><th>埋点来源</th></tr></thead>
+      <tbody>
+        <tr><td class="col-n">T1</td><td>互动课件</td><td>生成了</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate（feature_section=20）</td></tr>
+        <tr><td class="col-n">T2</td><td>AI 命题</td><td>使用了</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate（feature_section=17）</td></tr>
+        <tr><td class="col-n">T3</td><td>AI 组题</td><td>使用了</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate（feature_section=18）</td></tr>
+        <tr><td class="col-n">T4</td><td>大单元教案</td><td>生成了</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate（feature_section=19）</td></tr>
+        <tr><td class="col-n">T5</td><td>教学动画</td><td>生成了</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate（feature_section=21）</td></tr>
+        <tr><td class="col-n">T6</td><td>教学游戏</td><td>生成了</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate（feature_section=22）</td></tr>
+      </tbody>
+    </table>
+    <p><b>② 学生使用类</b>：<code>{年级}学生{手机尾号后四位} {动作描述}</code></p>
+    <table class="sb-tbl" aria-label="学生弹幕规则">
+      <thead><tr><th class="col-n">#</th><th>功能</th><th>动作描述</th><th>埋点来源</th></tr></thead>
+      <tbody>
+        <tr><td class="col-n">S1</td><td>拍照答疑</td><td>使用了拍照答疑</td><td class="sb-td-path">/event/teacherLongQaResultPage/pageView</td></tr>
+        <tr><td class="col-n">S2</td><td>作业批改</td><td>完成了AI作业批改</td><td class="sb-td-path">/event/teacherLongCorrectionResultPage/pageView</td></tr>
+        <tr><td class="col-n">S3</td><td>AI 对话 <em class="sb-tag-new">新</em></td><td>发起了AI对话</td><td class="sb-td-path">/click/teacherLongChatPage/sendMessage</td></tr>
+        <tr><td class="col-n">S4</td><td>AI 讲解</td><td>使用了AI讲解</td><td class="sb-td-path">/click/teacherLongSocraticQaPage/sendMessage</td></tr>
+        <tr><td class="col-n">S5</td><td>错因诊断 <em class="sb-tag-new">新</em></td><td>完成了错因诊断</td><td class="sb-td-path">/event/teacherLongErrorAnalysisPage/diagnosisComplete</td></tr>
+        <tr><td class="col-n">S6</td><td>试卷讲解 <em class="sb-tag-new">新</em></td><td>观看了试卷讲解</td><td class="sb-td-path">/click/teacherLongPaperExplainPage/playVideo</td></tr>
+        <tr><td class="col-n">S7</td><td>上传错题</td><td>上传了{N}道错题</td><td class="sb-td-path">/event/teacherLongUploadWrongResultPage/wrongSaveSuccess</td></tr>
+        <tr><td class="col-n">S8</td><td>试卷擦除</td><td>完成了试卷擦除重做</td><td class="sb-td-path">/event/teacherLongErasePage/eraseComplete</td></tr>
+      </tbody>
+    </table>
+    <div class="note">数据来源 = 各功能对应埋点的操作日志流，取最近 100 条事件，不去重，按事件时间倒序；不展示时间，避免 demo 暴露静态数据。V1.0 静态模拟，V2.0 接入服务端轮询（30s）或 WebSocket 推送。</div>
+  </div></div></div>
+
+  <div class="sb-sec"><div class="sb-hd"><span class="no">5</span><span class="tx">学校数据详情页（下钻）</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>入口</h4>
+    <div class="ft">点击地图气泡或学校创作榜任一行即进入该校全屏详情页，覆盖主页面。</div>
+    <h4>顶部</h4>
+    <div class="ft">← 返回按钮 + 学校名 + 日期选择器（7/30/90 天预设 + 自由选日期，默认 30 天）+ 导出全部数据（CSV，含 AI 对话 / 错因诊断 / 试卷讲解 等全部新字段）。</div>
+    <h4>KPI 栏</h4>
+    <div class="ft">使用教师（人数）、使用学生（人数）、资源创作（个数）、累计服务（次数）。数值 = 全区对应指标 × 该校占比，与地图 Tooltip 对齐。</div>
+    <h4>学生行（4 列 grid，学生每日使用跨 2 列）</h4>
+    <div class="ft">
+      <b>学生年级分布</b>：横向柱状图，按年级展示使用学生数，小学金色、中学紫色。<br>
+      <b>学生每日使用</b>：折线图，Tab 切换「人数 / 使用率」。选人数时上方显示"使用人数 X 人"，选使用率时显示"使用率 X%"。<br>
+      <b>学生使用情况 <em class="sb-tag-new">已扩展</em></b>：顶部 3 个重点卡片（<b>拍照答疑 / AI 对话 / AI 讲解</b>）——突出小程序三大 AI 入口；下方 2 列列表（作业批改、错因诊断、试卷讲解、视频讲解、错题本、试卷打印、试卷下载、视频课程），共 8 项。
+    </div>
+    <h4>教师行（4 列 grid）</h4>
+    <div class="ft">
+      <b>教师创作排行</b>：按资源创作数排名，金银铜前三名，展示教师姓名、学科、创作数。<br>
+      <b>教师每日使用</b>：折线图，Tab 切换「人数 / 使用率」，逻辑同学生端。<br>
+      <b>教师使用数据</b>：资源总数突出 + 互动课件 / 教学动画 / 教学游戏 / 教学设计 / 习题组卷 分项列表。<br>
+      <b>教师资源学科分布</b>：饼图，按学科（数学 / 英语 / 语文 / 物理 / 化学 / 生物 / 其他）分布，底部水平 legend。
+    </div>
+    <div class="note">所有单校数值均按 <b>该校使用学生 / 全区使用学生</b> 比例从大盘数据反推得到，保证与主页面 KPI、地图 Tooltip、排行榜口径一致。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="4"><div class="sb-hd"><span class="no">6</span><span class="tx">双列排行榜（学校 + 教师）</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>学校累计创作榜</h4>
+    <div class="ft">
+      <b>排名指标</b>：该校教师的 AI 资源创作总数。<br>
+      口径 = <code>/click/DesignCompilePlanPage/generate</code> WHERE feature_section IN (17~25) 按 school_id 分组 count，降序取 TOP 7。<br>
+      <b>展示字段</b>：排名序号（金/银/铜奖牌色）、学校全称、创作总数（个）。点击整行进入该校详情页。
+    </div>
+    <h4>教师累计创作榜</h4>
+    <div class="ft">
+      <b>排名指标</b>：教师个人资源创作总数。<br>
+      口径 = <code>/click/DesignCompilePlanPage/generate</code> WHERE feature_section IN (17~25) 按 userId 分组 count，降序取 TOP 7。<br>
+      <b>展示字段</b>：排名序号（金/银/铜奖牌色）、教师姓名、学校·学科、创作数（个）。教师学科取自 profile.subject 字段。
+    </div>
+    <div class="note">双列均为<strong>累计</strong>口径，数据来源与助教卡「资源创作总数」一致。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="5"><div class="sb-hd"><span class="no">7</span><span class="tx">AI 助学 · 学生端 <em class="sb-tag-new">已扩展</em></span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>突出指标（上方 3 列大数字卡片）</h4>
+    <table class="sb-tbl" aria-label="助学突出指标口径">
+      <thead><tr><th>指标</th><th>单位</th><th>埋点路径</th><th>计数规则</th></tr></thead>
+      <tbody>
+        <tr><td>拍照答疑</td><td>次</td><td class="sb-td-path">/event/teacherLongQaResultPage/pageView</td><td>进入结果页 = 1 次</td></tr>
+        <tr><td>AI 对话 <em class="sb-tag-new">新</em></td><td>次</td><td class="sb-td-path">/click/teacherLongChatPage/sendMessage</td><td>首页主动发起的对话，每条消息 = 1 次</td></tr>
+        <tr><td>AI 讲解</td><td>次</td><td class="sb-td-path">/click/teacherLongSocraticQaPage/sendMessage</td><td>结果页苏氏追问，每条消息 = 1 次</td></tr>
+      </tbody>
+    </table>
+    <div class="note">三大 AI 入口分别对应小程序三个核心场景：① 拍照答疑 = 线下题目直接问；② AI 对话 = 首页主动开聊（含语音/文字输入）；③ AI 讲解 = 作业批改或拍照答疑结果页里的深度追问（苏氏问答）。同属于 LLM 对话类，但入口与上下文不同，分开统计便于观察每个入口的使用强度。</div>
+
+    <h4>辅助指标（下方 2 列列表）</h4>
+    <table class="sb-tbl" aria-label="助学辅助指标口径">
+      <thead><tr><th>指标</th><th>单位</th><th>埋点路径</th><th>计数规则</th></tr></thead>
+      <tbody>
+        <tr><td>作业批改</td><td>次</td><td class="sb-td-path">/event/teacherLongCorrectionResultPage/pageView</td><td>进入结果页 = 1 次</td></tr>
+        <tr><td>错因诊断 <em class="sb-tag-new">新</em></td><td>次</td><td class="sb-td-path">/event/teacherLongErrorAnalysisPage/diagnosisComplete</td><td>复用拍照入口（mode=wrong），每完成一次错因维度诊断 = 1 次</td></tr>
+        <tr><td>试卷讲解 <em class="sb-tag-new">新</em></td><td>次</td><td class="sb-td-path">/click/teacherLongPaperExplainPage/playVideo</td><td>按科目/版本/年级筛选试卷，播放一次逐题讲解视频 = 1 次</td></tr>
+        <tr><td>视频讲解</td><td>万次</td><td class="sb-td-path">/click/teacherLongCorrectionResultPage/playVideo + /click/teacherLongQaResultPage/playVideo</td><td>两页 playVideo count 求和</td></tr>
+        <tr><td>错题本</td><td>题</td><td class="sb-td-path">/event/teacherLongWrongBookPage/pageView</td><td>进入错题本 = 1 次</td></tr>
+        <tr><td>试卷打印</td><td>套</td><td class="sb-td-path">/click/teacherLongPrintSharePage/export</td><td>下载分享 = 1 次</td></tr>
+        <tr><td>试卷下载</td><td>次</td><td class="sb-td-path">/click/teacherLongPaperDownloadPage/download</td><td>下载一套试卷 = 1 次</td></tr>
+        <tr><td>视频课程</td><td>次</td><td class="sb-td-path">/click/teacherLongVideoCoursePage/play</td><td>播放知识点讲解视频 = 1 次</td></tr>
+      </tbody>
+    </table>
+    <div class="note">所有数据为累计口径；卡片标题区不展示「累计」标签。埋点路径与 KPI 栏 ①～⑩ 完全一致，保证大盘与分项对齐。「错因诊断」与「试卷讲解」为本期新上线功能，需在上线 T+1 日起观测 7/14/30 日渗透曲线。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="6"><div class="sb-hd"><span class="no">8</span><span class="tx">AI 助教 · 教师端</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>核心指标（左汇总 + 右明细）</h4>
+    <div class="ft">
+      <b>左侧汇总</b>：资源创作总数 = <code>/click/DesignCompilePlanPage/generate</code> WHERE feature_section IN (17~25) count，大字号突出。<br>
+      <b>右侧明细</b>（纵向排列，单位统一为"个"）：
+    </div>
+    <table class="sb-tbl" aria-label="助教指标口径">
+      <thead><tr><th>指标</th><th>埋点路径</th><th>计数规则</th></tr></thead>
+      <tbody>
+        <tr><td>互动课件</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate（feature_section=20）</td><td>count</td></tr>
+        <tr><td>教学动画</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate（feature_section=21）</td><td>count</td></tr>
+        <tr><td>教学游戏</td><td class="sb-td-path">/click/DesignCompilePlanPage/generate（feature_section=22）</td><td>count</td></tr>
+      </tbody>
+    </table>
+    <div class="note">卡片上展示 3 项明细，汇总数包含全部 feature_section IN (17~25) 的数据。数据为累计口径。</div>
+  </div></div></div>
+
+  <div class="sb-sec" data-sb="8"><div class="sb-hd"><span class="no">9</span><span class="tx">社区资源学科分布</span><span class="ar">▶</span></div><div class="sb-bd"><div class="sb-bi">
+    <h4>说明</h4>
+    <p>本卡片独立于「AI 助教·教师端」，展示教师<b>分享到社区</b>的资源学科分布，与助教端「生成资源总数」是两个口径——助教统计的是教师<b>生成（创作）</b>的资源，本卡片统计的是教师<b>主动分享到社区</b>的资源。</p>
+    <h4>学科分布环形图</h4>
+    <div class="ft">
+      <b>统计维度</b>：教师分享到社区的资源，按学科拆解。<br>
+      <b>学科枚举</b>：数学 / 英语 / 语文 / 物理 / 化学 / 生物 / 历史 / 地理 / 道法 / 其他。<br>
+      <b>数据来源</b>：社区分享接口，按资源的 subject 字段分组 count。不取 frog 埋点数据。
+    </div>
+    <div class="note">助教端统计"生成了多少资源"，本卡片统计"分享到社区多少资源"，两者数值不同。数据为累计口径。</div>
+  </div></div></div>
 </div></div><div class="sb-resize" id="sbResize"></div></div>
 
 <script>
@@ -414,8 +618,8 @@ soCharts.grade.setOption({tooltip:{trigger:'axis',axisPointer:{type:'shadow'},ba
 function renderTeacherRank(s){var b=document.getElementById('soTeacherRank'),t=getTeachers(s.name),h='';t.forEach(function(x,i){var rs=i===0?'background:linear-gradient(135deg,#f59e0b,#d97706);color:#000':i===1?'background:linear-gradient(135deg,#94a3b8,#64748b);color:#000':i===2?'background:linear-gradient(135deg,#b45309,#92400e);color:#fff':'background:var(--bdr);color:var(--t3)';h+='<div class="sch"><span class="s-rank" style="'+rs+'">'+(i+1)+'</span><span class="s-name">'+x.n+'<span style="color:var(--t3);margin-left:3px">'+x.s+'</span></span><span class="s-val">'+x.c+'<span class="s-unit">个</span></span></div>'});b.innerHTML=h}
 
 function renderStudentData(s){var r=s.as/28566,b=document.getElementById('soStudentData');
-var hero=[{n:'拍照答疑',v:Math.round(8902*r),u:'次',c:'var(--accent)',ic:'📷'},{n:'作业批改',v:Math.round(12345*r),u:'次',c:'#c084fc',ic:'✏️'},{n:'视频课堂',v:Math.round(3560*r),u:'次',c:'var(--gold)',ic:'🎬'}];
-var rest=[{n:'AI 讲解',v:Math.round(6789*r),u:'次',c:'var(--struct)'},{n:'试卷讲解',v:Math.round(4230*r),u:'次',c:'var(--blue)'},{n:'视频讲解',v:Math.round(46000*r),u:'次',c:'#06b6d4'},{n:'错题本',v:Math.round(12345*r),u:'题',c:'#f43f5e'},{n:'试卷打印',v:Math.round(3891*r),u:'套',c:'#ec4899'},{n:'试卷下载',v:Math.round(2780*r),u:'次',c:'#22c55e'}];
+var hero=[{n:'拍照答疑',v:Math.round(8902*r),u:'次',c:'var(--accent)',ic:'📷'},{n:'AI 对话',v:Math.round(11430*r),u:'次',c:'#22d3ee',ic:'💬'},{n:'AI 讲解',v:Math.round(6789*r),u:'次',c:'var(--struct)',ic:'🧠'}];
+var rest=[{n:'作业批改',v:Math.round(12345*r),u:'次',c:'#c084fc'},{n:'错因诊断',v:Math.round(5218*r),u:'次',c:'#f97316'},{n:'试卷讲解',v:Math.round(4230*r),u:'次',c:'var(--blue)'},{n:'视频讲解',v:Math.round(46000*r),u:'次',c:'#06b6d4'},{n:'错题本',v:Math.round(12345*r),u:'题',c:'#f43f5e'},{n:'试卷打印',v:Math.round(3891*r),u:'套',c:'#ec4899'},{n:'试卷下载',v:Math.round(2780*r),u:'次',c:'#22c55e'},{n:'视频课程',v:Math.round(3560*r),u:'次',c:'#8b5cf6'}];
 var h='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:calc(4px*var(--s));margin-bottom:calc(6px*var(--s))">';
 hero.forEach(function(x){h+='<div class="sh-cell" style="border-color:rgba(124,92,252,.08)"><div style="font-size:calc(9px*var(--s));margin-bottom:calc(2px*var(--s))">'+x.ic+'</div><div class="hc-val" style="color:'+x.c+'">'+x.v.toLocaleString()+'<span class="hc-unit">'+x.u+'</span></div><div class="hc-label">'+x.n+'</div></div>'});
 h+='</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0 calc(6px*var(--s))">';
@@ -459,7 +663,7 @@ window.setSOPreset=function(n){document.getElementById('soDrStart').value=fmtD(d
 
 /* ═══ export ═══ */
 function dlCSV(h,rows,fn){var csv='\ufeff'+h.join(',')+'\n';rows.forEach(function(r){csv+=r.join(',')+'\n'});var b=new Blob([csv],{type:'text/csv;charset=utf-8;'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=fn;a.click();URL.revokeObjectURL(a.href)}
-window.exportSchoolCSV=function(){if(!curSchool)return;var s=curSchool,r=s.as/28566,cr=s.creates/19107;var h=['指标','数值'];var rows=[['学校',s.name],['使用教师',s.at],['使用学生',s.as],['资源创作',s.creates],['拍照答疑',Math.round(8902*r)],['AI讲解',Math.round(6789*r)],['试卷讲解',Math.round(4230*r)],['视频课堂',Math.round(3560*r)],['作业批改',Math.round(12345*r)],['视频讲解',Math.round(46000*r)],['错题本',Math.round(12345*r)],['试卷打印',Math.round(3891*r)],['试卷下载',Math.round(2780*r)],['互动课件',Math.round(8306*cr)],['教学动画',Math.round(1823*cr)],['教学游戏',Math.round(1206*cr)]];dlCSV(h,rows,s.name+'_数据.csv')};
+window.exportSchoolCSV=function(){if(!curSchool)return;var s=curSchool,r=s.as/28566,cr=s.creates/19107;var h=['指标','数值'];var rows=[['学校',s.name],['使用教师',s.at],['使用学生',s.as],['资源创作',s.creates],['拍照答疑',Math.round(8902*r)],['AI对话',Math.round(11430*r)],['AI讲解',Math.round(6789*r)],['作业批改',Math.round(12345*r)],['错因诊断',Math.round(5218*r)],['试卷讲解',Math.round(4230*r)],['视频讲解',Math.round(46000*r)],['错题本',Math.round(12345*r)],['试卷打印',Math.round(3891*r)],['试卷下载',Math.round(2780*r)],['视频课程',Math.round(3560*r)],['互动课件',Math.round(8306*cr)],['教学动画',Math.round(1823*cr)],['教学游戏',Math.round(1206*cr)]];dlCSV(h,rows,s.name+'_数据.csv')};
 
 /* ═══ counter ═══ */
 document.querySelectorAll('.ctr').forEach(function(el){var to=parseFloat(el.dataset.to),sf=el.dataset.suffix||'',dc=parseInt(el.dataset.decimal)||0,dur=1400,steps=50,step=0;function f(v){if(dc>0)return v.toFixed(dc)+sf;return Math.floor(v).toLocaleString()+sf}el.textContent=f(0);var t=setInterval(function(){step++;var p=Math.min(step/steps,1);p=1-Math.pow(1-p,3);el.textContent=f(to*p);if(p>=1){clearInterval(t);el.textContent=f(to)}},dur/steps)});
