@@ -1,7 +1,5 @@
 # 小程序目录有推送到 main 时，向指定企业微信群发通知
-# GitHub → Settings → Secrets → Actions 新建 Secret：
-#   名称：WEWORK_WEBHOOK_MINIPROGRAM
-#   值：小程序项目群的「群机器人」Webhook 完整地址
+# GitHub → Settings → Secrets → Actions：WEWORK_WEBHOOK_MINIPROGRAM = 群机器人 Webhook
 
 name: 企微通知 · 小程序
 
@@ -19,27 +17,19 @@ jobs:
       - name: 发送到企业微信（小程序群）
         env:
           WEWORK_WEBHOOK_URL: ${{ secrets.WEWORK_WEBHOOK_MINIPROGRAM }}
-          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
           if [ -z "${WEWORK_WEBHOOK_URL:-}" ]; then
             echo "未配置 Secret：WEWORK_WEBHOOK_MINIPROGRAM，跳过企微通知。"
             exit 0
           fi
-          REPO="${{ github.repository }}"
-          SHA="${{ github.sha }}"
-          SHORT="${SHA:0:7}"
-          ACTOR="${{ github.actor }}"
-          URL="https://github.com/${REPO}/commit/${SHA}"
-          SAFE_MSG="$(printf '%s' "$COMMIT_MSG" | head -c 1200)"
+          PREVIEW_URL='https://djxky.github.io/TeacherLong/%E5%B0%8F%E7%A8%8B%E5%BA%8F/%E9%A6%96%E9%A1%B5-v3.html'
+
           MSG="$(printf '%s\n' \
-            "📌【小程序】有更新（main）" \
-            "仓库：${REPO}" \
-            "提交：${SHORT}  操作者：${ACTOR}" \
+            "产品稿变更通知" \
             "" \
-            "提交说明：" \
-            "${SAFE_MSG}" \
-            "" \
-            "链接：${URL}")"
+            "产品稿链接：" \
+            "${PREVIEW_URL}")"
+
           jq -n --arg text "$MSG" '{msgtype:"text",text:{content:$text}}' | \
             curl -sfS -X POST "$WEWORK_WEBHOOK_URL" \
               -H 'Content-Type: application/json' \
