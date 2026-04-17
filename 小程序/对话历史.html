@@ -11,141 +11,116 @@
         .page-wrap {
             position: absolute; inset: 0;
             display: flex; flex-direction: column;
-            background: #fff;
+        }
+
+        /* ── 渐变背景 + 光斑（与首页 v3 统一） ── */
+        .page-bg {
+            position: absolute; inset: 0; z-index: 0;
+            background: linear-gradient(170deg, #f0ecff 0%, #faf8ff 25%, #f8fafc 50%, #f1f5f9 100%);
+        }
+        .bg-blob-1 {
+            position: absolute; top: -5%; left: -10%; width: 65%; height: 45%;
+            background: radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 70%);
+            filter: blur(50px); pointer-events: none;
+        }
+        .bg-blob-2 {
+            position: absolute; top: 30%; right: -15%; width: 55%; height: 40%;
+            background: radial-gradient(ellipse, rgba(251,191,36,0.08) 0%, transparent 70%);
+            filter: blur(50px); pointer-events: none;
+        }
+        .bg-blob-3 {
+            position: absolute; bottom: 5%; left: -5%; width: 50%; height: 40%;
+            background: radial-gradient(ellipse, rgba(96,165,250,0.07) 0%, transparent 70%);
+            filter: blur(45px); pointer-events: none;
         }
 
         /* ── 顶栏 ── */
         .ch-header {
-            padding: 50px 16px 12px;
+            padding: 56px 20px 8px;
             padding-right: var(--app-capsule-clearance, 96px);
-            display: flex; align-items: center; gap: 12px;
+            display: flex; align-items: center; gap: 8px;
             flex-shrink: 0; position: relative; z-index: 20;
         }
         .ch-back {
-            padding: 6px; margin: -6px; color: #1e293b;
-            background: none; border: none; cursor: pointer;
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: #1e293b; background: none; border: none; cursor: pointer;
+            transition: all 0.18s; -webkit-tap-highlight-color: transparent;
         }
-        .ch-title { font-size: 17px; font-weight: 700; color: #0f172a; flex: 1; }
-
-        /* ── 搜索栏 ── */
-        .search-bar {
-            margin: 0 16px 4px; padding: 0;
-            display: flex; align-items: center; gap: 8px;
-            background: #f5f5f5; border-radius: 10px;
-            border: 1.5px solid transparent;
-            transition: all 0.2s;
+        .ch-back:active { transform: scale(0.9); background: rgba(0,0,0,0.03); }
+        .ch-title {
+            font-size: 1.0625rem; font-weight: 700; color: #0f172a; flex: 1;
         }
-        .search-bar:focus-within { border-color: #c4b5fd; background: #fff; }
-        .search-bar svg { margin-left: 12px; flex-shrink: 0; color: #b0b0b0; }
-        .search-input {
-            flex: 1; height: 36px; border: none; background: none;
-            font-size: 13px; font-family: inherit; color: #1e293b;
-            outline: none;
-        }
-        .search-input::placeholder { color: #c0c0c0; }
 
         /* ── 列表 ── */
         .chat-list {
-            flex: 1; overflow-y: auto; padding: 0;
+            flex: 1; overflow-y: auto; padding: 8px 20px 20px;
             -webkit-overflow-scrolling: touch;
+            position: relative; z-index: 1;
         }
         .chat-list::-webkit-scrollbar { display: none; }
 
-        .date-label {
-            font-size: 12px; font-weight: 500; color: #b0b0b0;
-            padding: 16px 20px 6px;
-        }
-
         .chat-item {
-            display: flex; align-items: center; gap: 0;
-            padding: 13px 20px;
-            cursor: pointer; transition: background 0.1s;
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 16px; margin-bottom: 8px;
+            border-radius: 14px;
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 2px 10px -3px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.6);
+            cursor: pointer;
             -webkit-tap-highlight-color: transparent;
-            position: relative;
+            transition: transform 0.18s cubic-bezier(0.16,1,0.3,1);
         }
-        .chat-item:active { background: #f9f9f9; }
+        .chat-item:active { transform: scale(0.98); }
+
+        .ci-icon {
+            width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.8);
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.05);
+            color: #8b5cf6;
+        }
 
         .ci-body { flex: 1; min-width: 0; }
         .ci-title {
-            font-size: 15px; font-weight: 500; color: #1a1a1a;
+            font-size: 0.875rem; font-weight: 600; color: #0f172a;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
             line-height: 1.4;
         }
-        .ci-pinned .ci-title { font-weight: 600; }
         .ci-preview {
-            font-size: 12.5px; color: #999; margin-top: 2px;
+            font-size: 0.75rem; color: #64748b; margin-top: 3px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .ci-time {
-            flex-shrink: 0; font-size: 11px; color: #c0c0c0;
-            margin-left: 12px; align-self: flex-start; margin-top: 3px;
+            line-height: 1.3;
         }
 
-        /* 置顶 */
-        .ci-pinned { background: #faf9ff; }
-        .pin-icon {
-            flex-shrink: 0; margin-left: 6px; color: #c4b5fd;
-            align-self: flex-start; margin-top: 4px;
+        .ci-arrow {
+            flex-shrink: 0; color: #d4d4d8;
         }
-
-        /* ── 底部新建 ── */
-        .new-chat-bar {
-            padding: 10px 16px;
-            padding-bottom: calc(10px + env(safe-area-inset-bottom));
-            background: #fff; border-top: 1px solid #f0f0f0;
-            flex-shrink: 0;
-        }
-        .new-chat-btn {
-            width: 100%; height: 46px; border-radius: 12px; border: none;
-            background: linear-gradient(135deg, #7c3aed, #6d28d9);
-            color: #fff; font-size: 15px; font-weight: 600;
-            font-family: inherit; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-            box-shadow: 0 2px 12px -3px rgba(124,58,237,0.3);
-            -webkit-tap-highlight-color: transparent;
-            transition: transform 0.12s;
-        }
-        .new-chat-btn:active { transform: scale(0.98); }
 
         /* ── 空状态 ── */
         .empty-state {
             flex: 1; display: flex; flex-direction: column;
             align-items: center; justify-content: center;
             padding: 60px 40px; text-align: center;
+            position: relative; z-index: 1;
         }
-        .empty-title { font-size: 15px; font-weight: 600; color: #999; margin-bottom: 4px; }
-        .empty-desc { font-size: 13px; color: #c0c0c0; }
+        .empty-icon {
+            width: 64px; height: 64px; border-radius: 20px; margin-bottom: 16px;
+            background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            display: flex; align-items: center; justify-content: center;
+            color: #c4b5fd;
+            box-shadow: 0 2px 12px -4px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.65);
+        }
+        .empty-title { font-size: 15px; font-weight: 600; color: #64748b; margin-bottom: 4px; }
+        .empty-desc { font-size: 13px; color: #94a3b8; }
 
-        /* ── Toast ── */
-        #toast {
-            position: absolute; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px);
-            background: rgba(0,0,0,0.78); color: white; padding: 10px 20px; border-radius: 20px;
-            font-size: 13px; font-weight: 500; pointer-events: none; opacity: 0;
-            transition: all 0.3s ease-out; z-index: 2000;
+        /* ── 入场动画 ── */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* ── 长按菜单 ── */
-        .context-menu {
-            position: fixed; z-index: 3000;
-            background: #fff; border-radius: 12px;
-            box-shadow: 0 8px 32px -6px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04);
-            min-width: 130px; overflow: hidden;
-            opacity: 0; pointer-events: none; transform: scale(0.92);
-            transition: all 0.15s ease;
-        }
-        .context-menu.show { opacity: 1; pointer-events: auto; transform: scale(1); }
-        .cm-item {
-            display: flex; align-items: center; gap: 8px;
-            padding: 11px 16px; font-size: 14px; font-weight: 500;
-            color: #333; cursor: pointer; border: none;
-            background: none; width: 100%; font-family: inherit;
-        }
-        .cm-item:active { background: #f5f5f5; }
-        .cm-item + .cm-item { border-top: 1px solid #f0f0f0; }
-        .cm-item.danger { color: #ef4444; }
-        .cm-overlay { position: fixed; inset: 0; z-index: 2999; display: none; }
-        .cm-overlay.show { display: block; }
+        .anim { animation: fadeUp 0.45s cubic-bezier(0.16,1,0.3,1) both; }
 
         /* ── 过稿面板 ── */
         .mode-toggle {
@@ -202,42 +177,22 @@
             <div class="wx-capsule-divider"></div>
             <button class="wx-capsule-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M2 2l8 8M10 2l-8 8"/></svg></button>
         </div>
-        <div id="toast"><span id="toast-msg"></span></div>
-
         <div class="page-wrap">
+            <div class="page-bg">
+                <div class="bg-blob-1"></div>
+                <div class="bg-blob-2"></div>
+                <div class="bg-blob-3"></div>
+            </div>
+
             <div class="ch-header" data-doc="header" data-prd="对话历史页顶栏">
                 <button class="ch-back" onclick="goBack()">
-                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
                 </button>
                 <div class="ch-title">对话历史</div>
             </div>
 
-            <div class="search-bar" data-doc="search" data-prd="搜索对话记录">
-                <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <input class="search-input" type="text" placeholder="搜索" id="searchInput" oninput="filterList()">
-            </div>
-
-            <div class="chat-list" id="chatList" data-doc="chat-list" data-prd="对话列表，按日期分组，点击进入对话，长按弹出菜单（置顶/删除）"></div>
-
-            <div class="new-chat-bar" data-doc="new-chat" data-prd="新建对话">
-                <button class="new-chat-btn" onclick="startNewChat()" data-track="/click/chatHistory/newChat | 新建对话 | 无">
-                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                    新对话
-                </button>
-            </div>
+            <div class="chat-list" id="chatList" data-doc="chat-list" data-prd="文字对话列表（不含搜题/批改等功能性记录），按时间倒序，点击续聊"></div>
         </div>
-    </div>
-
-    <div class="cm-overlay" id="cmOverlay" onclick="hideContextMenu()"></div>
-    <div class="context-menu" id="contextMenu">
-        <button class="cm-item" id="cmPin" onclick="doPinChat()">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
-            <span id="cmPinText">置顶</span>
-        </button>
-        <button class="cm-item danger" onclick="doDeleteChat()">
-            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            删除
-        </button>
     </div>
 
     <!-- 过稿面板 -->
@@ -251,30 +206,24 @@
         </div>
         <div class="rp-body">
             <h2>页面定位</h2>
-            <p>展示用户与 AI 龙老师的所有历史对话会话，支持搜索、置顶、删除、续聊。</p>
+            <p>仅展示用户与 AI 龙老师的<strong>文字对话</strong>历史记录，支持续聊。返回即回到首页（新对话）。</p>
+            <p>注：搜题、作业批改、错因诊断、试卷擦除、错题录入等功能性记录，分别在各自的入口里查看，不在此页展示。</p>
 
             <h2>页面结构</h2>
             <h3>1. 顶栏</h3>
-            <ul><li>返回按钮 + 标题「对话历史」</li></ul>
-            <h3>2. 搜索栏</h3>
-            <ul><li>输入关键词实时过滤列表</li></ul>
-            <h3>3. 对话列表</h3>
+            <ul><li>返回按钮（返回首页 = 新对话）+ 标题「对话历史」</li></ul>
+            <h3>2. 对话列表</h3>
             <ul>
-                <li>按日期分组（今天 / 昨天 / 近7天 / 更早）</li>
-                <li>每条仅展示：标题 + 时间，置顶条目有浅底色标记</li>
-                <li>点击 → 进入对话.html 加载该会话</li>
-                <li>长按 → 置顶 / 删除</li>
+                <li>按时间倒序排列，最近的对话在最上方</li>
+                <li>每条展示：图标 + 标题 + 最近回复预览</li>
+                <li>点击 → 进入对话详情页加载该会话继续聊</li>
             </ul>
-            <h3>4. 底部</h3>
-            <ul><li>「新对话」按钮 → 跳转 对话.html</li></ul>
 
             <h2>交互规则</h2>
             <table>
                 <tr><th>交互</th><th>行为</th></tr>
-                <tr><td>点击条目</td><td>跳转对话.html?id=xxx</td></tr>
-                <tr><td>长按条目</td><td>弹出菜单：置顶 / 删除</td></tr>
-                <tr><td>搜索</td><td>按标题模糊匹配</td></tr>
-                <tr><td>新对话</td><td>跳转对话.html（空白）</td></tr>
+                <tr><td>点击条目</td><td>进入对话详情页</td></tr>
+                <tr><td>返回</td><td>回到首页（即新对话）</td></tr>
             </table>
         </div>
     </div>
@@ -286,30 +235,21 @@
 
 <script>
 var CHAT_HISTORY = [
-    { id: 'ch01', title: '方程求解的方法', time: '14:32', date: '今天', pinned: true },
-    { id: 'ch02', title: '作业批改 · 数学 14题', time: '14:06', date: '今天' },
-    { id: 'ch03', title: '天空为什么是蓝色的', time: '11:20', date: '今天' },
-    { id: 'ch04', title: '英语作文开头怎么写', time: '16:45', date: '昨天' },
-    { id: 'ch05', title: '错因诊断 · 计算类错误分析', time: '14:10', date: '昨天' },
-    { id: 'ch06', title: '试卷擦除 · 数学期中卷', time: '09:30', date: '昨天' },
-    { id: 'ch07', title: '恐龙灭绝的原因', time: '20:15', date: '近7天' },
-    { id: 'ch08', title: '作业批改 · 英语 12题', time: '10:15', date: '近7天' },
-    { id: 'ch09', title: '光合作用的原理', time: '09:40', date: '近7天' },
-    { id: 'ch10', title: '作业批改 · 数学 20题', time: '15:30', date: '更早' },
-    { id: 'ch11', title: '月球有多远', time: '19:00', date: '更早' },
-    { id: 'ch12', title: '错题录入 · 5道错题', time: '08:20', date: '更早' },
+    { id: 'ch01', title: '方程求解的方法', preview: '一元二次方程的求解方法主要有公式法、配方法和因式分解法三种…' },
+    { id: 'ch03', title: '天空为什么是蓝色的', preview: '这是因为太阳光穿过大气层时，发生了瑞利散射现象…' },
+    { id: 'ch04', title: '英语作文开头怎么写', preview: '好的开头要做到吸引读者注意，可以用提问、引用或描写场景…' },
+    { id: 'ch07', title: '恐龙灭绝的原因', preview: '目前学界普遍接受的是小行星撞击假说，大约6600万年前…' },
+    { id: 'ch09', title: '光合作用的原理', preview: '光合作用是绿色植物利用光能将二氧化碳和水转化为有机物…' },
+    { id: 'ch11', title: '月球有多远', preview: '月球距离地球平均约38.4万公里，光从地球到月球约需1.3秒' },
+    { id: 'ch13', title: '李白和杜甫谁更厉害', preview: '李白和杜甫被后人合称"李杜"，是唐诗双璧，各有千秋…' },
+    { id: 'ch14', title: '为什么会下雨', preview: '下雨是水循环的一部分，水蒸气在高空遇冷凝结成小水滴…' },
+    { id: 'ch15', title: '勾股定理是怎么证明的', preview: '勾股定理有数百种证明方法，最经典的是赵爽弦图证明法…' },
+    { id: 'ch16', title: '介绍一下太阳系的行星', preview: '太阳系有八大行星，按距离太阳远近排列：水星、金星、地球…' },
 ];
-
-var contextTarget = null;
 
 function goBack() {
     if (window.history.length > 1) window.history.back();
     else window.location.href = '首页-v3.html';
-}
-
-function startNewChat() {
-    sessionStorage.setItem('aiSource', 'history-new');
-    window.location.href = '对话.html';
 }
 
 function openChat(id) {
@@ -318,119 +258,38 @@ function openChat(id) {
     window.location.href = '对话.html?id=' + id;
 }
 
-function renderList(filter) {
+var CHAT_ICON = '<svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>';
+
+function renderList() {
     var data = CHAT_HISTORY;
-    if (filter) {
-        var f = filter.toLowerCase();
-        data = data.filter(function(c) { return c.title.toLowerCase().indexOf(f) >= 0; });
-    }
 
     if (data.length === 0) {
         document.getElementById('chatList').innerHTML =
-            '<div class="empty-state">' +
-                '<div class="empty-title">' + (filter ? '没有找到相关对话' : '还没有对话记录') + '</div>' +
-                '<div class="empty-desc">' + (filter ? '换个关键词试试' : '点击下方开始对话') + '</div>' +
+            '<div class="empty-state anim">' +
+                '<div class="empty-icon"><svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div>' +
+                '<div class="empty-title">\u8fd8\u6ca1\u6709\u5bf9\u8bdd\u8bb0\u5f55</div>' +
+                '<div class="empty-desc">\u8fd4\u56de\u9996\u9875\u5f00\u59cb\u7b2c\u4e00\u6b21\u5bf9\u8bdd\u5427</div>' +
             '</div>';
         return;
     }
 
-    var pinned = data.filter(function(c) { return c.pinned; });
-    var normal = data.filter(function(c) { return !c.pinned; });
     var html = '';
-
-    if (pinned.length > 0) {
-        pinned.forEach(function(c) { html += renderItem(c); });
-    }
-
-    var groups = {};
-    var dateOrder = ['今天', '昨天', '近7天', '更早'];
-    normal.forEach(function(c) {
-        if (!groups[c.date]) groups[c.date] = [];
-        groups[c.date].push(c);
-    });
-
-    dateOrder.forEach(function(d) {
-        if (!groups[d]) return;
-        html += '<div class="date-label">' + d + '</div>';
-        groups[d].forEach(function(c) { html += renderItem(c); });
-    });
+    data.forEach(function(c, idx) { html += renderItem(c, idx); });
 
     document.getElementById('chatList').innerHTML = html;
-    bindLongPress();
 }
 
-function renderItem(chat) {
-    var cls = chat.pinned ? ' ci-pinned' : '';
-    var pin = chat.pinned
-        ? '<svg class="pin-icon" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>'
-        : '';
-    return '<div class="chat-item' + cls + '" data-id="' + chat.id + '" onclick="openChat(\'' + chat.id + '\')">' +
-        '<div class="ci-body"><div class="ci-title">' + chat.title + '</div></div>' +
-        '<span class="ci-time">' + chat.time + '</span>' +
-        pin +
+function renderItem(chat, idx) {
+    var delay = Math.min(idx * 0.04, 0.5);
+    var arrow = '<svg class="ci-arrow" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>';
+    return '<div class="chat-item anim" style="animation-delay:' + delay + 's" onclick="openChat(\'' + chat.id + '\')">' +
+        '<div class="ci-icon">' + CHAT_ICON + '</div>' +
+        '<div class="ci-body">' +
+            '<div class="ci-title">' + chat.title + '</div>' +
+            '<div class="ci-preview">' + (chat.preview || '') + '</div>' +
+        '</div>' +
+        arrow +
     '</div>';
-}
-
-function bindLongPress() {
-    document.querySelectorAll('.chat-item').forEach(function(el) {
-        var t = null;
-        el.addEventListener('touchstart', function(e) {
-            t = setTimeout(function() { showContextMenu(el, e.touches[0]); }, 500);
-        });
-        el.addEventListener('touchend', function() { clearTimeout(t); });
-        el.addEventListener('touchmove', function() { clearTimeout(t); });
-        el.addEventListener('contextmenu', function(e) { e.preventDefault(); showContextMenu(el, e); });
-    });
-}
-
-function filterList() {
-    renderList(document.getElementById('searchInput').value.trim() || null);
-}
-
-function showContextMenu(el, event) {
-    contextTarget = el.dataset.id;
-    var chat = CHAT_HISTORY.find(function(c) { return c.id === contextTarget; });
-    document.getElementById('cmPinText').textContent = (chat && chat.pinned) ? '取消置顶' : '置顶';
-    var menu = document.getElementById('contextMenu');
-    var x = (event.clientX || 200) - 20;
-    var y = (event.clientY || 300) - 10;
-    if (x + 140 > window.innerWidth) x = window.innerWidth - 150;
-    if (y + 100 > window.innerHeight) y = window.innerHeight - 110;
-    menu.style.left = x + 'px';
-    menu.style.top = y + 'px';
-    menu.classList.add('show');
-    document.getElementById('cmOverlay').classList.add('show');
-}
-
-function hideContextMenu() {
-    document.getElementById('contextMenu').classList.remove('show');
-    document.getElementById('cmOverlay').classList.remove('show');
-    contextTarget = null;
-}
-
-function doPinChat() {
-    hideContextMenu();
-    var chat = CHAT_HISTORY.find(function(c) { return c.id === contextTarget; });
-    if (chat) {
-        chat.pinned = !chat.pinned;
-        showToast(chat.pinned ? '已置顶' : '已取消置顶');
-        renderList();
-    }
-}
-
-function doDeleteChat() {
-    hideContextMenu();
-    if (!contextTarget) return;
-    CHAT_HISTORY = CHAT_HISTORY.filter(function(c) { return c.id !== contextTarget; });
-    showToast('已删除');
-    renderList();
-}
-
-function showToast(msg) {
-    var t = document.getElementById('toast');
-    document.getElementById('toast-msg').textContent = msg;
-    t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 1800);
 }
 
 var _currentMode = 'demo';
