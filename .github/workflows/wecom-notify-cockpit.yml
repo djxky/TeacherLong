@@ -1,4 +1,4 @@
-# 驾驶舱目录推送到 main 时发企微；「更新概要」摘自各条 commit 首行；另附 GitHub 提交/对比链接（可看 commit 正文）
+# 驾驶舱目录推送到 main 时发企微；「更新概要」摘自各条 commit 首行；另附 GitHub 提交链接（可看 commit 正文）
 # 提交时请把「产品稿更新说明」写进 commit（首行为主），与对话确认稿一致 — 见 git-push-confirm
 # GitHub → Secrets：WEWORK_WEBHOOK_COCKPIT
 
@@ -20,7 +20,6 @@ jobs:
           WEWORK_WEBHOOK_URL: ${{ secrets.WEWORK_WEBHOOK_COCKPIT }}
           COMMITS_JSON: ${{ toJSON(github.event.commits) }}
           GITHUB_COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
-          GITHUB_COMPARE_URL: ${{ github.event.compare }}
         run: |
           if [ -z "${WEWORK_WEBHOOK_URL:-}" ]; then
             echo "未配置 Secret：WEWORK_WEBHOOK_COCKPIT，跳过企微通知。"
@@ -50,9 +49,6 @@ jobs:
             "" \
             "完整说明（GitHub 提交页，含 commit 正文）：" \
             "${GITHUB_COMMIT_URL}" \
-            "" \
-            "本次推送变更对比：" \
-            "${GITHUB_COMPARE_URL}" \
             "" \
             "产品稿链接：" \
             "${PREVIEW_URL}")"
