@@ -1,5 +1,6 @@
-# 小程序目录有推送到 main 时，向指定企业微信群发通知
-# GitHub → Settings → Secrets → Actions：WEWORK_WEBHOOK_MINIPROGRAM = 群机器人 Webhook
+# 小程序目录推送到 main 时发企微；「更新概要」摘自各条 commit 首行；另附 GitHub 提交/对比链接（可看 commit 正文）
+# 提交时请把「产品稿更新说明」写进 commit（首行为主），与对话确认稿一致 — 见 git-push-confirm
+# GitHub → Secrets：WEWORK_WEBHOOK_MINIPROGRAM
 
 name: 企微通知 · 小程序
 
@@ -17,6 +18,9 @@ jobs:
       - name: 发送到企业微信（小程序群）
         env:
           WEWORK_WEBHOOK_URL: ${{ secrets.WEWORK_WEBHOOK_MINIPROGRAM }}
+          COMMITS_JSON: ${{ toJSON(github.event.commits) }}
+          GITHUB_COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+          GITHUB_COMPARE_URL: ${{ github.event.compare }}
         run: |
           if [ -z "${WEWORK_WEBHOOK_URL:-}" ]; then
             echo "未配置 Secret：WEWORK_WEBHOOK_MINIPROGRAM，跳过企微通知。"
@@ -24,11 +28,36 @@ jobs:
           fi
           PREVIEW_URL='https://djxky.github.io/TeacherLong/%E5%B0%8F%E7%A8%8B%E5%BA%8F/%E9%A6%96%E9%A1%B5-v3.html'
 
+          BULLETS="$(
+            echo "$COMMITS_JSON" | jq -r '
+              [.[]? | ((.message // "") | split("\n") | .[0] // "" | gsub("\r";""))]
+              | map(select(length > 0))
+              | .[:8]
+              | .[]
+              | .[0:120]' 2>/dev/null | sed 's/^[[:space:]]*//;s/[[:space:]]*$//'
+          )"
+          if [ -z "${BULLETS// }" ]; then
+            SUMMARY="（未检测到提交说明，请以产品稿链接预览为准）"
+          else
+            SUMMARY="$(printf '%s\n' "$BULLETS" | sed 's/^/- /')"
+          fi
+
           MSG="$(printf '%s\n' \
             "产品稿变更通知" \
             "" \
+            "更新概要（摘自提交说明首行）：" \
+            "${SUMMARY}" \
+            "" \
+            "完整说明（GitHub 提交页，含 commit 正文）：" \
+            "${GITHUB_COMMIT_URL}" \
+            "" \
+            "本次推送变更对比：" \
+            "${GITHUB_COMPARE_URL}" \
+            "" \
             "产品稿链接：" \
             "${PREVIEW_URL}")"
+
+          MSG="$(printf '%s' "$MSG" | head -c 2000)"
 
           jq -n --arg text "$MSG" '{msgtype:"text",text:{content:$text}}' | \
             curl -sfS -X POST "$WEWORK_WEBHOOK_URL" \
