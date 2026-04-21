@@ -10,9 +10,8 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         .topbar {
-            display: flex; align-items: center; padding: 60px 16px 12px; flex-shrink: 0;
-            background: rgba(248,250,252,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            position: relative; z-index: 20;
+            display: flex; align-items: center; padding: 4px 4px; flex-shrink: 0;
+            position: relative; z-index: 20; min-height: 44px; margin-top: 50px;
         }
         .back-btn {
             width: 40px; height: 40px; border-radius: 12px; border: none;
@@ -33,11 +32,60 @@
 
         .scroll-area {
             flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
-            padding: 0 20px 40px;
+            padding: 0 16px 40px;
         }
         .scroll-area::-webkit-scrollbar { display: none; }
 
-        /* ── 科目 Tab ── */
+        /* ── ep-filter 筛选栏（与试卷讲解一致） ── */
+        .ep-filters { display:flex; align-items:center; flex-shrink:0; border-bottom:1px solid rgba(226,232,240,.5); position:relative; z-index:110; }
+        .ep-filter-btn { flex:1; min-width:0; display:flex; align-items:center; justify-content:center; gap:4px; background:none; border:none; font-size:.875rem; font-weight:500; color:#475569; cursor:pointer; padding:12px 4px; -webkit-tap-highlight-color:transparent; transition:color .15s; font-family:inherit; }
+        .ep-filter-btn > span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .ep-filter-btn:active { background:rgba(0,0,0,.02); }
+        .ep-filter-btn.active { color:#0f172a; font-weight:600; }
+        .ep-filter-btn.open { color:#6366f1; font-weight:600; }
+        .ep-filter-btn svg { width:12px; height:12px; flex-shrink:0; transition:transform .2s; }
+        .ep-filter-btn.open svg { transform:rotate(180deg); color:#6366f1; }
+        .ep-filter-sep { width:1px; height:18px; background:rgba(226,232,240,.6); flex-shrink:0; }
+        .ep-dd-overlay { position:absolute; inset:0; z-index:100; background:rgba(0,0,0,.18); display:none; }
+        .ep-dd-overlay.open { display:block; }
+        .ep-dd-wrap { position:relative; flex-shrink:0; }
+        .ep-dropdown { position:absolute; top:0; left:0; right:0; z-index:111; background:#fff; box-shadow:0 8px 32px rgba(0,0,0,.1); border-radius:0 0 16px 16px; display:none; max-height:320px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+        .ep-dropdown.open { display:block; }
+        .ep-dropdown::-webkit-scrollbar { display:none; }
+        .ep-dd-item { padding:14px 20px; font-size:.875rem; font-weight:400; color:#475569; cursor:pointer; border-bottom:1px solid #f8fafc; transition:background .12s; }
+        .ep-dd-item:active { background:#fafafa; }
+        .ep-dd-item.selected { color:#6366f1; font-weight:600; background:rgba(99,102,241,.04); }
+        .ep-rs-overlay { position:absolute; inset:0; z-index:105; background:rgba(15,23,42,.4); display:none; }
+        .ep-rs-overlay.open { display:block; }
+        .ep-region-sheet { position:absolute; left:0; right:0; bottom:0; z-index:112; background:#fff; border-radius:16px 16px 0 0; box-shadow:0 -8px 32px rgba(0,0,0,.12); max-height:min(60%,520px); display:flex; flex-direction:column; transform:translateY(105%); transition:transform .28s cubic-bezier(.32,.72,0,1); padding-bottom:max(12px,env(safe-area-inset-bottom)); }
+        .ep-region-sheet.open { transform:translateY(0); }
+        .ep-rs-handle { width:36px; height:4px; background:#e2e8f0; border-radius:99px; margin:10px auto 2px; flex-shrink:0; }
+        .ep-rs-head { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 16px 8px; flex-shrink:0; border-bottom:1px solid #f1f5f9; }
+        .ep-rs-title { font-size:1rem; font-weight:700; color:#0f172a; flex:1; }
+        .ep-rs-actions { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+        .ep-rs-reset { font-size:.8125rem; font-weight:600; color:#64748b; background:none; border:none; padding:6px 10px; border-radius:8px; cursor:pointer; font-family:inherit; }
+        .ep-rs-reset:active { background:#f1f5f9; }
+        .ep-rs-done { font-size:.8125rem; font-weight:700; color:#fff; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; padding:6px 14px; border-radius:8px; cursor:pointer; font-family:inherit; }
+        .ep-rs-done:active { transform:scale(.98); opacity:.95; }
+        .ep-rs-sub { font-size:.6875rem; color:#64748b; line-height:1.5; padding:6px 16px 8px; flex-shrink:0; background:#f8fafc; border-bottom:1px solid #f1f5f9; }
+        .ep-rs-tabs { display:flex; align-items:stretch; border-bottom:1px solid #f1f5f9; flex-shrink:0; background:#fafafa; }
+        .ep-rs-tab { flex:1; padding:12px 6px; font-size:.8125rem; font-weight:500; color:#64748b; border:none; background:transparent; cursor:pointer; position:relative; -webkit-tap-highlight-color:transparent; transition:color .15s; font-family:inherit; }
+        .ep-rs-tab.active { color:#0f172a; font-weight:700; }
+        .ep-rs-tab.active::after { content:''; position:absolute; left:16%; right:16%; bottom:0; height:2.5px; background:#6366f1; border-radius:2px 2px 0 0; }
+        .ep-rs-tab:disabled { color:#cbd5e1; cursor:default; }
+        .ep-rs-list { flex:1; min-height:120px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+        .ep-rs-list::-webkit-scrollbar { width:4px; }
+        .ep-rs-list::-webkit-scrollbar-thumb { background:#e2e8f0; border-radius:2px; }
+        .ep-rs-item { padding:14px 20px; font-size:.9375rem; color:#334155; cursor:pointer; border-bottom:1px solid #f8fafc; -webkit-tap-highlight-color:transparent; transition:background .12s; display:flex; align-items:center; justify-content:space-between; }
+        .ep-rs-item:active { background:#f8fafc; }
+        .ep-rs-item.selected { color:#6366f1; font-weight:600; background:rgba(99,102,241,.06); }
+        .type-chips-row { display:flex; gap:6px; padding:10px 0 6px; overflow-x:auto; flex-shrink:0; -webkit-overflow-scrolling:touch; }
+        .type-chips-row::-webkit-scrollbar { display:none; }
+        .type-chip { flex-shrink:0; padding:5px 14px; font-size:.75rem; font-weight:600; color:#94a3b8; background:transparent; border:1px solid rgba(226,232,240,.6); border-radius:99px; cursor:pointer; transition:all .15s; white-space:nowrap; font-family:inherit; -webkit-tap-highlight-color:transparent; }
+        .type-chip.active { color:#6366f1; background:rgba(99,102,241,.06); border-color:rgba(99,102,241,.25); }
+        .type-chip:active { transform:scale(.96); }
+
+        /* ── 科目 Tab（保留备用） ── */
         .subj-tabs {
             display: flex; gap: 4px; padding: 16px 0 12px;
             position: sticky; top: 0; z-index: 10;
@@ -74,55 +122,72 @@
             border-color: rgba(99,102,241,0.25);
         }
 
-        /* ── 教材版本下拉 ── */
-        .tb-dropdown-wrap {
-            position: relative; flex-shrink: 0;
-        }
-        .tb-dropdown-btn {
-            display: flex; align-items: center; gap: 3px;
+        /* ── 地区筛选触发按钮 ── */
+        .rp-btn {
+            display: flex; align-items: center; gap: 3px; flex-shrink: 0;
             padding: 4px 10px; font-size: 0.625rem; font-weight: 600;
             color: #a1a1aa; background: transparent; border: 1px solid rgba(226,232,240,0.5);
             border-radius: 16px; cursor: pointer; transition: all .18s;
-            -webkit-tap-highlight-color: transparent;
+            -webkit-tap-highlight-color: transparent; font-family: inherit;
         }
-        .tb-dropdown-btn.active {
+        .rp-btn.active {
             color: #6366f1; background: rgba(99,102,241,0.06);
             border-color: rgba(99,102,241,0.25);
         }
-        .tb-dropdown-btn svg {
-            transition: transform .2s ease;
+
+        /* ── 地区选择器底部弹窗 ── */
+        .rp-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.35);
+            z-index: 200; opacity: 0; pointer-events: none;
+            transition: opacity .25s ease;
         }
-        .tb-dropdown-btn.open svg {
-            transform: rotate(180deg);
+        .rp-overlay.show { opacity: 1; pointer-events: auto; }
+        .rp-sheet {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: #fff; border-radius: 20px 20px 0 0;
+            z-index: 201; transform: translateY(100%);
+            transition: transform .3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; flex-direction: column; max-height: 74%;
         }
-        .tb-dropdown-panel {
-            position: absolute; top: calc(100% + 6px); left: 0;
-            display: flex; flex-wrap: wrap; gap: 6px;
-            padding: 10px 12px; min-width: 180px;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-radius: 12px;
-            box-shadow: 0 8px 24px -4px rgba(0,0,0,0.1), 0 0 0 1px rgba(226,232,240,0.6);
-            z-index: 50; opacity: 0; transform: translateY(-4px);
-            pointer-events: none;
-            transition: opacity .18s ease, transform .18s ease;
+        .rp-sheet.show { transform: translateY(0); }
+        .rp-handle { width: 36px; height: 4px; border-radius: 2px; background: #e2e8f0; margin: 10px auto 0; flex-shrink: 0; }
+        .rp-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px 0; flex-shrink: 0; }
+        .rp-title { font-size: 0.875rem; font-weight: 700; color: #0f172a; }
+        .rp-reset { font-size: 0.75rem; font-weight: 600; color: #d4d4d8; background: none; border: none; cursor: pointer; padding: 4px 0; transition: color .15s; font-family: inherit; }
+        .rp-reset.active { color: #6366f1; }
+        .rp-crumb { padding: 4px 20px 2px; font-size: 0.625rem; color: #94a3b8; min-height: 22px; flex-shrink: 0; line-height: 1.5; }
+        .rp-crumb b { color: #6366f1; font-weight: 700; font-style: normal; }
+        .rp-tabs { display: flex; padding: 0 20px; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; }
+        .rp-tab {
+            padding: 8px 14px; font-size: 0.75rem; font-weight: 600; color: #a1a1aa;
+            background: none; border: none; border-bottom: 2px solid transparent;
+            margin-bottom: -1px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+            transition: all .15s; white-space: nowrap; font-family: inherit;
         }
-        .tb-dropdown-panel.show {
-            opacity: 1; transform: translateY(0); pointer-events: auto;
+        .rp-tab.active { color: #6366f1; border-bottom-color: #6366f1; }
+        .rp-tab.disabled { color: #e2e8f0; pointer-events: none; }
+        .rp-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .rp-list::-webkit-scrollbar { display: none; }
+        .rp-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 11px 20px; font-size: 0.8125rem; font-weight: 500; color: #374151;
+            cursor: pointer; -webkit-tap-highlight-color: transparent;
+            border-bottom: 1px solid rgba(241,245,249,0.8);
         }
-        .tb-panel-chip {
-            padding: 4px 10px; font-size: 0.625rem; font-weight: 600;
-            color: #a1a1aa; background: transparent;
-            border: 1px solid rgba(226,232,240,0.5);
-            border-radius: 16px; cursor: pointer; transition: all .18s;
+        .rp-item:active { background: rgba(99,102,241,0.04); }
+        .rp-item.sel { color: #6366f1; font-weight: 700; }
+        .rp-item .rp-check { color: #6366f1; font-size: 0.8125rem; }
+        .rp-item .rp-arrow { color: #d4d4d8; font-size: 1rem; font-weight: 300; }
+        .rp-footer { padding: 10px 20px 16px; flex-shrink: 0; border-top: 1px solid #f1f5f9; }
+        .rp-confirm-btn {
+            width: 100%; padding: 13px; border-radius: 14px; border: none;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff; font-size: 0.9375rem; font-weight: 700;
+            cursor: pointer; font-family: inherit;
             -webkit-tap-highlight-color: transparent;
-            white-space: nowrap;
+            transition: transform .15s, opacity .15s;
         }
-        .tb-panel-chip:active { transform: scale(0.96); }
-        .tb-panel-chip.active {
-            color: #6366f1; background: rgba(99,102,241,0.06);
-            border-color: rgba(99,102,241,0.25);
-        }
+        .rp-confirm-btn:active { transform: scale(0.97); opacity: 0.9; }
 
         /* ── 试卷列表 ── */
         .paper-list { display: flex; flex-direction: column; gap: 10px; }
@@ -254,28 +319,46 @@
             <div class="topbar-spacer"></div>
         </div>
 
-        <div class="scroll-area">
-            <div class="subj-tabs" id="subjTabs">
-                <button class="subj-tab active" data-subj="chinese">语文</button>
-                <button class="subj-tab" data-subj="math">数学</button>
-                <button class="subj-tab" data-subj="english">英语</button>
-            </div>
-
-            <div class="filter-bar" id="filterBar">
-                <button class="filter-chip active" data-type="真题">历年真题</button>
-                <button class="filter-chip" data-type="模拟题">模拟题</button>
-                <div class="tb-dropdown-wrap" id="tbDropdown">
-                    <button class="tb-dropdown-btn" id="tbBtn">
-                        <span id="tbBtnLabel">教材版本</span>
-                        <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
-                    <div class="tb-dropdown-panel" id="tbPanel">
-                        <button class="tb-panel-chip active" data-tb="all">全部教材</button>
-                        <button class="tb-panel-chip" data-tb="人教版">人教版</button>
-                        <button class="tb-panel-chip" data-tb="北师大版">北师大版</button>
-                        <button class="tb-panel-chip" data-tb="苏教版">苏教版</button>
-                    </div>
+        <!-- 三维筛选栏：科目 | 地区 | 年份 -->
+        <div class="ep-filters" id="filterBar">
+            <button class="ep-filter-btn active" data-filter="subject" onclick="toggleFilter('subject')">
+                <span id="filterSubjectLabel">数学</span>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="ep-filter-sep"></div>
+            <button class="ep-filter-btn" data-filter="region" onclick="toggleFilter('region')">
+                <span id="filterRegionLabel">广东</span>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="ep-filter-sep"></div>
+            <button class="ep-filter-btn" data-filter="year" onclick="toggleFilter('year')">
+                <span id="filterYearLabel">全部年份</span>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+        </div>
+        <!-- 科目/年份下拉遮罩 + 面板 -->
+        <div class="ep-dd-overlay" id="ddOverlay" onclick="closeAllFilters()"></div>
+        <div class="ep-dd-wrap"><div class="ep-dropdown" id="ddPanel"></div></div>
+        <!-- 地区底部弹层（ep 风格） -->
+        <div class="ep-rs-overlay" id="regionOverlay" onclick="closeAllFilters()"></div>
+        <div class="ep-region-sheet" id="regionSheet">
+            <div class="ep-rs-handle"></div>
+            <div class="ep-rs-head">
+                <span class="ep-rs-title">选择地区</span>
+                <div class="ep-rs-actions">
+                    <button type="button" class="ep-rs-reset" onclick="resetRegion()">重置</button>
+                    <button type="button" class="ep-rs-done" onclick="confirmRegion()">完成</button>
                 </div>
+            </div>
+            <div class="ep-rs-sub" id="rsSubLine">全部地区</div>
+            <div class="ep-rs-tabs" id="rsTabs"></div>
+            <div class="ep-rs-list" id="rsList"></div>
+        </div>
+
+        <div class="scroll-area">
+            <div class="type-chips-row" id="typeChips">
+                <button class="type-chip active" data-type="真题">历年真题</button>
+                <button class="type-chip" data-type="模拟题">模拟题</button>
             </div>
             <div class="paper-list" id="paperList"></div>
         </div>
@@ -290,79 +373,366 @@
         document.getElementById('pageTitle').textContent = titleMap[examType] || '试卷列表';
         document.title = 'AI 龙老师 - ' + (titleMap[examType] || '试卷列表');
 
+        /* ── 筛选状态 ── */
+        const SUBJECTS_LIST = [
+            { label: '语文', value: 'chinese' },
+            { label: '数学', value: 'math' },
+            { label: '英语', value: 'english' },
+        ];
+        const YEARS_LIST = ['全部年份', '2025年', '2024年', '2023年', '2022年'];
+
+        var activeSubj = 'math';
+        var activeType = '真题';
+        var activeYear = null;
+        var activeRegionKey = '广东'; // 默认广东省
+        var openFilter = null;
+
+        /* ── 3 维筛选器 ── */
+        function toggleFilter(name) {
+            if (openFilter === name) { closeAllFilters(); return; }
+            closeAllFilters(false);
+            openFilter = name;
+            document.querySelectorAll('.ep-filter-btn').forEach(b => b.classList.remove('open'));
+            document.querySelector('[data-filter="' + name + '"]').classList.add('open');
+            if (name === 'region') { openRegionSheet(); return; }
+            renderDropdown(name);
+            document.getElementById('ddOverlay').classList.add('open');
+            document.getElementById('ddPanel').classList.add('open');
+        }
+
+        function closeAllFilters(resetOpen) {
+            if (resetOpen === undefined) resetOpen = true;
+            document.querySelectorAll('.ep-filter-btn').forEach(b => b.classList.remove('open'));
+            document.getElementById('ddOverlay').classList.remove('open');
+            document.getElementById('ddPanel').classList.remove('open');
+            document.getElementById('regionOverlay').classList.remove('open');
+            document.getElementById('regionSheet').classList.remove('open');
+            if (resetOpen) openFilter = null;
+        }
+
+        function renderDropdown(name) {
+            const panel = document.getElementById('ddPanel');
+            let items = [];
+            if (name === 'subject') {
+                items = SUBJECTS_LIST.map(s => ({ label: s.label, value: s.value, selected: activeSubj === s.value }));
+            } else if (name === 'year') {
+                items = YEARS_LIST.map(y => ({ label: y, value: y, selected: (activeYear === null ? y === '全部年份' : activeYear === y) }));
+            }
+            panel.innerHTML = items.map(it =>
+                '<div class="ep-dd-item' + (it.selected ? ' selected' : '') + '" data-val="' + it.value + '">' + it.label + '</div>'
+            ).join('');
+            panel.querySelectorAll('.ep-dd-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    const val = el.dataset.val;
+                    if (name === 'subject') {
+                        activeSubj = val;
+                        document.getElementById('filterSubjectLabel').textContent = SUBJECTS_LIST.find(s => s.value === val).label;
+                    } else if (name === 'year') {
+                        activeYear = (val === '全部年份') ? null : val;
+                        document.getElementById('filterYearLabel').textContent = val;
+                        document.querySelector('[data-filter="year"]').classList.toggle('active', !!activeYear);
+                    }
+                    closeAllFilters();
+                    renderList();
+                });
+            });
+        }
+
+        /* ── 省市区数据 ── */
+        var REGION_DATA = [
+            { label: '全国卷', value: '全国卷', directCity: false, cities: [] },
+            { label: '北京市', value: '北京', directCity: true, cities: [
+                { label: '海淀区', value: '海淀', districts: [] },
+                { label: '朝阳区', value: '朝阳', districts: [] },
+                { label: '东城区', value: '东城', districts: [] },
+                { label: '西城区', value: '西城', districts: [] },
+                { label: '丰台区', value: '丰台', districts: [] },
+                { label: '通州区', value: '通州', districts: [] },
+            ]},
+            { label: '上海市', value: '上海', directCity: true, cities: [
+                { label: '浦东新区', value: '浦东', districts: [] },
+                { label: '静安区', value: '静安', districts: [] },
+                { label: '徐汇区', value: '徐汇', districts: [] },
+                { label: '黄浦区', value: '黄浦', districts: [] },
+                { label: '杨浦区', value: '杨浦', districts: [] },
+                { label: '长宁区', value: '长宁', districts: [] },
+            ]},
+            { label: '广东省', value: '广东', directCity: false, cities: [
+                { label: '广州市', value: '广州', districts: [
+                    { label: '天河区', value: '天河' }, { label: '越秀区', value: '越秀' },
+                    { label: '海珠区', value: '海珠' }, { label: '白云区', value: '白云' },
+                    { label: '番禺区', value: '番禺' }, { label: '荔湾区', value: '荔湾' },
+                ]},
+                { label: '深圳市', value: '深圳', districts: [
+                    { label: '福田区', value: '福田' }, { label: '南山区', value: '南山' },
+                    { label: '宝安区', value: '宝安' }, { label: '龙岗区', value: '龙岗' },
+                    { label: '龙华区', value: '龙华' }, { label: '罗湖区', value: '罗湖' },
+                ]},
+                { label: '东莞市', value: '东莞', districts: [] },
+                { label: '佛山市', value: '佛山', districts: [] },
+                { label: '珠海市', value: '珠海', districts: [] },
+            ]},
+            { label: '浙江省', value: '浙江', directCity: false, cities: [
+                { label: '杭州市', value: '杭州', districts: [
+                    { label: '西湖区', value: '西湖' }, { label: '滨江区', value: '滨江' },
+                    { label: '余杭区', value: '余杭' }, { label: '拱墅区', value: '拱墅' },
+                    { label: '上城区', value: '上城' },
+                ]},
+                { label: '宁波市', value: '宁波', districts: [
+                    { label: '海曙区', value: '海曙' }, { label: '鄞州区', value: '鄞州' },
+                    { label: '北仑区', value: '北仑' },
+                ]},
+                { label: '温州市', value: '温州', districts: [] },
+                { label: '嘉兴市', value: '嘉兴', districts: [] },
+                { label: '绍兴市', value: '绍兴', districts: [] },
+            ]},
+            { label: '江苏省', value: '江苏', directCity: false, cities: [
+                { label: '南京市', value: '南京', districts: [
+                    { label: '玄武区', value: '玄武' }, { label: '秦淮区', value: '秦淮' },
+                    { label: '鼓楼区', value: '鼓楼' }, { label: '建邺区', value: '建邺' },
+                    { label: '雨花台区', value: '雨花台' },
+                ]},
+                { label: '苏州市', value: '苏州', districts: [
+                    { label: '姑苏区', value: '姑苏' }, { label: '工业园区', value: '园区' },
+                    { label: '吴中区', value: '吴中' }, { label: '相城区', value: '相城' },
+                ]},
+                { label: '无锡市', value: '无锡', districts: [] },
+                { label: '南通市', value: '南通', districts: [] },
+                { label: '常州市', value: '常州', districts: [] },
+            ]},
+            { label: '四川省', value: '四川', directCity: false, cities: [
+                { label: '成都市', value: '成都', districts: [
+                    { label: '锦江区', value: '锦江' }, { label: '青羊区', value: '青羊' },
+                    { label: '金牛区', value: '金牛' }, { label: '武侯区', value: '武侯' },
+                    { label: '成华区', value: '成华' }, { label: '高新区', value: '高新' },
+                ]},
+                { label: '绵阳市', value: '绵阳', districts: [] },
+                { label: '德阳市', value: '德阳', districts: [] },
+            ]},
+            { label: '山东省', value: '山东', directCity: false, cities: [
+                { label: '济南市', value: '济南', districts: [
+                    { label: '历下区', value: '历下' }, { label: '市中区', value: '市中' },
+                    { label: '槐荫区', value: '槐荫' },
+                ]},
+                { label: '青岛市', value: '青岛', districts: [] },
+                { label: '烟台市', value: '烟台', districts: [] },
+                { label: '潍坊市', value: '潍坊', districts: [] },
+            ]},
+            { label: '河南省', value: '河南', directCity: false, cities: [
+                { label: '郑州市', value: '郑州', districts: [
+                    { label: '中原区', value: '中原' }, { label: '金水区', value: '金水' },
+                ]},
+                { label: '洛阳市', value: '洛阳', districts: [] },
+                { label: '开封市', value: '开封', districts: [] },
+            ]},
+            { label: '湖北省', value: '湖北', directCity: false, cities: [
+                { label: '武汉市', value: '武汉', districts: [
+                    { label: '武昌区', value: '武昌' }, { label: '洪山区', value: '洪山' },
+                    { label: '江汉区', value: '江汉' }, { label: '硚口区', value: '硚口' },
+                ]},
+                { label: '宜昌市', value: '宜昌', districts: [] },
+            ]},
+            { label: '湖南省', value: '湖南', directCity: false, cities: [
+                { label: '长沙市', value: '长沙', districts: [
+                    { label: '岳麓区', value: '岳麓' }, { label: '芙蓉区', value: '芙蓉' },
+                    { label: '天心区', value: '天心' },
+                ]},
+                { label: '株洲市', value: '株洲', districts: [] },
+            ]},
+        ];
+
+        /* ── 地区选择器状态（ep 风格） ── */
+        var rsTab = 'province';
+        var rsProv = null, rsCity = null, rsDist = null;
+        var activeRsProv = null, activeRsCity = null, activeRsDist = null;
+
+        function buildRegionKey(p, c, d) {
+            if (!p) return null;
+            if (p.value === '全国卷') return '全国卷';
+            var k = p.value;
+            if (c) k += '-' + c.value;
+            if (d) k += '-' + d.value;
+            return k;
+        }
+        function matchRegion(itemRegion, filterKey) {
+            if (!filterKey) return true;
+            if (!itemRegion) return true;
+            if (filterKey === '全国卷') return itemRegion === '全国卷';
+            return itemRegion === filterKey || itemRegion.startsWith(filterKey + '-');
+        }
+        function getRegionLabel(p, c, d) {
+            if (!p) return '全国';
+            if (p.value === '全国卷') return '全国卷';
+            var parts = [p.label.replace(/[省市]$/, '')];
+            if (c) parts.push(c.label.replace(/[市区县]$/, ''));
+            if (d) parts.push(d.label.replace(/区$/, ''));
+            return parts.join('·');
+        }
+
+        function openRegionSheet() {
+            rsProv = activeRsProv; rsCity = activeRsCity; rsDist = activeRsDist;
+            rsTab = 'province';
+            syncRsUI();
+            document.getElementById('regionOverlay').classList.add('open');
+            document.getElementById('regionSheet').classList.add('open');
+        }
+        function closeRegionSheet() {
+            document.getElementById('regionOverlay').classList.remove('open');
+            document.getElementById('regionSheet').classList.remove('open');
+            openFilter = null;
+            document.querySelectorAll('.ep-filter-btn').forEach(b => b.classList.remove('open'));
+        }
+        function confirmRegion() {
+            activeRsProv = rsProv; activeRsCity = rsCity; activeRsDist = rsDist;
+            activeRegionKey = buildRegionKey(activeRsProv, activeRsCity, activeRsDist);
+            var label = getRegionLabel(activeRsProv, activeRsCity, activeRsDist);
+            document.getElementById('filterRegionLabel').textContent = label;
+            document.querySelector('[data-filter="region"]').classList.toggle('active', !!activeRegionKey);
+            closeRegionSheet();
+            renderList();
+        }
+        function resetRegion() {
+            rsProv = null; rsCity = null; rsDist = null; rsTab = 'province';
+            syncRsUI();
+        }
+        function syncRsUI() { renderRsTabs(); renderRsList(); updateRsSub(); }
+        function updateRsSub() {
+            var parts = [];
+            if (rsProv) parts.push(rsProv.label);
+            if (rsCity) parts.push(rsCity.label);
+            if (rsDist) parts.push(rsDist.label);
+            document.getElementById('rsSubLine').textContent = parts.length ? parts.join(' · ') : '全部地区';
+        }
+        function renderRsTabs() {
+            var hasCities = rsProv && rsProv.value !== '全国卷' && rsProv.cities && rsProv.cities.length > 0;
+            var hasDistricts = rsCity && rsCity.districts && rsCity.districts.length > 0;
+            var tabs = document.getElementById('rsTabs');
+            tabs.innerHTML = [
+                { key: 'province', label: '省/直辖市', enabled: true },
+                { key: 'city', label: rsProv && rsProv.directCity ? '区/县' : '市', enabled: hasCities },
+                { key: 'district', label: '区/县', enabled: hasDistricts },
+            ].map(t =>
+                '<button class="ep-rs-tab' + (rsTab === t.key ? ' active' : '') + (t.enabled ? '' : ' disabled') + '"' +
+                (t.enabled ? ' onclick="switchRsTab(\'' + t.key + '\')"' : ' disabled') + '>' + t.label + '</button>'
+            ).join('');
+        }
+        function switchRsTab(tab) { rsTab = tab; syncRsUI(); }
+        function renderRsList() {
+            var list = document.getElementById('rsList');
+            var chk = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#6366f1" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+            var arr = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>';
+            var html = '';
+            if (rsTab === 'province') {
+                var provs = [{ label: '全部地区', value: null, _all: true }].concat(REGION_DATA);
+                html = provs.map(p => {
+                    var sel = p._all ? !rsProv : (rsProv && rsProv.value === p.value);
+                    var has = p.cities && p.cities.length > 0;
+                    return '<div class="ep-rs-item' + (sel ? ' selected' : '') + '" data-pv="' + (p.value || '') + '">' + p.label + (sel ? chk : (has ? arr : '')) + '</div>';
+                }).join('');
+            } else if (rsTab === 'city') {
+                var allLabel = rsProv && rsProv.directCity ? '不限（全区）' : '不限（全市）';
+                var cities = [{ label: allLabel, value: null }].concat(rsProv ? rsProv.cities : []);
+                html = cities.map(c => {
+                    var sel = c.value === null ? !rsCity : (rsCity && rsCity.value === c.value);
+                    var has = c.districts && c.districts.length > 0;
+                    return '<div class="ep-rs-item' + (sel ? ' selected' : '') + '" data-cv="' + (c.value || '') + '">' + c.label + (sel ? chk : (has ? arr : '')) + '</div>';
+                }).join('');
+            } else {
+                var dists = [{ label: '不限（全区）', value: null }].concat(rsCity ? rsCity.districts : []);
+                html = dists.map(d => {
+                    var sel = d.value === null ? !rsDist : (rsDist && rsDist.value === d.value);
+                    return '<div class="ep-rs-item' + (sel ? ' selected' : '') + '" data-dv="' + (d.value || '') + '">' + d.label + (sel ? chk : '') + '</div>';
+                }).join('');
+            }
+            list.innerHTML = html;
+            list.querySelectorAll('.ep-rs-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    if (rsTab === 'province') {
+                        var pv = el.dataset.pv;
+                        if (pv === '') { rsProv = null; rsCity = null; rsDist = null; }
+                        else { rsProv = REGION_DATA.find(p => p.value === pv); rsCity = null; rsDist = null; if (rsProv && rsProv.cities && rsProv.cities.length) rsTab = 'city'; }
+                    } else if (rsTab === 'city') {
+                        var cv = el.dataset.cv;
+                        if (cv === '') { rsCity = null; rsDist = null; }
+                        else { rsCity = rsProv.cities.find(c => c.value === cv); rsDist = null; if (rsCity && rsCity.districts && rsCity.districts.length) rsTab = 'district'; }
+                    } else {
+                        var dv = el.dataset.dv;
+                        rsDist = dv === '' ? null : rsCity.districts.find(d => d.value === dv);
+                    }
+                    syncRsUI();
+                });
+            });
+        }
+
         var EXAM_DATA = {
             primary: {
                 chinese: [
-                    { id: 'pe-cn01', title: '2025年小升初语文真题卷（全国卷）', examType: '真题', textbook: '人教版', downloads: '3.2k', recommend: '推荐' },
-                    { id: 'pe-cn02', title: '2024年小升初语文真题（北京卷）', examType: '真题', textbook: '人教版', downloads: '2.8k', recommend: '精选' },
-                    { id: 'pe-cn03', title: '2024年小升初语文真题（上海卷）', examType: '真题', textbook: '苏教版', downloads: '2.5k' },
-                    { id: 'pe-cn04', title: '小升初语文模拟冲刺卷（一）', examType: '模拟题', textbook: '人教版', downloads: '1.8k', recommend: '推荐' },
-                    { id: 'pe-cn05', title: '小升初语文模拟冲刺卷（二）', examType: '模拟题', textbook: '北师大版', downloads: '1.5k' },
-                    { id: 'pe-cn06', title: '2023年小升初语文真题精选', examType: '真题', textbook: '人教版', downloads: '2.1k' },
-                    { id: 'pe-cn07', title: '小升初语文阅读理解专项模拟', examType: '模拟题', textbook: '苏教版', downloads: '1.3k' },
-                    { id: 'pe-cn08', title: '小升初语文古诗文默写真题汇编', examType: '真题', textbook: '人教版', downloads: '1.9k', recommend: '精选' },
+                    { id: 'pe-cn01', title: '2025年小升初语文真题卷（全国卷）', examType: '真题', region: '全国卷', year: '2025年', downloads: '3.2k', recommend: '推荐' },
+                    { id: 'pe-cn02', title: '2024年小升初语文真题（北京卷）', examType: '真题', region: '北京', year: '2024年', downloads: '2.8k', recommend: '精选' },
+                    { id: 'pe-cn03', title: '2024年小升初语文真题（上海卷）', examType: '真题', region: '上海', year: '2024年', downloads: '2.5k' },
+                    { id: 'pe-cn04', title: '小升初语文模拟冲刺卷（一）', examType: '模拟题', region: '全国卷', downloads: '1.8k', recommend: '推荐' },
+                    { id: 'pe-cn05', title: '小升初语文模拟冲刺卷（二）', examType: '模拟题', region: '江苏', downloads: '1.5k' },
+                    { id: 'pe-cn06', title: '2023年小升初语文真题（广东卷）', examType: '真题', region: '广东', year: '2023年', downloads: '2.1k' },
+                    { id: 'pe-cn07', title: '小升初语文阅读理解专项模拟', examType: '模拟题', region: '浙江', downloads: '1.3k' },
+                    { id: 'pe-cn08', title: '2024年小升初语文真题（四川卷）', examType: '真题', region: '四川', year: '2024年', downloads: '1.9k', recommend: '精选' },
                 ],
                 math: [
-                    { id: 'pe-ma01', title: '2025年小升初数学真题卷（全国卷）', examType: '真题', textbook: '人教版', downloads: '3.5k', recommend: '推荐' },
-                    { id: 'pe-ma02', title: '2024年小升初数学真题（北京卷）', examType: '真题', textbook: '人教版', downloads: '2.9k', recommend: '精选' },
-                    { id: 'pe-ma03', title: '2024年小升初数学真题（上海卷）', examType: '真题', textbook: '苏教版', downloads: '2.4k' },
-                    { id: 'pe-ma04', title: '小升初数学模拟冲刺卷（计算综合）', examType: '模拟题', textbook: '人教版', downloads: '2.0k', recommend: '推荐' },
-                    { id: 'pe-ma05', title: '小升初数学应用题模拟专练', examType: '模拟题', textbook: '北师大版', downloads: '1.6k' },
-                    { id: 'pe-ma06', title: '2023年小升初数学真题精选', examType: '真题', textbook: '人教版', downloads: '1.8k' },
-                    { id: 'pe-ma07', title: '小升初数学几何图形模拟卷', examType: '模拟题', textbook: '苏教版', downloads: '1.2k' },
+                    { id: 'pe-ma01', title: '2025年小升初数学真题卷（全国卷）', examType: '真题', region: '全国卷', year: '2025年', downloads: '3.5k', recommend: '推荐' },
+                    { id: 'pe-ma02', title: '2024年小升初数学真题（北京卷）', examType: '真题', region: '北京', year: '2024年', downloads: '2.9k', recommend: '精选' },
+                    { id: 'pe-ma03', title: '2024年小升初数学真题（上海卷）', examType: '真题', region: '上海', year: '2024年', downloads: '2.4k' },
+                    { id: 'pe-ma04', title: '小升初数学模拟冲刺卷（计算综合）', examType: '模拟题', region: '全国卷', downloads: '2.0k', recommend: '推荐' },
+                    { id: 'pe-ma05', title: '小升初数学应用题模拟专练', examType: '模拟题', region: '江苏', downloads: '1.6k' },
+                    { id: 'pe-ma06', title: '2023年小升初数学真题（广东卷）', examType: '真题', region: '广东', year: '2023年', downloads: '1.8k' },
+                    { id: 'pe-ma07', title: '小升初数学几何图形模拟卷', examType: '模拟题', region: '浙江', downloads: '1.2k' },
                 ],
                 english: [
-                    { id: 'pe-en01', title: '2025年小升初英语真题卷（全国卷）', examType: '真题', textbook: '人教版', downloads: '2.8k', recommend: '推荐' },
-                    { id: 'pe-en02', title: '2024年小升初英语真题（北京卷）', examType: '真题', textbook: '人教版', downloads: '2.3k', recommend: '精选' },
-                    { id: 'pe-en03', title: '小升初英语阅读理解模拟专练', examType: '模拟题', textbook: '人教版', downloads: '1.7k' },
-                    { id: 'pe-en04', title: '2024年小升初英语真题（广州卷）', examType: '真题', textbook: '北师大版', downloads: '2.0k' },
-                    { id: 'pe-en05', title: '小升初英语语法填空模拟卷', examType: '模拟题', textbook: '苏教版', downloads: '1.4k', recommend: '推荐' },
-                    { id: 'pe-en06', title: '2023年小升初英语真题汇编', examType: '真题', textbook: '人教版', downloads: '1.6k' },
+                    { id: 'pe-en01', title: '2025年小升初英语真题卷（全国卷）', examType: '真题', region: '全国卷', year: '2025年', downloads: '2.8k', recommend: '推荐' },
+                    { id: 'pe-en02', title: '2024年小升初英语真题（北京卷）', examType: '真题', region: '北京', year: '2024年', downloads: '2.3k', recommend: '精选' },
+                    { id: 'pe-en03', title: '小升初英语阅读理解模拟专练', examType: '模拟题', region: '全国卷', downloads: '1.7k' },
+                    { id: 'pe-en04', title: '2024年小升初英语真题（广东卷）', examType: '真题', region: '广东', year: '2024年', downloads: '2.0k' },
+                    { id: 'pe-en05', title: '小升初英语语法填空模拟卷', examType: '模拟题', region: '浙江', downloads: '1.4k', recommend: '推荐' },
+                    { id: 'pe-en06', title: '2023年小升初英语真题（上海卷）', examType: '真题', region: '上海', year: '2023年', downloads: '1.6k' },
                 ]
             },
             middle: {
                 chinese: [
-                    { id: 'me-cn01', title: '2025年中考语文真题卷（全国甲卷）', examType: '真题', textbook: '人教版', downloads: '4.1k', recommend: '推荐' },
-                    { id: 'me-cn02', title: '2024年中考语文真题（北京卷）', examType: '真题', textbook: '人教版', downloads: '3.6k', recommend: '精选' },
-                    { id: 'me-cn03', title: '2024年中考语文真题（上海卷）', examType: '真题', textbook: '苏教版', downloads: '3.2k' },
-                    { id: 'me-cn04', title: '中考语文模拟冲刺卷（一）', examType: '模拟题', textbook: '人教版', downloads: '2.5k', recommend: '推荐' },
-                    { id: 'me-cn05', title: '中考语文古诗文默写专练', examType: '模拟题', textbook: '北师大版', downloads: '2.0k' },
-                    { id: 'me-cn06', title: '2023年中考语文真题精选', examType: '真题', textbook: '人教版', downloads: '2.8k' },
-                    { id: 'me-cn07', title: '中考语文名著阅读模拟专练', examType: '模拟题', textbook: '苏教版', downloads: '1.7k' },
-                    { id: 'me-cn08', title: '中考语文作文审题立意真题汇编', examType: '真题', textbook: '人教版', downloads: '2.3k', recommend: '精选' },
+                    { id: 'me-cn01', title: '2025年中考语文真题（全国甲卷）', examType: '真题', region: '全国卷', year: '2025年', downloads: '4.1k', recommend: '推荐' },
+                    { id: 'me-cn02', title: '2024年中考语文真题（北京卷）', examType: '真题', region: '北京', year: '2024年', downloads: '3.6k', recommend: '精选' },
+                    { id: 'me-cn03', title: '2024年中考语文真题（上海卷）', examType: '真题', region: '上海', year: '2024年', downloads: '3.2k' },
+                    { id: 'me-cn04', title: '中考语文模拟冲刺卷（一）', examType: '模拟题', region: '全国卷', downloads: '2.5k', recommend: '推荐' },
+                    { id: 'me-cn05', title: '2024年中考语文真题（广东卷）', examType: '真题', region: '广东', year: '2024年', downloads: '2.9k' },
+                    { id: 'me-cn06', title: '2023年中考语文真题（浙江卷）', examType: '真题', region: '浙江', year: '2023年', downloads: '2.8k' },
+                    { id: 'me-cn07', title: '中考语文名著阅读模拟专练', examType: '模拟题', region: '江苏', downloads: '1.7k' },
+                    { id: 'me-cn08', title: '2024年中考语文真题（四川卷）', examType: '真题', region: '四川', year: '2024年', downloads: '2.3k', recommend: '精选' },
                 ],
                 math: [
-                    { id: 'me-ma01', title: '2025年中考数学真题卷（全国甲卷）', examType: '真题', textbook: '人教版', downloads: '4.5k', recommend: '推荐' },
-                    { id: 'me-ma02', title: '2024年中考数学真题（北京卷）', examType: '真题', textbook: '人教版', downloads: '3.8k', recommend: '精选' },
-                    { id: 'me-ma03', title: '2024年中考数学真题（上海卷）', examType: '真题', textbook: '苏教版', downloads: '3.0k' },
-                    { id: 'me-ma04', title: '中考数学压轴题模拟专练', examType: '模拟题', textbook: '人教版', downloads: '2.7k', recommend: '推荐' },
-                    { id: 'me-ma05', title: '中考数学函数综合模拟卷', examType: '模拟题', textbook: '北师大版', downloads: '2.2k' },
-                    { id: 'me-ma06', title: '2023年中考数学真题精选', examType: '真题', textbook: '人教版', downloads: '2.4k' },
-                    { id: 'me-ma07', title: '中考数学几何证明模拟卷', examType: '模拟题', textbook: '苏教版', downloads: '1.9k' },
+                    { id: 'me-ma01', title: '2025年中考数学真题（全国甲卷）', examType: '真题', region: '全国卷', year: '2025年', downloads: '4.5k', recommend: '推荐' },
+                    { id: 'me-ma02', title: '2024年中考数学真题（北京卷）', examType: '真题', region: '北京', year: '2024年', downloads: '3.8k', recommend: '精选' },
+                    { id: 'me-ma03', title: '2024年中考数学真题（上海卷）', examType: '真题', region: '上海', year: '2024年', downloads: '3.0k' },
+                    { id: 'me-ma04', title: '中考数学压轴题模拟专练', examType: '模拟题', region: '全国卷', downloads: '2.7k', recommend: '推荐' },
+                    { id: 'me-ma05', title: '2024年中考数学真题（广东卷）', examType: '真题', region: '广东', year: '2024年', downloads: '3.1k' },
+                    { id: 'me-ma06', title: '2023年中考数学真题（浙江卷）', examType: '真题', region: '浙江', year: '2023年', downloads: '2.4k' },
+                    { id: 'me-ma07', title: '中考数学几何证明模拟卷', examType: '模拟题', region: '江苏', downloads: '1.9k' },
                 ],
                 english: [
-                    { id: 'me-en01', title: '2025年中考英语真题卷（全国甲卷）', examType: '真题', textbook: '人教版', downloads: '3.6k', recommend: '推荐' },
-                    { id: 'me-en02', title: '2024年中考英语真题（北京卷）', examType: '真题', textbook: '人教版', downloads: '3.1k', recommend: '精选' },
-                    { id: 'me-en03', title: '中考英语完形填空模拟专练', examType: '模拟题', textbook: '人教版', downloads: '2.3k' },
-                    { id: 'me-en04', title: '2024年中考英语真题（广州卷）', examType: '真题', textbook: '北师大版', downloads: '2.5k' },
-                    { id: 'me-en05', title: '中考英语书面表达模拟卷', examType: '模拟题', textbook: '苏教版', downloads: '1.8k', recommend: '推荐' },
-                    { id: 'me-en06', title: '2023年中考英语真题汇编', examType: '真题', textbook: '人教版', downloads: '2.0k' },
+                    { id: 'me-en01', title: '2025年中考英语真题（全国甲卷）', examType: '真题', region: '全国卷', year: '2025年', downloads: '3.6k', recommend: '推荐' },
+                    { id: 'me-en02', title: '2024年中考英语真题（北京卷）', examType: '真题', region: '北京', year: '2024年', downloads: '3.1k', recommend: '精选' },
+                    { id: 'me-en03', title: '中考英语完形填空模拟专练', examType: '模拟题', region: '全国卷', downloads: '2.3k' },
+                    { id: 'me-en04', title: '2024年中考英语真题（广东卷）', examType: '真题', region: '广东', year: '2024年', downloads: '2.5k' },
+                    { id: 'me-en05', title: '中考英语书面表达模拟卷', examType: '模拟题', region: '浙江', downloads: '1.8k', recommend: '推荐' },
+                    { id: 'me-en06', title: '2023年中考英语真题（上海卷）', examType: '真题', region: '上海', year: '2023年', downloads: '2.0k' },
                 ]
             }
         };
-
-        var activeSubj = 'chinese';
-        var activeType = '真题';
-        var activeTextbook = 'all';
 
         var iconMap = { chinese: 'pi-chinese', math: 'pi-math', english: 'pi-eng' };
 
         function renderList() {
             var data = (EXAM_DATA[examType] || {})[activeSubj] || [];
             var filtered = data.filter(function(p) {
-                var matchType = activeType === 'all' || p.examType === activeType;
-                var matchTb = activeTextbook === 'all' || p.textbook === activeTextbook;
-                return matchType && matchTb;
+                if (activeType !== 'all' && p.examType !== activeType) return false;
+                if (activeYear && p.year !== activeYear) return false;
+                return matchRegion(p.region, activeRegionKey);
             });
 
             var list = document.getElementById('paperList');
@@ -381,6 +751,7 @@
                 var recHtml = p.recommend
                     ? '<span class="paper-recommend ' + (p.recommend === '推荐' ? 'pr-recommend' : 'pr-pick') + '">' + p.recommend + '</span>'
                     : '';
+                var yearTag = p.year ? '<span class="paper-textbook">' + p.year + '</span>' : '';
                 return '<div class="paper-item" onclick="goDetail(\'' + p.id + '\',\'' + encodeURIComponent(p.title) + '\')">' +
                     '<div class="paper-icon ' + icon + '">' +
                         '<svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>' +
@@ -388,7 +759,7 @@
                     '<div class="paper-info">' +
                         '<div class="paper-title">' + recHtml + p.title + '</div>' +
                         '<div class="paper-row">' +
-                            '<div class="paper-meta-tags"><span class="paper-textbook">' + p.textbook + '</span></div>' +
+                            '<div class="paper-meta-tags">' + yearTag + '<span class="paper-textbook">' + p.region + '</span></div>' +
                             '<span class="paper-dl">' +
                                 '<svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>' +
                                 p.downloads + '人下载' +
@@ -404,68 +775,22 @@
             window.location.href = '试卷详情.html?id=' + id + '&title=' + title;
         }
 
-        document.getElementById('subjTabs').addEventListener('click', function(e) {
-            var tab = e.target.closest('.subj-tab');
-            if (!tab) return;
-            document.querySelectorAll('#subjTabs .subj-tab').forEach(function(t) { t.classList.remove('active'); });
-            tab.classList.add('active');
-            activeSubj = tab.dataset.subj;
-            activeType = '真题';
-            activeTextbook = 'all';
-            document.querySelectorAll('#filterBar .filter-chip[data-type]').forEach(function(c) { c.classList.toggle('active', c.dataset.type === '真题'); });
-            document.querySelectorAll('#tbPanel .tb-panel-chip').forEach(function(c) { c.classList.toggle('active', c.dataset.tb === 'all'); });
-            document.getElementById('tbBtnLabel').textContent = '教材版本';
-            tbBtn.classList.remove('active');
-            closeTbPanel();
-            renderList();
-        });
-
-        document.getElementById('filterBar').addEventListener('click', function(e) {
-            var btn = e.target.closest('.filter-chip');
-            if (!btn) return;
-            document.querySelectorAll('#filterBar .filter-chip[data-type]').forEach(function(c) { c.classList.remove('active'); });
-            btn.classList.add('active');
-            activeType = btn.dataset.type;
-            renderList();
-        });
-
-        var tbBtn = document.getElementById('tbBtn');
-        var tbPanel = document.getElementById('tbPanel');
-
-        tbBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            var isOpen = tbPanel.classList.contains('show');
-            if (isOpen) {
-                closeTbPanel();
-            } else {
-                tbPanel.classList.add('show');
-                tbBtn.classList.add('open');
-            }
-        });
-
-        tbPanel.addEventListener('click', function(e) {
-            var chip = e.target.closest('.tb-panel-chip');
+        /* ── 类型 chip 点击 ── */
+        document.getElementById('typeChips').addEventListener('click', function(e) {
+            var chip = e.target.closest('.type-chip');
             if (!chip) return;
-            e.stopPropagation();
-            document.querySelectorAll('#tbPanel .tb-panel-chip').forEach(function(c) { c.classList.remove('active'); });
+            document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
             chip.classList.add('active');
-            activeTextbook = chip.dataset.tb;
-            var label = activeTextbook === 'all' ? '教材版本' : activeTextbook;
-            document.getElementById('tbBtnLabel').textContent = label;
-            tbBtn.classList.toggle('active', activeTextbook !== 'all');
-            closeTbPanel();
+            activeType = chip.dataset.type;
             renderList();
         });
 
-        document.addEventListener('click', function() {
-            closeTbPanel();
-        });
-
-        function closeTbPanel() {
-            tbPanel.classList.remove('show');
-            tbBtn.classList.remove('open');
-        }
-
+        /* 初始化 */
+        document.getElementById('filterSubjectLabel').textContent = '数学';
+        // 预设广东省
+        activeRsProv = REGION_DATA.find(function(p) { return p.value === '广东'; }) || null;
+        activeRsCity = null; activeRsDist = null;
+        document.querySelector('[data-filter="region"]').classList.add('active');
         renderList();
 
         function showToast(msg) {
@@ -482,7 +807,7 @@
     </div>
     <div class="sb-panel" id="sbPanel">
         <div class="sb-drag-bar" id="sbDragBar">
-            <span class="sb-drag-title">产品稿 · 试卷列表 <span class="sb-ver">v1.0</span></span>
+            <span class="sb-drag-title">产品稿 · 试卷列表 <span class="sb-ver">v1.3</span></span>
             <button class="sb-close" onclick="setMode('demo')">✕</button>
         </div>
         <div class="sb-content" id="sidebarContent"></div>
@@ -579,6 +904,17 @@ function buildSections(md) {
     </script>
 
     <script type="text/markdown" id="prd-changelog">
+### v1.3 · 2026-04-21
+- [改动] 筛选栏重构：学科Tab + 类型chips + 地区按钮 → **三维筛选栏**（科目 ∨ | 地区 ∨ | 年份 ∨）
+- [新增] 年份筛选：全部年份 / 2025年 / 2024年 / 2023年 / 2022年
+- [改动] 默认地区：全部地区 → **广东省**
+
+### v1.2 · 2026-04-21
+- [改动] 地区筛选从平铺下拉 → 省市区三级联动底部弹窗
+
+### v1.1 · 2026-04-21
+- [改动] 教材版本筛选 → 地区筛选
+
 ### v1.0 · 2026-04-03
 - [新增] 试卷列表产品稿初版
     </script>
@@ -586,25 +922,45 @@ function buildSections(md) {
     <script type="text/markdown" id="prd-sections">
 ## 1. 页面概述
 
-真题试卷列表页，展示小升初或中考的真题和模拟题资源。通过 URL 参数 `type` 区分：primary（小升初）、middle（中考）。
+真题试卷列表页，展示小升初或中考的真题和模拟题资源。通过 URL 参数 `type` 区分：primary（小升初）、middle（中考）。默认展示广东省试卷。
 
-## 2. 学科筛选 Tab
+## 2. 三维筛选栏
 
-#### 交互逻辑
-
-顶部学科 Tab：语文、数学、英语；点击切换查看对应学科试卷
-
-## 3. 分类筛选
+顶部横排三个下拉按钮：**科目 ∨ | 地区 ∨ | 年份 ∨**，与试卷讲解页保持一致样式。
 
 #### 交互逻辑
 
-筛选 chips：真题、模拟题；教材版本筛选：人教版、北师大版等
+1. 点击任一按钮 → 展开对应选项（科目/年份为下拉列表，地区为底部弹窗）
+2. 选中后按钮文字更新，字体加粗；再次点击或点遮罩 → 收起
+3. 同一时间只有一个选项展开
+
+#### 科目选项
+语文、数学、英语
+
+#### 年份选项
+全部年份、2025年、2024年、2023年、2022年
+
+#### 地区选项（底部弹窗，三级级联）
+- 省/直辖市 → 市 → 区/县，每级均可选"不限"
+- 选省后自动切换至市 tab，选市后自动切换至区 tab
+- "重置"清空，"完成"生效并关闭弹窗
+- 默认：**广东省**
+
+#### 业务规则
+- 三个维度独立生效，交叉过滤
+- 直辖市（北京/上海）第二级直接展示区/县，无市级
+
+## 3. 类型筛选 Chips
+
+筛选栏下方两个 chip：**历年真题 / 模拟题**，默认选中"历年真题"。
+
+#### 业务规则
+- 与三维筛选叠加生效
+- 切换科目时，类型 chip 重置为"历年真题"
 
 ## 4. 试卷列表
 
-#### 交互逻辑
-
-列表项展示试卷标题（两行）和下载量；点击跳转试卷详情页
+列表项：学科图标 + 试卷标题 + 推荐/精选标签 + 年份标签 + 地区标签 + 下载量；点击跳转试卷详情页
     </script>
 
 </body>

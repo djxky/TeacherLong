@@ -103,7 +103,7 @@
             box-shadow: 0 2px 8px -2px rgba(0,0,0,0.05);
         }
         .paper-filters {
-            display: flex; gap: 6px; margin-bottom: 12px;
+            display: flex; gap: 6px; margin-bottom: 6px;
             overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap;
         }
         .paper-filters::-webkit-scrollbar { display: none; }
@@ -117,6 +117,79 @@
             color: #6366f1; background: rgba(99,102,241,0.06);
             border-color: rgba(99,102,241,0.25);
         }
+
+        /* ── 地区筛选行 ── */
+        .region-row {
+            display: flex; align-items: center; gap: 6px; margin-bottom: 12px;
+        }
+        .region-label {
+            font-size: 0.5625rem; font-weight: 600; color: #cbd5e1; flex-shrink: 0;
+        }
+        .rp-btn {
+            display: flex; align-items: center; gap: 3px; flex-shrink: 0;
+            padding: 4px 10px; font-size: 0.625rem; font-weight: 600;
+            color: #a1a1aa; background: transparent; border: 1px solid rgba(226,232,240,0.5);
+            border-radius: 16px; cursor: pointer; transition: all .18s;
+            -webkit-tap-highlight-color: transparent; font-family: inherit;
+        }
+        .rp-btn.active {
+            color: #6366f1; background: rgba(99,102,241,0.06);
+            border-color: rgba(99,102,241,0.25);
+        }
+
+        /* ── 地区选择器底部弹窗 ── */
+        .rp-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.35);
+            z-index: 200; opacity: 0; pointer-events: none;
+            transition: opacity .25s ease;
+        }
+        .rp-overlay.show { opacity: 1; pointer-events: auto; }
+        .rp-sheet {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: #fff; border-radius: 20px 20px 0 0;
+            z-index: 201; transform: translateY(100%);
+            transition: transform .3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex; flex-direction: column; max-height: 74%;
+        }
+        .rp-sheet.show { transform: translateY(0); }
+        .rp-handle { width: 36px; height: 4px; border-radius: 2px; background: #e2e8f0; margin: 10px auto 0; flex-shrink: 0; }
+        .rp-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px 0; flex-shrink: 0; }
+        .rp-title { font-size: 0.875rem; font-weight: 700; color: #0f172a; }
+        .rp-reset { font-size: 0.75rem; font-weight: 600; color: #d4d4d8; background: none; border: none; cursor: pointer; padding: 4px 0; transition: color .15s; font-family: inherit; }
+        .rp-reset.active { color: #6366f1; }
+        .rp-crumb { padding: 4px 20px 2px; font-size: 0.625rem; color: #94a3b8; min-height: 22px; flex-shrink: 0; line-height: 1.5; }
+        .rp-crumb b { color: #6366f1; font-weight: 700; font-style: normal; }
+        .rp-tabs { display: flex; padding: 0 20px; border-bottom: 1px solid #f1f5f9; flex-shrink: 0; }
+        .rp-tab {
+            padding: 8px 14px; font-size: 0.75rem; font-weight: 600; color: #a1a1aa;
+            background: none; border: none; border-bottom: 2px solid transparent;
+            margin-bottom: -1px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+            transition: all .15s; white-space: nowrap; font-family: inherit;
+        }
+        .rp-tab.active { color: #6366f1; border-bottom-color: #6366f1; }
+        .rp-tab.disabled { color: #e2e8f0; pointer-events: none; }
+        .rp-list { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .rp-list::-webkit-scrollbar { display: none; }
+        .rp-item {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 11px 20px; font-size: 0.8125rem; font-weight: 500; color: #374151;
+            cursor: pointer; -webkit-tap-highlight-color: transparent;
+            border-bottom: 1px solid rgba(241,245,249,0.8);
+        }
+        .rp-item:active { background: rgba(99,102,241,0.04); }
+        .rp-item.sel { color: #6366f1; font-weight: 700; }
+        .rp-item .rp-check { color: #6366f1; font-size: 0.8125rem; }
+        .rp-item .rp-arrow { color: #d4d4d8; font-size: 1rem; font-weight: 300; }
+        .rp-footer { padding: 10px 20px 16px; flex-shrink: 0; border-top: 1px solid #f1f5f9; }
+        .rp-confirm-btn {
+            width: 100%; padding: 13px; border-radius: 14px; border: none;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: #fff; font-size: 0.9375rem; font-weight: 700;
+            cursor: pointer; font-family: inherit;
+            -webkit-tap-highlight-color: transparent;
+            transition: transform .15s, opacity .15s;
+        }
+        .rp-confirm-btn:active { transform: scale(0.97); opacity: 0.9; }
 
         .grade-picker {
             position: relative; flex-shrink: 0;
@@ -235,6 +308,62 @@
         }
         .paper-arrow { color: #d4d4d8; flex-shrink: 0; }
 
+        /* ── ep-filter 筛选栏 ── */
+        .ep-filters { display:flex; align-items:center; flex-shrink:0; border-bottom:1px solid rgba(226,232,240,.5); position:relative; z-index:110; }
+        .ep-filter-btn { flex:1; min-width:0; display:flex; align-items:center; justify-content:center; gap:4px; background:none; border:none; font-size:.875rem; font-weight:500; color:#475569; cursor:pointer; padding:12px 4px; -webkit-tap-highlight-color:transparent; transition:color .15s; font-family:inherit; }
+        .ep-filter-btn > span { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .ep-filter-btn:active { background:rgba(0,0,0,.02); }
+        .ep-filter-btn.active { color:#0f172a; font-weight:600; }
+        .ep-filter-btn.open { color:#6366f1; font-weight:600; }
+        .ep-filter-btn svg { width:12px; height:12px; flex-shrink:0; transition:transform .2s; }
+        .ep-filter-btn.open svg { transform:rotate(180deg); color:#6366f1; }
+        .ep-filter-sep { width:1px; height:18px; background:rgba(226,232,240,.6); flex-shrink:0; }
+
+        /* ── ep-dropdown（科目/年级下拉） ── */
+        .ep-dd-overlay { position:absolute; inset:0; z-index:100; background:rgba(0,0,0,.18); display:none; }
+        .ep-dd-overlay.open { display:block; }
+        .ep-dd-wrap { position:relative; flex-shrink:0; }
+        .ep-dropdown { position:absolute; top:0; left:0; right:0; z-index:111; background:#fff; box-shadow:0 8px 32px rgba(0,0,0,.1); border-radius:0 0 16px 16px; display:none; max-height:360px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+        .ep-dropdown.open { display:block; }
+        .ep-dropdown::-webkit-scrollbar { display:none; }
+        .ep-dd-item { padding:14px 20px; font-size:.875rem; font-weight:400; color:#475569; cursor:pointer; transition:background .12s; border-bottom:1px solid #f8fafc; }
+        .ep-dd-item:active { background:#fafafa; }
+        .ep-dd-item.selected { color:#6366f1; font-weight:600; background:rgba(99,102,241,.04); }
+
+        /* ── ep-region-sheet（地区底部弹窗） ── */
+        .ep-rs-overlay { position:absolute; inset:0; z-index:105; background:rgba(15,23,42,.4); display:none; }
+        .ep-rs-overlay.open { display:block; }
+        .ep-region-sheet { position:absolute; left:0; right:0; bottom:0; z-index:112; background:#fff; border-radius:16px 16px 0 0; box-shadow:0 -8px 32px rgba(0,0,0,.12); max-height:min(60%,520px); display:flex; flex-direction:column; transform:translateY(105%); transition:transform .28s cubic-bezier(.32,.72,0,1); padding-bottom:max(12px,env(safe-area-inset-bottom)); }
+        .ep-region-sheet.open { transform:translateY(0); }
+        .ep-rs-handle { width:36px; height:4px; background:#e2e8f0; border-radius:99px; margin:10px auto 2px; flex-shrink:0; }
+        .ep-rs-head { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 16px 8px; flex-shrink:0; border-bottom:1px solid #f1f5f9; }
+        .ep-rs-title { font-size:1rem; font-weight:700; color:#0f172a; flex:1; }
+        .ep-rs-actions { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+        .ep-rs-reset { font-size:.8125rem; font-weight:600; color:#64748b; background:none; border:none; padding:6px 10px; border-radius:8px; cursor:pointer; font-family:inherit; }
+        .ep-rs-reset:active { background:#f1f5f9; }
+        .ep-rs-done { font-size:.8125rem; font-weight:700; color:#fff; background:linear-gradient(135deg,#6366f1,#8b5cf6); border:none; padding:6px 14px; border-radius:8px; cursor:pointer; font-family:inherit; box-shadow:0 2px 6px rgba(99,102,241,.2); }
+        .ep-rs-done:active { transform:scale(.98); opacity:.95; }
+        .ep-rs-sub { font-size:.6875rem; color:#64748b; line-height:1.5; padding:6px 16px 8px; flex-shrink:0; background:#f8fafc; border-bottom:1px solid #f1f5f9; }
+        .ep-rs-tabs { display:flex; align-items:stretch; border-bottom:1px solid #f1f5f9; flex-shrink:0; background:#fafafa; }
+        .ep-rs-tab { flex:1; padding:12px 6px; font-size:.8125rem; font-weight:500; color:#64748b; border:none; background:transparent; cursor:pointer; position:relative; -webkit-tap-highlight-color:transparent; transition:color .15s; font-family:inherit; }
+        .ep-rs-tab.active { color:#0f172a; font-weight:700; }
+        .ep-rs-tab.active::after { content:''; position:absolute; left:16%; right:16%; bottom:0; height:2.5px; background:#6366f1; border-radius:2px 2px 0 0; }
+        .ep-rs-tab:disabled { color:#cbd5e1; cursor:default; }
+        .ep-rs-list { flex:1; min-height:120px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+        .ep-rs-list::-webkit-scrollbar { width:4px; }
+        .ep-rs-list::-webkit-scrollbar-thumb { background:#e2e8f0; border-radius:2px; }
+        .ep-rs-item { padding:14px 20px; font-size:.9375rem; color:#334155; cursor:pointer; border-bottom:1px solid #f8fafc; -webkit-tap-highlight-color:transparent; transition:background .12s; display:flex; align-items:center; justify-content:space-between; }
+        .ep-rs-item:active { background:#f8fafc; }
+        .ep-rs-item.selected { color:#6366f1; font-weight:600; background:rgba(99,102,241,.06); }
+        .ep-rs-hint { padding:40px 24px; text-align:center; color:#94a3b8; font-size:.8125rem; }
+
+        /* ── 类型筛选 chips ── */
+        .type-chips-row { display:flex; gap:6px; padding:10px 16px; overflow-x:auto; flex-shrink:0; -webkit-overflow-scrolling:touch; border-bottom:1px solid rgba(226,232,240,.4); }
+        .type-chips-row::-webkit-scrollbar { display:none; }
+        .type-chip { flex-shrink:0; padding:5px 12px; font-size:.75rem; font-weight:600; color:#94a3b8; background:transparent; border:1px solid rgba(226,232,240,.6); border-radius:99px; cursor:pointer; transition:all .15s; white-space:nowrap; font-family:inherit; -webkit-tap-highlight-color:transparent; }
+        .type-chip.active { color:#6366f1; background:rgba(99,102,241,.06); border-color:rgba(99,102,241,.25); }
+        .type-chip:active { transform:scale(.96); }
+
         #toast {
             position: absolute; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px);
             background: rgba(255,255,255,0.8); color: #0f172a;
@@ -316,28 +445,54 @@
             <div class="topbar-spacer"></div>
         </div>
 
-        <div class="scroll-area">
-            <section class="sec" style="margin-top:4px;">
-                <div class="paper-tabs" id="paperTabs">
-                    <button class="paper-tab active" data-subj="chinese">语文</button>
-                    <button class="paper-tab" data-subj="math">数学</button>
-                    <button class="paper-tab" data-subj="english">英语</button>
-                    <button class="paper-tab" data-subj="science">科学</button>
+        <!-- 三维筛选栏：科目 | 地区 | 年级 -->
+        <div class="ep-filters" id="filterBar">
+            <button class="ep-filter-btn active" data-filter="subject" onclick="toggleFilter('subject')">
+                <span id="filterSubjectLabel">语文</span>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="ep-filter-sep"></div>
+            <button class="ep-filter-btn" data-filter="region" onclick="toggleFilter('region')">
+                <span id="filterRegionLabel">广东</span>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+            <div class="ep-filter-sep"></div>
+            <button class="ep-filter-btn" data-filter="grade" onclick="toggleFilter('grade')">
+                <span id="filterGradeLabel">七年级</span>
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+        </div>
+        <!-- 科目/年级下拉遮罩 + 面板 -->
+        <div class="ep-dd-overlay" id="ddOverlay" onclick="closeAllFilters()"></div>
+        <div class="ep-dd-wrap"><div class="ep-dropdown" id="ddPanel"></div></div>
+        <!-- 地区底部弹层（ep 风格） -->
+        <div class="ep-rs-overlay" id="regionOverlay" onclick="closeAllFilters()"></div>
+        <div class="ep-region-sheet" id="regionSheet">
+            <div class="ep-rs-handle"></div>
+            <div class="ep-rs-head">
+                <span class="ep-rs-title">选择地区</span>
+                <div class="ep-rs-actions">
+                    <button type="button" class="ep-rs-reset" onclick="resetRegion()">重置</button>
+                    <button type="button" class="ep-rs-done" onclick="confirmRegion()">完成</button>
                 </div>
-                <div class="paper-filters" id="paperFilters">
-                    <div class="grade-picker" id="gradePicker">
-                        <button class="grade-btn" id="gradeBtn">
-                            <span id="gradeBtnText">七年级</span>
-                            <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                        </button>
-                        <div class="grade-popup" id="gradePopup"></div>
-                    </div>
-                    <button class="paper-filter active" data-filter="热门推荐">热门推荐</button>
-                    <button class="paper-filter" data-filter="小升初真题">小升初真题</button>
-                    <button class="paper-filter" data-filter="小升初模拟">小升初模拟</button>
-                    <button class="paper-filter" data-filter="期末试题">期末试题</button>
-                    <button class="paper-filter" data-filter="期中试题">期中试题</button>
-                    <button class="paper-filter" data-filter="单元测试">单元测试</button>
+            </div>
+            <div class="ep-rs-sub" id="rsSubLine">全部地区</div>
+            <div class="ep-rs-tabs" id="rsTabs"></div>
+            <div class="ep-rs-list" id="rsList"></div>
+        </div>
+
+        <div class="scroll-area">
+            <section class="sec" style="margin-top:0;">
+                <!-- 类型筛选 chips -->
+                <div class="type-chips-row" id="typeChips">
+                    <button class="type-chip active" data-type="全部">全部</button>
+                    <button class="type-chip" data-type="月考">月考</button>
+                    <button class="type-chip" data-type="单元测试">单元测试</button>
+                    <button class="type-chip" data-type="期中">期中</button>
+                    <button class="type-chip" data-type="期末">期末</button>
+                    <button class="type-chip" data-type="真题">真题</button>
+                    <button class="type-chip" data-type="模拟题">模拟题</button>
+                    <button class="type-chip" data-type="其它">其它</button>
                 </div>
                 <div class="paper-list" id="paperList"></div>
             </section>
@@ -375,8 +530,11 @@
                 { id: 'cn23', title: '五年级语文期末冲刺卷', type: '期末', typeCls: 'pt-final', downloads: '1.1k', filter: '期末试题', grade: '五年级', semester: '下学期' },
                 { id: 'cn24', title: '六年级语文阅读与写作专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.3k', filter: '热门推荐', grade: '六年级', semester: '上学期' },
                 { id: 'cn25', title: '六年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '1.4k', filter: '期末试题', grade: '六年级', semester: '上学期' },
-                { id: 'cn26', title: '2024年小升初语文真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '3.1k', filter: '小升初真题', recommend: '精选', grade: '六年级', semester: '下学期' },
-                { id: 'cn27', title: '2023年小升初语文真题精选', type: '真题', typeCls: 'pt-real', downloads: '2.5k', filter: '小升初真题', grade: '六年级', semester: '下学期' },
+                { id: 'cn26', title: '2024年小升初语文真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '3.1k', filter: '小升初真题', recommend: '精选', grade: '六年级', semester: '下学期', region: '全国卷' },
+                { id: 'cn26b', title: '2024年小升初语文真题（北京卷）', type: '真题', typeCls: 'pt-real', downloads: '2.4k', filter: '小升初真题', grade: '六年级', semester: '下学期', region: '北京' },
+                { id: 'cn26c', title: '2024年小升初语文真题（上海卷）', type: '真题', typeCls: 'pt-real', downloads: '2.1k', filter: '小升初真题', grade: '六年级', semester: '下学期', region: '上海' },
+                { id: 'cn26d', title: '2024年小升初语文真题（广东卷）', type: '真题', typeCls: 'pt-real', downloads: '1.9k', filter: '小升初真题', grade: '六年级', semester: '下学期', region: '广东' },
+                { id: 'cn27', title: '2023年小升初语文真题精选', type: '真题', typeCls: 'pt-real', downloads: '2.5k', filter: '小升初真题', grade: '六年级', semester: '下学期', region: '全国卷' },
                 { id: 'cn28', title: '小升初语文模拟冲刺卷（一）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '小升初模拟', grade: '六年级', semester: '下学期' },
                 { id: 'cn29', title: '小升初语文模拟冲刺卷（二）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.6k', filter: '小升初模拟', grade: '六年级', semester: '下学期' },
                 { id: 'cn30', title: '六年级语文总复习专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '热门推荐', recommend: '推荐', grade: '六年级', semester: '下学期' },
@@ -400,7 +558,10 @@
                 { id: 'cn48', title: '九年级语文古诗文默写专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '热门推荐', grade: '九年级', semester: '上学期' },
                 { id: 'cn49', title: '九年级语文期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '1.6k', filter: '期末试题', grade: '九年级', semester: '上学期' },
                 { id: 'cn50', title: '九年级语文期中测试卷', type: '期中', typeCls: 'pt-midterm', downloads: '1.2k', filter: '期中试题', grade: '九年级', semester: '上学期' },
-                { id: 'cn51', title: '九年级语文中考真题汇编（2024）', type: '真题', typeCls: 'pt-real', downloads: '2.8k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '下学期' },
+                { id: 'cn51', title: '2024年中考语文真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '2.8k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '下学期', region: '全国卷' },
+                { id: 'cn51b', title: '2024年中考语文真题（北京卷）', type: '真题', typeCls: 'pt-real', downloads: '2.4k', filter: '热门推荐', grade: '九年级', semester: '下学期', region: '北京' },
+                { id: 'cn51c', title: '2024年中考语文真题（广东卷）', type: '真题', typeCls: 'pt-real', downloads: '2.2k', filter: '热门推荐', grade: '九年级', semester: '下学期', region: '广东' },
+                { id: 'cn51d', title: '2024年中考语文真题（浙江卷）', type: '真题', typeCls: 'pt-real', downloads: '1.8k', filter: '热门推荐', grade: '九年级', semester: '下学期', region: '浙江' },
                 { id: 'cn52', title: '九年级语文中考冲刺模拟卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.5k', filter: '热门推荐', grade: '九年级', semester: '下学期' },
                 { id: 'cn53', title: '九年级语文第三单元检测卷', type: '单元测试', typeCls: 'pt-unit', downloads: '980', filter: '单元测试', grade: '九年级', semester: '下学期' },
             ],
@@ -424,8 +585,10 @@
                 { id: 'ma17', title: '五年级数学分数运算专练', type: '模拟题', typeCls: 'pt-mock', downloads: '880', filter: '热门推荐', grade: '五年级', semester: '下学期' },
                 { id: 'ma18', title: '六年级数学计算能力专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.1k', filter: '热门推荐', grade: '六年级', semester: '上学期' },
                 { id: 'ma19', title: '六年级数学期末综合测试', type: '期末', typeCls: 'pt-final', downloads: '1.2k', filter: '期末试题', grade: '六年级', semester: '上学期' },
-                { id: 'ma20', title: '2024年小升初数学真题精选', type: '真题', typeCls: 'pt-real', downloads: '2.6k', filter: '小升初真题', recommend: '精选', grade: '六年级', semester: '下学期' },
-                { id: 'ma21', title: '2023年小升初数学真题汇编', type: '真题', typeCls: 'pt-real', downloads: '2.2k', filter: '小升初真题', grade: '六年级', semester: '下学期' },
+                { id: 'ma20', title: '2024年小升初数学真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '2.6k', filter: '小升初真题', recommend: '精选', grade: '六年级', semester: '下学期', region: '全国卷' },
+                { id: 'ma20b', title: '2024年小升初数学真题（北京卷）', type: '真题', typeCls: 'pt-real', downloads: '2.1k', filter: '小升初真题', grade: '六年级', semester: '下学期', region: '北京' },
+                { id: 'ma20c', title: '2024年小升初数学真题（广东卷）', type: '真题', typeCls: 'pt-real', downloads: '1.8k', filter: '小升初真题', grade: '六年级', semester: '下学期', region: '广东' },
+                { id: 'ma21', title: '2023年小升初数学真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '2.2k', filter: '小升初真题', grade: '六年级', semester: '下学期', region: '全国卷' },
                 { id: 'ma22', title: '小升初数学模拟卷（计算综合）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.5k', filter: '小升初模拟', grade: '六年级', semester: '下学期' },
                 { id: 'ma23', title: '小升初数学模拟卷（应用题）', type: '模拟题', typeCls: 'pt-mock', downloads: '1.3k', filter: '小升初模拟', grade: '六年级', semester: '下学期' },
                 { id: 'ma24', title: '六年级数学总复习专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '热门推荐', recommend: '推荐', grade: '六年级', semester: '下学期' },
@@ -446,7 +609,10 @@
                 { id: 'ma39', title: '九年级数学二次函数专项训练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.4k', filter: '热门推荐', recommend: '推荐', grade: '九年级', semester: '上学期' },
                 { id: 'ma40', title: '九年级数学中考压轴题精练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.0k', filter: '热门推荐', grade: '九年级', semester: '上学期' },
                 { id: 'ma41', title: '九年级数学期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '1.5k', filter: '期末试题', grade: '九年级', semester: '上学期' },
-                { id: 'ma42', title: '九年级数学中考真题（2024）', type: '真题', typeCls: 'pt-real', downloads: '3.0k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '下学期' },
+                { id: 'ma42', title: '2024年中考数学真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '3.0k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '下学期', region: '全国卷' },
+                { id: 'ma42b', title: '2024年中考数学真题（北京卷）', type: '真题', typeCls: 'pt-real', downloads: '2.5k', filter: '热门推荐', grade: '九年级', semester: '下学期', region: '北京' },
+                { id: 'ma42c', title: '2024年中考数学真题（广东卷）', type: '真题', typeCls: 'pt-real', downloads: '2.3k', filter: '热门推荐', grade: '九年级', semester: '下学期', region: '广东' },
+                { id: 'ma42d', title: '2024年中考数学真题（浙江卷）', type: '真题', typeCls: 'pt-real', downloads: '2.0k', filter: '热门推荐', grade: '九年级', semester: '下学期', region: '浙江' },
                 { id: 'ma43', title: '九年级数学中考冲刺模拟卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.2k', filter: '热门推荐', grade: '九年级', semester: '下学期' },
             ],
             english: [
@@ -463,8 +629,10 @@
                 { id: 'en11', title: '五年级英语阅读理解专练', type: '模拟题', typeCls: 'pt-mock', downloads: '800', filter: '热门推荐', grade: '五年级', semester: '下学期' },
                 { id: 'en12', title: '六年级英语听力与口语专练', type: '模拟题', typeCls: 'pt-mock', downloads: '960', filter: '热门推荐', grade: '六年级', semester: '上学期' },
                 { id: 'en13', title: '六年级英语期末综合测试', type: '期末', typeCls: 'pt-final', downloads: '1.1k', filter: '期末试题', grade: '六年级', semester: '上学期' },
-                { id: 'en14', title: '2024年小升初英语真题卷', type: '真题', typeCls: 'pt-real', downloads: '2.0k', filter: '小升初真题', recommend: '精选', grade: '六年级', semester: '下学期' },
-                { id: 'en15', title: '2023年小升初英语真题精选', type: '真题', typeCls: 'pt-real', downloads: '1.7k', filter: '小升初真题', grade: '六年级', semester: '下学期' },
+                { id: 'en14', title: '2024年小升初英语真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '2.0k', filter: '小升初真题', recommend: '精选', grade: '六年级', semester: '下学期', region: '全国卷' },
+                { id: 'en14b', title: '2024年小升初英语真题（北京卷）', type: '真题', typeCls: 'pt-real', downloads: '1.7k', filter: '小升初真题', grade: '六年级', semester: '下学期', region: '北京' },
+                { id: 'en14c', title: '2024年小升初英语真题（上海卷）', type: '真题', typeCls: 'pt-real', downloads: '1.5k', filter: '小升初真题', grade: '六年级', semester: '下学期', region: '上海' },
+                { id: 'en15', title: '2023年小升初英语真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '1.7k', filter: '小升初真题', grade: '六年级', semester: '下学期', region: '全国卷' },
                 { id: 'en16', title: '小升初英语模拟冲刺卷', type: '模拟题', typeCls: 'pt-mock', downloads: '1.4k', filter: '小升初模拟', grade: '六年级', semester: '下学期' },
                 { id: 'en17', title: '六年级英语总复习专练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.2k', filter: '热门推荐', recommend: '推荐', grade: '六年级', semester: '下学期' },
                 { id: 'en18', title: '七年级英语阅读理解精练', type: '模拟题', typeCls: 'pt-mock', downloads: '1.8k', filter: '热门推荐', recommend: '推荐', grade: '七年级', semester: '上学期' },
@@ -482,7 +650,9 @@
                 { id: 'en30', title: '八年级英语期末冲刺卷', type: '期末', typeCls: 'pt-final', downloads: '1.3k', filter: '期末试题', grade: '八年级', semester: '下学期' },
                 { id: 'en31', title: '九年级英语中考听力模拟训练', type: '模拟题', typeCls: 'pt-mock', downloads: '2.2k', filter: '热门推荐', recommend: '推荐', grade: '九年级', semester: '上学期' },
                 { id: 'en32', title: '九年级英语期末综合检测', type: '期末', typeCls: 'pt-final', downloads: '1.3k', filter: '期末试题', grade: '九年级', semester: '上学期' },
-                { id: 'en33', title: '九年级英语中考真题（2024）', type: '真题', typeCls: 'pt-real', downloads: '2.8k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '下学期' },
+                { id: 'en33', title: '2024年中考英语真题（全国卷）', type: '真题', typeCls: 'pt-real', downloads: '2.8k', filter: '热门推荐', recommend: '精选', grade: '九年级', semester: '下学期', region: '全国卷' },
+                { id: 'en33b', title: '2024年中考英语真题（北京卷）', type: '真题', typeCls: 'pt-real', downloads: '2.3k', filter: '热门推荐', grade: '九年级', semester: '下学期', region: '北京' },
+                { id: 'en33c', title: '2024年中考英语真题（广东卷）', type: '真题', typeCls: 'pt-real', downloads: '2.0k', filter: '热门推荐', grade: '九年级', semester: '下学期', region: '广东' },
                 { id: 'en34', title: '九年级英语中考冲刺模拟卷', type: '模拟题', typeCls: 'pt-mock', downloads: '2.0k', filter: '热门推荐', grade: '九年级', semester: '下学期' },
             ],
             science: [
@@ -509,100 +679,298 @@
             ],
         };
 
-        let activeGrade = sessionStorage.getItem('gradeClass') || '七年级';
-        if (!GRADES.includes(activeGrade)) activeGrade = '七年级';
-        let activeSemester = '上学期';
+        /* ── 筛选状态 ── */
+        const SUBJECTS_DL = [
+            { label: '语文', value: 'chinese' },
+            { label: '数学', value: 'math' },
+            { label: '英语', value: 'english' },
+            { label: '科学', value: 'science' },
+        ];
+        const GRADES_DL = ['不限', '一年级', '二年级', '三年级', '四年级', '五年级', '六年级', '七年级', '八年级', '九年级'];
 
         let activePaperSubj = 'chinese';
-        let activePaperFilter = '热门推荐';
+        let activeGrade = sessionStorage.getItem('gradeClass') || '七年级';
+        if (!GRADES.includes(activeGrade)) activeGrade = '七年级';
+        let activePaperFilter = '全部';
 
-        /* ── 年级选择器 ── */
-        const gradeBtn = document.getElementById('gradeBtn');
-        const gradeBtnText = document.getElementById('gradeBtnText');
-        const gradePopup = document.getElementById('gradePopup');
-
-        function updateBtnText() {
-            const short = activeSemester === '上学期' ? '上' : '下';
-            gradeBtnText.textContent = activeGrade + short;
+        /* 把旧 filter / typeCls 映射到新的 7 大类型 */
+        function getItemType(p) {
+            if (p.filter === '月考') return '月考';
+            if (p.filter === '单元测试' || p.typeCls === 'pt-unit') return '单元测试';
+            if (p.filter === '期中试题' || p.typeCls === 'pt-midterm') return '期中';
+            if (p.filter === '期末试题' || p.typeCls === 'pt-final') return '期末';
+            if (p.filter === '小升初真题' || p.filter === '中考真题') return '真题';
+            if (p.filter === '小升初模拟') return '模拟题';
+            if (p.typeCls === 'pt-real') return '真题';
+            if (p.typeCls === 'pt-mock') return '模拟题';
+            return '其它';
         }
 
-        function renderGradePopup() {
-            updateBtnText();
-            gradePopup.innerHTML =
-                `<div class="semester-toggle">` +
-                    SEMESTERS.map(s =>
-                        `<button class="semester-btn${s === activeSemester ? ' active' : ''}" data-sem="${s}">${s}</button>`
-                    ).join('') +
-                `</div>` +
-                `<div class="grade-grid">` +
-                    GRADES.map(g =>
-                        `<button class="grade-option${g === activeGrade ? ' active' : ''}" data-grade="${g}">${g}</button>`
-                    ).join('') +
-                `</div>`;
+        /* ── 3 维筛选器（科目 / 地区 / 年级） ── */
+        let openFilter = null; // 'subject' | 'grade' | 'region' | null
+
+        function toggleFilter(name) {
+            if (openFilter === name) { closeAllFilters(); return; }
+            closeAllFilters(false);
+            openFilter = name;
+            document.querySelectorAll('.ep-filter-btn').forEach(b => b.classList.remove('open'));
+            document.querySelector(`[data-filter="${name}"]`).classList.add('open');
+            if (name === 'region') { openRegionSheet(); return; }
+            renderDropdown(name);
+            document.getElementById('ddOverlay').classList.add('open');
+            document.getElementById('ddPanel').classList.add('open');
         }
 
-        function toggleGradePopup() {
-            const isOpen = gradePopup.classList.contains('open');
-            if (isOpen) {
-                gradePopup.classList.remove('open');
-                gradeBtn.classList.remove('open');
-            } else {
-                renderGradePopup();
-                gradePopup.classList.add('open');
-                gradeBtn.classList.add('open');
+        function closeAllFilters(resetOpen = true) {
+            document.querySelectorAll('.ep-filter-btn').forEach(b => b.classList.remove('open'));
+            document.getElementById('ddOverlay').classList.remove('open');
+            document.getElementById('ddPanel').classList.remove('open');
+            document.getElementById('regionOverlay').classList.remove('open');
+            document.getElementById('regionSheet').classList.remove('open');
+            if (resetOpen) openFilter = null;
+        }
+
+        function renderDropdown(name) {
+            const panel = document.getElementById('ddPanel');
+            let items = [];
+            if (name === 'subject') {
+                items = SUBJECTS_DL.map(s => ({
+                    label: s.label, value: s.value,
+                    selected: activePaperSubj === s.value
+                }));
+            } else if (name === 'grade') {
+                items = GRADES_DL.map(g => ({
+                    label: g, value: g,
+                    selected: activeGrade === g
+                }));
             }
+            panel.innerHTML = items.map(it =>
+                `<div class="ep-dd-item${it.selected ? ' selected' : ''}" data-val="${it.value}">${it.label}</div>`
+            ).join('');
+            panel.querySelectorAll('.ep-dd-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    const val = el.dataset.val;
+                    if (name === 'subject') {
+                        activePaperSubj = val;
+                        document.getElementById('filterSubjectLabel').textContent = SUBJECTS_DL.find(s => s.value === val).label;
+                        document.querySelector('[data-filter="subject"]').classList.toggle('active', true);
+                    } else if (name === 'grade') {
+                        activeGrade = val;
+                        document.getElementById('filterGradeLabel').textContent = val;
+                        document.querySelector('[data-filter="grade"]').classList.toggle('active', val !== '不限');
+                    }
+                    closeAllFilters();
+                    renderPapers();
+                });
+            });
         }
 
-        gradeBtn.addEventListener('click', e => {
-            e.stopPropagation();
-            toggleGradePopup();
-        });
+        /* ── 省市区数据 ── */
+        const REGION_DATA = [
+            { label: '全国卷', value: '全国卷', directCity: false, cities: [] },
+            { label: '北京市', value: '北京', directCity: true, cities: [
+                { label: '海淀区', value: '海淀', districts: [] }, { label: '朝阳区', value: '朝阳', districts: [] },
+                { label: '东城区', value: '东城', districts: [] }, { label: '西城区', value: '西城', districts: [] },
+                { label: '丰台区', value: '丰台', districts: [] }, { label: '通州区', value: '通州', districts: [] },
+            ]},
+            { label: '上海市', value: '上海', directCity: true, cities: [
+                { label: '浦东新区', value: '浦东', districts: [] }, { label: '静安区', value: '静安', districts: [] },
+                { label: '徐汇区', value: '徐汇', districts: [] }, { label: '黄浦区', value: '黄浦', districts: [] },
+                { label: '杨浦区', value: '杨浦', districts: [] }, { label: '长宁区', value: '长宁', districts: [] },
+            ]},
+            { label: '广东省', value: '广东', directCity: false, cities: [
+                { label: '广州市', value: '广州', districts: [
+                    { label: '天河区', value: '天河' }, { label: '越秀区', value: '越秀' },
+                    { label: '海珠区', value: '海珠' }, { label: '白云区', value: '白云' },
+                    { label: '番禺区', value: '番禺' },
+                ]},
+                { label: '深圳市', value: '深圳', districts: [
+                    { label: '福田区', value: '福田' }, { label: '南山区', value: '南山' },
+                    { label: '宝安区', value: '宝安' }, { label: '龙岗区', value: '龙岗' },
+                ]},
+                { label: '东莞市', value: '东莞', districts: [] }, { label: '佛山市', value: '佛山', districts: [] },
+            ]},
+            { label: '浙江省', value: '浙江', directCity: false, cities: [
+                { label: '杭州市', value: '杭州', districts: [
+                    { label: '西湖区', value: '西湖' }, { label: '滨江区', value: '滨江' },
+                    { label: '余杭区', value: '余杭' }, { label: '拱墅区', value: '拱墅' },
+                ]},
+                { label: '宁波市', value: '宁波', districts: [] }, { label: '温州市', value: '温州', districts: [] },
+                { label: '嘉兴市', value: '嘉兴', districts: [] },
+            ]},
+            { label: '江苏省', value: '江苏', directCity: false, cities: [
+                { label: '南京市', value: '南京', districts: [
+                    { label: '玄武区', value: '玄武' }, { label: '秦淮区', value: '秦淮' },
+                    { label: '鼓楼区', value: '鼓楼' }, { label: '建邺区', value: '建邺' },
+                ]},
+                { label: '苏州市', value: '苏州', districts: [] }, { label: '无锡市', value: '无锡', districts: [] },
+            ]},
+            { label: '四川省', value: '四川', directCity: false, cities: [
+                { label: '成都市', value: '成都', districts: [
+                    { label: '锦江区', value: '锦江' }, { label: '武侯区', value: '武侯' },
+                    { label: '青羊区', value: '青羊' }, { label: '高新区', value: '高新' },
+                ]},
+                { label: '绵阳市', value: '绵阳', districts: [] },
+            ]},
+            { label: '山东省', value: '山东', directCity: false, cities: [
+                { label: '济南市', value: '济南', districts: [] }, { label: '青岛市', value: '青岛', districts: [] },
+                { label: '烟台市', value: '烟台', districts: [] },
+            ]},
+            { label: '河南省', value: '河南', directCity: false, cities: [
+                { label: '郑州市', value: '郑州', districts: [] }, { label: '洛阳市', value: '洛阳', districts: [] },
+            ]},
+            { label: '湖北省', value: '湖北', directCity: false, cities: [
+                { label: '武汉市', value: '武汉', districts: [
+                    { label: '武昌区', value: '武昌' }, { label: '洪山区', value: '洪山' },
+                    { label: '江汉区', value: '江汉' },
+                ]},
+            ]},
+        ];
 
-        gradePopup.addEventListener('click', e => {
-            e.stopPropagation();
-            const semBtn = e.target.closest('.semester-btn');
-            if (semBtn) {
-                activeSemester = semBtn.dataset.sem;
-                renderGradePopup();
-                activePaperFilter = '热门推荐';
-                document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.toggle('active', f.dataset.filter === '热门推荐'));
-                renderPapers();
-                return;
-            }
-            const opt = e.target.closest('.grade-option');
-            if (!opt) return;
-            activeGrade = opt.dataset.grade;
-            updateBtnText();
-            gradePopup.classList.remove('open');
-            gradeBtn.classList.remove('open');
-            activePaperFilter = '热门推荐';
-            document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.toggle('active', f.dataset.filter === '热门推荐'));
+        /* ── 地区选择器状态（ep 风格，与 试卷讲解 一致） ── */
+        let rsTab = 'province';
+        let rsProv = null, rsCity = null, rsDist = null;
+        let activeRsProv = null, activeRsCity = null, activeRsDist = null;
+        let activeRegionKey = '广东'; // 默认广东省
+
+        function buildRegionKey(p, c, d) {
+            if (!p) return null;
+            if (p.value === '全国卷') return '全国卷';
+            let k = p.value;
+            if (c) k += '-' + c.value;
+            if (d) k += '-' + d.value;
+            return k;
+        }
+        function matchRegionFn(itemRegion, filterKey) {
+            if (!filterKey) return true;
+            if (!itemRegion) return true;
+            if (filterKey === '全国卷') return itemRegion === '全国卷';
+            return itemRegion === filterKey || itemRegion.startsWith(filterKey + '-');
+        }
+        function getRegionLabel(p, c, d) {
+            if (!p) return '全国';
+            if (p.value === '全国卷') return '全国卷';
+            const parts = [p.label.replace(/[省市]$/, '')];
+            if (c) parts.push(c.label.replace(/[市区县]$/, ''));
+            if (d) parts.push(d.label.replace(/区$/, ''));
+            return parts.join('·');
+        }
+
+        function openRegionSheet() {
+            rsProv = activeRsProv; rsCity = activeRsCity; rsDist = activeRsDist;
+            rsTab = 'province';
+            syncRsUI();
+            document.getElementById('regionOverlay').classList.add('open');
+            document.getElementById('regionSheet').classList.add('open');
+        }
+        function closeRegionSheet() {
+            document.getElementById('regionOverlay').classList.remove('open');
+            document.getElementById('regionSheet').classList.remove('open');
+            openFilter = null;
+            document.querySelectorAll('.ep-filter-btn').forEach(b => b.classList.remove('open'));
+        }
+        function confirmRegion() {
+            activeRsProv = rsProv; activeRsCity = rsCity; activeRsDist = rsDist;
+            activeRegionKey = buildRegionKey(activeRsProv, activeRsCity, activeRsDist);
+            const label = getRegionLabel(activeRsProv, activeRsCity, activeRsDist);
+            document.getElementById('filterRegionLabel').textContent = label;
+            document.querySelector('[data-filter="region"]').classList.toggle('active', !!activeRegionKey);
+            closeRegionSheet();
             renderPapers();
-        });
-
-        document.addEventListener('click', () => {
-            gradePopup.classList.remove('open');
-            gradeBtn.classList.remove('open');
-        });
-
-        renderGradePopup();
+        }
+        function resetRegion() {
+            rsProv = null; rsCity = null; rsDist = null; rsTab = 'province';
+            syncRsUI();
+        }
+        function syncRsUI() {
+            renderRsTabs(); renderRsList(); updateRsSub();
+        }
+        function updateRsSub() {
+            const parts = [];
+            if (rsProv) parts.push(rsProv.label);
+            if (rsCity) parts.push(rsCity.label);
+            if (rsDist) parts.push(rsDist.label);
+            document.getElementById('rsSubLine').textContent = parts.length ? parts.join(' · ') : '全部地区';
+        }
+        function renderRsTabs() {
+            const hasCities = rsProv && rsProv.value !== '全国卷' && rsProv.cities && rsProv.cities.length > 0;
+            const hasDistricts = rsCity && rsCity.districts && rsCity.districts.length > 0;
+            const tabs = document.getElementById('rsTabs');
+            tabs.innerHTML = [
+                { key: 'province', label: '省/直辖市', enabled: true },
+                { key: 'city', label: rsProv && rsProv.directCity ? '区/县' : '市', enabled: hasCities },
+                { key: 'district', label: '区/县', enabled: hasDistricts },
+            ].map(t =>
+                `<button class="ep-rs-tab${rsTab === t.key ? ' active' : ''}${!t.enabled ? ' disabled' : ''}"
+                    ${!t.enabled ? 'disabled' : `onclick="switchRsTab('${t.key}')"`}>${t.label}</button>`
+            ).join('');
+        }
+        function switchRsTab(tab) { rsTab = tab; syncRsUI(); }
+        function renderRsList() {
+            const list = document.getElementById('rsList');
+            let html = '';
+            const chk = `<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#6366f1" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`;
+            const arr = `<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>`;
+            if (rsTab === 'province') {
+                const provs = [{ label: '全部地区', value: null, _all: true }, ...REGION_DATA];
+                html = provs.map(p => {
+                    const sel = p._all ? !rsProv : (rsProv && rsProv.value === p.value);
+                    const has = p.cities && p.cities.length > 0;
+                    return `<div class="ep-rs-item${sel ? ' selected' : ''}" data-pv="${p.value || ''}">${p.label}${sel ? chk : (has ? arr : '')}</div>`;
+                }).join('');
+            } else if (rsTab === 'city') {
+                const allLabel = rsProv && rsProv.directCity ? '不限（全区）' : '不限（全市）';
+                const cities = [{ label: allLabel, value: null }, ...(rsProv ? rsProv.cities : [])];
+                html = cities.map(c => {
+                    const sel = c.value === null ? !rsCity : (rsCity && rsCity.value === c.value);
+                    const has = c.districts && c.districts.length > 0;
+                    return `<div class="ep-rs-item${sel ? ' selected' : ''}" data-cv="${c.value || ''}">${c.label}${sel ? chk : (has ? arr : '')}</div>`;
+                }).join('');
+            } else {
+                const dists = [{ label: '不限（全区）', value: null }, ...(rsCity ? rsCity.districts : [])];
+                html = dists.map(d => {
+                    const sel = d.value === null ? !rsDist : (rsDist && rsDist.value === d.value);
+                    return `<div class="ep-rs-item${sel ? ' selected' : ''}" data-dv="${d.value || ''}">${d.label}${sel ? chk : ''}</div>`;
+                }).join('');
+            }
+            list.innerHTML = html;
+            list.querySelectorAll('.ep-rs-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    if (rsTab === 'province') {
+                        const pv = el.dataset.pv;
+                        if (pv === '') { rsProv = null; rsCity = null; rsDist = null; }
+                        else { rsProv = REGION_DATA.find(p => p.value === pv); rsCity = null; rsDist = null; if (rsProv && rsProv.cities && rsProv.cities.length) rsTab = 'city'; }
+                    } else if (rsTab === 'city') {
+                        const cv = el.dataset.cv;
+                        if (cv === '') { rsCity = null; rsDist = null; }
+                        else { rsCity = rsProv.cities.find(c => c.value === cv); rsDist = null; if (rsCity && rsCity.districts && rsCity.districts.length) rsTab = 'district'; }
+                    } else {
+                        const dv = el.dataset.dv;
+                        rsDist = dv === '' ? null : rsCity.districts.find(d => d.value === dv);
+                    }
+                    syncRsUI();
+                });
+            });
+        }
 
         /* ── 试卷渲染 ── */
         function renderPapers() {
             const list = document.getElementById('paperList');
             let items = PAPER_DATA[activePaperSubj] || [];
-            items = items.filter(p => p.grade === activeGrade && p.semester === activeSemester);
-            items = items.filter(p => p.filter === activePaperFilter);
+            if (activeGrade !== '不限') items = items.filter(p => p.grade === activeGrade);
+            if (activePaperFilter !== '全部') items = items.filter(p => getItemType(p) === activePaperFilter);
+            items = items.filter(p => matchRegionFn(p.region, activeRegionKey));
             const iconMap = { chinese: 'pi-chinese', math: 'pi-math', english: 'pi-eng', science: 'pi-sci' };
             const icon = iconMap[activePaperSubj] || 'pi-chinese';
             if (!items.length) {
-                list.innerHTML = '<div style="text-align:center;padding:24px 0;color:#a1a1aa;font-size:.75rem;">暂无该分类试卷</div>';
+                list.innerHTML = '<div style="text-align:center;padding:40px 16px;color:#a1a1aa;font-size:.8125rem;line-height:1.7;">暂无符合条件的试卷<br><span style="font-size:.75rem">请调整筛选条件后重试</span></div>';
                 return;
             }
             list.innerHTML = items.map(p => {
                 const recHtml = p.recommend
                     ? `<span class="paper-recommend ${p.recommend === '推荐' ? 'pr-recommend' : 'pr-pick'}">${p.recommend}</span>`
                     : '';
+                const typeHtml = `<span class="paper-type-tag ${p.typeCls}">${getItemType(p)}</span>`;
                 return `
                 <div class="paper-item" onclick="window.location.href='试卷详情.html?id=${p.id}&title=${encodeURIComponent(p.title)}'">
                     <div class="paper-icon ${icon}">
@@ -611,6 +979,7 @@
                     <div class="paper-info">
                         <div class="paper-title">${recHtml}${p.title}</div>
                         <div class="paper-row">
+                            ${typeHtml}
                             <span class="paper-dl">
                                 <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                                 ${p.downloads}人下载
@@ -622,26 +991,23 @@
             }).join('');
         }
 
-        document.getElementById('paperTabs').addEventListener('click', e => {
-            const tab = e.target.closest('.paper-tab');
-            if (!tab) return;
-            document.querySelectorAll('#paperTabs .paper-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            activePaperSubj = tab.dataset.subj;
-            activePaperFilter = '热门推荐';
-            document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.toggle('active', f.dataset.filter === '热门推荐'));
+        /* ── 类型 chip 点击 ── */
+        document.getElementById('typeChips').addEventListener('click', e => {
+            const chip = e.target.closest('.type-chip');
+            if (!chip) return;
+            document.querySelectorAll('.type-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            activePaperFilter = chip.dataset.type;
             renderPapers();
         });
 
-        document.getElementById('paperFilters').addEventListener('click', e => {
-            const btn = e.target.closest('.paper-filter');
-            if (!btn) return;
-            document.querySelectorAll('#paperFilters .paper-filter').forEach(f => f.classList.remove('active'));
-            btn.classList.add('active');
-            activePaperFilter = btn.dataset.filter;
-            renderPapers();
-        });
-
+        /* 初始化 */
+        document.getElementById('filterSubjectLabel').textContent = '语文';
+        document.getElementById('filterGradeLabel').textContent = activeGrade;
+        // 预设广东省
+        activeRsProv = REGION_DATA.find(p => p.value === '广东') || null;
+        activeRsCity = null; activeRsDist = null;
+        document.querySelector('[data-filter="region"]').classList.add('active');
         renderPapers();
     </script>
 
@@ -652,7 +1018,7 @@
     </div>
     <div class="sb-panel" id="sbPanel">
         <div class="sb-drag-bar" id="sbDragBar">
-            <span class="sb-drag-title">产品稿 · 试卷下载 <span class="sb-ver">v1.0</span></span>
+            <span class="sb-drag-title">产品稿 · 试卷下载 <span class="sb-ver">v1.2</span></span>
             <button class="sb-close" onclick="setMode('demo')">✕</button>
         </div>
         <div class="sb-content" id="sidebarContent"></div>
@@ -722,6 +1088,15 @@ function buildSections(md) {
     </script>
 
     <script type="text/markdown" id="prd-changelog">
+### v1.2 · 2026-04-21
+- [改动] 筛选栏重构：学科Tab + 年级弹窗 + 类型chips + 地区行 → **三维筛选栏**（科目 ∨ | 地区 ∨ | 年级 ∨）
+- [改动] 类型分类更新：热门推荐/小升初真题/期末试题等 → **月考 / 单元测试 / 期中 / 期末 / 真题 / 模拟题 / 其它**
+- [改动] 默认地区：全国 → **广东省**
+
+### v1.1 · 2026-04-21
+- [新增] 地区筛选：省市区三级联动底部弹窗（支持11省市）
+- [新增] 真题数据增加地区标注
+
 ### v1.0 · 2026-04-03
 - [新增] 试卷下载产品稿初版
     </script>
@@ -729,34 +1104,55 @@ function buildSections(md) {
     <script type="text/markdown" id="prd-sections">
 ## 1. 页面概述
 
-试卷下载页面，支持按学科筛选和分类筛选下载试卷资源。
+试卷下载页面，支持按科目、地区、年级多维筛选，结合类型 chip 快速定位目标试卷资源。默认展示广东省试卷。
 
-## 2. 学科筛选 Tab
+## 2. 三维筛选栏
 
-#### 交互逻辑
-
-顶部学科 Tab：语文、数学、英语、科学；点击切换查看对应学科试卷，当前选中项高亮
-
-## 3. 分类筛选
+顶部横排三个下拉按钮：**科目 ∨ | 地区 ∨ | 年级 ∨**，与试卷讲解页保持一致样式。
 
 #### 交互逻辑
 
-1. 筛选条件 chips：热门推荐、期中试题、期末试题、单元测试 等
-2. 年级筛选器：可选年级和学期，筛选对应年级的试卷
-3. 点击 chip 切换当前筛选条件，列表实时更新
+1. 点击任一按钮 → 展开对应选项（科目/年级为下拉列表，地区为底部弹窗）
+2. 选中后按钮文字更新，字体加粗；点击已展开的按钮或遮罩层 → 收起
+3. 同一时间只有一个选项展开
+
+#### 科目选项
+语文、数学、英语、科学
+
+#### 年级选项
+不限、一年级 ～ 九年级
+
+#### 地区选项（底部弹窗，三级级联）
+- 省/直辖市 → 市 → 区/县，每级均可选"不限"
+- 选省后自动切换至市 tab，选市后自动切换至区 tab
+- "重置"清空，"完成"生效并关闭弹窗
+- 默认：**广东省**
+
+#### 业务规则
+- 三个维度独立生效，交叉过滤
+- 无地区字段的试卷（普通练习卷）在任意地区筛选下均显示
+- 有地区字段的试卷（真题）按地区精确/前缀匹配
+
+## 3. 类型筛选 Chips
+
+筛选栏下方横向 chips，可与三维筛选叠加使用。
+
+#### 选项
+全部 / 月考 / 单元测试 / 期中 / 期末 / 真题 / 模拟题 / 其它
+
+> "其它"包括：开学考试、同步练习及后台其它分类
+
+#### 业务规则
+- 默认选"全部"，展示该科目所有类型试卷
+- 切换类型时，科目/地区/年级筛选保持不变
 
 ## 4. 试卷列表
 
-#### 交互逻辑
-
-1. 列表项结构：学科图标 + 试卷标题（两行显示） + 推荐/精选标签 + 下载量
-2. 点击试卷项跳转试卷详情页 `试卷详情.html?id={id}&title={title}`
+列表项：学科图标 + 试卷标题 + 推荐/精选标签 + 类型标签 + 下载量；点击跳转试卷详情页
 
 ## 5. 下载记录入口
 
-#### 交互逻辑
-
-右上角图标入口，点击跳转 `下载记录.html`
+底部"查看下载记录"按钮，点击跳转 `下载记录.html`
     </script>
 
 </body>

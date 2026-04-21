@@ -823,8 +823,8 @@
     if (new URLSearchParams(window.location.search).get('mode') === 'review') {
         setTimeout(function() { _currentMode = 'demo'; setMode('review'); }, 100);
     }
-    function renderSidebar() {
-        var container = document.getElementById('sidebarContent');
+        function renderSidebar() {
+            var container = document.getElementById('sidebarContent');
         var changelogSrc = document.getElementById('prd-changelog');
         var sectionsSrc = document.getElementById('prd-sections');
         if (!changelogSrc || !sectionsSrc) return;
