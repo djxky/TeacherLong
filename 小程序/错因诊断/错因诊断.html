@@ -146,6 +146,18 @@
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto 16px;
         }
+        /* ── 生成失败页 ── */
+        .failed-icon {
+            width: 80px; height: 80px; border-radius: 50%;
+            background: linear-gradient(135deg, #FEE2E2, #FECACA);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px;
+        }
+        .error-code-tag {
+            display: inline-block; margin-top: 12px;
+            font-size: 11px; color: #94A3B8;
+            font-family: 'SF Mono', 'Menlo', monospace;
+        }
         .subject-tag {
             display: inline-flex; align-items: center; gap: 4px;
             padding: 4px 10px; border-radius: 12px;
@@ -284,16 +296,16 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5h-6" />
                     </svg>
                 </div>
-                <h2 class="text-lg font-bold text-slate-800 mb-2">未搜到相关题目</h2>
+                <h2 class="text-lg font-bold text-slate-800 mb-2">未找到可识别题目</h2>
                 <p class="text-sm text-slate-500 text-center leading-relaxed mb-2">
-                    AI 未能在题库中匹配到该题目<br>无法进行错因分析
+                    可能是题型不支持、拍照模糊或角度不对
                 </p>
                 <div class="bg-white rounded-xl p-4 w-full mt-4 shadow-sm border border-slate-100">
-                    <p class="text-xs font-semibold text-slate-600 mb-2">建议尝试：</p>
+                    <p class="text-xs font-semibold text-slate-600 mb-2">拍照小技巧</p>
                     <ul class="text-xs text-slate-500 space-y-1.5">
-                        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">•</span>确保拍照清晰，光线充足</li>
-                        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">•</span>对准单道题目，避免拍入多题</li>
-                        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">•</span>确保题目和作答内容完整可见</li>
+                        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">•</span>光线充足，画面清晰不模糊</li>
+                        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">•</span>对准一道题，避免框入相邻题目</li>
+                        <li class="flex items-start gap-2"><span class="text-emerald-400 mt-0.5">•</span>题目和作答内容都要完整入框</li>
                     </ul>
                 </div>
             </main>
@@ -318,9 +330,9 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
-                <h2 class="text-lg font-bold text-slate-800 mb-2">该学科暂未开放</h2>
+                <h2 class="text-lg font-bold text-slate-800 mb-2">这门学科还没开放哦</h2>
                 <p class="text-sm text-slate-500 text-center leading-relaxed mb-6">
-                    错因诊断功能正在持续优化中<br>更多学科即将开放，敬请期待
+                    错因诊断目前只支持数学<br>其他学科正在路上，敬请期待
                 </p>
                 <div class="bg-white rounded-xl p-4 w-full shadow-sm border border-slate-100">
                     <p class="text-xs font-semibold text-slate-600 mb-3">学科开放进度</p>
@@ -340,6 +352,45 @@
                 <button onclick="goBackToCamera()" class="app-btn-primary app-btn-row w-full">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     重新拍照
+                </button>
+            </div>
+        </div>
+
+        <!-- ====== 错因生成失败 ====== -->
+        <div id="page-failed" class="page-container flex flex-col hidden" style="z-index: 51; padding-top: 50px; background: var(--app-page-fill);">
+            <header class="bg-white/90 backdrop-blur-md pt-2 pb-3 pl-4 pr-[100px] shadow-sm flex justify-between items-center z-20 flex-shrink-0">
+                <button onclick="goBackToCamera()" class="p-1 -ml-1"><svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+                <h1 class="text-lg font-bold text-slate-800">错因诊断</h1>
+                <div class="w-6"></div>
+            </header>
+            <main class="flex-1 min-h-0 flex flex-col items-center justify-center px-6">
+                <div class="failed-icon">
+                    <svg class="w-10 h-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <h2 class="text-lg font-bold text-slate-800 mb-2">分析没成功</h2>
+                <p class="text-sm text-slate-500 text-center leading-relaxed mb-2">
+                    刚刚出了点小问题，没能完成诊断<br>稍后再试一次吧
+                </p>
+                <span class="error-code-tag" id="failed-error-code">错误码：DIAG_5001</span>
+                <div class="bg-white rounded-xl p-4 w-full mt-6 shadow-sm border border-slate-100">
+                    <div class="flex items-start gap-2">
+                        <svg class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <div class="flex-1">
+                            <p class="text-xs font-semibold text-slate-700 mb-1">这道题已经保存</p>
+                            <p class="text-xs text-slate-500 leading-relaxed">可以稍后在「历史记录 - 错因诊断」里重新发起分析，无需重新拍照</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <div class="bg-white border-t border-gray-100 px-6 pt-3 pb-8 shadow-[0_-5px_20px_rgba(0,0,0,0.03)] z-50 flex-shrink-0 flex gap-3">
+                <button onclick="goToHistory()" class="app-btn-secondary app-btn-row flex-1">
+                    去历史记录
+                </button>
+                <button onclick="retryAnalyzing()" class="app-btn-primary app-btn-row flex-1">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    重新分析
                 </button>
             </div>
         </div>
@@ -387,8 +438,14 @@
                             <div class="thinking-dot"></div>
                             <div class="thinking-dot"></div>
                         </div>
-                        <p class="text-xs text-slate-400">请耐心等待，分析结果将更加准确</p>
+                        <p class="text-xs text-slate-400">正在为你生成诊断报告</p>
                     </div>
+                </div>
+
+                <!-- 引导：可以稍后查看 -->
+                <div class="mt-4 bg-indigo-50/60 border border-indigo-100 rounded-xl px-4 py-3 flex items-start gap-2.5">
+                    <svg class="w-4 h-4 text-indigo-500 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <p class="text-xs text-indigo-900 leading-relaxed">任务正在进行中，你可以继续拍照或使用其他功能。分析完成后你可以在「历史记录」中查看结果。</p>
                 </div>
             </main>
         </div>
@@ -474,7 +531,7 @@
                 <div class="rp-mdoc" id="rpDocContent">
 
                     <h1>错因诊断 产品稿</h1>
-                    <blockquote>版本：v2.2 · 2026-04-21</blockquote>
+                    <blockquote>版本：v2.3 · 2026-04-16</blockquote>
 
                     <!-- ══════ 1. 页面概述 ══════ -->
                     <h2>异常提示规范</h2>
@@ -504,11 +561,12 @@
                     <blockquote>当前仅开放：<strong>数学</strong>。后续视 AI 能力和准确率逐步扩展到其他学科。</blockquote>
 
                     <h3>整体流程</h3>
-                    <p><strong>入口 A · 拍照诊断</strong>：相机拍照 → AI 分析中（约 20 秒）→ 根据识别结果分三种结局：</p>
+                    <p><strong>入口 A · 拍照诊断</strong>：相机拍照 → AI 分析中（约 20 秒）→ 根据识别结果分四种结局：</p>
                     <ul>
                         <li>识别为<strong>已开放学科</strong>且匹配到题目 → 诊断结果页（图片背景 + 底部弹窗）</li>
                         <li>识别为<strong>已开放学科</strong>但题库中未匹配 → 未搜到题目页</li>
                         <li>识别为<strong>未开放学科</strong>（如英语、语文等）→ 学科暂未开放页</li>
+                        <li>分析过程中接口异常或诊断失败 → 错因生成失败页（题目已保存，可去历史记录重试）</li>
                     </ul>
                     <p><strong>入口 B · 错题本诊断</strong>：错题本详情页点击诊断按钮 → 已诊断则直接展示结果 / 未诊断则先 AI 分析（约 20 秒）→ 单题诊断页（卡片纵向布局）</p>
 
@@ -569,14 +627,44 @@
                         <li>文案通用于文科和理科，不涉及具体学科步骤</li>
                     </ul>
 
+                    <h3>稍后查看引导</h3>
+                    <p>分析耗时不固定且通常较长，在"AI 思考卡片"下方常驻一条引导条，<strong>用一句话告知用户：任务在跑、结果会落到历史记录</strong>：</p>
+                    <ul>
+                        <li>引导条文案：「任务正在进行中，你可以继续拍照或使用其他功能。分析完成后你可以在「历史记录」中查看结果。」</li>
+                        <li>不带按钮，纯告知；用户离开后回到历史记录可以看到对应「分析中」状态的卡片</li>
+                    </ul>
+                    <p>页面文案统一原则（避免风格冲突）：</p>
+                    <table>
+                        <thead><tr><th>位置</th><th>文案</th><th>意图</th></tr></thead>
+                        <tbody>
+                            <tr><td>顶部状态文字（轮播）</td><td>正在理解题目内容… / 分析作答过程… / AI 深度思考中… / 诊断错误原因… / 生成学习建议…</td><td>陈述当前进展，不催促</td></tr>
+                            <tr><td>AI 思考卡片 · 主</td><td>AI 龙老师正在深度分析</td><td>陈述者是谁、在做什么</td></tr>
+                            <tr><td>AI 思考卡片 · 副</td><td>正在为你生成诊断报告</td><td>陈述产出物，不带"等待"字眼</td></tr>
+                            <tr><td>引导条</td><td>任务正在进行中，你可以继续拍照或使用其他功能。分析完成后你可以在「历史记录」中查看结果。</td><td>先告知任务状态 + 主动权，再说明结果归宿，让用户安心离开</td></tr>
+                        </tbody>
+                    </table>
+                    <p>文案原则：</p>
+                    <ul>
+                        <li><strong>不暴露具体耗时</strong>（如"20 秒"），因为实际时间由后端服务波动决定，写死会带来体验落差</li>
+                        <li><strong>不出现"等待""耐心""等等"</strong>等催促词，避免与"可离开"的引导互相矛盾</li>
+                        <li><strong>不主动引导用户跳走</strong>（不放"去看看/查看进度"按钮），保持页面克制；用户自然意识到"可以走"即可</li>
+                        <li>整体偏陈述句，语气平和书面，让用户自然意识到"可以走，不丢"</li>
+                    </ul>
+                    <p>业务规则：</p>
+                    <ul>
+                        <li>用户中途离开后，后端继续处理；完成后历史记录该条记录状态自动更新为「已完成」</li>
+                        <li>用户回到历史记录页点击「分析中」状态的记录可继续观看进度，不需要重拍</li>
+                    </ul>
+
                     <h3>分析结果分支</h3>
-                    <p>AI 分析完成后根据结果进入不同页面，<strong>判定优先级：学科识别 > 题库匹配</strong>：</p>
+                    <p>AI 分析完成后根据结果进入不同页面，<strong>判定优先级：学科识别 > 题库匹配 > 诊断生成</strong>：</p>
                     <table>
                         <thead><tr><th>判定顺序</th><th>结果</th><th>跳转目标</th><th>过渡方式</th></tr></thead>
                         <tbody>
                             <tr><td>1（先判定）</td><td>识别为未开放学科</td><td>学科暂未开放页（第 6 节）</td><td>loading 消失 → 暂未开放页展示</td></tr>
                             <tr><td>2</td><td>已开放学科 + 题库未匹配</td><td>未搜到题目页（第 5 节）</td><td>loading 消失 → 未搜到页展示</td></tr>
-                            <tr><td>3</td><td>已开放学科 + 成功匹配并完成诊断</td><td>诊断结果页（第 4 节）</td><td>loading 消失 → 结果页滑入</td></tr>
+                            <tr><td>3</td><td>已开放学科 + 题库匹配 + 诊断生成失败</td><td>错因生成失败页（第 7 节）</td><td>loading 消失 → 失败页展示</td></tr>
+                            <tr><td>4</td><td>已开放学科 + 成功匹配并完成诊断</td><td>诊断结果页（第 4 节）</td><td>loading 消失 → 结果页滑入</td></tr>
                         </tbody>
                     </table>
                     <p>说明：搜题和诊断在后端同一流程中完成，用户侧不感知中间环节，只看到 loading → 最终结果。学科识别先于题库匹配，避免对未开放学科做无意义的题库搜索。</p>
@@ -585,9 +673,9 @@
                     <table>
                         <thead><tr><th>场景</th><th>占位图</th><th>主文案</th><th>副文案</th><th>操作</th></tr></thead>
                         <tbody>
-                            <tr><td>分析超时（超过 60 秒）</td><td>沙漏图标 · 48px 灰底圆</td><td>分析超时</td><td>请稍后再试</td><td>按钮「重新拍照」→ 返回相机</td></tr>
-                            <tr><td>网络异常</td><td>断网图标 · 48px 灰底圆</td><td>网络连接失败</td><td>请检查网络后重试</td><td>按钮「重新拍照」→ 返回相机</td></tr>
-                            <tr><td>用户中途返回</td><td>—</td><td>—</td><td>—</td><td>取消分析，返回相机页面</td></tr>
+                            <tr><td>分析超时 / 接口失败 / 诊断生成失败</td><td>—</td><td>—</td><td>—</td><td>跳转「错因生成失败页」（第 7 节），统一收口</td></tr>
+                            <tr><td>网络异常（请求未发出）</td><td>断网图标 · 80px 灰底圆</td><td>网络好像断了</td><td>检查一下网络，再试一次</td><td>按钮「重新分析」→ 重新发起请求</td></tr>
+                            <tr><td>用户中途返回</td><td>—</td><td>—</td><td>—</td><td>不取消后端任务，记录进入「分析中」状态保留在历史记录</td></tr>
                         </tbody>
                     </table>
 
@@ -665,15 +753,17 @@
 
                     <h3>页面结构（占位图 + 文案格式）</h3>
                     <table>
-                        <thead><tr><th>元素</th><th>内容</th></tr></thead>
+                        <thead><tr><th>元素</th><th>内容（研发可用）</th></tr></thead>
                         <tbody>
                             <tr><td>占位图</td><td>搜索减号图标 · 80px 黄底圆</td></tr>
-                            <tr><td>主文案</td><td>未搜到相关题目</td></tr>
-                            <tr><td>副文案</td><td>无法进行错因分析</td></tr>
-                            <tr><td>建议卡片</td><td>确保拍照清晰 / 对准单道题目 / 题目和作答完整可见</td></tr>
+                            <tr><td>主文案</td><td>未找到可识别题目</td></tr>
+                            <tr><td>副文案</td><td>可能是题型不支持、拍照模糊或角度不对</td></tr>
+                            <tr><td>建议卡片标题</td><td>拍照小技巧</td></tr>
+                            <tr><td>建议卡片内容</td><td>· 光线充足，画面清晰不模糊<br>· 对准一道题，避免框入相邻题目<br>· 题目和作答内容都要完整入框</td></tr>
                             <tr><td>操作</td><td>按钮「重新拍照」→ 返回相机页面</td></tr>
                         </tbody>
                     </table>
+                    <p>错误码：<code>DIAG_4040</code>（题库未匹配）</p>
 
                     <h3>交互流程</h3>
                     <p>1. AI 分析完成后判定未匹配到题目 → loading 消失，展示未搜到页面</p>
@@ -706,15 +796,17 @@
 
                     <h3>页面结构（占位图 + 文案格式）</h3>
                     <table>
-                        <thead><tr><th>元素</th><th>内容</th></tr></thead>
+                        <thead><tr><th>元素</th><th>内容（研发可用）</th></tr></thead>
                         <tbody>
                             <tr><td>占位图</td><td>时钟图标 · 80px 蓝底圆（区别于未搜到页的黄色）</td></tr>
-                            <tr><td>主文案</td><td>该学科暂未开放</td></tr>
-                            <tr><td>副文案</td><td>错因诊断功能正在持续优化中 / 更多学科即将开放，敬请期待</td></tr>
-                            <tr><td>学科进度卡片</td><td>白色圆角卡片，标题"学科开放进度" + 学科标签列表</td></tr>
+                            <tr><td>主文案</td><td>这门学科还没开放哦</td></tr>
+                            <tr><td>副文案</td><td>第一行：错因诊断目前只支持数学<br>第二行：其他学科正在路上，敬请期待</td></tr>
+                            <tr><td>学科进度卡片标题</td><td>学科开放进度</td></tr>
+                            <tr><td>学科进度卡片内容</td><td>已开放 tag：数学 ✓<br>待开放 tag：语文 / 英语 / 物理 / 化学 · 待开放</td></tr>
                             <tr><td>操作</td><td>按钮「重新拍照」→ 返回相机页面</td></tr>
                         </tbody>
                     </table>
+                    <p>错误码：<code>DIAG_4030</code>（学科未开放）</p>
 
                     <h3>学科进度卡片</h3>
                     <p>展示所有支持/即将支持的学科状态：</p>
@@ -742,8 +834,59 @@
 
                     <hr>
 
-                    <!-- ══════ 7. 单题诊断页（来自错题本） ══════ -->
-                    <h2>7. 单题诊断页（来自错题本）</h2>
+                    <!-- ══════ 7. 错因生成失败页 ══════ -->
+                    <h2>7. 错因生成失败页</h2>
+
+                    <h3>功能说明</h3>
+                    <p>当 AI 在分析过程中出现<strong>接口异常 / 服务超时 / 模型生成失败</strong>等问题，且题目本身已正常入库（即学科已开放、题库可识别），但最终未能产出诊断结果时，展示此页面。</p>
+                    <p>定位：兜底失败页，告知用户"出问题了但题目已保存"，引导用户去历史记录稍后重试，避免用户因失败而需要重新拍照。</p>
+
+                    <h3>页面结构（占位图 + 文案格式）</h3>
+                    <table>
+                        <thead><tr><th>元素</th><th>内容（研发可用）</th></tr></thead>
+                        <tbody>
+                            <tr><td>占位图</td><td>警告三角图标 · 80px 红底圆</td></tr>
+                            <tr><td>主文案</td><td>分析没成功</td></tr>
+                            <tr><td>副文案</td><td>第一行：刚刚出了点小问题，没能完成诊断<br>第二行：稍后再试一次吧</td></tr>
+                            <tr><td>错误码标签</td><td>错误码：<code>DIAG_5xxx</code>（默认 DIAG_5001 服务异常；前端按后端返回值显示）</td></tr>
+                            <tr><td>提示卡片</td><td>主文案「这道题已经保存」<br>说明「可以稍后在「历史记录 - 错因诊断」里重新发起分析，无需重新拍照」</td></tr>
+                            <tr><td>操作（左·次按钮）</td><td>「去历史记录」→ <code>历史记录.html?tab=diagnosis</code></td></tr>
+                            <tr><td>操作（右·主按钮）</td><td>「重新分析」→ 重新发起当前题目的诊断（不重拍照）</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>错误码与文案映射</h3>
+                    <table>
+                        <thead><tr><th>错误码</th><th>含义</th><th>建议主文案</th><th>处理</th></tr></thead>
+                        <tbody>
+                            <tr><td>DIAG_5001</td><td>AI 服务异常（默认兜底）</td><td>分析没成功</td><td>展示失败页 + 重试按钮</td></tr>
+                            <tr><td>DIAG_5002</td><td>分析超时（&gt; 60s 未返回）</td><td>分析时间有点久</td><td>展示失败页 + 引导去历史记录稍后查看</td></tr>
+                            <tr><td>DIAG_5003</td><td>模型输出格式异常</td><td>分析没成功</td><td>展示失败页 + 重试按钮</td></tr>
+                            <tr><td>DIAG_5004</td><td>限流 / 配额超限</td><td>访问人数有点多</td><td>展示失败页 + 副文案改为"稍等几分钟再试"</td></tr>
+                        </tbody>
+                    </table>
+                    <p>前端兜底：未识别的错误码统一按 DIAG_5001 处理，错误码标签如实展示后端返回值，便于排查。</p>
+
+                    <h3>交互流程</h3>
+                    <p>1. 后端诊断接口返回失败 → loading 消失 → 展示错因生成失败页</p>
+                    <p>2. 用户可选「重新分析」（重新调用诊断接口，再次进入 loading） / 「去历史记录」（跳转历史记录的诊断 Tab） / 顶部返回（回到相机页）</p>
+                    <p>3. 失败的题目会作为一条「失败」状态记录写入历史记录，用户可在历史记录里重试</p>
+
+                    <h3>业务规则</h3>
+                    <ul>
+                        <li>题目入库与诊断生成解耦：题目识别成功就写一条历史记录，诊断结果异步生成；失败时记录状态为"failed"</li>
+                        <li>「重新分析」复用同一题目 ID，不创建新的历史记录条目</li>
+                        <li>失败页文案中性，不暴露具体技术错误（如"500 Internal Server Error"）</li>
+                        <li>重试次数没有硬限制；连续失败 ≥ 3 次可在副文案后面追加"如多次失败，请反馈给我们"</li>
+                    </ul>
+
+                    <h3>Demo 入口</h3>
+                    <p>访问 <code>错因诊断.html?demo=failed</code> 可直接预览此页面效果。</p>
+
+                    <hr>
+
+                    <!-- ══════ 8. 单题诊断页（来自错题本） ══════ -->
+                    <h2>8. 单题诊断页（来自错题本）</h2>
 
                     <h3>功能说明</h3>
                     <p>独立全屏页面，从错题本进入，展示单道错题的完整错因诊断。与拍照诊断结果内容一致，但采用卡片式纵向布局（非弹窗模式），更适合沉浸式阅读。</p>
@@ -781,8 +924,8 @@
 
                     <hr>
 
-                    <!-- ══════ 8. 不做（本期） ══════ -->
-                    <h2>8. 不做（本期）</h2>
+                    <!-- ══════ 9. 不做（本期） ══════ -->
+                    <h2>9. 不做（本期）</h2>
                     <ul>
                         <li>真实 AI 识别和诊断接口对接（当前使用模拟数据演示）</li>
                         <li>诊断结果的保存/分享功能</li>
@@ -862,6 +1005,16 @@
             window.history.back();
         }
 
+        function goToHistory() {
+            if (analyzeTimer) { clearInterval(analyzeTimer); analyzeTimer = null; }
+            window.location.href = '../历史记录.html?tab=diagnosis';
+        }
+
+        function retryAnalyzing() {
+            document.getElementById('page-failed').classList.add('hidden');
+            startAnalyzing();
+        }
+
         function goBackFromSingle() {
             window.history.back();
         }
@@ -882,6 +1035,10 @@
             }
             if (params.get('demo') === 'unsupported') {
                 document.getElementById('page-unsupported').classList.remove('hidden');
+                return;
+            }
+            if (params.get('demo') === 'failed') {
+                document.getElementById('page-failed').classList.remove('hidden');
                 return;
             }
 
