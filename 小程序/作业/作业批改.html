@@ -131,6 +131,24 @@
             color: white;
             line-height: 1;
         }
+        .source-switch-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 20;
+            border: none;
+            background: rgba(15, 23, 42, 0.72);
+            color: white;
+            border-radius: 999px;
+            padding: 7px 13px;
+            font-size: 12px;
+            font-weight: 700;
+            transition: all 0.18s ease;
+            white-space: nowrap;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
+            backdrop-filter: blur(8px);
+        }
+        .source-switch-btn:active { transform: scale(0.96); }
         /* === 录错题：智能识别页（图3）=== */
         .wrong-detection-box {
             position: absolute;
@@ -189,6 +207,103 @@
             height: 1px;
             left: 0;
             right: 0;
+        }
+
+        /* === 演示 / 过稿模式 === */
+        .mode-toggle {
+            position: fixed; top: 24px; right: 32px; z-index: 900;
+            display: flex; background: #fff; border-radius: 12px;
+            box-shadow: 0 4px 24px -4px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .mode-toggle button {
+            padding: 10px 24px; border: none; background: transparent;
+            color: #94a3b8; cursor: pointer; font-family: inherit;
+            font-size: 0.8125rem; font-weight: 600; transition: all 0.2s;
+        }
+        .mode-toggle button.active { background: #7c3aed; color: #fff; }
+        .review-panel {
+            position: fixed; top: 60px; right: 32px;
+            width: 380px; height: 520px; min-width: 280px; min-height: 300px;
+            background: #fff; z-index: 1500; border-radius: 16px;
+            box-shadow: 0 12px 48px -8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06);
+            display: none; flex-direction: column;
+            font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+            overflow: hidden;
+        }
+        .review-panel.open { display: flex; }
+        .rp-header {
+            padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+            cursor: move; user-select: none; -webkit-user-select: none;
+            background: linear-gradient(180deg, #faf8ff, #fff);
+        }
+        .rp-header h2 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0; pointer-events: none; }
+        .rp-header span { font-size: 11px; color: #94a3b8; pointer-events: none; }
+        .rp-close {
+            width: 26px; height: 26px; border-radius: 8px; border: none;
+            background: #f8fafc; color: #64748b; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+        }
+        .rp-close:hover { background: #fee2e2; color: #ef4444; }
+        .rp-tabs {
+            display: flex; border-bottom: 1px solid #f1f5f9; flex-shrink: 0;
+            padding: 0 12px; gap: 2px; background: #faf8ff;
+        }
+        .rp-tab {
+            flex: 1; padding: 8px 0; font-size: 12px; font-weight: 600;
+            color: #94a3b8; background: none; border: none; border-bottom: 2px solid transparent;
+            cursor: pointer; font-family: inherit; transition: all .15s;
+        }
+        .rp-tab.active { color: #7c3aed; border-bottom-color: #7c3aed; }
+        .rp-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+        .rp-body::-webkit-scrollbar { width: 4px; }
+        .rp-body::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 2px; }
+        .rp-mdoc { padding: 4px 0 16px; font-size: 13px; color: #334155; line-height: 1.7; }
+        .rp-mdoc h1 { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 2px solid #ede9fe; }
+        .rp-mdoc h2 { font-size: 14px; font-weight: 700; color: #1e1b4b; margin: 18px 0 8px; padding: 6px 10px; background: #f5f3ff; border-radius: 6px; border-left: 3px solid #7c3aed; }
+        .rp-mdoc h3 { font-size: 13px; font-weight: 700; color: #0f172a; margin: 14px 0 4px; }
+        .rp-mdoc p { margin: 0 0 6px; }
+        .rp-mdoc ul { padding-left: 16px; margin: 0 0 8px; }
+        .rp-mdoc li { margin-bottom: 3px; }
+        .rp-mdoc table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 12px; }
+        .rp-mdoc th { background: #f8fafc; font-weight: 600; color: #475569; text-align: left; padding: 6px 8px; border: 1px solid #e2e8f0; }
+        .rp-mdoc td { padding: 5px 8px; border: 1px solid #e2e8f0; vertical-align: top; }
+        .rp-mdoc code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 11px; font-family: 'SF Mono','Menlo',monospace; color: #7c3aed; }
+        .rp-mdoc blockquote { margin: 8px 0; padding: 8px 12px; background: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 0 6px 6px 0; font-size: 12px; color: #92400e; }
+        .rp-section { margin-bottom: 16px; }
+        .rp-section-title {
+            font-size: 11px; font-weight: 700; color: #7c3aed; text-transform: uppercase;
+            letter-spacing: 0.05em; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f5f3ff;
+        }
+        .rp-item {
+            padding: 10px 12px; margin-bottom: 6px;
+            border-radius: 10px; background: #faf8ff; border: 1px solid #f0ecff;
+            cursor: pointer; transition: all .15s;
+        }
+        .rp-item:hover, .rp-item.rp-highlight { background: #ede9fe; border-color: #8b5cf6; }
+        .rp-item-id {
+            font-size: 10px; font-weight: 600; color: #a78bfa;
+            font-family: 'SF Mono', 'Menlo', monospace; margin-bottom: 3px;
+        }
+        .rp-item-prd { font-size: 12px; color: #334155; line-height: 1.5; }
+        .rp-item-track {
+            font-size: 10px; color: #94a3b8; margin-top: 4px;
+            font-family: 'SF Mono', 'Menlo', monospace; word-break: break-all;
+        }
+        .rp-resize { position: absolute; z-index: 10; }
+        .rp-resize-e { top: 0; right: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-w { top: 0; left: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-s { bottom: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-n { top: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-se { bottom: -4px; right: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
+        .rp-resize-sw { bottom: -4px; left: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-ne { top: -4px; right: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-nw { top: -4px; left: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
+        [data-doc].review-highlight {
+            outline: 2px solid #8b5cf6 !important;
+            outline-offset: 2px;
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -343,6 +458,7 @@
 
                 <main class="flex-1 relative overflow-hidden bg-white">
                     <div class="w-full h-full p-4 text-slate-800 text-xs leading-relaxed relative overflow-y-auto pb-24">
+                        <button id="use-original-btn" type="button" onclick="useOriginalImage()" class="source-switch-btn hidden" data-doc="correction-use-original" data-prd="作业批改默认使用梯形校正后的图片；当前新结果页右上角展示使用原图按钮，点击后立即用原图重新批改一次并生成独立历史记录" data-track="/click/homeworkCorrectionResult/useOriginalImage | 点击使用原图重新批改 | imageSource#STRING">使用原图</button>
                         <div class="flex justify-between border-b border-gray-200 pb-2 mb-2"><span>八年级 7 班</span> <span>姓名: 薛云腾</span></div>
                         
                         <div class="text-center text-xs text-slate-400 mb-3">点击题目查看详情</div>
@@ -403,9 +519,87 @@
 
     </div>
 
+    <div class="review-panel" id="reviewPanel">
+        <div class="rp-resize rp-resize-n" data-dir="n"></div>
+        <div class="rp-resize rp-resize-s" data-dir="s"></div>
+        <div class="rp-resize rp-resize-e" data-dir="e"></div>
+        <div class="rp-resize rp-resize-w" data-dir="w"></div>
+        <div class="rp-resize rp-resize-ne" data-dir="ne"></div>
+        <div class="rp-resize rp-resize-nw" data-dir="nw"></div>
+        <div class="rp-resize rp-resize-se" data-dir="se"></div>
+        <div class="rp-resize rp-resize-sw" data-dir="sw"></div>
+        <div class="rp-header" id="rpHeader">
+            <div>
+                <h2>产品稿 · 作业批改</h2>
+                <span id="rpCount">当前页面过稿说明</span>
+            </div>
+            <button class="rp-close" onclick="setReviewMode('demo')">×</button>
+        </div>
+        <div class="rp-tabs">
+            <button class="rp-tab active" data-tab="doc" onclick="switchReviewTab('doc')">产品文档</button>
+            <button class="rp-tab" data-tab="els" onclick="switchReviewTab('els')">元素标注</button>
+        </div>
+        <div class="rp-body">
+            <div class="rp-tab-content" id="rpTabDoc">
+                <div class="rp-mdoc">
+                    <h1>作业批改 产品稿</h1>
+                    <blockquote>版本：v1.1 · 2026-05-08</blockquote>
+
+                    <h2>1. 拍照与图片处理</h2>
+                    <p>作业批改支持拍照或从相册选择图片。用户提交图片后，系统先对用户图片做梯形校正，再默认使用校正后的图片进行识别和批改。</p>
+                    <h3>交互流程</h3>
+                    <p>1. 用户点击拍照或选择相册图片。</p>
+                    <p>2. 页面进入扫描态，展示「正在校正图片并识别试卷...」。</p>
+                    <p>3. 识别完成后进入批改结果页，默认展示校正图对应的批改结果。</p>
+
+                    <h2>2. 批改结果页</h2>
+                    <p>这里展示批改后的作业图片和题目结果。用户点击题目区域，可以打开题目详情抽屉，查看题目、视频讲解、答案解析，以及加入错题本和 AI 讲解操作。</p>
+                    <h3>使用原图</h3>
+                    <p>当前搜索结果页的用户图片右上角展示「使用原图」按钮。这是一个轻量按钮，用于在校正效果不理想时，让用户改用原图重新批改。</p>
+                    <p>点击「使用原图」后，页面立即进入扫描态，展示「正在使用原图重新批改...」。完成后展示原图批改结果，并生成一条独立历史记录。</p>
+
+                    <h2>3. 业务规则</h2>
+                    <ul>
+                        <li>默认批改来源：校正后的图片。</li>
+                        <li>「使用原图」只在当前新生成的搜索结果页展示。</li>
+                        <li>「使用原图」只能点击一次，点击后按钮消失。</li>
+                        <li>从历史记录进入的批改结果页不展示「使用原图」按钮。</li>
+                        <li>如果用户点击过「使用原图」，历史记录中会保留两条作业批改结果：一条为校正图结果，一条为原图结果。</li>
+                    </ul>
+
+                    <h2>4. 关联模块</h2>
+                    <table>
+                        <thead><tr><th>模块</th><th>关系</th></tr></thead>
+                        <tbody>
+                            <tr><td>历史记录</td><td>展示批改结果列表；如果用户触发原图重搜，则展示两条结果，但不提供再次使用原图入口。</td></tr>
+                            <tr><td>错题本</td><td>题目详情中点击「加入错题本」后，将当前题目加入错题本。</td></tr>
+                            <tr><td>AI 讲解</td><td>题目支持讲解时，点击「AI 讲解」进入讲题页。</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h2>5. 不做</h2>
+                    <ul>
+                        <li>历史记录页不支持点击「使用原图」。</li>
+                        <li>历史记录卡片不额外标识「原图版 / 校正版」。</li>
+                        <li>本原型不展示真实梯形校正算法，只演示用户流程和结果状态。</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="rp-tab-content" id="rpTabEls" style="display:none"></div>
+        </div>
+    </div>
+
+    <div class="mode-toggle" id="modeToggle">
+        <button class="active" onclick="setReviewMode('demo')">演示</button>
+        <button onclick="setReviewMode('review')">过稿</button>
+    </div>
+
     <script>
         let currentMode = 'correction';
         let flashOn = false;
+        let resultImageSource = 'corrected';
+        let canUseOriginalImage = false;
+        let originalImageSearchUsed = false;
 
         // === 闪光灯 ===
         function toggleFlash() {
@@ -426,7 +620,7 @@
             document.getElementById('camera-preview').classList.add('hidden');
             document.getElementById('scan-state').classList.remove('hidden');
             var hintText = document.getElementById('scan-hint-text');
-            if (currentMode === 'correction') hintText.innerText = 'AI 正在识别试卷...';
+            if (currentMode === 'correction') hintText.innerText = '正在校正图片并识别试卷...';
             else if (currentMode === 'qa') hintText.innerText = 'AI 正在聚焦题目...';
             else if (currentMode === 'diagnosis') hintText.innerText = '拍照成功，正在分析...';
             else if (currentMode === 'wrong') hintText.innerText = '正在加入错题本...';
@@ -436,9 +630,13 @@
                 if (currentMode === 'diagnosis') { window.location.href = '../错因诊断/错因诊断.html?from=camera'; return; }
                 if (currentMode === 'wrong') { showWrongRecognize(); return; }
                 if (currentMode === 'erase') { window.location.href = '../试卷/试卷擦除.html'; return; }
-                document.getElementById('result-state').classList.remove('hidden');
-                if (currentMode === 'correction') { if (questionsData.length === 0) initQuestionsData(); }
-                else { updateDetailContent('qa'); openDetail(); }
+                if (currentMode === 'correction') {
+                    showResultFromCurrentSearch();
+                } else {
+                    document.getElementById('result-state').classList.remove('hidden');
+                    updateDetailContent('qa');
+                    openDetail();
+                }
             }, 2000);
         });
 
@@ -449,7 +647,8 @@
         // 从 URL 参数或 sessionStorage 获取模式（上传错题进入时 mode=wrong，默认选中录错题）
         function initPage() {
             const urlParams = new URLSearchParams(window.location.search);
-            const mode = urlParams.get('mode') || sessionStorage.getItem('cameraMode') || 'correction';
+            const rawMode = urlParams.get('mode');
+            const mode = rawMode === 'review' ? 'correction' : (rawMode || sessionStorage.getItem('cameraMode') || 'correction');
             currentMode = mode;
             updateCameraUI();
             if (urlParams.get('show') === 'result') {
@@ -457,7 +656,12 @@
                 document.getElementById('result-state').classList.remove('hidden');
                 if (mode === 'correction') {
                     if (questionsData.length === 0) initQuestionsData();
+                    canUseOriginalImage = false;
+                    updateImageSourceUI();
                 }
+            }
+            if (rawMode === 'review' || urlParams.get('review') === '1') {
+                setTimeout(function() { setReviewMode('review'); }, 100);
             }
         }
         // 尽早应用 mode：上传错题进入时默认选中「录错题」Tab
@@ -543,7 +747,7 @@
             
             const hintText = document.getElementById('scan-hint-text');
             if (currentMode === 'correction') {
-                hintText.innerText = "AI 正在识别试卷...";
+                hintText.innerText = "正在校正图片并识别试卷...";
             } else if (currentMode === 'qa') {
                 hintText.innerText = "AI 正在聚焦题目...";
             } else if (currentMode === 'diagnosis') {
@@ -570,14 +774,49 @@
                     return;
                 }
                 
-                document.getElementById('result-state').classList.remove('hidden');
                 if (currentMode === 'correction') {
-                    if (questionsData.length === 0) initQuestionsData();
+                    showResultFromCurrentSearch();
                 } else {
+                    document.getElementById('result-state').classList.remove('hidden');
                     updateDetailContent('qa');
                     openDetail();
                 }
             }, 2000);
+        }
+
+        function showResultFromCurrentSearch() {
+            document.getElementById('result-state').classList.remove('hidden');
+            if (questionsData.length === 0) initQuestionsData();
+            resultImageSource = 'corrected';
+            canUseOriginalImage = true;
+            originalImageSearchUsed = false;
+            updateImageSourceUI();
+        }
+
+        function useOriginalImage() {
+            if (!canUseOriginalImage || originalImageSearchUsed) return;
+            originalImageSearchUsed = true;
+            canUseOriginalImage = false;
+            closeDetail();
+            document.getElementById('result-state').classList.add('hidden');
+            document.getElementById('scan-state').classList.remove('hidden');
+            document.getElementById('scan-hint-text').innerText = '正在使用原图重新批改...';
+            updateImageSourceUI();
+
+            setTimeout(function() {
+                document.getElementById('scan-state').classList.add('hidden');
+                resultImageSource = 'original';
+                document.getElementById('result-state').classList.remove('hidden');
+                updateImageSourceUI();
+                showToast('已使用原图重新批改');
+            }, 1600);
+        }
+
+        function updateImageSourceUI() {
+            const btn = document.getElementById('use-original-btn');
+            if (!btn) return;
+            const shouldShow = currentMode === 'correction' && canUseOriginalImage && resultImageSource === 'corrected';
+            btn.classList.toggle('hidden', !shouldShow);
         }
 
         function closeCamera() {
@@ -636,6 +875,10 @@
         function restartCamera() {
             document.getElementById('result-state').classList.add('hidden');
             document.getElementById('camera-preview').classList.remove('hidden');
+            resultImageSource = 'corrected';
+            canUseOriginalImage = false;
+            originalImageSearchUsed = false;
+            updateImageSourceUI();
             closeDetail();
         }
 
@@ -774,6 +1017,184 @@
             btn.className = "app-btn-secondary app-btn-row is-added";
             btn.innerHTML = "已加入";
         }
+
+        // === 过稿模式 ===
+        let reviewNodes = [];
+        let reviewElsBuilt = false;
+        let currentReviewMode = 'demo';
+
+        function setReviewMode(mode) {
+            if (mode === currentReviewMode) return;
+            currentReviewMode = mode;
+            document.querySelectorAll('#modeToggle button').forEach(function(btn, index) {
+                btn.classList.toggle('active', mode === 'demo' ? index === 0 : index === 1);
+            });
+            const panel = document.getElementById('reviewPanel');
+            if (!panel) return;
+            if (mode === 'review') {
+                panel.classList.add('open');
+                if (!reviewElsBuilt) buildReviewElsPanel();
+            } else {
+                panel.classList.remove('open');
+                reviewNodes.forEach(function(item) { item.el.classList.remove('review-highlight'); });
+                document.querySelectorAll('.rp-item').forEach(function(item) { item.classList.remove('rp-highlight'); });
+            }
+        }
+
+        function switchReviewTab(tab) {
+            document.querySelectorAll('.rp-tab').forEach(function(btn) {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+            document.getElementById('rpTabDoc').style.display = tab === 'doc' ? '' : 'none';
+            document.getElementById('rpTabEls').style.display = tab === 'els' ? '' : 'none';
+            if (tab === 'els' && !reviewElsBuilt) buildReviewElsPanel();
+        }
+
+        function buildReviewElsPanel() {
+            reviewElsBuilt = true;
+            reviewNodes = [];
+            const container = document.getElementById('rpTabEls');
+            if (!container) return;
+            const sections = {};
+            document.querySelectorAll('[data-doc]').forEach(function(el) {
+                const doc = el.getAttribute('data-doc') || '';
+                const prd = el.getAttribute('data-prd') || '';
+                const track = el.getAttribute('data-track') || '';
+                if (!prd && !track) return;
+                const sec = doc.split('-')[0] || 'other';
+                if (!sections[sec]) sections[sec] = [];
+                sections[sec].push({ el: el, doc: doc, prd: prd, track: track });
+            });
+
+            const sectionNames = {
+                correction: '批改结果',
+                mode: '拍照模式',
+                wrong: '录错题',
+                btn: '详情操作'
+            };
+            let total = 0;
+            container.innerHTML = '';
+            Object.keys(sections).forEach(function(sec) {
+                const block = document.createElement('div');
+                block.className = 'rp-section';
+                block.innerHTML = '<div class="rp-section-title">' + (sectionNames[sec] || sec) + '</div>';
+                sections[sec].forEach(function(item) {
+                    total++;
+                    const card = document.createElement('div');
+                    card.className = 'rp-item';
+                    card.innerHTML =
+                        '<div class="rp-item-id">' + escapeReviewHtml(item.doc) + '</div>' +
+                        (item.prd ? '<div class="rp-item-prd">' + escapeReviewHtml(item.prd) + '</div>' : '') +
+                        (item.track ? '<div class="rp-item-track">' + escapeReviewHtml(item.track) + '</div>' : '');
+                    card.onclick = function() {
+                        reviewNodes.forEach(function(node) { node.el.classList.remove('review-highlight'); });
+                        document.querySelectorAll('.rp-item').forEach(function(el) { el.classList.remove('rp-highlight'); });
+                        item.el.classList.add('review-highlight');
+                        card.classList.add('rp-highlight');
+                        item.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    };
+                    block.appendChild(card);
+                    reviewNodes.push(item);
+                });
+                container.appendChild(block);
+            });
+            document.getElementById('rpCount').textContent = total + ' 个标注项';
+        }
+
+        function escapeReviewHtml(text) {
+            return String(text).replace(/[&<>"']/g, function(ch) {
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+            });
+        }
+
+        (function initReviewPanelDrag() {
+            let dragging = false;
+            let resizing = false;
+            let resizeDir = '';
+            let startX = 0;
+            let startY = 0;
+            let panelLeft = 0;
+            let panelTop = 0;
+            let panelWidth = 0;
+            let panelHeight = 0;
+            document.addEventListener('DOMContentLoaded', function() {
+                const panel = document.getElementById('reviewPanel');
+                const header = document.getElementById('rpHeader');
+                if (!panel || !header) return;
+                header.addEventListener('mousedown', function(e) {
+                    if (e.target.closest('.rp-close')) return;
+                    dragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    const rect = panel.getBoundingClientRect();
+                    panelLeft = rect.left;
+                    panelTop = rect.top;
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onUp);
+                });
+                panel.querySelectorAll('.rp-resize').forEach(function(handle) {
+                    handle.addEventListener('mousedown', function(e) {
+                        resizing = true;
+                        resizeDir = handle.dataset.dir || '';
+                        startX = e.clientX;
+                        startY = e.clientY;
+                        const rect = panel.getBoundingClientRect();
+                        panelLeft = rect.left;
+                        panelTop = rect.top;
+                        panelWidth = rect.width;
+                        panelHeight = rect.height;
+                        document.addEventListener('mousemove', onResize);
+                        document.addEventListener('mouseup', onResizeUp);
+                        e.preventDefault();
+                        e.stopPropagation();
+                    });
+                });
+                function onMove(e) {
+                    if (!dragging) return;
+                    panel.style.left = Math.max(0, panelLeft + e.clientX - startX) + 'px';
+                    panel.style.top = Math.max(0, panelTop + e.clientY - startY) + 'px';
+                    panel.style.right = 'auto';
+                }
+                function onUp() {
+                    dragging = false;
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                }
+                function onResize(e) {
+                    if (!resizing) return;
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    const minW = 280;
+                    const minH = 300;
+                    let nextLeft = panelLeft;
+                    let nextTop = panelTop;
+                    let nextWidth = panelWidth;
+                    let nextHeight = panelHeight;
+
+                    if (resizeDir.indexOf('e') !== -1) nextWidth = Math.max(minW, panelWidth + dx);
+                    if (resizeDir.indexOf('s') !== -1) nextHeight = Math.max(minH, panelHeight + dy);
+                    if (resizeDir.indexOf('w') !== -1) {
+                        nextWidth = Math.max(minW, panelWidth - dx);
+                        nextLeft = panelLeft + (panelWidth - nextWidth);
+                    }
+                    if (resizeDir.indexOf('n') !== -1) {
+                        nextHeight = Math.max(minH, panelHeight - dy);
+                        nextTop = panelTop + (panelHeight - nextHeight);
+                    }
+
+                    panel.style.left = Math.max(0, nextLeft) + 'px';
+                    panel.style.top = Math.max(0, nextTop) + 'px';
+                    panel.style.width = nextWidth + 'px';
+                    panel.style.height = nextHeight + 'px';
+                    panel.style.right = 'auto';
+                }
+                function onResizeUp() {
+                    resizing = false;
+                    document.removeEventListener('mousemove', onResize);
+                    document.removeEventListener('mouseup', onResizeUp);
+                }
+            });
+        })();
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
