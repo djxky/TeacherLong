@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>作业批改 - AI 龙老师</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700;900&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/app-shell.css">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        /* === 页面切换逻辑 === */
+        .page-container {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            overflow: hidden; background: var(--app-page-fill);
+            transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1), filter 0.3s;
+            will-change: transform;
+        }
+        .page-container.page-camera { background: #000; }
+
+        .page-camera { z-index: 30; transform: translateY(0); opacity: 1; transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.3s; }
+
+        /* === 扫描动画 === */
+        .scan-line-global {
+            position: absolute; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(to right, transparent, #3B82F6, transparent);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+            animation: scan 2s infinite linear; z-index: 50;
+        }
+        @keyframes scan { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+
+        /* === 标记样式 === */
+        .mark-symbol { position: absolute; font-family: 'Ma Shan Zheng', cursive; font-weight: bold; font-size: 24px; pointer-events: none; }
+        .mark-correct { color: #22C55E; } 
+        .mark-wrong { color: #EF4444; border: 2px solid #EF4444; border-radius: 4px; width: 100%; height: 100%; pointer-events: none; } 
+        .mark-cross { position: absolute; bottom: -10px; right: -10px; width: 20px; height: 20px; background: #EF4444; color: white; border-radius: 50%; font-size: 14px; display: flex; align-items: center; justify-content: center; font-family: sans-serif; }
+        .handwriting { font-family: 'Ma Shan Zheng', cursive; color: #334155; opacity: 0.8; transform: rotate(-1deg); }
+
+        .bottom-sheet {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 85%;
+            background: white; border-top-left-radius: 20px; border-top-right-radius: 20px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            z-index: 100; display: flex; flex-direction: column;
+        }
+        .bottom-sheet.open { transform: translateY(0); }
+
+        /* === 快门与相机 UI === */
+        .shutter-btn {
+            width: 72px; height: 72px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.3);
+            display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer;
+            transition: all 0.1s;
+        }
+        .shutter-inner { width: 56px; height: 56px; background: white; border-radius: 50%; transition: all 0.1s; }
+        .shutter-btn:active { transform: scale(0.95); }
+        .shutter-btn:active .shutter-inner { transform: scale(0.9); background: #ddd; }
+
+        .camera-extra-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 56px; padding: 6px 0; background: transparent; border: none; cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+        .camera-extra-btn:active { transform: scale(0.92); opacity: 0.9; }
+
+        .mode-text { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.5); padding: 4px 10px; border-radius: 16px; transition: all 0.3s; cursor: pointer; white-space: nowrap; }
+        .mode-text.active { color: white; background: rgba(255,255,255,0.15); font-weight: 600; }
+
+        #toast {
+            position: absolute; top: 60px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 24px;
+            font-size: 13px; font-weight: 600; pointer-events: none; opacity: 0;
+            transition: all 0.3s ease-out; z-index: 2000; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex; align-items: center; gap: 8px;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* === 题目编号选择器 === */
+        .question-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 8px 0;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .question-selector::-webkit-scrollbar {
+            display: none;
+        }
+        .question-number-btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #E2E8F0;
+            background: white;
+            color: #64748B;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .question-number-btn.active {
+            border-color: #3B82F6;
+            background: #3B82F6;
+            color: white;
+        }
+        .question-number-btn:hover {
+            border-color: #3B82F6;
+            transform: scale(1.05);
+        }
+        .question-ai-badge {
+            position: absolute;
+            bottom: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            background: #9333EA;
+            border-radius: 50%;
+            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: 700;
+            color: white;
+            line-height: 1;
+        }
+        .source-switch-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 20;
+            border: none;
+            background: rgba(15, 23, 42, 0.72);
+            color: white;
+            border-radius: 999px;
+            padding: 7px 13px;
+            font-size: 12px;
+            font-weight: 700;
+            transition: all 0.18s ease;
+            white-space: nowrap;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
+            backdrop-filter: blur(8px);
+        }
+        .source-switch-btn:active { transform: scale(0.96); }
+        /* === 录错题：智能识别页（图3）=== */
+        .wrong-detection-box {
+            position: absolute;
+            border: 2px dashed #60A5FA;
+            background: rgba(96, 165, 250, 0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .wrong-detection-box::before {
+            content: '+';
+            color: #EF4444;
+            font-size: 28px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        .wrong-detection-box.selected {
+            border: 2px solid #2563EB;
+            background: rgba(37, 99, 235, 0.2);
+        }
+        .wrong-manual-box {
+            position: absolute;
+            border: 2px dashed #10B981;
+            background: rgba(16, 185, 129, 0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .wrong-manual-box::before {
+            content: '+';
+            color: #10B981;
+            font-size: 28px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        .wrong-manual-box.selected {
+            border: 2px solid #059669;
+            background: rgba(5, 150, 105, 0.2);
+        }
+        /* 九宫格参考线：置于取景框内，不响应点击 */
+        .grid-guide-line {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.35);
+            pointer-events: none;
+        }
+        .grid-guide-v {
+            width: 1px;
+            top: 0;
+            bottom: 0;
+        }
+        .grid-guide-h {
+            height: 1px;
+            left: 0;
+            right: 0;
+        }
+
+        /* === 演示 / 过稿模式 === */
+        .mode-toggle {
+            position: fixed; top: 24px; right: 32px; z-index: 900;
+            display: flex; background: #fff; border-radius: 12px;
+            box-shadow: 0 4px 24px -4px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .mode-toggle button {
+            padding: 10px 24px; border: none; background: transparent;
+            color: #94a3b8; cursor: pointer; font-family: inherit;
+            font-size: 0.8125rem; font-weight: 600; transition: all 0.2s;
+        }
+        .mode-toggle button.active { background: #7c3aed; color: #fff; }
+        .review-panel {
+            position: fixed; top: 60px; right: 32px;
+            width: 380px; height: 520px; min-width: 280px; min-height: 300px;
+            background: #fff; z-index: 1500; border-radius: 16px;
+            box-shadow: 0 12px 48px -8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06);
+            display: none; flex-direction: column;
+            font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+            overflow: hidden;
+        }
+        .review-panel.open { display: flex; }
+        .rp-header {
+            padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+            cursor: move; user-select: none; -webkit-user-select: none;
+            background: linear-gradient(180deg, #faf8ff, #fff);
+        }
+        .rp-header h2 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0; pointer-events: none; }
+        .rp-header span { font-size: 11px; color: #94a3b8; pointer-events: none; }
+        .rp-close {
+            width: 26px; height: 26px; border-radius: 8px; border: none;
+            background: #f8fafc; color: #64748b; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+        }
+        .rp-close:hover { background: #fee2e2; color: #ef4444; }
+        .rp-tabs {
+            display: flex; border-bottom: 1px solid #f1f5f9; flex-shrink: 0;
+            padding: 0 12px; gap: 2px; background: #faf8ff;
+        }
+        .rp-tab {
+            flex: 1; padding: 8px 0; font-size: 12px; font-weight: 600;
+            color: #94a3b8; background: none; border: none; border-bottom: 2px solid transparent;
+            cursor: pointer; font-family: inherit; transition: all .15s;
+        }
+        .rp-tab.active { color: #7c3aed; border-bottom-color: #7c3aed; }
+        .rp-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+        .rp-body::-webkit-scrollbar { width: 4px; }
+        .rp-body::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 2px; }
+        .rp-mdoc { padding: 4px 0 16px; font-size: 13px; color: #334155; line-height: 1.7; }
+        .rp-mdoc h1 { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 2px solid #ede9fe; }
+        .rp-mdoc h2 { font-size: 14px; font-weight: 700; color: #1e1b4b; margin: 18px 0 8px; padding: 6px 10px; background: #f5f3ff; border-radius: 6px; border-left: 3px solid #7c3aed; }
+        .rp-mdoc h3 { font-size: 13px; font-weight: 700; color: #0f172a; margin: 14px 0 4px; }
+        .rp-mdoc p { margin: 0 0 6px; }
+        .rp-mdoc ul { padding-left: 16px; margin: 0 0 8px; }
+        .rp-mdoc li { margin-bottom: 3px; }
+        .rp-mdoc table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 12px; }
+        .rp-mdoc th { background: #f8fafc; font-weight: 600; color: #475569; text-align: left; padding: 6px 8px; border: 1px solid #e2e8f0; }
+        .rp-mdoc td { padding: 5px 8px; border: 1px solid #e2e8f0; vertical-align: top; }
+        .rp-mdoc code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 11px; font-family: 'SF Mono','Menlo',monospace; color: #7c3aed; }
+        .rp-mdoc blockquote { margin: 8px 0; padding: 8px 12px; background: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 0 6px 6px 0; font-size: 12px; color: #92400e; }
+        .rp-section { margin-bottom: 16px; }
+        .rp-section-title {
+            font-size: 11px; font-weight: 700; color: #7c3aed; text-transform: uppercase;
+            letter-spacing: 0.05em; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f5f3ff;
+        }
+        .rp-item {
+            padding: 10px 12px; margin-bottom: 6px;
+            border-radius: 10px; background: #faf8ff; border: 1px solid #f0ecff;
+            cursor: pointer; transition: all .15s;
+        }
+        .rp-item:hover, .rp-item.rp-highlight { background: #ede9fe; border-color: #8b5cf6; }
+        .rp-item-id {
+            font-size: 10px; font-weight: 600; color: #a78bfa;
+            font-family: 'SF Mono', 'Menlo', monospace; margin-bottom: 3px;
+        }
+        .rp-item-prd { font-size: 12px; color: #334155; line-height: 1.5; }
+        .rp-item-track {
+            font-size: 10px; color: #94a3b8; margin-top: 4px;
+            font-family: 'SF Mono', 'Menlo', monospace; word-break: break-all;
+        }
+        .rp-resize { position: absolute; z-index: 10; }
+        .rp-resize-e { top: 0; right: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-w { top: 0; left: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-s { bottom: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-n { top: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-se { bottom: -4px; right: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
+        .rp-resize-sw { bottom: -4px; left: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-ne { top: -4px; right: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-nw { top: -4px; left: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
+        [data-doc].review-highlight {
+            outline: 2px solid #8b5cf6 !important;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="iphone-frame" id="app-root">
+        
+        <div class="dynamic-island"></div>
+        <div class="wx-capsule">
+            <button class="wx-capsule-btn" aria-label="更多"><svg width="18" height="4" viewBox="0 0 18 4"><circle cx="3" cy="2" r="1.5" fill="currentColor"/><circle cx="9" cy="2" r="1.5" fill="currentColor"/><circle cx="15" cy="2" r="1.5" fill="currentColor"/></svg></button>
+            <div class="wx-capsule-divider"></div>
+            <button class="wx-capsule-btn" aria-label="关闭"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M2 2l8 8M10 2l-8 8"/></svg></button>
+        </div>
+        <div id="toast"><svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg><span id="toast-msg">操作成功</span></div>
+
+        <div id="page-camera" class="page-container page-camera flex flex-col bg-black pt-[50px]">
+            
+            <div id="camera-preview" class="absolute inset-0 z-50 flex flex-col bg-gray-900">
+                <div class="h-14 px-4 flex justify-between items-center z-20">
+                    <button onclick="closeCamera()" class="w-8 h-8 rounded-full bg-black/20 backdrop-blur flex items-center justify-center text-white">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                    <div class="text-white/80 text-xs font-medium bg-black/20 px-3 py-1 rounded-full backdrop-blur">AI 自动识别</div>
+                    <button id="flash-btn" type="button" onclick="toggleFlash()" class="w-8 h-8 rounded-full bg-black/20 backdrop-blur flex items-center justify-center text-white" title="闪光灯" aria-label="闪光灯">
+                        <svg id="flash-icon-off" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        <svg id="flash-icon-on" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    </button>
+                </div>
+
+                <div class="flex-1 relative overflow-hidden bg-[#222]">
+                    <img src="../assets/homework-sample.png" class="absolute inset-0 w-full h-full object-cover opacity-80">
+                    <div id="focus-box-correction" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[70%] border border-white/40 rounded-lg">
+                        <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-white"></div>
+                        <div class="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-white"></div>
+                        <div class="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-white"></div>
+                        <div class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-white"></div>
+                        <div class="grid-guide-line grid-guide-v left-1/3" style="left: 33.333%"></div>
+                        <div class="grid-guide-line grid-guide-v left-2/3" style="left: 66.666%"></div>
+                        <div class="grid-guide-line grid-guide-h top-1/3" style="top: 33.333%"></div>
+                        <div class="grid-guide-line grid-guide-h top-2/3" style="top: 66.666%"></div>
+                        <p class="absolute bottom-[-30px] w-full text-center text-white/70 text-xs">一次拍摄一整页，题目平行参考性</p>
+                    </div>
+                    <div id="focus-box-qa" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[120px] border border-yellow-400 rounded-lg bg-black/10 shadow-[0_0_0_999px_rgba(0,0,0,0.5)]">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-full h-[1px] bg-yellow-400/50"></div>
+                        </div>
+                        <p class="absolute bottom-[-30px] w-full text-center text-white/90 text-xs font-bold">对准题目，精准答疑</p>
+                    </div>
+                    <div id="focus-box-wrong" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[120px] border border-orange-400 rounded-lg bg-black/10 shadow-[0_0_0_999px_rgba(0,0,0,0.5)]">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-full h-[1px] bg-orange-400/50"></div>
+                        </div>
+                        <p class="absolute bottom-[-30px] w-full text-center text-white/90 text-xs font-bold">一次拍摄一整页，题目平行参考性</p>
+                    </div>
+                    <div id="focus-box-erase" class="hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[70%] border border-white/40 rounded-lg">
+                        <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-white"></div>
+                        <div class="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-white"></div>
+                        <div class="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-white"></div>
+                        <div class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-white"></div>
+                        <div class="grid-guide-line grid-guide-v" style="left: 33.333%"></div>
+                        <div class="grid-guide-line grid-guide-v" style="left: 66.666%"></div>
+                        <div class="grid-guide-line grid-guide-h" style="top: 33.333%"></div>
+                        <div class="grid-guide-line grid-guide-h" style="top: 66.666%"></div>
+                        <p class="absolute bottom-[-30px] w-full text-center text-white/70 text-xs">整页拍摄，擦除笔迹</p>
+                    </div>
+                </div>
+
+                <div class="bg-black/80 backdrop-blur-md flex flex-col items-center pb-8 pt-3 gap-4 relative z-30 flex-shrink-0">
+                    <div class="flex items-center justify-center gap-0 w-full px-4">
+                        <div id="mode-btn-correction" onclick="switchCameraMode('correction')" class="mode-text active shrink-0">作业批改</div>
+                        <div id="mode-btn-qa" onclick="switchCameraMode('qa')" class="mode-text shrink-0">拍照答疑</div>
+                        <div id="mode-btn-wrong" onclick="switchCameraMode('wrong')" class="mode-text shrink-0">录错题</div>
+                        <div id="mode-btn-erase" onclick="switchCameraMode('erase')" class="mode-text shrink-0">试卷擦除</div>
+                    </div>
+                    <div class="flex items-center justify-center gap-8">
+                        <button type="button" onclick="document.getElementById('album-input').click()" class="camera-extra-btn" title="从相册选择" aria-label="从相册选择">
+                            <svg class="w-7 h-7 text-white/90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            <span class="text-white/80 text-xs mt-1">相册</span>
+                        </button>
+                        <input id="album-input" type="file" accept="image/*" class="hidden" aria-hidden="true">
+                        <button onclick="takePhoto()" class="shutter-btn scale-100">
+                            <div class="shutter-inner"></div>
+                        </button>
+                        <div class="w-14"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="scan-state" class="absolute inset-0 flex flex-col hidden bg-black z-40">
+                <div class="absolute top-0 w-full pt-14 px-4 z-30">
+                    <span id="scan-hint-text" class="text-white text-sm shadow-sm font-medium">AI 正在识别试卷...</span>
+                </div>
+                <div class="flex-1 relative overflow-hidden bg-white rounded-t-[20px] mt-10">
+                    <div class="w-full h-full p-6 bg-white text-slate-800 text-xs leading-relaxed select-none relative">
+                        <div class="flex justify-between border-b border-gray-200 pb-2 mb-4"><span>八年级 7 班</span> <span>姓名: 薛云腾</span></div>
+                        <h2 class="text-center font-bold text-sm mb-4">第十章 分式 (1)</h2>
+                        <div class="mb-4">
+                            <p class="font-bold mb-2">一、单项选择题</p>
+                            <div class="mb-3"><p>1. 下列变形正确的是 ( <span class="handwriting">D</span> )</p></div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="font-bold mb-2">二、填空题</p>
+                            <p class="mb-2">3. 若 2a-b=0, 则分式 (a+b)/(a-b) 的值为 <span class="handwriting underline">3</span>.</p>
+                        </div>
+                        <div>
+                            <p class="font-bold mb-2">三、解答题</p>
+                            <p class="mb-1">5. 先化简, 再求值: (x+1)/x ÷ ... 其中 x = √2 + 1</p>
+                            <div class="handwriting text-blue-900 mt-2 ml-4">解: 原式 = (x+1)/x ... <br>= 1 / (x-1) ...</div>
+                        </div>
+                    </div>
+                    <div id="scan-line-global" class="scan-line-global"></div>
+                </div>
+            </div>
+
+            <!-- 录错题：拍照后智能识别页（图3）自动识别题目 + 手动框题 + 上传 -->
+            <div id="wrong-recognize-state" class="absolute inset-0 bg-white flex flex-col hidden z-40 pt-[50px]">
+                <header class="bg-white border-b border-gray-100 pl-4 pr-[100px] py-3 flex items-center justify-between flex-shrink-0 z-20">
+                    <button type="button" onclick="backFromWrongRecognize()" class="p-2 -ml-1">
+                        <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    <h2 class="text-lg font-bold text-slate-800">智能识别</h2>
+                    <div class="w-10"></div>
+                </header>
+                <div id="wrong-detection-container" class="flex-1 relative overflow-hidden bg-gray-900 min-h-0">
+                    <img id="wrong-captured-image" src="../assets/homework-sample.png" class="w-full h-full object-contain" alt="试卷">
+                    <!-- 自动识别框 -->
+                    <div class="wrong-detection-box" data-wrong-box="auto" style="left: 10%; top: 15%; width: 80%; height: 20%;" onclick="selectWrongBox(this)"></div>
+                    <div class="wrong-detection-box" data-wrong-box="auto" style="left: 10%; top: 40%; width: 80%; height: 20%;" onclick="selectWrongBox(this)"></div>
+                    <div class="wrong-detection-box" data-wrong-box="auto" style="left: 10%; top: 65%; width: 80%; height: 20%;" onclick="selectWrongBox(this)"></div>
+                    <!-- 手动框题将动态追加到此容器 -->
+                </div>
+                <div class="bg-white border-t border-gray-100 p-4 pb-safe flex gap-3 flex-shrink-0">
+                    <button type="button" onclick="addManualWrongBox()" class="app-btn-tertiary app-btn-row">手动框题</button>
+                    <button type="button" id="wrong-upload-btn" onclick="uploadWrongQuestions()" class="app-btn-primary app-btn-row" disabled>上传</button>
+                </div>
+            </div>
+
+            <div id="result-state" class="absolute inset-0 app-page-fill flex flex-col hidden z-40 pt-[50px]">
+                <header class="bg-white pt-2 pb-3 pl-4 pr-[100px] shadow-sm flex justify-between items-center z-20">
+                    <button onclick="closeCamera()" class="p-1 -ml-1"><svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+                    <h1 class="text-lg font-bold text-slate-800">批改结果</h1>
+                    <div class="w-6"></div>
+                </header>
+
+                <main class="flex-1 relative overflow-hidden bg-white">
+                    <div class="w-full h-full p-4 text-slate-800 text-xs leading-relaxed relative overflow-y-auto pb-24">
+                        <button id="use-original-btn" type="button" onclick="useOriginalImage()" class="source-switch-btn hidden" data-doc="correction-use-original" data-prd="作业批改默认使用梯形校正后的图片；当前新结果页右上角展示使用原图按钮，点击后立即用原图重新批改一次并生成独立历史记录" data-track="/click/homeworkCorrectionResult/useOriginalImage | 点击使用原图重新批改 | imageSource#STRING">使用原图</button>
+                        <div class="flex justify-between border-b border-gray-200 pb-2 mb-2"><span>八年级 7 班</span> <span>姓名: 薛云腾</span></div>
+                        
+                        <div class="text-center text-xs text-slate-400 mb-3">点击题目查看详情</div>
+
+                        <div class="border border-gray-300 rounded-lg p-3 mb-3 relative bg-white active:bg-gray-50 transition-colors" onclick="openDetail(0)">
+                            <h3 class="font-bold mb-2 text-sm">一、单项选择题</h3>
+                            <div class="mb-1"><p>1. 下列变形正确的是 ( <span class="handwriting">D</span> )</p></div>
+                            <div class="text-[10px] text-gray-500 mt-2 grid grid-cols-2 gap-1"><span>A. x/y = (x+2)/(y+2)</span><span>B. (a-b)/(b-a) = -1</span></div>
+                            <span class="mark-symbol mark-correct absolute right-2 top-2">√</span>
+                        </div>
+
+                        <div class="border border-gray-300 rounded-lg p-3 mb-3 relative bg-white active:bg-gray-50 transition-colors" onclick="openDetail(1)">
+                            <h3 class="font-bold mb-2 text-sm">二、填空题</h3>
+                            <p class="mb-1">3. 若 2a-b=0, 则分式 (a+b)/(a-b) 的值为 <span class="handwriting underline">3</span>.</p>
+                            <span class="mark-symbol mark-correct absolute right-2 top-2">√</span>
+                        </div>
+
+                        <div class="border border-red-200 rounded-lg p-3 mb-3 relative bg-red-50/30 active:bg-red-50 transition-colors" onclick="openDetail(2)">
+                            <h3 class="font-bold mb-2 text-sm">三、解答题</h3>
+                            <p class="mb-1">5. 先化简, 再求值: (x+1)/x ÷ ... 其中 x = √2 + 1</p>
+                            <div class="handwriting text-blue-900 mt-2 ml-4">解: 原式 = (x+1)/x ... <br>= 1 / (x-1) ...</div>
+                            <div class="absolute inset-0 border-2 border-red-500 rounded-lg pointer-events-none opacity-80"></div>
+                            <div class="mark-cross">×</div>
+                        </div>
+
+                        <div class="h-8"></div>
+                    </div>
+                </main>
+
+                <div class="bg-white border-t border-gray-100 px-6 pt-3 pb-8 shadow-[0_-5px_20px_rgba(0,0,0,0.03)] z-50 rounded-b-[40px]">
+                    <div class="flex items-center justify-center">
+                        <button onclick="restartCamera()" class="app-btn-primary app-btn-row w-full max-w-[200px] flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            再拍一张
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="detail-sheet" class="bottom-sheet">
+                <div class="w-full flex justify-center pt-3 pb-1" onclick="closeDetail()"><div class="w-12 h-1.5 bg-gray-200 rounded-full"></div></div>
+                <div class="px-5 py-3 border-b border-gray-50 flex justify-between items-center">
+                    <div class="flex gap-3"><span id="detail-title" class="text-slate-900 font-bold text-base">第 5 题</span><span id="detail-tag" class="bg-slate-100 text-slate-500 text-xs px-2 py-0.5 rounded flex items-center">解答题</span></div>
+                    <button onclick="closeDetail()" class="text-slate-400"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                </div>
+                <div id="question-selector" class="border-b border-gray-100 px-4 py-3 hidden flex-shrink-0">
+                    <div class="question-selector"></div>
+                </div>
+                <div class="flex-1 min-h-0 overflow-y-auto p-5 pb-8 space-y-6">
+                    <div><h4 class="text-sm font-bold text-slate-800 mb-2">题目</h4><div id="detail-question" class="text-sm text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-100">先化简，再求值...</div></div>
+                    <div><h4 class="text-sm font-bold text-slate-800 mb-2">视频讲解</h4><div class="bg-black rounded-xl overflow-hidden relative aspect-video shadow-sm"><div class="absolute inset-0 flex items-center justify-center"><div class="w-12 h-12 bg-white/20 backdrop-blur rounded-full flex items-center justify-center pl-1 cursor-pointer"><svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" /></svg></div></div></div></div>
+                    <div><h4 class="text-sm font-bold text-slate-800 mb-2">答案解析</h4><div id="detail-analysis" class="text-sm text-slate-700 leading-relaxed space-y-2"><p>解：原式 = ...</p></div></div>
+                    <div class="h-4"></div>
+                </div>
+                <div id="detail-buttons" class="border-t border-gray-100 p-4 flex gap-3 pb-8 flex-shrink-0"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="review-panel" id="reviewPanel">
+        <div class="rp-resize rp-resize-n" data-dir="n"></div>
+        <div class="rp-resize rp-resize-s" data-dir="s"></div>
+        <div class="rp-resize rp-resize-e" data-dir="e"></div>
+        <div class="rp-resize rp-resize-w" data-dir="w"></div>
+        <div class="rp-resize rp-resize-ne" data-dir="ne"></div>
+        <div class="rp-resize rp-resize-nw" data-dir="nw"></div>
+        <div class="rp-resize rp-resize-se" data-dir="se"></div>
+        <div class="rp-resize rp-resize-sw" data-dir="sw"></div>
+        <div class="rp-header" id="rpHeader">
+            <div>
+                <h2>产品稿 · 作业批改</h2>
+                <span id="rpCount">当前页面过稿说明</span>
+            </div>
+            <button class="rp-close" onclick="setReviewMode('demo')">×</button>
+        </div>
+        <div class="rp-tabs">
+            <button class="rp-tab active" data-tab="doc" onclick="switchReviewTab('doc')">产品文档</button>
+            <button class="rp-tab" data-tab="els" onclick="switchReviewTab('els')">元素标注</button>
+        </div>
+        <div class="rp-body">
+            <div class="rp-tab-content" id="rpTabDoc">
+                <div class="rp-mdoc">
+                    <h1>作业批改 产品稿</h1>
+                    <blockquote>版本：v1.1 · 2026-05-08</blockquote>
+
+                    <h2>1. 拍照与图片处理</h2>
+                    <p>作业批改支持拍照或从相册选择图片。用户提交图片后，系统先对用户图片做梯形校正，再默认使用校正后的图片进行识别和批改。</p>
+                    <h3>交互流程</h3>
+                    <p>1. 用户点击拍照或选择相册图片。</p>
+                    <p>2. 页面进入扫描态，展示「正在校正图片并识别试卷...」。</p>
+                    <p>3. 识别完成后进入批改结果页，默认展示校正图对应的批改结果。</p>
+
+                    <h2>2. 批改结果页</h2>
+                    <p>这里展示批改后的作业图片和题目结果。用户点击题目区域，可以打开题目详情抽屉，查看题目、视频讲解、答案解析，以及加入错题本和 AI 讲解操作。</p>
+                    <h3>使用原图</h3>
+                    <p>当前搜索结果页的用户图片右上角展示「使用原图」按钮。这是一个轻量按钮，用于在校正效果不理想时，让用户改用原图重新批改。</p>
+                    <p>点击「使用原图」后，页面立即进入扫描态，展示「正在使用原图重新批改...」。完成后展示原图批改结果，并生成一条独立历史记录。</p>
+
+                    <h2>3. 业务规则</h2>
+                    <ul>
+                        <li>默认批改来源：校正后的图片。</li>
+                        <li>「使用原图」只在当前新生成的搜索结果页展示。</li>
+                        <li>「使用原图」只能点击一次，点击后按钮消失。</li>
+                        <li>从历史记录进入的批改结果页不展示「使用原图」按钮。</li>
+                        <li>如果用户点击过「使用原图」，历史记录中会保留两条作业批改结果：一条为校正图结果，一条为原图结果。</li>
+                    </ul>
+
+                    <h2>4. 关联模块</h2>
+                    <table>
+                        <thead><tr><th>模块</th><th>关系</th></tr></thead>
+                        <tbody>
+                            <tr><td>历史记录</td><td>展示批改结果列表；如果用户触发原图重搜，则展示两条结果，但不提供再次使用原图入口。</td></tr>
+                            <tr><td>错题本</td><td>题目详情中点击「加入错题本」后，将当前题目加入错题本。</td></tr>
+                            <tr><td>AI 讲解</td><td>题目支持讲解时，点击「AI 讲解」进入讲题页。</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h2>5. 不做</h2>
+                    <ul>
+                        <li>历史记录页不支持点击「使用原图」。</li>
+                        <li>历史记录卡片不额外标识「原图版 / 校正版」。</li>
+                        <li>本原型不展示真实梯形校正算法，只演示用户流程和结果状态。</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="rp-tab-content" id="rpTabEls" style="display:none"></div>
+        </div>
+    </div>
+
+    <div class="mode-toggle" id="modeToggle">
+        <button class="active" onclick="setReviewMode('demo')">演示</button>
+        <button onclick="setReviewMode('review')">过稿</button>
+    </div>
+
+    <script>
+        let currentMode = 'correction';
+        let flashOn = false;
+        let resultImageSource = 'corrected';
+        let canUseOriginalImage = false;
+        let originalImageSearchUsed = false;
+
+        // === 闪光灯 ===
+        function toggleFlash() {
+            flashOn = !flashOn;
+            document.getElementById('flash-icon-off').classList.toggle('hidden', flashOn);
+            document.getElementById('flash-icon-on').classList.toggle('hidden', !flashOn);
+            document.getElementById('flash-btn').classList.toggle('bg-white/20', flashOn);
+            document.getElementById('flash-btn').classList.toggle('text-amber-200', flashOn);
+            showToast(flashOn ? '闪光灯开' : '闪光灯关');
+        }
+
+        // === 从相册选择 ===
+        document.getElementById('album-input').addEventListener('change', function(e) {
+            var file = e.target.files && e.target.files[0];
+            if (!file || !file.type.startsWith('image/')) return;
+            e.target.value = '';
+            // 与拍照相同流程：进入扫描态再出结果
+            document.getElementById('camera-preview').classList.add('hidden');
+            document.getElementById('scan-state').classList.remove('hidden');
+            var hintText = document.getElementById('scan-hint-text');
+            if (currentMode === 'correction') hintText.innerText = '正在校正图片并识别试卷...';
+            else if (currentMode === 'qa') hintText.innerText = 'AI 正在聚焦题目...';
+            else if (currentMode === 'wrong') hintText.innerText = '正在加入错题本...';
+            else if (currentMode === 'erase') hintText.innerText = '正在擦除笔迹...';
+            setTimeout(function() {
+                document.getElementById('scan-state').classList.add('hidden');
+                if (currentMode === 'wrong') { showWrongRecognize(); return; }
+                if (currentMode === 'erase') { window.location.href = '../试卷/试卷擦除.html'; return; }
+                if (currentMode === 'correction') {
+                    showResultFromCurrentSearch();
+                } else {
+                    document.getElementById('result-state').classList.remove('hidden');
+                    updateDetailContent('qa');
+                    openDetail();
+                }
+            }, 2000);
+        });
+
+        // === 题目数据结构 ===
+        let questionsData = [];
+        let currentQuestionIndex = 0;
+        
+        // 从 URL 参数或 sessionStorage 获取模式（上传错题进入时 mode=wrong，默认选中录错题）
+        function initPage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const rawMode = urlParams.get('mode');
+            const mode = rawMode === 'review' ? 'correction' : (rawMode || sessionStorage.getItem('cameraMode') || 'correction');
+            currentMode = mode;
+            updateCameraUI();
+            if (urlParams.get('show') === 'result') {
+                document.getElementById('camera-preview').classList.add('hidden');
+                document.getElementById('result-state').classList.remove('hidden');
+                if (mode === 'correction') {
+                    if (questionsData.length === 0) initQuestionsData();
+                    canUseOriginalImage = false;
+                    updateImageSourceUI();
+                }
+            }
+            if (rawMode === 'review' || urlParams.get('review') === '1') {
+                setTimeout(function() { setReviewMode('review'); }, 100);
+            }
+        }
+        // 尽早应用 mode：上传错题进入时默认选中「录错题」Tab
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPage);
+        } else {
+            initPage();
+        }
+
+        // 初始化题目数据（示例数据，实际应从批改结果中获取）
+        function initQuestionsData() {
+            questionsData = [
+                {
+                    number: 1,
+                    title: '第 1 题',
+                    tag: '选择题',
+                    question: '下列变形正确的是 ( D )\nA. x/y = (x+2)/(y+2)\nB. (a-b)/(b-a) = -1',
+                    analysis: '<p>解：选项A错误，分式的基本性质不适用于加减运算。</p><p>选项B正确，因为 (a-b)/(b-a) = (a-b)/-(a-b) = -1</p>',
+                    hasAi: true
+                },
+                {
+                    number: 2,
+                    title: '第 2 题',
+                    tag: '填空题',
+                    question: '若 2a-b=0, 则分式 (a+b)/(a-b) 的值为 3.',
+                    analysis: '<p>解：由 2a-b=0 得 b=2a</p><p>代入得 (a+b)/(a-b) = (a+2a)/(a-2a) = 3a/(-a) = -3</p>',
+                    hasAi: false
+                },
+                {
+                    number: 3,
+                    title: '第 3 题',
+                    tag: '解答题',
+                    question: '先化简, 再求值: (x+1)/x ÷ (x²-1)/x² 其中 x = √2 + 1',
+                    analysis: '<p>解：原式 = (x+1)/x × x²/(x²-1)</p><p>= (x+1)/x × x²/((x+1)(x-1))</p><p>= x/(x-1)</p><p>当 x = √2 + 1 时，原式 = (√2+1)/(√2+1-1) = (√2+1)/√2 = 1 + 1/√2</p>',
+                    hasAi: false
+                },
+                {
+                    number: 4,
+                    title: '第 4 题',
+                    tag: '解答题',
+                    question: '解方程：2(x + 3) - 5 = 3(x - 1) + 4',
+                    analysis: '<p>解：2x + 6 - 5 = 3x - 3 + 4</p><p>2x + 1 = 3x + 1</p><p>2x - 3x = 1 - 1</p><p>-x = 0</p><p>x = 0</p>',
+                    hasAi: true
+                },
+                {
+                    number: 5,
+                    title: '第 5 题',
+                    tag: '解答题',
+                    question: '先化简，再求值：当 x = 2 时，求 (x² - 1) / (x - 1) 的值。',
+                    analysis: '<p>解：原式 = (x² - 1) / (x - 1)</p><p>= (x+1)(x-1) / (x-1)</p><p>= x + 1</p><p>当 x = 2 时，原式 = 2 + 1 = 3</p>',
+                    hasAi: true
+                },
+                {
+                    number: 6,
+                    title: '第 6 题',
+                    tag: '解答题',
+                    question: '已知等腰三角形 ABC 中，AB = AC，∠A = 80°，求 ∠B 的度数。',
+                    analysis: '<p>解：在等腰三角形 ABC 中，AB = AC</p><p>所以 ∠B = ∠C</p><p>由三角形内角和定理：∠A + ∠B + ∠C = 180°</p><p>80° + 2∠B = 180°</p><p>2∠B = 100°</p><p>∠B = 50°</p>',
+                    hasAi: false
+                }
+            ];
+        } 
+
+        function switchCameraMode(mode) {
+            currentMode = mode;
+            updateCameraUI();
+        }
+
+        function updateCameraUI() {
+            const modes = ['correction', 'qa', 'wrong', 'erase'];
+            modes.forEach(m => {
+                const btn = document.getElementById('mode-btn-' + m);
+                const box = document.getElementById('focus-box-' + m);
+                if (btn) btn.classList.toggle('active', currentMode === m);
+                if (box) box.classList.toggle('hidden', currentMode !== m);
+            });
+        }
+
+        // === 拍照流程 ===
+        function takePhoto() {
+            document.getElementById('camera-preview').classList.add('hidden');
+            document.getElementById('scan-state').classList.remove('hidden');
+            
+            const hintText = document.getElementById('scan-hint-text');
+            if (currentMode === 'correction') {
+                hintText.innerText = "正在校正图片并识别试卷...";
+            } else if (currentMode === 'qa') {
+                hintText.innerText = "AI 正在聚焦题目...";
+            } else if (currentMode === 'wrong') {
+                hintText.innerText = "正在加入错题本...";
+            } else if (currentMode === 'erase') {
+                hintText.innerText = "正在擦除笔迹...";
+            }
+            
+            setTimeout(() => {
+                document.getElementById('scan-state').classList.add('hidden');
+                
+                if (currentMode === 'wrong') {
+                    showWrongRecognize();
+                    return;
+                }
+                if (currentMode === 'erase') {
+                    window.location.href = '../试卷/试卷擦除.html';
+                    return;
+                }
+                
+                if (currentMode === 'correction') {
+                    showResultFromCurrentSearch();
+                } else {
+                    document.getElementById('result-state').classList.remove('hidden');
+                    updateDetailContent('qa');
+                    openDetail();
+                }
+            }, 2000);
+        }
+
+        function showResultFromCurrentSearch() {
+            document.getElementById('result-state').classList.remove('hidden');
+            if (questionsData.length === 0) initQuestionsData();
+            resultImageSource = 'corrected';
+            canUseOriginalImage = true;
+            originalImageSearchUsed = false;
+            updateImageSourceUI();
+        }
+
+        function useOriginalImage() {
+            if (!canUseOriginalImage || originalImageSearchUsed) return;
+            originalImageSearchUsed = true;
+            canUseOriginalImage = false;
+            closeDetail();
+            document.getElementById('result-state').classList.add('hidden');
+            document.getElementById('scan-state').classList.remove('hidden');
+            document.getElementById('scan-hint-text').innerText = '正在使用原图重新批改...';
+            updateImageSourceUI();
+
+            setTimeout(function() {
+                document.getElementById('scan-state').classList.add('hidden');
+                resultImageSource = 'original';
+                document.getElementById('result-state').classList.remove('hidden');
+                updateImageSourceUI();
+                showToast('已使用原图重新批改');
+            }, 1600);
+        }
+
+        function updateImageSourceUI() {
+            const btn = document.getElementById('use-original-btn');
+            if (!btn) return;
+            const shouldShow = currentMode === 'correction' && canUseOriginalImage && resultImageSource === 'corrected';
+            btn.classList.toggle('hidden', !shouldShow);
+        }
+
+        function closeCamera() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                var v = sessionStorage.getItem('homeVersion');
+                window.location.href = v === 'v1' ? '../首页.html' : '../首页-v3.html';
+            }
+        }
+
+        // === 录错题：智能识别页（图3）===
+        function showWrongRecognize() {
+            document.getElementById('wrong-recognize-state').classList.remove('hidden');
+            document.querySelectorAll('#wrong-detection-container .wrong-detection-box').forEach(el => { el.classList.remove('selected'); });
+            document.querySelectorAll('#wrong-detection-container .wrong-manual-box').forEach(el => el.remove());
+            updateWrongUploadBtn();
+        }
+        function backFromWrongRecognize() {
+            document.getElementById('wrong-recognize-state').classList.add('hidden');
+            document.getElementById('camera-preview').classList.remove('hidden');
+        }
+        function selectWrongBox(el) {
+            el.classList.toggle('selected');
+            updateWrongUploadBtn();
+        }
+        function addManualWrongBox() {
+            const container = document.getElementById('wrong-detection-container');
+            const manual = document.createElement('div');
+            manual.className = 'wrong-manual-box';
+            manual.style.left = '15%';
+            manual.style.top = '70%';
+            manual.style.width = '70%';
+            manual.style.height = '18%';
+            manual.onclick = function() { selectWrongBox(this); };
+            container.appendChild(manual);
+            updateWrongUploadBtn();
+        }
+        function updateWrongUploadBtn() {
+            const n = document.querySelectorAll('#wrong-detection-container .wrong-detection-box.selected, #wrong-detection-container .wrong-manual-box').length;
+            const btn = document.getElementById('wrong-upload-btn');
+            btn.disabled = n === 0;
+        }
+        function uploadWrongQuestions() {
+            const n = document.querySelectorAll('#wrong-detection-container .wrong-detection-box.selected, #wrong-detection-container .wrong-manual-box').length;
+            if (n === 0) {
+                showToast('请先选择题目');
+                return;
+            }
+            showToast('已加入错题本，共 ' + n + ' 道');
+            setTimeout(() => {
+                window.location.href = '../错题本/错题本.html';
+            }, 1200);
+        }
+
+        function restartCamera() {
+            document.getElementById('result-state').classList.add('hidden');
+            document.getElementById('camera-preview').classList.remove('hidden');
+            resultImageSource = 'corrected';
+            canUseOriginalImage = false;
+            originalImageSearchUsed = false;
+            updateImageSourceUI();
+            closeDetail();
+        }
+
+        // === 详情页与数据联动 ===
+        function openDetail(questionIndex = 0) {
+            // 每次打开详情都强制刷新按钮逻辑
+            if (currentMode === 'correction') {
+                // 初始化题目数据（如果还没有初始化）
+                if (questionsData.length === 0) {
+                    initQuestionsData();
+                }
+                currentQuestionIndex = questionIndex;
+                renderQuestionSelector();
+                updateDetailContent('correction');
+            } else {
+                // 答疑模式不显示题目选择器
+                const selector = document.getElementById('question-selector');
+                if (selector) selector.classList.add('hidden');
+                updateDetailContent('qa');
+            }
+            document.getElementById('detail-sheet').classList.add('open');
+        }
+        
+        // 渲染题目编号选择器
+        function renderQuestionSelector() {
+            const selectorContainer = document.getElementById('question-selector');
+            if (!selectorContainer) return;
+            
+            // 如果只有一个题目，不显示选择器
+            if (questionsData.length <= 1) {
+                selectorContainer.classList.add('hidden');
+                return;
+            }
+            
+            selectorContainer.classList.remove('hidden');
+            const selector = selectorContainer.querySelector('.question-selector');
+            if (!selector) return;
+            
+            selector.innerHTML = questionsData.map((q, index) => {
+                const isActive = index === currentQuestionIndex;
+                return `
+                    <button 
+                        class="question-number-btn ${isActive ? 'active' : ''}" 
+                        onclick="switchQuestion(${index})"
+                        aria-label="第 ${q.number} 题"
+                    >
+                        ${q.number}
+                        ${q.hasAi ? '<span class="question-ai-badge">AI</span>' : ''}
+                    </button>
+                `;
+            }).join('');
+        }
+        
+        // 切换题目
+        function switchQuestion(index) {
+            if (index < 0 || index >= questionsData.length) return;
+            currentQuestionIndex = index;
+            renderQuestionSelector();
+            updateDetailContent('correction');
+        }
+
+        function closeDetail() {
+            document.getElementById('detail-sheet').classList.remove('open');
+        }
+
+        // 跳转到 AI 讲题页，并传递当前题目与解析
+        function goToAiExplain() {
+            const questionEl = document.getElementById('detail-question');
+            const analysisEl = document.getElementById('detail-analysis');
+            const question = questionEl ? questionEl.innerText : '';
+            const analysis = analysisEl ? analysisEl.innerText : '';
+            sessionStorage.setItem('aiQuestion', question);
+            sessionStorage.setItem('aiAnalysis', analysis);
+            window.location.href = 'ai讲题.html';
+        }
+
+        // 统一按钮逻辑：无论是批改还是答疑，按钮都一致
+        function updateDetailContent(mode) {
+            const btnContainer = document.getElementById('detail-buttons');
+            const title = document.getElementById('detail-title');
+            const tag = document.getElementById('detail-tag');
+            const questionEl = document.getElementById('detail-question');
+            const analysisEl = document.getElementById('detail-analysis');
+            
+            // 按钮统一 HTML
+            let buttonsHTML = `
+                <button type="button" id="btn-add-notebook" onclick="addToNotebook()" class="app-btn-secondary app-btn-row">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                    加入错题本
+                </button>`;
+            
+            // 批改模式：根据当前题目是否支持AI来决定是否显示AI讲解按钮
+            if (mode === 'correction' && questionsData.length > 0) {
+                const currentQ = questionsData[currentQuestionIndex];
+                if (currentQ) {
+                    // 更新标题和标签
+                    title.innerText = currentQ.title;
+                    tag.innerText = currentQ.tag;
+                    // 更新题目和解析
+                    if (questionEl) questionEl.innerText = currentQ.question;
+                    if (analysisEl) analysisEl.innerHTML = currentQ.analysis;
+                    
+                    // 如果支持AI，显示AI讲解按钮
+                    if (currentQ.hasAi) {
+                        buttonsHTML += `
+                            <button type="button" onclick="goToAiExplain()" class="app-btn-primary app-btn-row">
+                                AI 讲解
+                            </button>`;
+                    } else {
+                        // 不支持AI时，AI讲解按钮置灰或隐藏
+                        buttonsHTML += `
+                            <button type="button" disabled class="app-btn-primary app-btn-row app-btn-primary--disabled">
+                                AI 讲解
+                            </button>`;
+                    }
+                }
+            } else if (mode === 'qa') {
+                title.innerText = "拍题答疑";
+                tag.innerText = "解答题";
+                buttonsHTML += `
+                    <button type="button" onclick="goToAiExplain()" class="app-btn-primary app-btn-row">
+                        AI 讲解
+                    </button>`;
+            }
+            
+            btnContainer.innerHTML = buttonsHTML;
+        }
+
+        // === 加入错题本逻辑 ===
+        function addToNotebook() {
+            const btn = document.getElementById('btn-add-notebook');
+            if (!btn || btn.classList.contains('is-added')) return;
+
+            showToast("已加入错题本");
+            
+            btn.className = "app-btn-secondary app-btn-row is-added";
+            btn.innerHTML = "已加入";
+        }
+
+        // === 过稿模式 ===
+        let reviewNodes = [];
+        let reviewElsBuilt = false;
+        let currentReviewMode = 'demo';
+
+        function setReviewMode(mode) {
+            if (mode === currentReviewMode) return;
+            currentReviewMode = mode;
+            document.querySelectorAll('#modeToggle button').forEach(function(btn, index) {
+                btn.classList.toggle('active', mode === 'demo' ? index === 0 : index === 1);
+            });
+            const panel = document.getElementById('reviewPanel');
+            if (!panel) return;
+            if (mode === 'review') {
+                panel.classList.add('open');
+                if (!reviewElsBuilt) buildReviewElsPanel();
+            } else {
+                panel.classList.remove('open');
+                reviewNodes.forEach(function(item) { item.el.classList.remove('review-highlight'); });
+                document.querySelectorAll('.rp-item').forEach(function(item) { item.classList.remove('rp-highlight'); });
+            }
+        }
+
+        function switchReviewTab(tab) {
+            document.querySelectorAll('.rp-tab').forEach(function(btn) {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+            document.getElementById('rpTabDoc').style.display = tab === 'doc' ? '' : 'none';
+            document.getElementById('rpTabEls').style.display = tab === 'els' ? '' : 'none';
+            if (tab === 'els' && !reviewElsBuilt) buildReviewElsPanel();
+        }
+
+        function buildReviewElsPanel() {
+            reviewElsBuilt = true;
+            reviewNodes = [];
+            const container = document.getElementById('rpTabEls');
+            if (!container) return;
+            const sections = {};
+            document.querySelectorAll('[data-doc]').forEach(function(el) {
+                const doc = el.getAttribute('data-doc') || '';
+                const prd = el.getAttribute('data-prd') || '';
+                const track = el.getAttribute('data-track') || '';
+                if (!prd && !track) return;
+                const sec = doc.split('-')[0] || 'other';
+                if (!sections[sec]) sections[sec] = [];
+                sections[sec].push({ el: el, doc: doc, prd: prd, track: track });
+            });
+
+            const sectionNames = {
+                correction: '批改结果',
+                mode: '拍照模式',
+                wrong: '录错题',
+                btn: '详情操作'
+            };
+            let total = 0;
+            container.innerHTML = '';
+            Object.keys(sections).forEach(function(sec) {
+                const block = document.createElement('div');
+                block.className = 'rp-section';
+                block.innerHTML = '<div class="rp-section-title">' + (sectionNames[sec] || sec) + '</div>';
+                sections[sec].forEach(function(item) {
+                    total++;
+                    const card = document.createElement('div');
+                    card.className = 'rp-item';
+                    card.innerHTML =
+                        '<div class="rp-item-id">' + escapeReviewHtml(item.doc) + '</div>' +
+                        (item.prd ? '<div class="rp-item-prd">' + escapeReviewHtml(item.prd) + '</div>' : '') +
+                        (item.track ? '<div class="rp-item-track">' + escapeReviewHtml(item.track) + '</div>' : '');
+                    card.onclick = function() {
+                        reviewNodes.forEach(function(node) { node.el.classList.remove('review-highlight'); });
+                        document.querySelectorAll('.rp-item').forEach(function(el) { el.classList.remove('rp-highlight'); });
+                        item.el.classList.add('review-highlight');
+                        card.classList.add('rp-highlight');
+                        item.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    };
+                    block.appendChild(card);
+                    reviewNodes.push(item);
+                });
+                container.appendChild(block);
+            });
+            document.getElementById('rpCount').textContent = total + ' 个标注项';
+        }
+
+        function escapeReviewHtml(text) {
+            return String(text).replace(/[&<>"']/g, function(ch) {
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
+            });
+        }
+
+        (function initReviewPanelDrag() {
+            let dragging = false;
+            let resizing = false;
+            let resizeDir = '';
+            let startX = 0;
+            let startY = 0;
+            let panelLeft = 0;
+            let panelTop = 0;
+            let panelWidth = 0;
+            let panelHeight = 0;
+            document.addEventListener('DOMContentLoaded', function() {
+                const panel = document.getElementById('reviewPanel');
+                const header = document.getElementById('rpHeader');
+                if (!panel || !header) return;
+                header.addEventListener('mousedown', function(e) {
+                    if (e.target.closest('.rp-close')) return;
+                    dragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    const rect = panel.getBoundingClientRect();
+                    panelLeft = rect.left;
+                    panelTop = rect.top;
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onUp);
+                });
+                panel.querySelectorAll('.rp-resize').forEach(function(handle) {
+                    handle.addEventListener('mousedown', function(e) {
+                        resizing = true;
+                        resizeDir = handle.dataset.dir || '';
+                        startX = e.clientX;
+                        startY = e.clientY;
+                        const rect = panel.getBoundingClientRect();
+                        panelLeft = rect.left;
+                        panelTop = rect.top;
+                        panelWidth = rect.width;
+                        panelHeight = rect.height;
+                        document.addEventListener('mousemove', onResize);
+                        document.addEventListener('mouseup', onResizeUp);
+                        e.preventDefault();
+                        e.stopPropagation();
+                    });
+                });
+                function onMove(e) {
+                    if (!dragging) return;
+                    panel.style.left = Math.max(0, panelLeft + e.clientX - startX) + 'px';
+                    panel.style.top = Math.max(0, panelTop + e.clientY - startY) + 'px';
+                    panel.style.right = 'auto';
+                }
+                function onUp() {
+                    dragging = false;
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                }
+                function onResize(e) {
+                    if (!resizing) return;
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    const minW = 280;
+                    const minH = 300;
+                    let nextLeft = panelLeft;
+                    let nextTop = panelTop;
+                    let nextWidth = panelWidth;
+                    let nextHeight = panelHeight;
+
+                    if (resizeDir.indexOf('e') !== -1) nextWidth = Math.max(minW, panelWidth + dx);
+                    if (resizeDir.indexOf('s') !== -1) nextHeight = Math.max(minH, panelHeight + dy);
+                    if (resizeDir.indexOf('w') !== -1) {
+                        nextWidth = Math.max(minW, panelWidth - dx);
+                        nextLeft = panelLeft + (panelWidth - nextWidth);
+                    }
+                    if (resizeDir.indexOf('n') !== -1) {
+                        nextHeight = Math.max(minH, panelHeight - dy);
+                        nextTop = panelTop + (panelHeight - nextHeight);
+                    }
+
+                    panel.style.left = Math.max(0, nextLeft) + 'px';
+                    panel.style.top = Math.max(0, nextTop) + 'px';
+                    panel.style.width = nextWidth + 'px';
+                    panel.style.height = nextHeight + 'px';
+                    panel.style.right = 'auto';
+                }
+                function onResizeUp() {
+                    resizing = false;
+                    document.removeEventListener('mousemove', onResize);
+                    document.removeEventListener('mouseup', onResizeUp);
+                }
+            });
+        })();
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+    </script>
+</body>
+</html>

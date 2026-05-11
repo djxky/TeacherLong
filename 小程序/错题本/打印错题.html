@@ -12,574 +12,537 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        #app-root header.z-30 > div:first-child { padding-right: 100px; box-sizing: border-box; }
+        .page-view {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            background: #F6F7F9;
+            transition: opacity 0.3s;
+        }
+        .page-view.hidden { display: none; }
 
-        /* 页面容器：头部 + 可滚动内容 + 底部栏固定贴底 */
-        .page-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            overflow: hidden;
-            background-color: #F6F7F9;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
+        /* ── 选题页 ── */
+        .date-label {
+            font-size: 13px; font-weight: 600; color: #94a3b8;
+            padding: 12px 0 6px; margin: 0;
         }
-        .page-container > header {
-            flex-shrink: 0;
-        }
-        #main-content {
-            flex: 1 1 0;
-            min-height: 0;
-            overflow-y: scroll;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-            touch-action: pan-y;
-            padding-bottom: 88px; /* 为底部操作栏留出空间，避免被遮挡 */
-        }
-        /* 底部操作栏：始终固定在页面底部可见 */
-        .page-container > .action-bar {
-            flex-shrink: 0;
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-        }
-
-        /* 错题项样式 */
-        .question-item {
-            background: white;
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
-            display: flex;
-            gap: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .q-card {
+            background: #fff; border-radius: 16px;
+            margin-bottom: 10px; overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
             position: relative;
-            transition: transform 0.2s;
         }
-        .question-item:active {
-            transform: scale(0.98);
+        .q-card .q-img {
+            width: 100%; display: block;
+            max-height: 180px; object-fit: cover;
         }
-        .question-checkbox {
-            width: 24px;
-            height: 24px;
-            border: 2px solid #94a3b8;
-            border-radius: 50%;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .q-check {
+            position: absolute; top: 10px; left: 10px;
+            width: 26px; height: 26px; border-radius: 50%;
+            border: 2.5px solid #c4b5fd;
+            background: rgba(255,255,255,0.85);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 5;
+            transition: all 0.18s;
+            -webkit-tap-highlight-color: transparent;
         }
-        .question-checkbox.checked {
-            background: #2563EB;
-            border-color: #2563EB;
+        .q-check.checked {
+            background: #7c3aed; border-color: #7c3aed;
         }
-        .question-checkbox.checked::after {
-            content: '✓';
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .question-thumbnail {
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
-        .question-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .question-time {
-            font-size: 12px;
-            color: #94A3B8;
+        .q-check.checked::after {
+            content: '✓'; color: #fff; font-size: 14px; font-weight: 700;
         }
 
-        /* 操作栏 - 固定在底部，始终可见 */
-        .action-bar {
+        /* 底部操作栏 */
+        .bottom-bar {
             flex-shrink: 0;
-            min-height: 56px;
             background: #fff;
-            border-top: 1px solid #e2e8f0;
-            padding: 12px 16px;
-            padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
-            z-index: 60;
+            border-top: 1px solid #f1f5f9;
+            padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px));
+            display: flex; align-items: center; gap: 10px;
         }
-
-        /* Toast 提示 */
-        .toast {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-        .toast.show {
-            opacity: 1;
-        }
-
-        /* 导出弹窗 - 在小程序内显示 */
-        .export-sheet-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 199;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-        .export-sheet-overlay.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .export-sheet {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-            z-index: 200;
-            max-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-        }
-        .export-sheet.show {
-            transform: translateY(0);
-        }
-        /* 弹窗内：预览区可滚动，底部三个按钮始终贴底可见 */
-        .export-sheet .export-sheet-preview-wrap {
-            flex: 1;
-            min-height: 0;
-            overflow-y: auto;
-        }
-        .export-sheet .export-sheet-actions {
+        .bar-btn {
             flex-shrink: 0;
-            background: white;
-            border-top: 1px solid #e5e7eb;
+            display: flex; align-items: center; gap: 6px;
+            padding: 10px 18px; border-radius: 999px;
+            font-size: 14px; font-weight: 600; font-family: inherit;
+            cursor: pointer; border: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.15s;
         }
+        .bar-btn:active { transform: scale(0.97); }
+        .bar-select-all {
+            background: none; color: #1e293b; padding-left: 0;
+        }
+        .bar-select-all .sa-check {
+            width: 22px; height: 22px; border-radius: 6px;
+            border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+        }
+        .bar-select-all .sa-check.checked {
+            background: #7c3aed; border-color: #7c3aed;
+        }
+        .bar-select-all .sa-check.checked::after {
+            content: '✓'; color: #fff; font-size: 12px; font-weight: 700;
+        }
+        .bar-cancel {
+            background: #f1f5f9; color: #64748b;
+        }
+        .bar-print {
+            flex: 1; justify-content: center;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: #fff; font-size: 15px; font-weight: 700;
+            border-radius: 999px; padding: 12px 20px;
+            box-shadow: 0 4px 12px -3px rgba(124,58,237,0.4);
+        }
+        .bar-print:disabled {
+            background: #e2e8f0; color: #94a3b8; box-shadow: none; cursor: not-allowed;
+        }
+
+        /* ── 生成中遮罩 ── */
+        .gen-overlay {
+            position: absolute; inset: 0; z-index: 100;
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            display: none; align-items: center; justify-content: center;
+        }
+        .gen-overlay.show { display: flex; }
+        .gen-card {
+            background: #fff; border-radius: 20px;
+            padding: 36px 48px; text-align: center;
+            box-shadow: 0 8px 32px -6px rgba(0,0,0,0.12);
+        }
+        .gen-icon {
+            width: 64px; height: 64px; margin: 0 auto 14px;
+            position: relative;
+        }
+        .gen-icon .gi-box {
+            width: 48px; height: 36px; border-radius: 8px;
+            background: linear-gradient(135deg, #dbeafe, #c7d2fe);
+            margin: 14px auto 0;
+        }
+        .gen-icon .gi-ball {
+            width: 14px; height: 14px; border-radius: 50%;
+            background: #7c3aed; position: absolute;
+            top: 6px; right: 12px;
+            animation: genBounce 1.2s ease-in-out infinite;
+        }
+        .gen-icon .gi-ball2 {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #a78bfa; position: absolute;
+            top: 0; right: 24px;
+            animation: genBounce 1.2s ease-in-out 0.2s infinite;
+        }
+        @keyframes genBounce {
+            0%,100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .gen-text {
+            font-size: 15px; font-weight: 600; color: #334155;
+        }
+
+        /* ── 分享页 ── */
+        .share-center {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 0 32px;
+        }
+        .pdf-icon {
+            width: 72px; height: 72px; border-radius: 16px;
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 20px;
+        }
+        .pdf-icon svg { width: 36px; height: 36px; color: #ef4444; }
+        .pdf-filename {
+            font-size: 17px; font-weight: 700; color: #0f172a;
+            text-align: center; margin-bottom: 6px;
+        }
+        .pdf-size {
+            font-size: 13px; color: #94a3b8; margin-bottom: 0;
+        }
+        .share-bar {
+            flex-shrink: 0;
+            padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+            display: flex; gap: 10px;
+        }
+        .share-preview-btn {
+            flex-shrink: 0;
+            padding: 12px 24px; border-radius: 999px;
+            background: #f1f5f9; color: #334155;
+            font-size: 14px; font-weight: 600; font-family: inherit;
+            border: none; cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .share-preview-btn:active { background: #e2e8f0; }
+        .share-wechat-btn {
+            flex: 1; padding: 12px 20px; border-radius: 999px;
+            background: linear-gradient(135deg, #07c160, #06ad56);
+            color: #fff; font-size: 15px; font-weight: 700; font-family: inherit;
+            border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 4px 16px -4px rgba(7,193,96,0.45);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .share-wechat-btn:active { transform: scale(0.98); }
+
+        .toast {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8); color: white;
+            padding: 12px 24px; border-radius: 8px;
+            z-index: 1000; opacity: 0; transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; }
     </style>
 </head>
 <body>
     <div class="iphone-frame is-column" id="app-root">
         <div class="dynamic-island"></div>
         <div class="wx-capsule">
-            <button type="button" class="wx-capsule-btn" aria-label="更多" onclick="showMiniprogramMenu()"><svg width="18" height="4" viewBox="0 0 18 4"><circle cx="3" cy="2" r="1.5" fill="currentColor"/><circle cx="9" cy="2" r="1.5" fill="currentColor"/><circle cx="15" cy="2" r="1.5" fill="currentColor"/></svg></button>
+            <button type="button" class="wx-capsule-btn" aria-label="更多"><svg width="18" height="4" viewBox="0 0 18 4"><circle cx="3" cy="2" r="1.5" fill="currentColor"/><circle cx="9" cy="2" r="1.5" fill="currentColor"/><circle cx="15" cy="2" r="1.5" fill="currentColor"/></svg></button>
             <div class="wx-capsule-divider"></div>
-            <button type="button" class="wx-capsule-btn" aria-label="关闭" onclick="closeMiniprogram()"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M2 2l8 8M10 2l-8 8"/></svg></button>
+            <button type="button" class="wx-capsule-btn" aria-label="关闭"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" d="M2 2l8 8M10 2l-8 8"/></svg></button>
         </div>
 
-        <!-- 打印错题选择页面 -->
-        <div id="page-print" class="page-container" style="position: relative;">
-            <header class="bg-white sticky top-0 z-30 shadow-sm pt-[90px] pb-0">
-                <div class="px-4 pb-3 flex justify-between items-center">
-                    <div class="flex items-center gap-1">
-                        <button onclick="goBack()" class="p-2 -ml-1 active:opacity-60">
-                            <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-                        </button>
-                        <h1 class="text-lg font-bold text-slate-800">打印错题</h1>
-                    </div>
+        <!-- ===== 第 1 页：选题 ===== -->
+        <div id="page-select" class="page-view">
+            <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-md pt-[56px] pb-3 px-4" style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+                <div class="flex items-center gap-2">
+                    <button onclick="goBack()" class="p-1 -ml-1 active:opacity-60">
+                        <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <h1 id="page-title" class="text-[17px] font-bold text-slate-800">错题本</h1>
                 </div>
             </header>
 
-            <main id="main-content" class="overflow-y-auto no-scrollbar px-4 py-4 pb-4">
-                <div id="question-list" class="space-y-3">
-                    <!-- 错题列表将动态渲染在这里 -->
-                </div>
-                <div id="empty-state" class="hidden flex flex-col items-center justify-center py-20 text-center">
-                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                        <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                    </div>
-                    <p class="text-slate-400 text-sm">暂无错题</p>
-                </div>
+            <main id="question-list" class="flex-1 overflow-y-auto no-scrollbar px-4 pt-1 pb-4">
             </main>
 
-            <!-- 底部操作栏：全选、取消、生成 pdf -->
-            <div class="action-bar">
-                <div class="flex items-center justify-between gap-3">
-                    <button type="button" onclick="selectAllQuestions()" class="app-btn-secondary app-btn-row shrink-0">全选</button>
-                    <button type="button" onclick="cancelPrint()" class="app-btn-tertiary app-btn-row shrink-0">取消</button>
-                    <button type="button" onclick="generatePdf()" class="app-btn-primary app-btn-row flex-1">
-                        生成 pdf (<span id="selected-count">0</span>)
-                    </button>
-                </div>
-            </div>
-
-            <!-- 导出弹窗 - 在小程序内 -->
-            <div class="export-sheet-overlay" id="export-overlay" onclick="closeExportSheet()"></div>
-            <div class="export-sheet" id="export-sheet">
-            <div class="px-4 pt-4 pb-2 flex items-center justify-between border-b border-gray-100">
-                <h3 class="text-lg font-bold text-slate-800" id="export-title">共 0 页</h3>
-                <button onclick="closeExportSheet()" class="p-2 active:opacity-60">
-                    <svg class="w-6 h-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+            <div class="bottom-bar">
+                <button type="button" class="bar-btn bar-select-all" onclick="toggleSelectAll()">
+                    <div id="sa-check" class="sa-check"></div>
+                    全选
+                </button>
+                <button type="button" class="bar-btn bar-cancel" onclick="goBack()">取消</button>
+                <button type="button" id="btn-print" class="bar-btn bar-print" onclick="startGenerate()" disabled>
+                    打印 (<span id="selected-count">0</span>)
                 </button>
             </div>
-            <div class="export-sheet-preview-wrap p-4">
-                <div id="export-preview" class="space-y-4">
-                    <!-- 预览图片将在这里显示 -->
+
+            <!-- 生成中遮罩 -->
+            <div id="gen-overlay" class="gen-overlay">
+                <div class="gen-card">
+                    <div class="gen-icon">
+                        <div class="gi-ball"></div>
+                        <div class="gi-ball2"></div>
+                        <div class="gi-box"></div>
+                    </div>
+                    <div class="gen-text" id="gen-text">生成中 1%...</div>
                 </div>
             </div>
-            <div class="export-sheet-actions px-4 py-3" style="padding-bottom: calc(12px + env(safe-area-inset-bottom));">
-                <button type="button" onclick="sendToWeChat()" class="app-btn-wechat app-btn-row w-full flex items-center justify-center gap-1.5">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                    <span>发送到微信</span>
+        </div>
+
+        <!-- ===== 第 2 页：分享 ===== -->
+        <div id="page-share" class="page-view hidden">
+            <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-md pt-[56px] pb-3 px-4" style="border-bottom: 1px solid rgba(0,0,0,0.04);">
+                <div class="flex items-center gap-2">
+                    <button onclick="backToSelect()" class="p-1 -ml-1 active:opacity-60">
+                        <svg class="w-6 h-6 text-slate-800" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="share-center">
+                <div class="pdf-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <text x="7" y="17" font-size="6" font-weight="bold" fill="#ef4444" stroke="none" font-family="sans-serif">PDF</text>
+                    </svg>
+                </div>
+                <div id="pdf-filename" class="pdf-filename">练习.pdf</div>
+                <div id="pdf-size" class="pdf-size">文件大小：-- KB</div>
+            </div>
+
+            <div class="share-bar">
+                <button type="button" class="share-preview-btn" onclick="previewPdf()">预览</button>
+                <button type="button" class="share-wechat-btn" onclick="downloadPdf()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.864.864 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05a6.266 6.266 0 01-.247-1.72c0-3.571 3.354-6.467 7.49-6.467.266 0 .526.02.784.042C16.794 4.986 13.177 2.188 8.691 2.188zm-2.6 4.408c.56 0 1.015.46 1.015 1.025 0 .566-.455 1.025-1.015 1.025-.56 0-1.015-.46-1.015-1.025 0-.565.455-1.025 1.015-1.025zm5.209 0c.56 0 1.015.46 1.015 1.025 0 .566-.455 1.025-1.015 1.025-.56 0-1.015-.46-1.015-1.025 0-.565.455-1.025 1.015-1.025zM16.245 8.63c-3.588 0-6.5 2.512-6.5 5.611 0 3.1 2.912 5.612 6.5 5.612a7.928 7.928 0 002.227-.319.723.723 0 01.597.082l1.583.926a.273.273 0 00.139.045c.133 0 .241-.11.241-.245 0-.06-.024-.12-.04-.178l-.324-1.232a.492.492 0 01.177-.554c1.523-1.12 2.5-2.782 2.5-4.637 0-3.1-2.912-5.611-6.5-5.611h-.6zm-2.166 3.436c.466 0 .845.383.845.854 0 .472-.379.854-.845.854s-.845-.382-.845-.854c0-.471.379-.854.845-.854zm4.332 0c.466 0 .845.383.845.854 0 .472-.379.854-.845.854s-.845-.382-.845-.854c0-.471.379-.854.845-.854z"/></svg>
+                    下载分享到微信
                 </button>
             </div>
         </div>
 
-        <!-- Toast -->
         <div id="toast" class="toast"></div>
     </div>
 
     <script>
-        // 错题数据（从错题本获取或使用模拟数据）
-        let allQuestions = [];
-        let selectedQuestions = new Set();
-        // 当前导出弹窗里显示的题目（用于打印/微信/保存）
-        let exportQuestionsForPrint = [];
+        var allQuestions = [];
+        var selectedIds = new Set();
+        var pdfBlob = null;
+        var pdfSizeKB = 0;
+        var printMode = localStorage.getItem('printMode') || 'original';
+        var SIMILAR_PER_Q = 3;
 
-        // 页面初始化
+        var SIMILAR_QUESTIONS = {
+            math: [
+                { num: '第1题', type: '选择题', text: '已知 a+b=12, ab=32, 则 a²+b² = ?\nA. 80  B. 82  C. 78  D. 84', answer: 'A（a²+b²=(a+b)²-2ab=80）' },
+                { num: '第2题', type: '填空题', text: '若 x+y=10, xy=21, 则 x²+y² = ______。', answer: '58' },
+                { num: '第3题', type: '解答题', text: '解方程组: x+y=8, x-y=2。', answer: 'x=5, y=3' }
+            ],
+            eng: [
+                { num: '第1题', type: '阅读题', text: 'Read the passage and choose the best title.\nA. My School Day  B. A Trip', answer: 'A' },
+                { num: '第2题', type: '语法题', text: 'He asked me ______ I had finished.\nA. if  B. what', answer: 'A' },
+                { num: '第3题', type: '写作题', text: 'Write about "My Favorite Season" in 60 words.', answer: '要点: 季节+原因+活动' }
+            ]
+        };
+
         function initPage() {
             loadQuestions();
-            renderQuestionList();
-            updateSelectedCount();
+            renderQuestions();
+            updateUI();
+            var title = document.getElementById('page-title');
+            if (title) title.textContent = '错题本';
         }
 
-        // 加载错题数据
         function loadQuestions() {
             try {
-                const saved = localStorage.getItem('wrongQuestions');
-                if (saved) {
-                    allQuestions = JSON.parse(saved);
-                } else {
-                    // 模拟数据
-                    allQuestions = [
-                        { id: 1, subject: 'math', type: 'fill', image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&h=267&fit=crop', date: '2025-01-27 14:30', dateLabel: '今天' },
-                        { id: 2, subject: 'math', type: 'single', image: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&h=267&fit=crop', date: '2025-01-27 10:15', dateLabel: '今天' },
-                        { id: 3, subject: 'eng', type: 'answer', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=267&fit=crop', date: '2025-01-26 16:20', dateLabel: '昨天' },
-                        { id: 4, subject: 'math', type: 'fill', image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&h=267&fit=crop', date: '2025-01-26 09:00', dateLabel: '昨天' },
-                        { id: 5, subject: 'eng', type: 'single', image: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&h=267&fit=crop', date: '2025-01-25 15:45', dateLabel: '1月25日' },
-                    ];
+                var s = localStorage.getItem('wrongQuestions');
+                allQuestions = s ? JSON.parse(s) : [];
+            } catch(e) { allQuestions = []; }
+        }
+
+        function groupByDate(qs) {
+            var sorted = qs.slice().sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
+            var groups = [];
+            var lastLabel = '';
+            sorted.forEach(function(q) {
+                var label = q.dateLabel || (q.date||'').split(' ')[0] || '未知日期';
+                if (label !== lastLabel) {
+                    groups.push({ label: label, items: [] });
+                    lastLabel = label;
                 }
-            } catch (e) {
-                console.error('加载错题数据失败:', e);
-                allQuestions = [];
-            }
+                groups[groups.length-1].items.push(q);
+            });
+            return groups;
         }
 
-        // 渲染错题列表
-        function renderQuestionList() {
-            const questionList = document.getElementById('question-list');
-            const emptyState = document.getElementById('empty-state');
-            
-            questionList.innerHTML = '';
-            selectedQuestions.clear(); // 每次渲染时重置勾选，保证与界面一致
-            
+        function renderQuestions() {
+            var list = document.getElementById('question-list');
+            list.innerHTML = '';
             if (allQuestions.length === 0) {
-                questionList.classList.add('hidden');
-                emptyState.classList.remove('hidden');
+                list.innerHTML = '<div style="text-align:center;padding:80px 0;color:#94a3b8;font-size:14px;">暂无错题</div>';
                 return;
             }
-            
-            questionList.classList.remove('hidden');
-            emptyState.classList.add('hidden');
-            
-            // 按时间倒序排列
-            const sortedQuestions = [...allQuestions].sort((a, b) => {
-                return new Date(b.date) - new Date(a.date);
+            var groups = groupByDate(allQuestions);
+            groups.forEach(function(g) {
+                var dl = document.createElement('div');
+                dl.className = 'date-label';
+                dl.textContent = g.label;
+                list.appendChild(dl);
+                g.items.forEach(function(q) {
+                    var card = document.createElement('div');
+                    card.className = 'q-card';
+                    card.dataset.id = q.id;
+                    card.innerHTML = '<div class="q-check" data-qid="' + q.id + '" onclick="event.stopPropagation();toggleCheck(this)"></div>' +
+                        '<img class="q-img" src="' + (q.image||'') + '" alt="错题" onerror="this.style.height=\'80px\';this.style.background=\'#f1f5f9\';">';
+                    card.onclick = function(){ toggleCheck(card.querySelector('.q-check')); };
+                    list.appendChild(card);
+                });
             });
-            
-            sortedQuestions.forEach(q => {
-                const item = document.createElement('div');
-                item.className = 'question-item';
-                item.dataset.id = q.id;
-                
-                const timeStr = q.date.split(' ')[1] || '';
-                const dateStr = q.dateLabel || q.date.split(' ')[0];
-                
-                item.innerHTML = `
-                    <div class="question-checkbox" onclick="event.stopPropagation(); toggleQuestionSelect(${q.id}, this)"></div>
-                    <img src="${q.image}" class="question-thumbnail" alt="错题" onerror="this.src='https://via.placeholder.com/800x267?text=图片加载失败'">
-                    <div class="question-content">
-                        <div class="question-time">${dateStr} ${timeStr}</div>
-                    </div>
-                `;
-                
-                questionList.appendChild(item);
-            });
-            updateSelectedCount();
         }
 
-        // 更新已选数量显示
-        function updateSelectedCount() {
-            const el = document.getElementById('selected-count');
-            if (el) {
-                el.textContent = selectedQuestions.size;
-                el.setAttribute('aria-label', '已选 ' + selectedQuestions.size + ' 道');
-            }
-        }
-
-        // 切换错题选择
-        function toggleQuestionSelect(id, checkbox) {
-            if (selectedQuestions.has(id)) {
-                selectedQuestions.delete(id);
-                checkbox.classList.remove('checked');
+        function toggleCheck(el) {
+            var id = parseInt(el.dataset.qid || el.closest('.q-card').querySelector('.q-check').dataset.qid, 10);
+            if (selectedIds.has(id)) {
+                selectedIds.delete(id);
+                el.classList.remove('checked');
             } else {
-                selectedQuestions.add(id);
-                checkbox.classList.add('checked');
+                selectedIds.add(id);
+                el.classList.add('checked');
             }
-            updateSelectedCount();
+            updateUI();
         }
 
-        // 全选
-        function selectAllQuestions() {
-            const checkboxes = document.querySelectorAll('.question-checkbox');
-            checkboxes.forEach(cb => {
-                const item = cb.closest('.question-item');
-                const id = parseInt(item.dataset.id);
-                selectedQuestions.add(id);
-                cb.classList.add('checked');
-            });
-            updateSelectedCount();
-        }
-
-        // 取消
-        function cancelPrint() {
-            // 返回错题本页面
-            window.location.href = '错题本.html';
-        }
-
-        // 生成 pdf（按钮点击入口）：先提示正在生成，再展示预览与「发送到微信」
-        function generatePdf() {
-            if (selectedQuestions.size === 0) {
-                showToast('请至少选择一道错题');
-                return;
+        function toggleSelectAll() {
+            var allChecked = selectedIds.size === allQuestions.length;
+            if (allChecked) {
+                selectedIds.clear();
+                document.querySelectorAll('.q-check').forEach(function(c){ c.classList.remove('checked'); });
+            } else {
+                allQuestions.forEach(function(q){ selectedIds.add(q.id); });
+                document.querySelectorAll('.q-check').forEach(function(c){ c.classList.add('checked'); });
             }
-            showToast('正在生成文件...');
-            const selected = allQuestions.filter(q => selectedQuestions.has(q.id));
-            setTimeout(function() {
-                showExportSheet(selected);
-            }, 400);
+            updateUI();
         }
 
-        // 兼容旧名
-        function generatePreview() {
-            generatePdf();
-        }
-
-        // 打印选中的错题（内部用，直接弹窗）
-        function printSelectedQuestions() {
-            if (selectedQuestions.size === 0) {
-                showToast('请至少选择一道错题');
-                return;
+        function updateUI() {
+            document.getElementById('selected-count').textContent = selectedIds.size;
+            document.getElementById('btn-print').disabled = selectedIds.size === 0;
+            var sa = document.getElementById('sa-check');
+            if (selectedIds.size === allQuestions.length && allQuestions.length > 0) {
+                sa.classList.add('checked');
+            } else {
+                sa.classList.remove('checked');
             }
-            const selected = allQuestions.filter(q => selectedQuestions.has(q.id));
-            showExportSheet(selected);
         }
 
-        // 显示导出弹窗（生成完成后展示「打印」「发送到微信」「保存PDF」）
-        function showExportSheet(questions) {
-            exportQuestionsForPrint = questions;
-            const sheet = document.getElementById('export-sheet');
-            const overlay = document.getElementById('export-overlay');
-            const title = document.getElementById('export-title');
-            const preview = document.getElementById('export-preview');
-            
-            title.textContent = `共 ${questions.length} 页 · 可打印或导出`;
-            preview.innerHTML = '';
-            
-            questions.forEach((q, index) => {
-                const card = document.createElement('div');
-                card.className = 'bg-white rounded-xl overflow-hidden shadow-sm border border-slate-100';
-                card.innerHTML = `
-                    <div class="px-3 py-2 border-b border-slate-100 text-sm font-medium text-slate-600">第 ${index + 1} 题</div>
-                    <img src="${q.image}" class="w-full h-auto block" alt="错题 ${index + 1}" onerror="this.src='https://via.placeholder.com/800x267?text=图片加载失败'">
-                `;
-                preview.appendChild(card);
-            });
-            
-            sheet.classList.add('show');
+        function getSubjLabel(s) {
+            return {math:'数学',eng:'英语',chinese:'语文',science:'科学'}[s] || s || '综合';
+        }
+
+        function startGenerate() {
+            if (selectedIds.size === 0) return;
+            var overlay = document.getElementById('gen-overlay');
+            var text = document.getElementById('gen-text');
             overlay.classList.add('show');
-        }
+            var pct = 1;
+            text.textContent = '生成中 ' + pct + '%...';
+            var interval = setInterval(function(){
+                pct += Math.floor(Math.random()*15) + 5;
+                if (pct > 95) pct = 95;
+                text.textContent = '生成中 ' + pct + '%...';
+            }, 300);
 
-        // 关闭导出弹窗
-        function closeExportSheet() {
-            const sheet = document.getElementById('export-sheet');
-            const overlay = document.getElementById('export-overlay');
-            sheet.classList.remove('show');
-            overlay.classList.remove('show');
-        }
-
-        // 浏览器打印：用当前预览中的题目打开打印页并调起打印对话框
-        function doBrowserPrint() {
-            if (exportQuestionsForPrint.length === 0) {
-                showToast('没有可打印的题目');
-                return;
-            }
-            var printWin = window.open('', '_blank');
-            if (!printWin) {
-                showToast('请允许弹窗后重试');
-                return;
-            }
-            var html = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>错题打印 - 共 ' + exportQuestionsForPrint.length + ' 题</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:\"PingFang SC\",\"Microsoft YaHei\",sans-serif;background:#fff}.print-page{page-break-after:always;padding:20mm;min-height:277mm;display:flex;flex-direction:column;align-items:center;justify-content:flex-start}.print-page:last-child{page-break-after:auto}.question-num{font-size:14pt;color:#333;margin-bottom:12px;font-weight:bold}.question-num span{color:#2563EB}.question-img{max-width:100%;height:auto;max-height:230mm;object-fit:contain}</style></head><body>';
-            for (var i = 0; i < exportQuestionsForPrint.length; i++) {
-                var q = exportQuestionsForPrint[i];
-                html += '<div class="print-page"><div class="question-num">第 <span>' + (i + 1) + '</span> 题</div><img class="question-img" src="' + q.image + '" alt="第 ' + (i + 1) + ' 题" /></div>';
-            }
-            html += '</body></html>';
-            printWin.document.write(html);
-            printWin.document.close();
-            printWin.focus();
-            setTimeout(function() {
-                printWin.print();
-                printWin.onafterprint = function() { printWin.close(); };
-            }, 400);
-        }
-
-        // 发送到微信（使用当前预览中的题目）
-        function sendToWeChat() {
-            if (exportQuestionsForPrint.length === 0) {
-                showToast('没有可导出的题目');
-                return;
-            }
-            generatePDF(exportQuestionsForPrint, 'wechat');
-        }
-
-        // 保存为 PDF 下载（使用当前预览中的题目）
-        function saveToAlbum() {
-            if (exportQuestionsForPrint.length === 0) {
-                showToast('没有可导出的题目');
-                return;
-            }
-            generatePDF(exportQuestionsForPrint, 'album');
-        }
-
-        // 生成PDF
-        function generatePDF(questions, action) {
-            if (questions.length === 0) {
-                showToast('没有选中的错题');
-                return;
-            }
-            
-            showToast('正在生成PDF...');
-            
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
+            var selected = allQuestions.filter(function(q){ return selectedIds.has(q.id); });
+            generatePDF(selected, function(blob, sizeKB){
+                clearInterval(interval);
+                text.textContent = '生成中 100%...';
+                pdfBlob = blob;
+                pdfSizeKB = sizeKB;
+                setTimeout(function(){
+                    overlay.classList.remove('show');
+                    showSharePage(selected.length, sizeKB);
+                }, 400);
             });
-            
-            const totalImages = questions.length;
-            const loadedResults = []; // 按 index 存储每张图片的 img 和尺寸，保证顺序
-            
+        }
+
+        function generatePDF(questions, callback) {
+            var jsPDF = window.jspdf.jsPDF;
+            var pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+            var pageW = pdf.internal.pageSize.getWidth();
+            var pageH = pdf.internal.pageSize.getHeight();
+
+            var imgTasks = [];
+            questions.forEach(function(q, idx) {
+                imgTasks.push({ kind: 'image', src: q.image, label: '原题 ' + (idx+1), q: q });
+            });
+
+            if (printMode === 'original_with_similar') {
+                var answerTexts = [];
+                questions.forEach(function(q, qi) {
+                    var subj = q.subject || 'math';
+                    var sqs = (SIMILAR_QUESTIONS[subj] || SIMILAR_QUESTIONS.math).slice(0, SIMILAR_PER_Q);
+                    sqs.forEach(function(sq, si) {
+                        imgTasks.push({ kind: 'text', label: '原题' + (qi+1) + ' 相似题' + (si+1), body: sq.type + '\n' + sq.text });
+                        answerTexts.push({ label: '原题' + (qi+1) + ' 相似题' + (si+1) + ' 答案', body: sq.answer });
+                    });
+                });
+                answerTexts.forEach(function(a) {
+                    imgTasks.push({ kind: 'text', label: a.label, body: a.body });
+                });
+            }
+
+            var loaded = 0;
+            var results = [];
+
             function tryFinish() {
-                if (loadedResults.length !== totalImages) return;
-                
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                loadedResults.sort((a, b) => a.index - b.index);
-                
-                loadedResults.forEach((item, i) => {
-                    if (item.img) {
-                        if (i > 0) pdf.addPage();
-                        const x = (pageWidth - item.scaledWidth) / 2;
-                        const y = (pageHeight - item.scaledHeight) / 2;
-                        pdf.addImage(item.img, 'JPEG', x, y, item.scaledWidth, item.scaledHeight);
+                if (loaded < imgTasks.length) return;
+                results.forEach(function(r, i) {
+                    if (i > 0) pdf.addPage();
+                    if (r.kind === 'image' && r.img) {
+                        var ratio = Math.min((pageW - 16) / r.img.width, (pageH - 24) / r.img.height);
+                        var w = r.img.width * ratio;
+                        var h = r.img.height * ratio;
+                        pdf.addImage(r.img, 'JPEG', (pageW - w)/2, 12 + (pageH - 24 - h)/2, w, h);
+                    } else if (r.kind === 'text') {
+                        pdf.setFont('helvetica', 'bold');
+                        pdf.setFontSize(13);
+                        pdf.text(r.label || '', 14, 20);
+                        pdf.setFont('helvetica', 'normal');
+                        pdf.setFontSize(11);
+                        var lines = pdf.splitTextToSize(r.body || '', pageW - 28);
+                        var y = 30;
+                        lines.forEach(function(line) {
+                            if (y > pageH - 14) { pdf.addPage(); y = 20; }
+                            pdf.text(line, 14, y);
+                            y += 6;
+                        });
                     }
                 });
-                
-                if (action === 'wechat') {
-                    showToast('PDF已生成，请使用微信分享');
-                } else if (action === 'album') {
-                    pdf.save('错题本.pdf');
-                    showToast('已保存');
-                }
-                closeExportSheet();
+
+                var blob = pdf.output('blob');
+                var sizeKB = (blob.size / 1024).toFixed(2);
+                callback(blob, sizeKB);
             }
-            
-            questions.forEach((q, index) => {
-                const img = new Image();
-                img.crossOrigin = 'anonymous';
-                
-                img.onload = function() {
-                    const imgWidth = img.width;
-                    const imgHeight = img.height;
-                    const pageWidth = pdf.internal.pageSize.getWidth();
-                    const pageHeight = pdf.internal.pageSize.getHeight();
-                    const ratio = Math.min((pageWidth - 20) / imgWidth, (pageHeight - 20) / imgHeight);
-                    loadedResults.push({
-                        index,
-                        img: img,
-                        scaledWidth: imgWidth * ratio,
-                        scaledHeight: imgHeight * ratio
-                    });
+
+            imgTasks.forEach(function(task, idx) {
+                if (task.kind === 'text') {
+                    results[idx] = { kind: 'text', label: task.label, body: task.body };
+                    loaded++;
                     tryFinish();
-                };
-                
-                img.onerror = function() {
-                    loadedResults.push({ index, img: null, scaledWidth: 0, scaledHeight: 0 });
-                    tryFinish();
-                };
-                
-                img.src = q.image;
+                } else {
+                    var img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = function() {
+                        results[idx] = { kind: 'image', img: img, label: task.label };
+                        loaded++;
+                        tryFinish();
+                    };
+                    img.onerror = function() {
+                        results[idx] = { kind: 'text', label: task.label, body: '（图片加载失败）' };
+                        loaded++;
+                        tryFinish();
+                    };
+                    img.src = task.src;
+                }
             });
         }
 
-        // 返回
+        function showSharePage(count, sizeKB) {
+            document.getElementById('page-select').classList.add('hidden');
+            document.getElementById('page-share').classList.remove('hidden');
+            var today = new Date();
+            var dateStr = today.getFullYear() + '-' +
+                String(today.getMonth()+1).padStart(2,'0') + '-' +
+                String(today.getDate()).padStart(2,'0');
+            var suffix = printMode === 'original_with_similar' ? '练习' : '错题';
+            document.getElementById('pdf-filename').textContent = dateStr + ' ' + suffix + '.pdf';
+            document.getElementById('pdf-size').textContent = '文件大小：' + sizeKB + ' KB';
+        }
+
+        function backToSelect() {
+            document.getElementById('page-share').classList.add('hidden');
+            document.getElementById('page-select').classList.remove('hidden');
+        }
+
+        function previewPdf() {
+            if (!pdfBlob) { showToast('请先生成PDF'); return; }
+            var url = URL.createObjectURL(pdfBlob);
+            window.open(url, '_blank');
+        }
+
+        function downloadPdf() {
+            if (!pdfBlob) { showToast('请先生成PDF'); return; }
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(pdfBlob);
+            a.download = document.getElementById('pdf-filename').textContent;
+            a.click();
+            showToast('PDF已生成，请使用微信分享');
+        }
+
         function goBack() {
             window.location.href = '错题本.html';
         }
 
-        // 显示提示
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 2000);
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(function(){ t.classList.remove('show'); }, 2000);
         }
 
-        // 小程序按钮
-        function showMiniprogramMenu() {
-            showToast('更多选项');
-        }
-
-        function closeMiniprogram() {
-            showToast('关闭小程序');
-        }
-
-        // 页面加载完成后初始化
         window.addEventListener('DOMContentLoaded', initPage);
     </script>
 </body>

@@ -265,6 +265,151 @@
             to { transform: rotate(360deg); }
         }
 
+        /* ── 打印选项弹窗 ── */
+        .print-opt-scrim {
+            position: absolute; inset: 0; z-index: 8000;
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s;
+        }
+        .print-opt-scrim.show { opacity: 1; pointer-events: auto; }
+        .print-opt-sheet {
+            position: absolute; left: 0; right: 0; bottom: 0; z-index: 8001;
+            background: #fff; border-radius: 20px 20px 0 0;
+            padding: 0 20px calc(20px + env(safe-area-inset-bottom));
+            transform: translateY(100%);
+            transition: transform 0.32s cubic-bezier(0.32,0.72,0,1);
+        }
+        .print-opt-sheet.show { transform: translateY(0); }
+        .print-opt-handle {
+            display: flex; justify-content: center; padding: 10px 0 4px;
+        }
+        .print-opt-handle::after {
+            content: ''; width: 36px; height: 4px;
+            background: #e2e8f0; border-radius: 2px;
+        }
+        .print-opt-title {
+            font-size: 15px; font-weight: 700; color: #0f172a;
+            text-align: center; padding: 4px 0 16px;
+        }
+        .print-opt-desc {
+            font-size: 12px; color: #64748b; text-align: center;
+            margin: -10px 0 16px; line-height: 1.5;
+        }
+        .print-opt-choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+        .print-opt-btn {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 16px; border-radius: 14px; border: 1.5px solid #e2e8f0;
+            background: #fff; cursor: pointer; font-family: inherit;
+            transition: all 0.15s; text-align: left;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .print-opt-btn:active { transform: scale(0.98); background: #f8fafc; }
+        .print-opt-btn.pob-primary { border-color: #a5b4fc; background: rgba(99,102,241,0.03); }
+        .print-opt-btn.pob-primary:active { background: rgba(99,102,241,0.08); }
+        .print-opt-icon {
+            width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .poi-plain { background: #f1f5f9; color: #475569; }
+        .poi-ai { background: linear-gradient(135deg, #ede9fe, #ddd6fe); color: #7c3aed; }
+        .print-opt-text h4 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0; }
+        .print-opt-text p { font-size: 11px; color: #64748b; margin: 2px 0 0; }
+        .print-opt-cancel {
+            width: 100%; padding: 12px; border: none; background: none;
+            font-size: 14px; font-weight: 500; color: #94a3b8;
+            cursor: pointer; font-family: inherit; border-radius: 10px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .print-opt-cancel:active { background: #f8fafc; }
+
+        /* ── 举一反三模块 ── */
+        .similar-section {
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(245,243,255,0.85) 0%, rgba(238,242,255,0.85) 100%);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 2px 12px -4px rgba(99,102,241,0.12), inset 0 0 0 1px rgba(255,255,255,0.7);
+            overflow: hidden;
+        }
+        .similar-header {
+            padding: 14px 16px 10px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .similar-title {
+            font-size: 13px; font-weight: 700; color: #4f46e5;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .similar-badge {
+            font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 5px;
+            background: rgba(99,102,241,0.1); color: #6366f1;
+        }
+        .similar-print-btn {
+            display: flex; align-items: center; gap: 4px;
+            padding: 5px 12px; border-radius: 999px; border: none;
+            background: rgba(99,102,241,0.1); color: #6366f1;
+            font-size: 11px; font-weight: 600; cursor: pointer;
+            font-family: inherit; transition: all 0.18s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .similar-print-btn:active { background: rgba(99,102,241,0.18); transform: scale(0.96); }
+        .similar-divider { height: 1px; background: rgba(99,102,241,0.1); margin: 0 16px; }
+        .similar-questions { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+        .similar-q-item {
+            background: rgba(255,255,255,0.7); border-radius: 12px; padding: 12px;
+            box-shadow: 0 1px 6px -2px rgba(0,0,0,0.05);
+        }
+        .similar-q-num {
+            font-size: 10px; font-weight: 700; color: #818cf8; margin-bottom: 5px;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .similar-q-text {
+            font-size: 13px; color: #1e293b; line-height: 1.65; font-weight: 500;
+        }
+        .similar-q-opts { margin-top: 7px; display: flex; flex-direction: column; gap: 3px; }
+        .similar-q-opt {
+            font-size: 12px; color: #475569; padding: 3px 0;
+        }
+        .similar-q-answer {
+            margin-top: 8px; padding: 6px 10px; border-radius: 8px;
+            background: rgba(16,185,129,0.08); font-size: 11px; color: #059669; font-weight: 600;
+        }
+
+        /* ── 打印样式 ── */
+        @media print {
+            body * { visibility: hidden; }
+            #print-similar-area, #print-similar-area * { visibility: visible; }
+            #print-similar-area {
+                position: fixed; inset: 0; z-index: 99999;
+                background: white; padding: 24px 32px;
+                overflow: auto;
+            }
+            /* 第 1 页：题目区 */
+            .print-page-questions { page-break-after: always; }
+            /* 第 2 页：答案区 */
+            .print-page-answers { page-break-before: always; }
+
+            .print-similar-q { page-break-inside: avoid; margin-bottom: 20px; }
+            .print-header { margin-bottom: 20px; border-bottom: 2px solid #6366f1; padding-bottom: 10px; }
+            .print-title { font-size: 18px; font-weight: 800; color: #1e293b; }
+            .print-subtitle { font-size: 12px; color: #64748b; margin-top: 4px; }
+            .print-section-title {
+                font-size: 14px; font-weight: 800; color: #4f46e5;
+                margin: 0 0 16px; padding: 8px 12px;
+                border-left: 4px solid #6366f1;
+                background: #f5f3ff;
+            }
+            .print-q-num { font-size: 13px; font-weight: 700; color: #4f46e5; margin-bottom: 5px; }
+            .print-q-text { font-size: 14px; color: #1e293b; line-height: 1.7; }
+            .print-q-opts { margin-top: 6px; }
+            .print-q-opt { font-size: 13px; color: #475569; padding: 2px 0; }
+            /* 题目页：隐藏答案；答案页：隐藏题目选项 */
+            .print-answer-only { display: none; }
+            .print-q-blank { margin-top: 8px; border-bottom: 1px solid #94a3b8; height: 20px; }
+            .print-ans-q-num { font-size: 13px; font-weight: 700; color: #4f46e5; margin-bottom: 4px; }
+            .print-ans-text { font-size: 13px; color: #059669; font-weight: 600; line-height: 1.6; }
+            .print-divider { border: none; border-top: 1px dashed #e2e8f0; margin: 16px 0; }
+        }
+
         /* ── 模式切换按钮（页面右上角） ── */
         .mode-toggle {
             position: fixed; top: 24px; right: 32px; z-index: 900;
@@ -401,7 +546,7 @@
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
                         上传错题
                     </button>
-                    <button type="button" onclick="printQuestions()" class="app-btn-tertiary app-btn-row">
+                    <button type="button" onclick="showPrintOpt('all')" class="app-btn-tertiary app-btn-row">
                         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                         打印错题
                     </button>
@@ -410,9 +555,15 @@
 
             <!-- 操作栏（仅在编辑模式下显示） -->
             <div class="action-bar">
-                <div class="flex items-center justify-between px-4 py-3">
-                    <button type="button" onclick="selectAllQuestions()" class="px-4 py-2 text-[#4f46e5] font-medium">全选</button>
-                    <button onclick="deleteSelectedQuestions()" class="px-4 py-2 bg-red-500 text-white rounded-full font-medium active:bg-red-600">删除</button>
+                <div class="flex items-center justify-between px-4 py-3 gap-3">
+                    <button type="button" onclick="selectAllQuestions()" class="px-4 py-2 text-[#4f46e5] font-medium text-sm whitespace-nowrap">全选</button>
+                    <div class="flex gap-2">
+                        <button onclick="showPrintOpt('selected')" class="flex items-center gap-1.5 px-4 py-2 rounded-full font-medium text-sm text-indigo-600 border border-indigo-200 bg-indigo-50 active:bg-indigo-100">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                            打印
+                        </button>
+                        <button onclick="deleteSelectedQuestions()" class="px-4 py-2 bg-red-500 text-white rounded-full font-medium text-sm active:bg-red-600">删除</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -502,7 +653,7 @@
                     <h2 class="text-lg font-bold text-slate-800">题目详情</h2>
                 </div>
             </header>
-            <main class="flex-1 overflow-y-auto p-4 space-y-3 relative z-10" style="padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));">
+            <main class="flex-1 overflow-y-auto p-4 space-y-3 relative z-10" id="detail-main">
                 <!-- 题目拍照图片 -->
                 <div class="glass-card rounded-2xl overflow-hidden">
                     <img id="detail-image" src="" class="w-full" alt="题目拍照">
@@ -527,14 +678,90 @@
                     <h3 class="text-xs font-semibold text-indigo-400 mb-2 tracking-wide">答案解析</h3>
                     <div id="detail-analysis" class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">加载中...</div>
                 </div>
-                <!-- 错因诊断入口 -->
-                <div id="detail-diagnosis-section" class="hidden">
-                    <button id="detail-diagnosis-btn" onclick="openDiagnosisFromDetail()" class="app-btn-primary-block flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-1.754-.988-2.386l-.548-.547z"/></svg>
-                        <span id="detail-diagnosis-text">查看错因诊断</span>
-                    </button>
+                <!-- 举一反三 -->
+                <div class="similar-section" id="similar-section">
+                    <div class="similar-header">
+                        <div class="similar-title">
+                            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                            举一反三练习
+                            <span class="similar-badge">AI 生成</span>
+                        </div>
+                        <button class="similar-print-btn" onclick="printSimilarToShare()">
+                            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                            打印
+                        </button>
+                    </div>
+                    <div class="similar-divider"></div>
+                    <div class="similar-questions" id="similar-questions-list"></div>
                 </div>
             </main>
+
+            <!-- 错因诊断：吸底栏 -->
+            <div id="detail-diagnosis-section" class="hidden" style="
+                flex-shrink: 0;
+                padding: 12px 16px;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+                background: rgba(255,255,255,0.72);
+                backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+                border-top: 1px solid rgba(255,255,255,0.5);
+                position: relative; z-index: 30;
+            ">
+                <button id="detail-diagnosis-btn" onclick="openDiagnosisFromDetail()" class="app-btn-primary-block flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    <span id="detail-diagnosis-text">查看错因诊断</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 打印区域（隐藏，仅打印时可见） -->
+        <div id="print-similar-area" style="display:none;">
+            <!-- 第 1 页：题目 -->
+            <div class="print-page-questions">
+                <div class="print-header">
+                    <div class="print-title">🧠 举一反三练习题</div>
+                    <div class="print-subtitle" id="print-similar-subtitle">AI 龙老师 · 同类题型强化训练</div>
+                </div>
+                <div class="print-section-title">📝 练习题（共 <span id="print-q-count">5</span> 题）</div>
+                <div id="print-similar-questions"></div>
+            </div>
+            <!-- 第 2 页：答案解析 -->
+            <div class="print-page-answers">
+                <div class="print-header">
+                    <div class="print-title">🧠 举一反三练习题 · 参考答案</div>
+                    <div class="print-subtitle" id="print-ans-subtitle">AI 龙老师 · 答案解析</div>
+                </div>
+                <div class="print-section-title">✅ 参考答案与解析</div>
+                <div id="print-similar-answers"></div>
+            </div>
+        </div>
+
+        <!-- 打印选项弹窗 -->
+        <div class="print-opt-scrim" id="printOptScrim" onclick="closePrintOpt()"></div>
+        <div class="print-opt-sheet" id="printOptSheet">
+            <div class="print-opt-handle"></div>
+            <div class="print-opt-title">打印错题</div>
+            <div class="print-opt-desc" id="printOptDesc">是否在打印时附上举一反三练习题？</div>
+            <div class="print-opt-choices">
+                <button class="print-opt-btn" onclick="doPrint(false)">
+                    <div class="print-opt-icon poi-plain">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <div class="print-opt-text">
+                        <h4>原题</h4>
+                        <p>错题原图 + 答案解析，与原来一致</p>
+                    </div>
+                </button>
+                <button class="print-opt-btn pob-primary" onclick="doPrint(true)">
+                    <div class="print-opt-icon poi-ai">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    </div>
+                    <div class="print-opt-text">
+                        <h4>原题 + 举一反三练习</h4>
+                        <p>每道错题配 3 道同类练习 · 答案单独成页</p>
+                    </div>
+                </button>
+            </div>
+            <button class="print-opt-cancel" onclick="closePrintOpt()">取消</button>
         </div>
 
         <!-- Toast 提示 -->
@@ -1009,18 +1236,193 @@
                 }
             }
             var diagSection = document.getElementById('detail-diagnosis-section');
+            var detailMain = document.getElementById('detail-main');
             if (diagSection) {
                 if (q && DIAGNOSIS_OPEN_SUBJECTS.indexOf(q.subject) !== -1) {
                     diagSection.classList.remove('hidden');
                     var diagText = document.getElementById('detail-diagnosis-text');
                     if (diagText) diagText.textContent = q.diagnosisReady ? '查看错因诊断' : '生成错因诊断';
+                    // 吸底栏占高约 68px，给 main 底部留出空间
+                    if (detailMain) detailMain.style.paddingBottom = 'calc(80px + env(safe-area-inset-bottom, 0px))';
                 } else {
                     diagSection.classList.add('hidden');
+                    if (detailMain) detailMain.style.paddingBottom = 'calc(24px + env(safe-area-inset-bottom, 0px))';
                 }
             }
             detailPage.dataset.currentQid = questionId || '';
+            // 渲染举一反三
+            renderSimilarQuestions(q);
             detailPage.classList.remove('hidden');
             detailPage.classList.add('active');
+        }
+
+        /* ── 举一反三数据与渲染 ── */
+        var SIMILAR_QUESTIONS = {
+            math: [
+                {
+                    num: '第 1 题', type: '选择题',
+                    text: '已知 a、b 是整数，且满足 a + b = 12，ab = 32，则 a² + b² 的值是多少？',
+                    opts: ['A. 80', 'B. 82', 'C. 78', 'D. 84'],
+                    answer: '答案：A（a²+b² = (a+b)²−2ab = 144−64 = 80）'
+                },
+                {
+                    num: '第 2 题', type: '填空题',
+                    text: '若 x − y = 5，xy = −6，则 x² + y² = ______。',
+                    answer: '答案：37（x²+y² = (x−y)²+2xy = 25+(−12) = 37）'
+                },
+                {
+                    num: '第 3 题', type: '解答题',
+                    text: '已知 m + n = 8，m² + n² = 40，求 mn 的值，并判断 m、n 是否是方程 x² − 8x + k = 0 的两根（给出 k 的值）。',
+                    answer: '答案：mn = 12，k = 12（2mn = (m+n)²−(m²+n²) = 64−40 = 24，mn = 12）'
+                },
+                {
+                    num: '第 4 题', type: '选择题',
+                    text: '若实数 p、q 满足 p + q = −3，pq = 2，则 p³ + q³ 的值是？',
+                    opts: ['A. −9', 'B. −15', 'C. −21', 'D. −27'],
+                    answer: '答案：B（p³+q³ = (p+q)(p²−pq+q²) = −3×(9−2−4) = −3×5 = −15）'
+                },
+                {
+                    num: '第 5 题', type: '填空题',
+                    text: '若 a − b = 6，a² + b² = 52，则 ab = ______，a + b = ______。',
+                    answer: '答案：ab = 8，a+b = ±10（由 (a−b)² = a²+b²−2ab 得 36 = 52−2ab，ab = 8；(a+b)² = a²+b²+2ab = 52+16 = 68… 注意重新计算：(a+b)² = 52+16=68，a+b=±√68=±2√17）'
+                }
+            ],
+            chinese: [
+                {
+                    num: '第 1 题', type: '阅读理解',
+                    text: '阅读下面文段，回答问题：\n"春风又绿江南岸，明月何时照我还。"\n（1）这两句诗出自哪位诗人的哪首诗？\n（2）"绿"字在这里是什么词性？有何表达效果？',
+                    answer: '答案：（1）王安石《泊船瓜洲》；（2）"绿"为形容词活用作动词，生动描绘出春天到来、江南一片新绿的勃勃生机，富有感染力。'
+                },
+                {
+                    num: '第 2 题', type: '仿写',
+                    text: '请仿照下面句子的结构和修辞手法，写一个句子：\n原句：时间是一把尺，丈量着每个人努力的长度。',
+                    answer: '示例：时间是一面镜，映照出每个人成长的模样。（使用暗喻，结构为"时间是……，……"）'
+                },
+                {
+                    num: '第 3 题', type: '填空题',
+                    text: '补全下列古诗词名句：\n（1）会当凌绝顶，______。（杜甫）\n（2）______，柳暗花明又一村。（陆游）\n（3）海内存知己，______。（王勃）',
+                    answer: '答案：（1）一览众山小；（2）山重水复疑无路；（3）天涯若比邻'
+                }
+            ],
+            english: [
+                {
+                    num: '第 1 题', type: '单选题',
+                    text: 'Choose the correct answer:\nShe suggested that we ______ the meeting until next week.\n',
+                    opts: ['A. postpone', 'B. postponed', 'C. postponing', 'D. to postpone'],
+                    answer: 'Answer: A（suggest that + 主语 + (should) + 动词原形，虚拟语气用法）'
+                },
+                {
+                    num: '第 2 题', type: '改错题',
+                    text: '找出下面句子中的错误并改正：\n"Neither of the students have finished their homework yet."',
+                    answer: 'Answer: "have" → "has"（Neither of + 复数名词，谓语用单数形式）'
+                },
+                {
+                    num: '第 3 题', type: '翻译题',
+                    text: '将下面句子翻译成英文：\n"他宁愿步行也不愿意乘公共汽车去学校。"',
+                    answer: 'Answer: He would rather walk to school than take the bus. / He prefers walking to school to taking the bus.'
+                }
+            ],
+            science: [
+                {
+                    num: '第 1 题', type: '选择题',
+                    text: '下列关于光合作用的说法，正确的是？',
+                    opts: ['A. 光合作用只在白天进行，呼吸作用只在夜晚进行', 'B. 光合作用吸收 CO₂，释放 O₂', 'C. 光合作用的场所是细胞质基质', 'D. 光合作用不需要水分参与'],
+                    answer: '答案：B（光合作用在有光照时进行，场所是叶绿体，需要 H₂O 和 CO₂，释放 O₂）'
+                },
+                {
+                    num: '第 2 题', type: '填空题',
+                    text: '电路中，电阻 R₁ = 10Ω，R₂ = 20Ω 并联，总电压为 12V，则通过 R₁ 的电流为 ______A，干路总电流为 ______A。',
+                    answer: '答案：1.2A；1.8A（I₁=12/10=1.2A；I₂=12/20=0.6A；总电流=1.8A）'
+                }
+            ]
+        };
+
+        function renderSimilarQuestions(q) {
+            var subj = q ? q.subject : 'math';
+            var questions = SIMILAR_QUESTIONS[subj] || SIMILAR_QUESTIONS.math;
+            var list = document.getElementById('similar-questions-list');
+            if (!list) return;
+            list.innerHTML = questions.map(function(sq) {
+                var optsHtml = '';
+                if (sq.opts && sq.opts.length) {
+                    optsHtml = '<div class="similar-q-opts">' +
+                        sq.opts.map(function(o) { return '<div class="similar-q-opt">' + o + '</div>'; }).join('') +
+                        '</div>';
+                }
+                return '<div class="similar-q-item">' +
+                    '<div class="similar-q-num">' +
+                    '<svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>' +
+                    sq.num + ' <span style="font-weight:400;color:#a5b4fc;">· ' + sq.type + '</span></div>' +
+                    '<div class="similar-q-text">' + sq.text.replace(/\n/g, '<br>') + '</div>' +
+                    optsHtml +
+                    '<div class="similar-q-answer">' + sq.answer + '</div>' +
+                    '</div>';
+            }).join('');
+        }
+
+        function printSimilar() {
+            var qid = document.getElementById('page-detail').dataset.currentQid;
+            var q = qid ? mockQuestions.find(function(x) { return x.id === parseInt(qid, 10); }) : null;
+            var subj = q ? q.subject : 'math';
+            var subjNames = { math:'数学', chinese:'语文', english:'英语', science:'科学' };
+            var questions = SIMILAR_QUESTIONS[subj] || SIMILAR_QUESTIONS.math;
+
+            var printArea = document.getElementById('print-similar-area');
+            var printQs = document.getElementById('print-similar-questions');
+            var printAns = document.getElementById('print-similar-answers');
+            var printSubtitle = document.getElementById('print-similar-subtitle');
+            var printAnsSubtitle = document.getElementById('print-ans-subtitle');
+            var printQCount = document.getElementById('print-q-count');
+            if (!printArea || !printQs || !printAns) return;
+
+            var subjLabel = subjNames[subj] || subj;
+            var titleSnip = (q && q.title) ? q.title.substring(0, 20) + '…' : '相关题型';
+            var metaText = '科目：' + subjLabel + ' · 原题：' + titleSnip + ' · AI 龙老师生成';
+            if (printSubtitle) printSubtitle.textContent = metaText;
+            if (printAnsSubtitle) printAnsSubtitle.textContent = metaText;
+            if (printQCount) printQCount.textContent = questions.length;
+
+            /* 第 1 页：题目（不含答案） */
+            printQs.innerHTML = questions.map(function(sq, idx) {
+                var optsHtml = '';
+                if (sq.opts && sq.opts.length) {
+                    optsHtml = '<div class="print-q-opts">' +
+                        sq.opts.map(function(o) { return '<div class="print-q-opt">' + o + '</div>'; }).join('') +
+                        '</div>';
+                } else {
+                    optsHtml = '<div class="print-q-blank"></div><div class="print-q-blank" style="margin-top:8px;"></div>';
+                }
+                var divider = idx < questions.length - 1 ? '<hr class="print-divider">' : '';
+                return '<div class="print-similar-q">' +
+                    '<div class="print-q-num">' + sq.num + ' · ' + sq.type + '</div>' +
+                    '<div class="print-q-text">' + sq.text.replace(/\n/g, '<br>') + '</div>' +
+                    optsHtml +
+                    '</div>' + divider;
+            }).join('');
+
+            /* 第 2 页：参考答案 */
+            printAns.innerHTML = questions.map(function(sq, idx) {
+                var divider = idx < questions.length - 1 ? '<hr class="print-divider">' : '';
+                return '<div class="print-similar-q">' +
+                    '<div class="print-ans-q-num">' + sq.num + ' · ' + sq.type + '</div>' +
+                    '<div class="print-ans-text">' + sq.answer.replace(/\n/g, '<br>') + '</div>' +
+                    '</div>' + divider;
+            }).join('');
+
+            printArea.style.display = 'block';
+            window.print();
+            printArea.style.display = 'none';
+        }
+
+        function printSimilarToShare() {
+            var qid = document.getElementById('page-detail').dataset.currentQid;
+            var q = qid ? mockQuestions.find(function(x) { return x.id === parseInt(qid, 10); }) : null;
+            if (!q) { q = mockQuestions[0]; }
+            try {
+                localStorage.setItem('wrongQuestions', JSON.stringify([q]));
+                localStorage.setItem('printMode', 'original_with_similar');
+            } catch(e) {}
+            window.location.href = '打印错题.html';
         }
 
         function openDiagnosisFromDetail() {
@@ -1035,6 +1437,9 @@
             const detailPage = document.getElementById('page-detail');
             detailPage.classList.remove('active');
             detailPage.classList.add('hidden');
+            // 重置 main padding
+            var detailMain = document.getElementById('detail-main');
+            if (detailMain) detailMain.style.paddingBottom = '';
         }
 
         // 学科筛选
@@ -1152,16 +1557,133 @@
             exitEditMode();
         }
 
-        // 打印错题
-        function printQuestions() {
-            // 保存当前错题数据到 localStorage，供打印页面使用
-            try {
-                localStorage.setItem('wrongQuestions', JSON.stringify(mockQuestions));
-            } catch (e) {
-                console.error('保存错题数据失败:', e);
+        /* ── 打印选项弹窗 ── */
+        var _printScope = 'all'; // 'all' | 'selected'
+
+        function showPrintOpt(scope) {
+            _printScope = scope || 'all';
+            var desc = document.getElementById('printOptDesc');
+            if (scope === 'selected') {
+                var n = document.querySelectorAll('.question-checkbox.checked').length;
+                if (n === 0) { showToast('请先选择要打印的题目'); return; }
+                if (desc) desc.textContent = '已选 ' + n + ' 道错题，是否附上举一反三练习题？';
+            } else {
+                if (desc) desc.textContent = '是否在打印时附上举一反三练习题？';
             }
-            // 跳转到打印错题页面
+            document.getElementById('printOptScrim').classList.add('show');
+            document.getElementById('printOptSheet').classList.add('show');
+        }
+
+        function closePrintOpt() {
+            document.getElementById('printOptScrim').classList.remove('show');
+            document.getElementById('printOptSheet').classList.remove('show');
+        }
+
+        function doPrint(withSimilar) {
+            closePrintOpt();
+            // 确定要打印的题目集合
+            var targetQs;
+            if (_printScope === 'selected') {
+                var checkedCards = document.querySelectorAll('.question-checkbox.checked');
+                var ids = Array.from(checkedCards).map(function(cb) {
+                    return parseInt(cb.closest('.question-card').dataset.questionId, 10);
+                });
+                targetQs = mockQuestions.filter(function(q) { return ids.indexOf(q.id) !== -1; });
+            } else {
+                targetQs = mockQuestions;
+            }
+            // 统一流程：进入「打印错题」选择页 -> 生成PDF -> 分享页
+            try {
+                localStorage.setItem('wrongQuestions', JSON.stringify(targetQs));
+                localStorage.setItem('printMode', withSimilar ? 'original_with_similar' : 'original');
+            } catch(e) {}
             window.location.href = '打印错题.html';
+        }
+
+        var SIMILAR_PER_QUESTION = 3; // 每道错题配几道举一反三
+
+        function printWithSimilar(questions) {
+            var subjNames = { math:'数学', chinese:'语文', english:'英语', science:'科学' };
+            var printArea = document.getElementById('print-similar-area');
+            var printQs = document.getElementById('print-similar-questions');
+            var printAns = document.getElementById('print-similar-answers');
+            var printSubtitle = document.getElementById('print-similar-subtitle');
+            var printAnsSubtitle = document.getElementById('print-ans-subtitle');
+            var printQCount = document.getElementById('print-q-count');
+            if (!printArea || !printQs || !printAns) return;
+
+            var groups = questions.map(function(q) {
+                var arr = (SIMILAR_QUESTIONS[q.subject] || SIMILAR_QUESTIONS.math).slice(0, SIMILAR_PER_QUESTION);
+                return { q: q, similars: arr, subjLabel: subjNames[q.subject] || q.subject };
+            });
+            var totalSimilar = groups.reduce(function(n, g) { return n + g.similars.length; }, 0);
+
+            var meta = '共 ' + questions.length + ' 道错题 · 每题配 ' + SIMILAR_PER_QUESTION + ' 道练习 · AI 龙老师生成';
+            if (printSubtitle) printSubtitle.textContent = meta;
+            if (printAnsSubtitle) printAnsSubtitle.textContent = meta;
+            if (printQCount) printQCount.textContent = totalSimilar;
+
+            var printTitle = printArea.querySelector('.print-title');
+            if (printTitle) printTitle.textContent = '错题 + 举一反三练习册';
+
+            var globalIdx = 0;
+            var qsHtml = '';
+            groups.forEach(function(group, gi) {
+                qsHtml += '<div class="print-similar-q" style="page-break-inside:avoid;">';
+                qsHtml += '<div style="font-size:13px;font-weight:800;color:#1e293b;margin-bottom:6px;padding:6px 10px;background:#f8fafc;border-left:4px solid #6366f1;border-radius:0 6px 6px 0;">';
+                qsHtml += '错题 ' + (gi + 1) + '&nbsp;&nbsp;<span style="font-weight:500;color:#64748b;font-size:11px;">' + group.subjLabel + '</span>';
+                qsHtml += '</div>';
+                if (group.q.image) {
+                    qsHtml += '<img src="' + group.q.image + '" style="width:100%;max-height:220px;object-fit:cover;border-radius:8px;margin-bottom:8px;" alt="原错题">';
+                }
+                qsHtml += '<div style="font-size:13px;color:#1e293b;line-height:1.7;">' + (group.q.title || '（见原题图片）') + '</div>';
+                qsHtml += '</div>';
+
+                qsHtml += '<div style="margin:10px 0 4px;font-size:11px;font-weight:700;color:#7c3aed;letter-spacing:0.04em;">— 举一反三练习 —</div>';
+                group.similars.forEach(function(sq, si) {
+                    globalIdx++;
+                    var optsHtml = '';
+                    if (sq.opts && sq.opts.length) {
+                        optsHtml = '<div class="print-q-opts">' +
+                            sq.opts.map(function(o) { return '<div class="print-q-opt">' + o + '</div>'; }).join('') + '</div>';
+                    } else {
+                        optsHtml = '<div class="print-q-blank"></div><div class="print-q-blank" style="margin-top:6px;"></div>';
+                    }
+                    qsHtml += '<div class="print-similar-q" style="page-break-inside:avoid;margin-left:8px;">' +
+                        '<div class="print-q-num">练习 ' + (si + 1) + '（第 ' + globalIdx + ' 题）· ' + sq.type + '</div>' +
+                        '<div class="print-q-text">' + sq.text.replace(/\n/g, '<br>') + '</div>' +
+                        optsHtml + '</div>';
+                });
+
+                if (gi < groups.length - 1) qsHtml += '<hr class="print-divider" style="margin:18px 0;">';
+            });
+            printQs.innerHTML = qsHtml;
+
+            globalIdx = 0;
+            var ansHtml = '';
+            groups.forEach(function(group, gi) {
+                ansHtml += '<div style="font-size:12px;font-weight:800;color:#1e293b;margin-bottom:8px;padding:5px 10px;background:#f8fafc;border-left:4px solid #6366f1;border-radius:0 6px 6px 0;">';
+                ansHtml += '错题 ' + (gi + 1) + ' · ' + group.subjLabel + ' · 举一反三答案';
+                ansHtml += '</div>';
+                group.similars.forEach(function(sq, si) {
+                    globalIdx++;
+                    ansHtml += '<div class="print-similar-q" style="page-break-inside:avoid;">' +
+                        '<div class="print-ans-q-num">练习 ' + (si + 1) + '（第 ' + globalIdx + ' 题）· ' + sq.type + '</div>' +
+                        '<div class="print-ans-text">' + sq.answer.replace(/\n/g, '<br>') + '</div>' +
+                        '</div>';
+                });
+                if (gi < groups.length - 1) ansHtml += '<hr class="print-divider" style="margin:14px 0;">';
+            });
+            printAns.innerHTML = ansHtml;
+
+            printArea.style.display = 'block';
+            window.print();
+            printArea.style.display = 'none';
+        }
+
+        // 打印错题（原有）
+        function printQuestions() {
+            showPrintOpt('all');
         }
 
         // 相机流程

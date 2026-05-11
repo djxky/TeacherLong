@@ -9,8 +9,7 @@
     <link rel="stylesheet" href="assets/app-shell.css">
     <style>
         /* ═══════════════════════════════════════════════
-           AI 龙老师 v4 — 与 v3 同构：顶栏导航 + AI 主入口 + 工具矩阵
-           v4 仅强化 AI 输入条视觉（贴近主流对话产品的圆角白底输入区）
+           AI 龙老师 v3 — 宫格 + Suggested Prompts
            ═══════════════════════════════════════════════ */
 
         .v2-scroll {
@@ -40,170 +39,165 @@
             filter: blur(45px); pointer-events: none; z-index: 0;
         }
 
-        /* ── v4 顶栏 ── */
-        .v4-topbar {
+        /* ── 顶栏 ── */
+        .v2-topbar {
             height: 44px; padding: 0 20px;
             padding-right: var(--app-capsule-clearance, 96px);
             display: flex; align-items: center; justify-content: space-between;
             flex-shrink: 0; position: relative; z-index: 20;
         }
-        .v4-topbar-tabs { display: flex; gap: 18px; align-items: baseline; }
-        .v4-tab {
-            font-size: 1.0625rem; font-weight: 400; color: #94a3b8;
+        .v2-topbar-tabs { display: flex; gap: 18px; align-items: baseline; }
+        .v2-tab {
+            font-size: 1rem; font-weight: 400; color: #94a3b8;
             cursor: pointer; transition: all 0.2s; padding: 0;
-            background: none; border: none; font-family: inherit; text-decoration: none;
+            background: none; border: none; font-family: inherit;
         }
-        .v4-tab.active { font-size: 1.1875rem; font-weight: 800; color: #0f172a; letter-spacing: -0.01em; }
-        .v4-topbar-right { display: flex; align-items: center; }
-        .v4-icon-btn {
-            width: 36px; height: 36px; border-radius: 50%;
+        .v2-tab.active { font-size: 1.125rem; font-weight: 700; color: #0f172a; }
+        .v2-topbar-right { display: flex; align-items: center; gap: 4px; }
+        .v2-icon-btn {
+            width: 34px; height: 34px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            color: #64748b; cursor: pointer; transition: all 0.18s; text-decoration: none;
+            color: #94a3b8; cursor: pointer; background: none; border: none;
+            transition: all 0.18s; -webkit-tap-highlight-color: transparent;
+        }
+        .v2-icon-btn:active { transform: scale(0.9); background: rgba(0,0,0,0.03); }
+
+        /* ── AI 入口卡片 ── */
+        .ai-card {
+            margin: 8px 20px 0; padding: 16px 16px 14px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #f5f3ff 0%, #eef2ff 40%, #faf8ff 100%);
+            box-shadow: 0 2px 20px -4px rgba(99,102,241,0.10), 0 1px 3px rgba(0,0,0,0.03);
+            position: relative; overflow: hidden;
+            border: 1px solid rgba(139,92,246,0.08);
+        }
+        .ai-card-glow {
+            position: absolute; top: -40px; right: -40px; width: 130px; height: 130px;
+            background: radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .ai-top {
+            display: flex; align-items: center; gap: 11px;
+            margin-bottom: 12px; position: relative; z-index: 1;
+        }
+        .ai-avatar {
+            width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+            object-fit: cover; object-position: top center;
+            border: 2px solid rgba(139,92,246,0.12);
+        }
+        .ai-info { flex: 1; min-width: 0; }
+        .ai-name {
+            font-size: 0.9375rem; font-weight: 700; color: #1e1b4b; margin: 0;
+            line-height: 1.35;
+        }
+        .ai-name strong { font-weight: 800; }
+        .ai-sub {
+            font-size: 0.6875rem; color: #7c3aed; margin: 3px 0 0;
+            display: flex; align-items: center; gap: 4px;
+            height: 16px; overflow: hidden;
+        }
+        .ai-sub-track {
+            position: relative; flex: 1; height: 16px; overflow: hidden;
+        }
+        .ai-sub-item {
+            position: absolute; left: 0; top: 0; width: 100%;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            opacity: 0; transform: translateY(8px);
+            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+            font-weight: 500; line-height: 16px;
+        }
+        .ai-sub-item.active { opacity: 1; transform: translateY(0); }
+        .ai-input-bar {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(255,255,255,0.8); border-radius: 14px;
+            padding: 8px 8px 8px 14px;
+            border: 1.5px solid rgba(139,92,246,0.1);
+            cursor: pointer; transition: all 0.18s;
             -webkit-tap-highlight-color: transparent;
-        }
-        .v4-icon-btn:active { transform: scale(0.9); background: rgba(0,0,0,0.05); }
-
-        /* ── v4 AI 全模态交互中枢 ── */
-        .v4-ai-hub {
-            margin: 16px 20px 24px; position: relative; z-index: 10;
-        }
-        .v4-greeting { margin-bottom: 20px; padding-left: 2px; }
-        .v4-greeting h1 {
-            font-size: 1.5rem; font-weight: 800; color: #0f172a; margin: 0;
-            letter-spacing: -0.02em; line-height: 1.2;
-        }
-        .v4-greeting p {
-            font-size: 0.8125rem; font-weight: 500; color: #64748b; margin: 4px 0 0;
-        }
-
-        /* 统一输入条 */
-        .v4-main-input {
-            display: flex; align-items: center; justify-content: space-between;
-            background: #fff; border-radius: 22px; padding: 8px 10px 8px 20px;
-            box-shadow: 0 4px 20px -6px rgba(99,102,241,0.12), 0 1px 3px rgba(0,0,0,0.04);
-            cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 1.5px solid transparent;
-            margin-bottom: 12px; -webkit-tap-highlight-color: transparent;
-        }
-        .v4-main-input:active { transform: scale(0.985); border-color: rgba(139,92,246,0.3); box-shadow: 0 2px 10px -4px rgba(99,102,241,0.1); }
-        .v4-placeholder { font-size: 0.9375rem; color: #94a3b8; font-weight: 500; }
-        .v4-voice-btn {
-            width: 40px; height: 40px; border-radius: 14px;
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff;
-            display: flex; align-items: center; justify-content: center; border: none;
-            box-shadow: 0 2px 8px rgba(139,92,246,0.3); cursor: pointer;
-            transition: transform 0.18s; -webkit-tap-highlight-color: transparent;
-        }
-        .v4-voice-btn:active { transform: scale(0.9); box-shadow: 0 1px 4px rgba(139,92,246,0.4); }
-
-        /* 双核心入口 */
-        .v4-core-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .v4-core-card {
-            padding: 18px 16px; border-radius: 22px;
-            display: flex; flex-direction: column; justify-content: space-between; gap: 20px;
-            position: relative; overflow: hidden; cursor: pointer;
-            box-shadow: 0 4px 16px -4px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.7);
-            transition: transform 0.2s; -webkit-tap-highlight-color: transparent;
-            min-height: 120px;
-        }
-        .v4-core-card:active { transform: scale(0.96); }
-        .v4-core-card::before {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.3) 100%);
-            pointer-events: none; z-index: 0;
-        }
-        .v4-search { background: linear-gradient(135deg, #eef2ff, #c7d2fe); }
-        .v4-search .v4-cc-icon { background: #6366f1; color: #fff; }
-        .v4-search .v4-cc-icon::after { box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
-        
-        .v4-correct { background: linear-gradient(135deg, #f0fdf4, #a7f3d0); }
-        .v4-correct .v4-cc-icon { background: #10b981; color: #fff; }
-        .v4-correct .v4-cc-icon::after { box-shadow: 0 4px 12px rgba(16,185,129,0.4); }
-
-        .v4-cc-icon {
-            width: 44px; height: 44px; border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
             position: relative; z-index: 1;
+            backdrop-filter: blur(10px);
         }
-        .v4-cc-text { z-index: 1; }
-        .v4-cc-text h3 { font-size: 1.0625rem; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.2; letter-spacing: -0.01em; }
-        .v4-cc-text p { font-size: 0.6875rem; font-weight: 500; color: #64748b; margin: 4px 0 0; }
-
-        /* ── 悬浮轻量宫格 ── */
-        .minor-tools {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            row-gap: 18px; padding: 0 10px; margin: 0 10px 28px;
+        .ai-input-bar:active { border-color: #a78bfa; transform: scale(0.99); }
+        .ai-input-placeholder {
+            flex: 1; font-size: 0.8125rem; color: #a5a0b8; font-weight: 400;
         }
-        .minor-tool {
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
-            cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 0.18s;
-        }
-        .minor-tool:active { transform: scale(0.93); }
-        .minor-tool-icon {
-            width: 46px; height: 46px; border-radius: 16px;
+        .ai-input-btn {
+            width: 32px; height: 32px; border-radius: 10px;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
-            box-shadow: 0 2px 12px -2px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.7); color: #8b5cf6;
+            border: none; cursor: pointer; flex-shrink: 0;
+            transition: all 0.18s; -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 1px 3px rgba(139,92,246,0.06);
         }
-        .minor-tool-label { font-size: 0.6875rem; font-weight: 600; color: #475569; text-align: center; }
-        .minor-tool-icon.mi-green { color: #059669; }
-        .minor-tool-icon.mi-orange { color: #ea580c; }
-        .minor-tool-icon.mi-purple { color: #7c3aed; }
-        .minor-tool-icon.mi-rose { color: #e11d48; }
-        .minor-tool-icon.mi-blue { color: #2563eb; }
-        .minor-tool-icon.mi-amber { color: #d97706; }
-        .minor-tool-icon.mi-teal { color: #0d9488; }
+        .ai-input-btn:active { transform: scale(0.9); background: rgba(139,92,246,0.1); }
 
-        /* 语音录入浮层 */
-        .voice-overlay {
-            position: fixed; inset: 0; z-index: 9999;
-            background: rgba(0,0,0,0.45); backdrop-filter: blur(6px);
-            display: flex; align-items: center; justify-content: center;
+        /* 按住说话按钮（微信风格） */
+        .ai-voice-hold-btn {
+            flex: 1; height: 36px; border-radius: 18px;
+            border: 1.5px solid #d4d0e0; background: #f5f3fa;
+            font-size: 0.8125rem; font-weight: 600; color: #6b5b95;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.15s; display: none; font-family: inherit;
+            align-items: center; justify-content: center;
+            user-select: none; -webkit-user-select: none;
+        }
+        .ai-input-bar.voice-mode .ai-voice-hold-btn { display: flex; }
+        .ai-input-bar.voice-mode .ai-input-placeholder { display: none; }
+        .ai-voice-hold-btn.recording {
+            background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+            border-color: #a78bfa; color: #7c3aed;
+            transform: scale(0.97);
+        }
+
+        /* ── 语音底部面板 ── */
+        .voice-panel-scrim {
+            position: absolute; inset: 0; z-index: 9998;
+            background: rgba(0,0,0,0.2);
             opacity: 0; pointer-events: none; transition: opacity 0.25s;
         }
-        .voice-overlay.show { opacity: 1; pointer-events: auto; }
-        .voice-box {
-            width: 220px; padding: 32px 24px 28px; border-radius: 24px;
-            background: #fff; text-align: center;
-            box-shadow: 0 20px 60px -12px rgba(0,0,0,0.25);
-            transform: scale(0.9); transition: transform 0.25s cubic-bezier(0.16,1,0.3,1);
+        .voice-panel-scrim.show { opacity: 1; pointer-events: auto; }
+        .voice-panel {
+            position: absolute; left: 0; right: 0; bottom: 0; z-index: 9999;
+            background: #fff; border-radius: 20px 20px 0 0;
+            box-shadow: 0 -4px 30px rgba(0,0,0,0.1);
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+            display: flex; flex-direction: column; align-items: center;
+            padding: 24px 20px;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom));
         }
-        .voice-overlay.show .voice-box { transform: scale(1); }
-        .voice-ring {
-            width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 16px;
-            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        .voice-panel.show { transform: translateY(0); }
+        .voice-panel.cancelling .vp-status { color: #ef4444; }
+        .voice-panel.cancelling .vp-wave-bar { background: #fca5a5; }
+        .vp-status { font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+        .vp-hint { font-size: 12px; color: #94a3b8; margin-bottom: 20px; }
+        .vp-text { display: none; }
+        .vp-wave {
             display: flex; align-items: center; justify-content: center;
-            position: relative; color: #fff;
+            gap: 3px; height: 40px; margin-bottom: 20px;
         }
-        .voice-ring::before {
-            content: ''; position: absolute; inset: -8px; border-radius: 50%;
-            border: 2px solid rgba(139,92,246,0.3);
-            animation: voicePulse 1.5s ease-out infinite;
+        .vp-wave-bar {
+            width: 3px; border-radius: 2px;
+            background: linear-gradient(180deg, #8b5cf6, #a78bfa);
+            animation: waveBar 1.2s ease-in-out infinite;
         }
-        .voice-ring::after {
-            content: ''; position: absolute; inset: -16px; border-radius: 50%;
-            border: 2px solid rgba(139,92,246,0.15);
-            animation: voicePulse 1.5s ease-out 0.3s infinite;
+        .vp-wave-bar:nth-child(1) { height: 12px; animation-delay: 0s; }
+        .vp-wave-bar:nth-child(2) { height: 20px; animation-delay: 0.1s; }
+        .vp-wave-bar:nth-child(3) { height: 28px; animation-delay: 0.2s; }
+        .vp-wave-bar:nth-child(4) { height: 36px; animation-delay: 0.3s; }
+        .vp-wave-bar:nth-child(5) { height: 28px; animation-delay: 0.4s; }
+        .vp-wave-bar:nth-child(6) { height: 36px; animation-delay: 0.15s; }
+        .vp-wave-bar:nth-child(7) { height: 24px; animation-delay: 0.35s; }
+        .vp-wave-bar:nth-child(8) { height: 16px; animation-delay: 0.25s; }
+        .vp-wave-bar:nth-child(9) { height: 28px; animation-delay: 0.05s; }
+        .vp-wave-bar:nth-child(10) { height: 20px; animation-delay: 0.45s; }
+        .vp-wave-bar:nth-child(11) { height: 12px; animation-delay: 0.3s; }
+        @keyframes waveBar {
+            0%, 100% { transform: scaleY(0.4); opacity: 0.5; }
+            50% { transform: scaleY(1); opacity: 1; }
         }
-        @keyframes voicePulse {
-            0% { transform: scale(0.95); opacity: 1; }
-            100% { transform: scale(1.3); opacity: 0; }
-        }
-        .voice-status {
-            font-size: 0.875rem; font-weight: 600; color: #0f172a; margin-bottom: 4px;
-        }
-        .voice-hint {
-            font-size: 0.6875rem; color: #94a3b8;
-        }
-        .voice-text {
-            font-size: 0.8125rem; font-weight: 500; color: #7c3aed;
-            margin-top: 8px; min-height: 20px;
-        }
-        .voice-cancel {
-            margin-top: 16px; padding: 6px 20px; border-radius: 20px;
-            border: 1px solid #e2e8f0; background: none;
-            font-size: 0.75rem; font-weight: 500; color: #64748b;
-            cursor: pointer; font-family: inherit;
-        }
+        .voice-panel.cancelling .vp-status { color: #ef4444; }
+        .voice-panel.cancelling .vp-wave-bar { background: #fca5a5; }
 
         
 
@@ -211,17 +205,12 @@
 
         /* ── 通用 section ── */
         .sec { padding: 0 20px; margin-top: 28px; position: relative; z-index: 1; }
-        .sec-hd { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+        .sec-hd { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 14px; }
         .sec-hd h2 {
             font-size: 1rem; font-weight: 700; color: #0f172a; margin: 0;
             display: flex; align-items: center; gap: 6px;
         }
-        .sec-badge {
-            font-size: 0.5rem; font-weight: 700; padding: 2px 7px;
-            border-radius: 5px; letter-spacing: 0.02em;
-        }
-        .sb-ai { background: rgba(139,92,246,0.08); color: #7c3aed; }
-        .sb-hot { background: rgba(239,68,68,0.06); color: #ef4444; }
+        .sec-hd h2 svg { color: #64748b; }
 
         /* ── 视频课堂 ── */
         .vid-big {
@@ -290,23 +279,49 @@
         .zk-desc { font-size: 0.5625rem; color: #64748b; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .zk-arrow { flex-shrink: 0; color: #d4d4d8; margin-left: 4px; }
 
-        /* ── 悬浮轻量宫格 ── */
+
+        /* ── 主功能双卡 ── */
+        .tools-area { margin: 12px 20px 0; }
+        .main-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .main-card {
+            padding: 16px 14px; border-radius: 16px; position: relative; overflow: hidden;
+            cursor: pointer; -webkit-tap-highlight-color: transparent;
+            transition: transform 0.18s cubic-bezier(0.16,1,0.3,1);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 2px 12px -4px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.65);
+        }
+        .main-card:active { transform: scale(0.97); }
+        .main-card-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 10px; background: rgba(255,255,255,0.8);
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.05);
+        }
+        .main-card h3 { font-size: 0.875rem; font-weight: 700; margin: 0; color: #0f172a; line-height: 1.3; }
+        .main-card p { font-size: 0.6875rem; margin: 3px 0 0; color: #64748b; line-height: 1.3; }
+        .mc-indigo { background: linear-gradient(135deg, rgba(238,242,255,0.7) 0%, rgba(255,255,255,0.4) 100%); }
+        .mc-indigo .main-card-icon { color: #4f46e5; }
+        .mc-amber { background: linear-gradient(135deg, rgba(255,251,235,0.7) 0%, rgba(255,255,255,0.4) 100%); }
+        .mc-amber .main-card-icon { color: #d97706; }
+        /* ── 次级工具行 ── */
         .minor-tools {
             display: grid; grid-template-columns: repeat(4, 1fr);
-            row-gap: 18px; padding: 0 10px; margin: 0 10px 28px;
+            border-radius: 16px; padding: 14px 6px 10px; row-gap: 10px;
+            background: rgba(255,255,255,0.55);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 2px 12px -4px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(255,255,255,0.65);
         }
         .minor-tool {
-            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
             cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform 0.18s;
         }
         .minor-tool:active { transform: scale(0.93); }
         .minor-tool-icon {
-            width: 46px; height: 46px; border-radius: 16px;
+            width: 40px; height: 40px; border-radius: 12px;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);
-            box-shadow: 0 2px 12px -2px rgba(0,0,0,0.05), inset 0 0 0 1px rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.7); box-shadow: 0 2px 8px -2px rgba(0,0,0,0.04);
         }
-        .minor-tool-label { font-size: 0.6875rem; font-weight: 600; color: #475569; text-align: center; }
+        .minor-tool-label { font-size: 0.625rem; font-weight: 500; color: #64748b; text-align: center; }
         .minor-tool-icon.mi-green { color: #059669; }
         .minor-tool-icon.mi-orange { color: #ea580c; }
         .minor-tool-icon.mi-purple { color: #7c3aed; }
@@ -315,8 +330,106 @@
         .minor-tool-icon.mi-amber { color: #d97706; }
         .minor-tool-icon.mi-teal { color: #0d9488; }
 
+        /* ── 年级触发按钮 ── */
+        .grade-btn {
+            display: flex; align-items: center; gap: 3px;
+            padding: 5px 12px; font-size: 0.625rem; font-weight: 600;
+            color: #6366f1; background: #fff;
+            border: 1px solid rgba(99,102,241,0.3);
+            border-radius: 16px; cursor: pointer; font-family: inherit;
+            -webkit-tap-highlight-color: transparent; transition: all .18s;
+            flex-shrink: 0;
+        }
+        .grade-btn svg { transition: transform .2s; }
+        .grade-btn.open svg { transform: rotate(180deg); }
+
+        /* ── 底部筛选弹窗 ── */
+        .bs-overlay {
+            position: absolute; inset: 0; z-index: 8000;
+            background: rgba(0,0,0,0.35);
+            opacity: 0; pointer-events: none;
+            transition: opacity .25s;
+        }
+        .bs-overlay.open { opacity: 1; pointer-events: auto; }
+        .bs-sheet {
+            position: absolute; left: 0; right: 0; bottom: 0; z-index: 8001;
+            background: #fff;
+            border-radius: 20px 20px 0 0;
+            padding: 0 24px 34px;
+            transform: translateY(100%);
+            transition: transform .32s cubic-bezier(.32,.72,0,1);
+            max-height: 70%; overflow-y: auto;
+        }
+        .bs-overlay.open + .bs-sheet,
+        .bs-sheet.open { transform: translateY(0); }
+        .bs-handle {
+            display: flex; justify-content: center; padding: 10px 0 4px;
+        }
+        .bs-handle::after {
+            content: ''; width: 36px; height: 4px;
+            background: #e2e8f0; border-radius: 2px;
+        }
+        .bs-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 0 16px;
+        }
+        .bs-title { font-size: 1rem; font-weight: 700; color: #0f172a; }
+        .bs-close {
+            width: 30px; height: 30px; border-radius: 50%;
+            border: none; background: #f1f5f9; color: #64748b;
+            font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .bs-close:active { background: #e2e8f0; }
+        .bs-label {
+            font-size: 0.75rem; font-weight: 600; color: #94a3b8;
+            margin: 0 0 10px;
+        }
+        .bs-grade-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+            margin-bottom: 20px;
+        }
+        .bs-grade-opt {
+            padding: 10px 0; text-align: center;
+            font-size: 0.8125rem; font-weight: 500; color: #475569;
+            border: 1.5px solid #e2e8f0; background: #fff; border-radius: 10px;
+            cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent;
+            transition: all .15s;
+        }
+        .bs-grade-opt:active { background: #f8fafc; }
+        .bs-grade-opt.active {
+            color: #6366f1; font-weight: 700;
+            border-color: #a5b4fc; background: rgba(99,102,241,0.04);
+        }
+        .bs-sem-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .bs-sem-btn {
+            flex: 1; padding: 10px 0; text-align: center;
+            font-size: 0.8125rem; font-weight: 500; color: #475569;
+            border: 1.5px solid #e2e8f0; background: #fff; border-radius: 10px;
+            cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent;
+            transition: all .15s;
+        }
+        .bs-sem-btn:active { background: #f8fafc; }
+        .bs-sem-btn.active {
+            color: #6366f1; font-weight: 700;
+            border-color: #a5b4fc; background: rgba(99,102,241,0.04);
+        }
+        .paper-filters {
+            display: flex; gap: 6px; margin-bottom: 12px;
+            overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap;
+            padding-bottom: 2px;
+        }
+        .paper-filters::-webkit-scrollbar { display: none; }
+        .paper-filter {
+            flex-shrink: 0; padding: 5px 12px; font-size: 0.625rem; font-weight: 600;
+            color: #64748b; background: #fff; border: 1px solid #e2e8f0;
+            border-radius: 16px; cursor: pointer; transition: all .18s; font-family: inherit;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .paper-filter.active { color: #6366f1; background: rgba(99,102,241,0.08); border-color: rgba(99,102,241,0.3); }
+
         /* ── 精品试卷推荐 ── */
-        .paper-sec { padding: 0 20px; margin-top: 28px; position: relative; z-index: 1; }
+        /* paper-sec removed — unified to .sec */
         .paper-tabs-row { display: flex; gap: 4px; margin-bottom: 12px; }
         .pt-btn {
             padding: 5px 14px; font-size: 0.75rem; font-weight: 600;
@@ -325,41 +438,45 @@
             transition: all 0.18s; -webkit-tap-highlight-color: transparent;
         }
         .pt-btn.active { color: #0f172a; background: #fff; box-shadow: 0 2px 8px -2px rgba(0,0,0,0.06); }
-        .paper-rec-list { display: flex; flex-direction: column; gap: 8px; }
-        .paper-rec-item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 14px; border-radius: 14px; background: #fff;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-            cursor: pointer; transition: transform 0.18s;
+        .paper-rec-list { display: flex; flex-direction: column; gap: 10px; }
+        .paper-item {
+            position: relative; display: flex; align-items: center; gap: 14px;
+            padding: 16px; border-radius: 14px;
+            background: rgba(255,255,255,0.55);
+            border: 1px solid rgba(255,255,255,0.7);
+            cursor: pointer; transition: transform .12s;
             -webkit-tap-highlight-color: transparent;
         }
-        .paper-rec-item:active { transform: scale(0.98); }
-        .pr-icon {
-            width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0;
+        .paper-item:active { transform: scale(0.98); }
+        .paper-icon {
+            width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px -2px rgba(0,0,0,0.04);
         }
-        .pri-cn { background: linear-gradient(135deg, #eef2ff, #f5f3ff); color: #6366f1; }
-        .pri-ma { background: linear-gradient(135deg, #fffbeb, #fef9c3); color: #d97706; }
-        .pri-en { background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #059669; }
-        .pri-sc { background: linear-gradient(135deg, #ecfeff, #cffafe); color: #0891b2; }
-        .pr-body { flex: 1; min-width: 0; }
-        .pr-title {
-            font-size: 0.75rem; font-weight: 600; color: #0f172a; margin: 0;
-            line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical; overflow: hidden;
+        .pi-chinese { background: linear-gradient(135deg, rgba(238,242,255,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #6366f1; }
+        .pi-math { background: linear-gradient(135deg, rgba(255,251,235,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #d97706; }
+        .pi-eng { background: linear-gradient(135deg, rgba(236,253,245,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #059669; }
+        .pi-sci { background: linear-gradient(135deg, rgba(236,254,255,0.85) 0%, rgba(255,255,255,0.5) 100%); color: #0891b2; }
+        .paper-info { flex: 1; min-width: 0; }
+        .paper-title {
+            font-size: 0.8125rem; font-weight: 600; color: #0f172a;
+            margin: 0; line-height: 1.4; max-height: 2.8em; overflow: hidden;
         }
-        .pr-rec-tag {
-            display: inline-block; font-size: 0.5rem; font-weight: 700;
-            padding: 1px 5px; border-radius: 3px; margin-right: 3px;
+        .paper-recommend {
+            display: inline; font-size: 0.5625rem; font-weight: 700; padding: 1px 6px;
+            border-radius: 3px; letter-spacing: .02em; margin-right: 4px;
             vertical-align: middle;
         }
-        .prt-hot { background: rgba(239,68,68,0.08); color: #ef4444; }
-        .prt-pick { background: rgba(99,102,241,0.08); color: #6366f1; }
-        .pr-meta {
-            display: flex; align-items: center; gap: 6px; margin-top: 4px;
-            font-size: 0.5625rem; color: #94a3b8;
+        .pr-recommend { background: rgba(239,68,68,0.08); color: #ef4444; }
+        .pr-pick { background: rgba(99,102,241,0.08); color: #6366f1; }
+        .paper-row {
+            display: flex; align-items: center; gap: 8px; margin-top: 6px;
         }
-        .pr-arrow { color: #d4d4d8; flex-shrink: 0; }
+        .paper-dl {
+            font-size: 0.625rem; color: #64748b;
+            display: flex; align-items: center; gap: 3px;
+        }
+        .paper-arrow { color: #d4d4d8; flex-shrink: 0; }
 
         .v2-more {
             display: inline-flex; align-items: center; gap: 4px;
@@ -404,6 +521,127 @@
             color: #94a3b8; font-size: 0.8125rem; font-weight: 600; font-family: inherit;
         }
         .ver-sw a.active { background: #7c3aed; color: #fff; }
+
+        /* 模式切换按钮（页面右上角） */
+        .mode-toggle {
+            position: fixed; top: 24px; right: 32px; z-index: 900;
+            display: flex; background: #fff; border-radius: 12px;
+            box-shadow: 0 4px 24px -4px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .mode-toggle button {
+            padding: 10px 24px; border: none; background: transparent;
+            color: #94a3b8; cursor: pointer; font-family: inherit;
+            font-size: 0.8125rem; font-weight: 600; transition: all 0.2s;
+        }
+        .mode-toggle button.active { background: #7c3aed; color: #fff; }
+
+        /* ── 过稿面板 ── */
+        .review-panel {
+            position: fixed; top: 60px; right: 32px;
+            width: 380px; height: 520px; min-width: 280px; min-height: 300px;
+            background: #fff; z-index: 1500; border-radius: 16px;
+            box-shadow: 0 12px 48px -8px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.06);
+            display: none; flex-direction: column;
+            font-family: 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+            overflow: hidden;
+        }
+        .review-panel.open { display: flex; }
+        .rp-header {
+            padding: 12px 16px; border-bottom: 1px solid #f1f5f9;
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+            cursor: move; user-select: none; -webkit-user-select: none;
+            background: linear-gradient(180deg, #faf8ff, #fff);
+        }
+        .rp-header h2 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 0; pointer-events: none; }
+        .rp-header span { font-size: 11px; color: #94a3b8; pointer-events: none; }
+        .rp-close {
+            width: 26px; height: 26px; border-radius: 8px; border: none;
+            background: #f8fafc; color: #64748b; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 13px;
+        }
+        .rp-close:hover { background: #fee2e2; color: #ef4444; }
+        .rp-body {
+            flex: 1; overflow-y: auto; padding: 12px 16px;
+        }
+        .rp-body::-webkit-scrollbar { width: 4px; }
+        .rp-body::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 2px; }
+        .rp-section { margin-bottom: 16px; }
+        .rp-section-title {
+            font-size: 11px; font-weight: 700; color: #7c3aed; text-transform: uppercase;
+            letter-spacing: 0.05em; margin-bottom: 8px;
+            padding-bottom: 6px; border-bottom: 1px solid #f5f3ff;
+        }
+        .rp-item {
+            padding: 10px 12px; margin-bottom: 6px;
+            border-radius: 10px; background: #faf8ff; border: 1px solid #f0ecff;
+            cursor: pointer; transition: all .15s;
+        }
+        .rp-item:hover { background: #f0ecff; border-color: #c4b5fd; }
+        .rp-item.rp-highlight { background: #ede9fe; border-color: #8b5cf6; }
+        .rp-item-id {
+            font-size: 10px; font-weight: 600; color: #a78bfa;
+            font-family: 'SF Mono', 'Menlo', monospace; margin-bottom: 3px;
+        }
+        .rp-item-prd { font-size: 12px; color: #334155; line-height: 1.5; }
+        .rp-item-track {
+            font-size: 10px; color: #94a3b8; margin-top: 4px;
+            font-family: 'SF Mono', 'Menlo', monospace; word-break: break-all;
+        }
+
+        /* 过稿模式下页面元素高亮 */
+        [data-doc].review-highlight {
+            outline: 2px solid #8b5cf6 !important;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        /* Tab 切换 */
+        .rp-tabs {
+            display: flex; border-bottom: 1px solid #f1f5f9; flex-shrink: 0;
+            padding: 0 12px; gap: 2px; background: #faf8ff;
+        }
+        .rp-tab {
+            flex: 1; padding: 8px 0; font-size: 12px; font-weight: 600;
+            color: #94a3b8; background: none; border: none; border-bottom: 2px solid transparent;
+            cursor: pointer; font-family: inherit; transition: all .15s;
+        }
+        .rp-tab.active { color: #7c3aed; border-bottom-color: #7c3aed; }
+        .rp-tab:hover:not(.active) { color: #64748b; }
+
+        /* Markdown 渲染 */
+        .rp-mdoc {
+            padding: 16px; font-size: 13px; color: #334155; line-height: 1.7;
+        }
+        .rp-mdoc h1 { font-size: 16px; font-weight: 800; color: #0f172a; margin: 0 0 8px; padding-bottom: 8px; border-bottom: 2px solid #ede9fe; }
+        .rp-mdoc h2 { font-size: 14px; font-weight: 700; color: #1e1b4b; margin: 20px 0 8px; padding: 6px 10px; background: #f5f3ff; border-radius: 6px; border-left: 3px solid #7c3aed; }
+        .rp-mdoc h3 { font-size: 13px; font-weight: 700; color: #0f172a; margin: 14px 0 4px; }
+        .rp-mdoc h4 { font-size: 12px; font-weight: 700; color: #475569; margin: 10px 0 4px; }
+        .rp-mdoc p { margin: 0 0 6px; }
+        .rp-mdoc ul { padding-left: 16px; margin: 0 0 8px; }
+        .rp-mdoc li { margin-bottom: 3px; }
+        .rp-mdoc table { width: 100%; border-collapse: collapse; margin: 8px 0 12px; font-size: 12px; }
+        .rp-mdoc th { background: #f8fafc; font-weight: 600; color: #475569; text-align: left; padding: 6px 8px; border: 1px solid #e2e8f0; }
+        .rp-mdoc td { padding: 5px 8px; border: 1px solid #e2e8f0; vertical-align: top; }
+        .rp-mdoc code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 11px; font-family: 'SF Mono','Menlo',monospace; color: #7c3aed; }
+        .rp-mdoc pre { background: #1e293b; color: #e2e8f0; padding: 12px; border-radius: 8px; overflow-x: auto; margin: 8px 0; font-size: 11px; line-height: 1.5; }
+        .rp-mdoc pre code { background: none; color: inherit; padding: 0; }
+        .rp-mdoc hr { border: none; border-top: 1px solid #f1f5f9; margin: 16px 0; }
+        .rp-mdoc blockquote { margin: 8px 0; padding: 8px 12px; background: #fffbeb; border-left: 3px solid #f59e0b; border-radius: 0 6px 6px 0; font-size: 12px; color: #92400e; }
+        .rp-mdoc .prd-note { margin: 6px 0; padding: 6px 10px; background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 0 6px 6px 0; font-size: 11px; color: #991b1b; }
+
+        /* 拖拽调整大小手柄 */
+        .rp-resize {
+            position: absolute; z-index: 10;
+        }
+        .rp-resize-e { top: 0; right: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-w { top: 0; left: -4px; width: 8px; height: 100%; cursor: ew-resize; }
+        .rp-resize-s { bottom: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-n { top: -4px; left: 0; width: 100%; height: 8px; cursor: ns-resize; }
+        .rp-resize-se { bottom: -4px; right: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
+        .rp-resize-sw { bottom: -4px; left: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-ne { top: -4px; right: -4px; width: 16px; height: 16px; cursor: nesw-resize; }
+        .rp-resize-nw { top: -4px; left: -4px; width: 16px; height: 16px; cursor: nwse-resize; }
     </style>
 </head>
 <body>
@@ -423,15 +661,15 @@
 
         <div class="flex-1 min-h-0 flex flex-col pt-[50px]">
 
-            <!-- 顶栏导航 -->
-            <nav class="v4-topbar anim">
-                <div class="v4-topbar-tabs">
-                    <button class="v4-tab active">首页</button>
-                    <a class="v4-tab" href="我的.html" data-doc="nav-me" data-track="/click/teacherLongHomePage/me | 点击我的 | 无">我的</a>
+            <!-- 顶栏 -->
+            <nav class="v2-topbar anim">
+                <div class="v2-topbar-tabs">
+                    <button class="v2-tab active">首页</button>
+                    <a class="v2-tab" href="我的.html" style="text-decoration:none;" data-doc="nav-me" data-prd="跳转我的页面" data-track="/click/teacherLongHomePage/me | 点击我的 | 无">我的</a>
                 </div>
-                <div class="v4-topbar-right">
-                    <a href="历史记录.html" class="v4-icon-btn" data-doc="nav-history" data-track="/click/teacherLongHomePage/history | 点击历史记录 | 无">
-                        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div class="v2-topbar-right">
+                    <a href="历史记录.html" class="v2-icon-btn" data-doc="nav-history" data-prd="跳转历史记录页" data-track="/click/teacherLongHomePage/history | 点击历史记录 | 无">
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </a>
                 </div>
             </nav>
@@ -439,108 +677,110 @@
             <div class="v2-scroll">
                 <div style="padding-bottom: 24px;">
 
-                    <!-- ═══ v4：统一 AI 交互中枢 ═══ -->
-                    <div class="v4-ai-hub anim d1" data-doc="v4-ai-hub">
-                        <div class="v4-greeting">
-                            <h1>Hi，今天想解决什么问题？</h1>
-                            <p>向我提问，或直接拍照</p>
+                    <!-- ═══ AI 对话入口卡片 ═══ -->
+                    <div class="ai-card anim d1" data-doc="ai-card" data-prd="AI 龙老师对话入口卡片">
+                        <div class="ai-card-glow"></div>
+                        <div class="ai-top">
+                            <img src="assets/logo.png" alt="AI 龙老师" class="ai-avatar">
+                            <div class="ai-info">
+                                <h1 class="ai-name">Hi 小明同学，我是 <strong>AI 龙老师</strong></h1>
+                                <div class="ai-sub">
+                                    <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                    <div class="ai-sub-track" id="carouselTrack"></div>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <!-- 文字与语音输入 -->
-                        <div class="v4-main-input" onclick="goToChat()" data-doc="ai-entry" data-track="/click/teacherLongHomePage/enterChat | 进入对话 | 无">
-                            <span class="v4-placeholder">输入你要问的难题…</span>
-                            <button class="v4-voice-btn" onclick="event.stopPropagation(); startVoice()" data-doc="voice-btn" data-track="/click/teacherLongHomePage/voiceInput | 语音输入 | 无">
-                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>
+                        <div class="ai-input-bar" id="aiInputBar" onclick="handleInputBarClick()" data-doc="ai-entry" data-prd="文字模式：点击跳转对话页弹键盘；语音模式：按住说话录音，短按进入对话页语音模式" data-track="/click/teacherLongHomePage/enterChat | 进入对话 | 无">
+                            <span class="ai-input-placeholder">给 AI 龙老师发消息</span>
+                            <button class="ai-voice-hold-btn" id="aiVoiceHoldBtn">按住说话</button>
+                            <button class="ai-input-btn" id="aiVoiceToggle" onclick="event.stopPropagation(); toggleVoiceMode()" data-doc="voice-btn" data-prd="切换文字/语音输入模式" data-track="/click/teacherLongHomePage/voiceToggle | 语音切换 | 无">
+                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>
+                            </button>
+                            <button class="ai-input-btn" onclick="event.stopPropagation(); window.location.href='作业/作业批改-v2.html'" data-doc="cam-btn" data-prd="直接跳转拍照页（作业批改模式），底部可切换批改/搜题/错因等模式" data-track="/click/teacherLongHomePage/enterCamera | 点击拍照 | 无">
+                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             </button>
                         </div>
+                    </div>
 
-                        <!-- 双核心入口（消除多余的相机 icon，以大卡片承载） -->
-                        <div class="v4-core-grid">
-                            <div class="v4-core-card v4-search" onclick="goToPhotoQa()" data-doc="tool-photo-qa" data-track="/click/teacherLongHomePage/enterPhotoQa | 拍照搜题 | 无">
-                                <div class="v4-cc-icon"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></div>
-                                <div class="v4-cc-text">
-                                    <h3>拍照搜题</h3>
-                                    <p>AI 逐步解析</p>
+                    <!-- ═══ 主功能双卡 + 次级工具 ═══ -->
+                    <div class="tools-area anim d2">
+                        <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;">
+                            <span style="font-size:0.875rem;font-weight:700;color:#0f172a;">🛠️ 常用工具</span>
+                        </div>
+                        <div class="main-tools">
+                            <div class="main-card mc-indigo" onclick="goToCorrection()" data-doc="tool-correction" data-prd="跳转拍照页（mode=correction），拍照后 AI 自动批改并出具批改报告" data-track="/click/teacherLongHomePage/enterAiCorrection | 作业批改 | 无">
+                                <div class="main-card-icon">
+                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                 </div>
+                                <h3>作业批改</h3>
+                                <p>拍照即出批改结果</p>
                             </div>
-                            <div class="v4-core-card v4-correct" onclick="goToCorrection()" data-doc="tool-correction" data-track="/click/teacherLongHomePage/enterAiCorrection | 作业批改 | 无">
-                                <div class="v4-cc-icon"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                                <div class="v4-cc-text">
-                                    <h3>作业批改</h3>
-                                    <p>秒看对错建议</p>
+                            <div class="main-card mc-amber" onclick="goToPhotoQa()" data-doc="tool-photo-qa" data-prd="跳转拍照页（mode=qa），拍照后 AI 识别题目并逐步解析" data-track="/click/teacherLongHomePage/enterPhotoQa | 拍照搜题 | 无">
+                                <div class="main-card-icon">
+                                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                                 </div>
+                                <h3>拍照搜题</h3>
+                                <p>AI 逐步解析答疑</p>
+                            </div>
+                        </div>
+                        <div class="minor-tools">
+                            <div class="minor-tool" onclick="window.location.href='错题本/错题本.html'" data-doc="tool-wrong-book" data-prd="跳转错题本列表页，查看已收录的错题" data-track="/click/teacherLongHomePage/enterWrongBook | 错题本 | 无">
+                                <div class="minor-tool-icon mi-green"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                                <span class="minor-tool-label">错题本</span>
+                            </div>
+                            <div class="minor-tool" onclick="window.location.href='作业/作业批改-v2.html?mode=wrong'" data-doc="tool-upload-wrong" data-prd="跳转拍照页（mode=wrong），拍照后 AI 识别并录入错题本" data-track="/click/teacherLongHomePage/enterUploadWrong | 录错题 | 无">
+                                <div class="minor-tool-icon mi-amber"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg></div>
+                                <span class="minor-tool-label">录错题</span>
+                            </div>
+                            <div class="minor-tool" onclick="window.location.href='对话.html'" data-doc="tool-ai-chat" data-prd="跳转 AI 对话页，文字输入与 AI 龙老师自由问答" data-track="/click/teacherLongHomePage/enterAiChat | AI问答 | 无">
+                                <div class="minor-tool-icon mi-purple"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 3v-3z"/></svg></div>
+                                <span class="minor-tool-label">AI 问答</span>
+                            </div>
+                            <div class="minor-tool" onclick="goToErase()" data-doc="tool-erase" data-prd="跳转试卷擦除页，拍照后自动擦除手写笔迹还原空白卷" data-track="/click/teacherLongHomePage/enterErase | 试卷擦除 | 无">
+                                <div class="minor-tool-icon mi-purple"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></div>
+                                <span class="minor-tool-label">试卷擦除</span>
+                            </div>
+                            <div class="minor-tool" onclick="openExamPapers()" data-doc="tool-papers" data-prd="跳转试卷下载页，按学科/年级/类型筛选并下载精品试卷" data-track="/click/teacherLongHomePage/enterExamPapers | 试卷下载 | 无">
+                                <div class="minor-tool-icon mi-blue"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></div>
+                                <span class="minor-tool-label">试卷下载</span>
+                            </div>
+                            <div class="minor-tool" onclick="openPaperExplain()" data-doc="tool-explain" data-prd="跳转试卷讲解页，拍照上传试卷后 AI 逐题视频讲解" data-track="/click/teacherLongHomePage/enterPaperExplain | 试卷讲解 | 无">
+                                <div class="minor-tool-icon mi-blue"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></div>
+                                <span class="minor-tool-label">试卷讲解</span>
+                            </div>
+                            <div class="minor-tool" onclick="openRealExam('primary')" data-doc="tool-primary" data-prd="跳转小升初真题专区，按学科筛选历年小升初真题" data-track="/click/teacherLongHomePage/enterPrimaryExam | 小升初真题 | 无">
+                                <div class="minor-tool-icon mi-teal"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
+                                <span class="minor-tool-label">小升初真题</span>
+                            </div>
+                            <div class="minor-tool" onclick="openRealExam('middle')" data-doc="tool-middle" data-prd="跳转中考真题专区，按学科筛选历年中考真题" data-track="/click/teacherLongHomePage/enterMiddleExam | 中考真题 | 无">
+                                <div class="minor-tool-icon mi-rose"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div>
+                                <span class="minor-tool-label">中考真题</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 语音录入浮层 (保持与 v3 一致) -->
-                    <div class="voice-overlay" id="voiceOverlay" onclick="cancelVoice()">
-                        <div class="voice-box" onclick="event.stopPropagation()">
-                            <div class="voice-ring" id="voiceRing">
-                                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>
-                            </div>
-                            <div class="voice-status" id="voiceStatus">正在聆听…</div>
-                            <div class="voice-hint" id="voiceHint">请说出你的问题</div>
-                            <div class="voice-text" id="voiceText"></div>
-                            <button class="voice-cancel" onclick="cancelVoice()">取消</button>
-                        </div>
-                    </div>
-
-                    <!-- ═══ 悬浮次级工具 ═══ -->
-                    <div class="minor-tools anim d2">
-                        <div class="minor-tool" onclick="window.location.href='错题本/错题本.html'" data-doc="tool-wrong-book" data-track="/click/teacherLongHomePage/enterWrongBook | 错题本 | 无">
-                            <div class="minor-tool-icon mi-green"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
-                            <span class="minor-tool-label">错题本</span>
-                        </div>
-                        <div class="minor-tool" onclick="window.location.href='作业/作业批改.html?mode=wrong'" data-doc="tool-upload-wrong" data-track="/click/teacherLongHomePage/enterUploadWrong | 录错题 | 无">
-                            <div class="minor-tool-icon mi-amber"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg></div>
-                            <span class="minor-tool-label">录错题</span>
-                        </div>
-                        <div class="minor-tool" onclick="goToErrorAnalysis()" data-doc="tool-error-analysis" data-track="/click/teacherLongHomePage/enterErrorAnalysis | 错因诊断 | 无">
-                            <div class="minor-tool-icon mi-orange"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg></div>
-                            <span class="minor-tool-label">错因诊断</span>
-                        </div>
-                        <div class="minor-tool" onclick="goToErase()" data-doc="tool-erase" data-track="/click/teacherLongHomePage/enterErase | 试卷擦除 | 无">
-                            <div class="minor-tool-icon mi-purple"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></div>
-                            <span class="minor-tool-label">试卷擦除</span>
-                        </div>
-                        <div class="minor-tool" onclick="openExamPapers()" data-doc="tool-papers" data-track="/click/teacherLongHomePage/enterExamPapers | 试卷下载 | 无">
-                            <div class="minor-tool-icon mi-blue"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></div>
-                            <span class="minor-tool-label">试卷下载</span>
-                        </div>
-                        <div class="minor-tool" onclick="openPaperExplain()" data-doc="tool-explain" data-track="/click/teacherLongHomePage/enterPaperExplain | 试卷讲解 | 无">
-                            <div class="minor-tool-icon mi-blue"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg></div>
-                            <span class="minor-tool-label">试卷讲解</span>
-                        </div>
-                        <div class="minor-tool" onclick="openRealExam('primary')" data-doc="tool-primary" data-track="/click/teacherLongHomePage/enterPrimaryExam | 小升初真题 | 无">
-                            <div class="minor-tool-icon mi-teal"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg></div>
-                            <span class="minor-tool-label">小升初真题</span>
-                        </div>
-                        <div class="minor-tool" onclick="openRealExam('middle')" data-doc="tool-middle" data-track="/click/teacherLongHomePage/enterMiddleExam | 中考真题 | 无">
-                            <div class="minor-tool-icon mi-rose"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div>
-                            <span class="minor-tool-label">中考真题</span>
-                        </div>
-                    </div>
-
-                    <!-- ═══ 学一学 ═══ -->
+                    <!-- ═══ 视频课堂 ═══ -->
                     <section class="sec anim d3">
                         <div class="sec-hd">
-                            <h2>📚 学一学</h2>
-                            <span class="sec-badge sb-ai">AI 推荐</span>
+                            <h2><svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>视频课堂</h2>
+                            <button class="grade-btn" id="videoGradeBtn" onclick="openGradeSheet('video')">
+                                <span id="videoGradeBtnText">七年级上</span>
+                                <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
                         </div>
-                        <div class="vid-big" onclick="openKnowledgeVideos('new-standard')" data-doc="video-new-standard" data-track="/click/teacherLongHomePage/enterVideo | 新课标重点讲 | category#STRING">
-                            <div class="vb-badge"><svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>AI 推荐</div>
+                        <div class="vid-big" onclick="openKnowledgeVideos('new-standard')" data-doc="video-new-standard" data-prd="跳转视频课堂·新课标重点讲，紧扣新课标考点的重点题型讲解" data-track="/click/teacherLongHomePage/enterVideo | 新课标重点讲 | category#STRING">
+                            <div class="vb-badge"><svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>重磅推荐</div>
                             <h2 class="vb-title">新课标重点讲</h2>
                             <p class="vb-desc">紧扣新课标考点，重点题型逐个突破</p>
                             <div class="vb-tags"><span class="vb-tag">语文</span><span class="vb-tag">数学</span><span class="vb-tag">英语</span></div>
                         </div>
                         <div class="vid-pair">
-                            <div class="vid-mini vm-green" onclick="openKnowledgeVideos('sync-course')" data-doc="video-sync" data-track="/click/teacherLongHomePage/enterVideo | 校内同步课 | category#STRING">
+                            <div class="vid-mini vm-green" onclick="openKnowledgeVideos('sync-course')" data-doc="video-sync" data-prd="跳转视频课堂·校内同步课，与教材同步的课程内容" data-track="/click/teacherLongHomePage/enterVideo | 校内同步课 | category#STRING">
                                 <div class="vm-icon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg></div>
                                 <h4>校内同步课</h4><p>与教材同步</p>
                                 <div class="vm-tags"><span class="vm-tag">语文</span><span class="vm-tag">数学</span><span class="vm-tag">英语</span></div>
                             </div>
-                            <div class="vid-mini vm-orange" onclick="openKnowledgeVideos('special-skills')" data-doc="video-skills" data-track="/click/teacherLongHomePage/enterVideo | 拓展提升课 | category#STRING">
+                            <div class="vid-mini vm-orange" onclick="openKnowledgeVideos('special-skills')" data-doc="video-skills" data-prd="跳转视频课堂·拓展提升课，1200+ 专题精讲覆盖语文英语" data-track="/click/teacherLongHomePage/enterVideo | 拓展提升课 | category#STRING">
                                 <div class="vm-icon"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg></div>
                                 <h4>拓展提升课</h4><p>1200+专题精讲</p>
                                 <div class="vm-tags"><span class="vm-tag">语文</span><span class="vm-tag">英语</span></div>
@@ -549,37 +789,425 @@
                         <!-- 专项大招课 -->
                         <div style="margin-top:18px;">
                             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                                <div style="font-size:0.8125rem;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:5px;">⚡ 专项大招课</div>
-                                <div style="font-size:0.625rem;font-weight:600;color:#94a3b8;" id="zkLabel">七年级</div>
+                                <div style="font-size:0.8125rem;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:5px;"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>专项大招课</div>
+                                <button class="grade-btn" id="zkGradeBtn" onclick="openGradeSheet('zk')">
+                                    <span id="zkGradeBtnText">七年级</span>
+                                    <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                                </button>
                             </div>
                             <div class="zk-cards" id="zkCards"></div>
                         </div>
                     </section>
 
-                    <!-- ═══ 精品试卷推荐 ═══ -->
-                    <section class="paper-sec anim d5" style="margin-bottom:8px;">
+                    <!-- ═══ 精品试卷 ═══ -->
+                    <section class="sec anim d5" style="margin-bottom:8px;">
                         <div class="sec-hd">
-                            <h2>📄 精品试卷</h2>
-                            <span class="sec-badge sb-ai">AI 推荐</span>
+                            <h2><svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>精品试卷</h2>
                         </div>
-                        <div class="paper-tabs-row" id="v2PaperTabs">
+                        <div class="paper-tabs-row" id="paperTabs">
                             <button class="pt-btn active" data-subj="chinese">语文</button>
                             <button class="pt-btn" data-subj="math">数学</button>
                             <button class="pt-btn" data-subj="english">英语</button>
                             <button class="pt-btn" data-subj="science">科学</button>
                         </div>
-                        <div class="paper-rec-list" id="v2PaperList"></div>
+                        <div class="paper-filters" id="paperFilters">
+                            <button class="grade-btn" id="paperGradeBtn" onclick="openGradeSheet('paper')">
+                                <span id="paperGradeBtnText">七年级上</span>
+                                <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <button class="paper-filter active" data-filter="热门推荐">热门推荐</button>
+                            <button class="paper-filter" data-filter="小升初真题">小升初真题</button>
+                            <button class="paper-filter" data-filter="小升初模拟">小升初模拟</button>
+                            <button class="paper-filter" data-filter="期末试题">期末试题</button>
+                            <button class="paper-filter" data-filter="期中试题">期中试题</button>
+                            <button class="paper-filter" data-filter="单元测试">单元测试</button>
+                        </div>
+                        <div class="paper-rec-list" id="paperList"></div>
                         <div style="text-align:center;margin-top:16px;">
-                            <button class="v2-more" onclick="window.location.href='试卷/试卷下载.html'">查看全部试卷 <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
+                            <button class="v2-more" onclick="window.location.href='试卷/试卷下载.html'">查看全部 <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
                         </div>
                     </section>
 
                 </div>
             </div>
         </div>
+        <!-- 语音底部面板 -->
+        <div class="voice-panel-scrim" id="voiceScrim"></div>
+        <div class="voice-panel" id="voicePanel">
+            <div class="vp-status" id="vpStatus">正在聆听…</div>
+            <div class="vp-hint" id="vpHint">请说出你的问题</div>
+            <div class="vp-wave" id="vpWave">
+                <div class="vp-wave-bar"></div><div class="vp-wave-bar"></div>
+                <div class="vp-wave-bar"></div><div class="vp-wave-bar"></div>
+                <div class="vp-wave-bar"></div><div class="vp-wave-bar"></div>
+                <div class="vp-wave-bar"></div><div class="vp-wave-bar"></div>
+                <div class="vp-wave-bar"></div><div class="vp-wave-bar"></div>
+                <div class="vp-wave-bar"></div>
+            </div>
+            <div class="vp-text" id="vpText"></div>
+        </div>
+        <!-- 底部筛选弹窗 -->
+        <div class="bs-overlay" id="bsOverlay" onclick="closeGradeSheet()"></div>
+        <div class="bs-sheet" id="bsSheet">
+            <div class="bs-handle"></div>
+            <div class="bs-header">
+                <span class="bs-title">筛选</span>
+                <button class="bs-close" onclick="closeGradeSheet()">✕</button>
+            </div>
+            <div class="bs-label">年级</div>
+            <div class="bs-grade-grid" id="bsGradeGrid"></div>
+            <div class="bs-label" id="bsSemLabel">学期</div>
+            <div class="bs-sem-row" id="bsSemRow"></div>
+        </div>
     </div>
 
-    <!-- 版本切换 -->
+    <!-- 过稿面板 -->
+    <div class="review-panel" id="reviewPanel">
+        <div class="rp-resize rp-resize-n" data-dir="n"></div>
+        <div class="rp-resize rp-resize-s" data-dir="s"></div>
+        <div class="rp-resize rp-resize-e" data-dir="e"></div>
+        <div class="rp-resize rp-resize-w" data-dir="w"></div>
+        <div class="rp-resize rp-resize-ne" data-dir="ne"></div>
+        <div class="rp-resize rp-resize-nw" data-dir="nw"></div>
+        <div class="rp-resize rp-resize-se" data-dir="se"></div>
+        <div class="rp-resize rp-resize-sw" data-dir="sw"></div>
+        <div class="rp-header" id="rpHeader">
+            <div>
+                    <h2>📋 产品稿 · 首页-v4</h2>
+                <span id="rpCount"></span>
+            </div>
+            <button class="rp-close" onclick="setMode('demo')">✕</button>
+        </div>
+        <div class="rp-tabs">
+            <button class="rp-tab active" data-tab="doc" onclick="switchTab('doc')">📄 产品文档</button>
+            <button class="rp-tab" data-tab="els" onclick="switchTab('els')">📌 元素标注</button>
+        </div>
+        <div class="rp-body" id="rpBody">
+            <div class="rp-tab-content" id="rpTabDoc">
+                <div class="rp-mdoc" id="rpDocContent">
+
+                    <h1>首页（v3）产品稿</h1>
+                    <blockquote>版本：v1.1 · 2026-04-15</blockquote>
+
+                    <!-- ══════ 1. AI 龙老师对话入口卡片 ══════ -->
+                    <h2>1. AI 龙老师对话入口卡片</h2>
+
+                    <h3>功能说明</h3>
+                    <p>首屏核心模块，承载 AI 对话的三种入口：文字、语音、拍照。定位是"AI 即老师"——用户第一眼看到的是一个可以对话的 AI 老师，而非传统工具列表。</p>
+                    <p>与 v1 的区别：v1 是工具导向（AI 入口和工具平级），v3 是对话导向（AI 入口在最顶部、最大面积）。</p>
+                    <p>功能边界：本卡片只负责引导用户进入对话，不在首页内完成任何 AI 交互。</p>
+
+                    <h3>交互流程</h3>
+                    <p>1. <strong>文字入口</strong>：点击输入条任意区域 → 跳转对话页 → 自动弹出键盘，等待用户输入</p>
+                    <p>2. <strong>语音入口（微信风格 toggle）</strong>：</p>
+                    <ul>
+                        <li>点击麦克风图标 → 输入栏切换为"按住说话"模式（麦克风图标变为键盘图标）</li>
+                        <li><strong>长按"按住说话"</strong>：激活语音识别 → 松开后自动识别 → 跳转对话页并发送识别文字</li>
+                        <li><strong>短按"按住说话"</strong>：直接跳转对话页 → 不弹出键盘，默认进入语音输入模式（显示按住说话按钮）</li>
+                        <li>点击键盘图标 → 切换回文字输入模式</li>
+                    </ul>
+                    <p>3. <strong>拍照入口</strong>：点击相机图标 → 直接跳转拍照页（默认批改模式）</p>
+
+                    <h4>为什么拍照不进对话页</h4>
+                    <p>拍照页底部已有模式切换（批改/搜题/录错题/错因诊断），用户无需先跟 AI 对话再选工具。如果用户想"拍照后跟 AI 聊"，可以在对话页内使用相机按钮。</p>
+
+                    <h3>业务规则</h3>
+                    <ul>
+                        <li>输入条 placeholder：<code>给 AI 龙老师发消息</code>，品牌导向而非功能描述</li>
+                        <li>副标题轮播：每 3 秒切换一条，共 8 条（功能引导与百科问题交替），淡入淡出过渡</li>
+                        <li>语音识别：demo 阶段模拟识别，从 5 条预设问题中随机返回</li>
+                    </ul>
+
+                    <h3>数据说明</h3>
+                    <blockquote><strong>副标题轮播内容</strong>：8 条，交替展示功能引导（"拍一拍，作业秒批改"）和百科问题（"为什么天空是蓝色的？"）。后续可改为后端下发，支持个性化推荐。</blockquote>
+
+                    <h3>异常场景</h3>
+                    <table>
+                        <thead><tr><th>场景</th><th>处理方式</th></tr></thead>
+                        <tbody>
+                            <tr><td>长按录音中手指滑出按钮</td><td>取消录音，关闭浮层</td></tr>
+                            <tr><td>语音识别中点击浮层外区域</td><td>取消识别，关闭浮层</td></tr>
+                            <tr><td>长按不足 500ms 松开</td><td>视为短按，跳转对话页语音模式</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>关联模块</h3>
+                    <ul>
+                        <li>→ 对话页：文字和语音入口的目标</li>
+                        <li>→ 拍照页：拍照入口的目标</li>
+                        <li>← 对话页返回时回到本页</li>
+                    </ul>
+
+                    <h3>不做（本期）</h3>
+                    <ul>
+                        <li>真实语音识别 API 对接</li>
+                        <li>个性化问候（如根据时段/姓名动态展示）</li>
+                        <li>输入条支持直接打字（当前点击即跳转对话页）</li>
+                    </ul>
+
+                    <hr>
+
+                    <!-- ══════ 2. 常用工具区 ══════ -->
+                    <h2>2. 常用工具区</h2>
+
+                    <h3>功能说明</h3>
+                    <p>首屏第二个模块，紧接 AI 卡片下方。采用"双大卡 + 8 宫格"的层级布局，按使用频率分两级展示。</p>
+                    <p>选择这种布局而非 v1 的全平铺宫格，是为了制造视觉重心——作业批改和拍照搜题是最高频的工具，用大卡片突出；其余工具用小图标承载，避免首屏信息过载。</p>
+                    <p>功能边界：工具区仅提供跳转入口，不承载任何工具的执行逻辑。</p>
+
+                    <h3>交互流程</h3>
+                    <p>1. <strong>主功能大卡</strong>：点击"作业批改"或"拍照搜题" → 跳转拍照页，自动切换到对应模式</p>
+                    <p>2. <strong>8 宫格工具</strong>：点击任意工具 → 跳转对应功能页面</p>
+                    <table>
+                        <thead><tr><th>工具</th><th>跳转目标</th></tr></thead>
+                        <tbody>
+                            <tr><td>错题本</td><td>错题列表页</td></tr>
+                            <tr><td>录错题</td><td>拍照页（录错题模式）</td></tr>
+                            <tr><td>错因诊断</td><td>拍照页（错因诊断模式）</td></tr>
+                            <tr><td>试卷擦除</td><td>试卷擦除页</td></tr>
+                            <tr><td>试卷下载</td><td>试卷下载页</td></tr>
+                            <tr><td>试卷讲解</td><td>试卷讲解页</td></tr>
+                            <tr><td>小升初真题</td><td>试卷列表页（小升初类型）</td></tr>
+                            <tr><td>中考真题</td><td>试卷列表页（中考类型）</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>业务规则</h3>
+                    <ul>
+                        <li>所有工具直接跳转功能页面，不经过 AI 对话页</li>
+                        <li>用户通过 AI 对话页也可触达这些工具（AI 返回功能卡片），首页提供直达入口降低操作路径</li>
+                        <li>工具入口无权限控制，所有用户可见</li>
+                    </ul>
+
+                    <h3>数据说明</h3>
+                    <blockquote>工具列表固定 10 个，不依赖后端配置。</blockquote>
+
+                    <h3>异常场景</h3>
+                    <table>
+                        <thead><tr><th>场景</th><th>处理方式</th></tr></thead>
+                        <tbody>
+                            <tr><td>某个工具需下线</td><td>当前无动态控制机制，需前端发版</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>关联模块</h3>
+                    <ul>
+                        <li>→ 拍照页：作业批改、拍照搜题、录错题、错因诊断共用拍照页，通过模式参数区分</li>
+                        <li>→ 各独立功能页：试卷擦除、试卷下载、试卷讲解、错题本等</li>
+                    </ul>
+
+                    <h3>不做（本期）</h3>
+                    <ul>
+                        <li>工具排序/显隐的后端配置化</li>
+                        <li>各工具的使用次数角标</li>
+                        <li>工具分组折叠</li>
+                    </ul>
+
+                    <hr>
+
+                    <!-- ══════ 3. 视频课堂 ══════ -->
+                    <h2>3. 视频课堂</h2>
+
+                    <h3>功能说明</h3>
+                    <p>内容区域第一个模块，展示三种视频课程体系，支持按年级+学期筛选。一大两小卡片布局——"新课标重点讲"是重磅推荐内容，"校内同步课"和"拓展提升课"为常规入口。</p>
+
+                    <h3>交互流程</h3>
+                    <p>1. <strong>年级+学期筛选</strong>：点击标题右侧年级选择器 → 弹出筛选面板（上方"上/下学期"切换 + 下方 1-9 年级网格）→ 选择后关闭 → 按钮文案更新为"X年级上/下"</p>
+                    <p>2. 点击任意课程卡片 → 跳转对应课程列表页，携带当前年级和学期参数</p>
+                    <table>
+                        <thead><tr><th>卡片</th><th>课程类型</th><th>角标</th></tr></thead>
+                        <tbody>
+                            <tr><td>大卡</td><td>新课标重点讲</td><td>重磅推荐</td></tr>
+                            <tr><td>小卡左</td><td>校内同步课</td><td>无</td></tr>
+                            <tr><td>小卡右</td><td>拓展提升课</td><td>无</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>业务规则</h3>
+                    <ul>
+                        <li>默认年级：取用户全局年级设置，无则默认"七年级"</li>
+                        <li>默认学期：上学期</li>
+                        <li>年级和学期切换后，课程内容按选中条件展示（后续对接后端数据）</li>
+                        <li>大卡底部有学科标签（语文/数学/英语），仅展示不可筛选</li>
+                    </ul>
+
+                    <h3>数据说明</h3>
+                    <blockquote>课程标题、描述、学科标签为固定内容。年级和学期筛选的 demo 阶段仅更新按钮文案，课程卡片内容不动态变化。</blockquote>
+
+                    <h3>异常场景</h3>
+                    <table>
+                        <thead><tr><th>场景</th><th>处理方式</th></tr></thead>
+                        <tbody>
+                            <tr><td>课程资源不存在</td><td>由课程详情页处理</td></tr>
+                            <tr><td>点击年级弹窗外区域</td><td>弹窗关闭，年级不变</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>关联模块</h3>
+                    <ul>
+                        <li>→ 课程列表页</li>
+                        <li>↔ 专项大招课、精品试卷：共享全局年级设置</li>
+                    </ul>
+
+                    <h3>不做（本期）</h3>
+                    <ul>
+                        <li>课程进度展示</li>
+                        <li>根据年级+学期动态加载课程内容（当前仅筛选器 UI）</li>
+                        <li>视频课程的收藏/点赞</li>
+                    </ul>
+
+                    <hr>
+
+                    <!-- ══════ 4. 专项大招课 ══════ -->
+                    <h2>4. 专项大招课</h2>
+
+                    <h3>功能说明</h3>
+                    <p>按学科分类的专项课程卡片区域，支持按年级筛选。覆盖小学（1-6 年级）和初中（7-9 年级）两个学段。</p>
+
+                    <h3>交互流程</h3>
+                    <p>1. 点击右上角年级选择器 → 弹出 9 宫格年级面板（一～九年级），当前已选高亮</p>
+                    <p>2. 选择年级 → 面板关闭 → 课程列表自动切换为对应学段内容</p>
+                    <p>3. 点击课程卡片 → 跳转课程详情页</p>
+
+                    <h3>业务规则</h3>
+                    <ul>
+                        <li>默认年级：取用户全局年级设置，无则默认"七年级"</li>
+                        <li>年级与学段的映射：1-6 年级 → 小学课程，7-9 年级 → 初中课程</li>
+                        <li>小学 5 门课：语文古诗名篇、语文看图写话、语文阅读理解、英语语法提升、英语阅读专项</li>
+                        <li>初中 5 门课：语文中文阅读、语文中文写作、语文名著专项、英语语法专项、英语题型技巧</li>
+                        <li>2 列网格布局，卡片左侧彩色竖条区分学科（语文=绿色，英语=蓝色）</li>
+                    </ul>
+
+                    <h3>数据说明</h3>
+                    <blockquote>课程数据固定，按学段分组。</blockquote>
+
+                    <h3>异常场景</h3>
+                    <table>
+                        <thead><tr><th>场景</th><th>处理方式</th></tr></thead>
+                        <tbody>
+                            <tr><td>点击年级弹窗外区域</td><td>弹窗关闭，年级不变</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>关联模块</h3>
+                    <ul>
+                        <li>→ 课程详情页</li>
+                        <li>↔ 精品试卷：共享全局年级设置</li>
+                    </ul>
+
+                    <h3>不做（本期）</h3>
+                    <ul>
+                        <li>数学/科学学科的课程</li>
+                        <li>课程节数、时长展示</li>
+                        <li>课程完成进度</li>
+                    </ul>
+
+                    <hr>
+
+                    <!-- ══════ 5. 精品试卷 ══════ -->
+                    <h2>5. 精品试卷</h2>
+
+                    <h3>功能说明</h3>
+                    <p>试卷推荐区域，提供三级联动筛选，覆盖一年级到九年级所有学段。筛选能力与 v1 完全对等。</p>
+
+                    <h3>交互流程</h3>
+                    <p>1. <strong>一级（学科 Tab）</strong>：点击"语文/数学/英语/科学"切换学科 → 三级筛选重置为"热门推荐" → 刷新列表</p>
+                    <p>2. <strong>二级（年级+学期）</strong>：点击年级按钮 → 弹出面板（上方"上/下学期"切换 + 下方 1-9 年级网格）→ 选择后关闭 → 刷新列表</p>
+                    <p>3. <strong>三级（类型）</strong>：点击"热门推荐/小升初真题/期末试题/期中试题/单元测试" → 刷新列表</p>
+                    <p>4. <strong>试卷点击</strong>：跳转试卷详情页</p>
+                    <p>5. <strong>查看全部</strong>：跳转试卷下载页</p>
+
+                    <h3>业务规则</h3>
+                    <ul>
+                        <li>学科切换时，年级和学期保持不变，类型重置为"热门推荐"</li>
+                        <li>年级/学期切换时，类型保持不变</li>
+                        <li>默认值：语文 + 七年级上 + 热门推荐</li>
+                        <li>每个筛选组合最多展示 10 条</li>
+                        <li>试卷角标：支持"推荐"（紫色）和"精选"（绿色）两种</li>
+                    </ul>
+
+                    <h3>数据说明</h3>
+                    <blockquote>试卷数据按"学科 × 年级学期 × 类型"三维索引。每条试卷含标题、下载量、角标类型。全部为 mock 数据。</blockquote>
+
+                    <h3>异常场景</h3>
+                    <table>
+                        <thead><tr><th>场景</th><th>处理方式</th></tr></thead>
+                        <tbody>
+                            <tr><td>某筛选组合无数据</td><td>列表为空，无内容展示（当前无空状态提示）</td></tr>
+                            <tr><td>点击年级弹窗外区域</td><td>弹窗关闭</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>关联模块</h3>
+                    <ul>
+                        <li>→ 试卷详情页</li>
+                        <li>→ 试卷下载页（"查看全部"入口）</li>
+                    </ul>
+
+                    <h3>不做（本期）</h3>
+                    <ul>
+                        <li>试卷收藏/下载计数实时更新</li>
+                        <li>试卷搜索</li>
+                        <li>按学校/地区筛选</li>
+                        <li>空数据的引导提示</li>
+                    </ul>
+
+                    <hr>
+
+                    <!-- ══════ 6. 导航与全局行为 ══════ -->
+                    <h2>6. 导航与全局行为</h2>
+
+                    <h3>功能说明</h3>
+                    <p>顶部导航栏、底部版本切换（仅 demo 用）、右上角演示/过稿切换、入场动画、跨页面返回逻辑。</p>
+
+                    <h3>交互流程</h3>
+                    <p>1. <strong>顶栏"我的"Tab</strong>：跳转个人中心</p>
+                    <p>2. <strong>顶栏历史记录图标</strong>：跳转 AI 对话历史</p>
+                    <p>3. <strong>版本切换</strong>（仅 demo）：在 v1/v2/v3 三个首页方案间切换</p>
+                    <p>4. <strong>演示/过稿切换</strong>：点击"过稿"弹出产品稿浮窗；点击"演示"关闭浮窗</p>
+
+                    <h3>业务规则</h3>
+                    <ul>
+                        <li>所有二级页面返回时回到用户进入时的首页版本（v1 进入的回 v1，v3 进入的回 v3）</li>
+                        <li>入场动画：模块按延迟分组从下方淡入</li>
+                        <li>支持 URL 参数直接进入过稿模式</li>
+                    </ul>
+
+                    <h3>异常场景</h3>
+                    <table>
+                        <thead><tr><th>场景</th><th>处理方式</th></tr></thead>
+                        <tbody>
+                            <tr><td>二级页面直接刷新（无浏览历史）</td><td>兜底返回默认首页</td></tr>
+                        </tbody>
+                    </table>
+
+                    <h3>关联模块</h3>
+                    <ul>
+                        <li>→ 个人中心</li>
+                        <li>→ AI 对话历史</li>
+                        <li>↔ 所有二级页面：维护返回路径</li>
+                    </ul>
+
+                    <h3>不做（本期）</h3>
+                    <ul>
+                        <li>版本切换上线时移除</li>
+                        <li>底部 Tab 导航</li>
+                        <li>页面切换过渡动画</li>
+                    </ul>
+
+                </div>
+            </div>
+            <div class="rp-tab-content" id="rpTabEls" style="display:none"></div>
+        </div>
+    </div>
+
+    <!-- 模式切换（右上角） -->
+    <div class="mode-toggle" id="modeToggle">
+        <button class="active" onclick="setMode('demo')">演示</button>
+        <button onclick="setMode('review')">过稿</button>
+    </div>
+
+    <!-- 版本切换（右下角） -->
     <div class="ver-sw">
         <a href="首页.html">v1</a>
         <a href="首页-v2.html">v2</a>
@@ -590,14 +1218,48 @@
     <script>
         sessionStorage.setItem('homeVersion', 'v4');
 
+        /* ── AI 副标题轮播 ── */
+        var carouselTips = [
+            '拍一拍，作业秒批改 ✍️',
+            '为什么天空是蓝色的？',
+            '帮你找出错题薄弱点',
+            '恐龙是怎么灭绝的？',
+            '拍照搜题，逐步讲解',
+            '光的速度有多快？',
+            '试卷擦除，还原空白卷',
+            '人体有多少块骨头？'
+        ];
+        (function initCarousel() {
+            var track = document.getElementById('carouselTrack');
+            if (!track) return;
+            carouselTips.forEach(function(tip, i) {
+                var span = document.createElement('span');
+                span.className = 'ai-sub-item' + (i === 0 ? ' active' : '');
+                span.textContent = tip;
+                track.appendChild(span);
+            });
+            var idx = 0;
+            setInterval(function() {
+                var items = track.querySelectorAll('.ai-sub-item');
+                items[idx].classList.remove('active');
+                idx = (idx + 1) % items.length;
+                items[idx].classList.add('active');
+            }, 3000);
+        })();
+
         /* ── 文字输入 → 跳对话页自动聚焦 ── */
         function goToChat() {
             sessionStorage.setItem('aiSource', 'home-focus');
             window.location.href = '对话.html';
         }
 
-        /* ── 语音输入 ── */
-        var voiceTimer = null;
+        function handleInputBarClick() {
+            if (!document.getElementById('aiInputBar').classList.contains('voice-mode')) {
+                goToChat();
+            }
+        }
+
+        /* ── 语音模式 toggle ── */
         var voiceQuestions = [
             '这道数学题怎么解',
             '帮我批改一下作业',
@@ -605,41 +1267,106 @@
             '光合作用的原理是什么',
             '英语作文怎么写好开头'
         ];
-        function startVoice() {
-            var ol = document.getElementById('voiceOverlay');
-            document.getElementById('voiceStatus').textContent = '正在聆听…';
-            document.getElementById('voiceHint').textContent = '请说出你的问题';
-            document.getElementById('voiceText').textContent = '';
-            document.getElementById('voiceRing').style.background = 'linear-gradient(135deg, #8b5cf6, #7c3aed)';
-            ol.classList.add('show');
-            voiceTimer = setTimeout(function() {
-                document.getElementById('voiceStatus').textContent = '识别中…';
-                document.getElementById('voiceHint').textContent = '正在转文字';
-                voiceTimer = setTimeout(function() {
-                    var q = voiceQuestions[Math.floor(Math.random() * voiceQuestions.length)];
-                    document.getElementById('voiceStatus').textContent = '识别完成';
-                    document.getElementById('voiceHint').textContent = '';
-                    document.getElementById('voiceText').textContent = '「' + q + '」';
-                    document.getElementById('voiceRing').style.background = 'linear-gradient(135deg, #10b981, #059669)';
-                    voiceTimer = setTimeout(function() {
-                        ol.classList.remove('show');
-                        sessionStorage.setItem('aiQuestion', q);
-                        sessionStorage.setItem('aiSource', 'home-voice');
-                        window.location.href = '对话.html';
-                    }, 1200);
-                }, 1000);
-            }, 2000);
+        var micSvg = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>';
+        var kbSvg = '<svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 16h8"/></svg>';
+
+        function toggleVoiceMode() {
+            var bar = document.getElementById('aiInputBar');
+            var toggle = document.getElementById('aiVoiceToggle');
+            bar.classList.toggle('voice-mode');
+            toggle.innerHTML = bar.classList.contains('voice-mode') ? kbSvg : micSvg;
         }
+
+        /* ── 语音面板交互（支持上滑取消手势） ── */
+        var voiceTimer = null;
+        var vpDragStartY = 0, vpIsDragging = false, vpCancelThreshold = 80;
+
+        function showVoicePanel() {
+            var panel = document.getElementById('voicePanel');
+            var scrim = document.getElementById('voiceScrim');
+            document.getElementById('vpStatus').textContent = '正在聆听…';
+            document.getElementById('vpHint').textContent = '↑ 上滑取消';
+            panel.classList.remove('cancelling', 'dragging');
+            panel.style.transform = '';
+            scrim.classList.add('show');
+            panel.classList.add('show');
+        }
+
+        function stopVoice() {
+            if (voiceTimer) { clearTimeout(voiceTimer); voiceTimer = null; }
+            var q = voiceQuestions[Math.floor(Math.random() * voiceQuestions.length)];
+            closeVoicePanel();
+            sessionStorage.setItem('aiQuestion', q);
+            sessionStorage.setItem('aiSource', 'home-voice');
+            window.location.href = '对话.html';
+        }
+
         function cancelVoice() {
             if (voiceTimer) { clearTimeout(voiceTimer); voiceTimer = null; }
-            document.getElementById('voiceOverlay').classList.remove('show');
+            closeVoicePanel();
         }
+
+        function closeVoicePanel() {
+            var panel = document.getElementById('voicePanel');
+            panel.classList.remove('show', 'cancelling', 'dragging');
+            panel.style.transform = '';
+            document.getElementById('voiceScrim').classList.remove('show');
+        }
+
+        (function() {
+            var btn = document.getElementById('aiVoiceHoldBtn');
+            if (btn) btn.addEventListener('click', function(e) { e.stopPropagation(); showVoicePanel(); });
+
+            var panel = document.getElementById('voicePanel');
+            if (!panel) return;
+
+            function onStart(y) {
+                vpDragStartY = y; vpIsDragging = true;
+                panel.classList.remove('cancelling');
+            }
+            function onMove(y) {
+                if (!vpIsDragging) return;
+                var dy = vpDragStartY - y;
+                if (dy > vpCancelThreshold) {
+                    panel.classList.add('cancelling');
+                    document.getElementById('vpStatus').textContent = '松开取消';
+                    document.getElementById('vpHint').textContent = '';
+                } else {
+                    panel.classList.remove('cancelling');
+                    document.getElementById('vpStatus').textContent = '正在聆听…';
+                    document.getElementById('vpHint').textContent = '↑ 上滑取消';
+                }
+            }
+            function onEnd(y) {
+                if (!vpIsDragging) return;
+                vpIsDragging = false;
+                var dy = vpDragStartY - y;
+                if (dy > vpCancelThreshold) { cancelVoice(); }
+                else {
+                    panel.classList.remove('cancelling');
+                    document.getElementById('vpStatus').textContent = '正在聆听…';
+                    document.getElementById('vpHint').textContent = '↑ 上滑取消';
+                }
+            }
+
+            panel.addEventListener('touchstart', function(e) { onStart(e.touches[0].clientY); }, { passive: true });
+            panel.addEventListener('touchmove', function(e) { onMove(e.touches[0].clientY); e.preventDefault(); }, { passive: false });
+            panel.addEventListener('touchend', function(e) { onEnd(e.changedTouches[0].clientY); });
+
+            panel.addEventListener('mousedown', function(e) { onStart(e.clientY); });
+            document.addEventListener('mousemove', function(e) { onMove(e.clientY); });
+            document.addEventListener('mouseup', function(e) { if (vpIsDragging) onEnd(e.clientY); });
+
+            panel.addEventListener('click', function(e) {
+                if (!panel.classList.contains('show')) return;
+                stopVoice();
+            });
+        })();
 
         /* ── 页面跳转 ── */
         function openKnowledgeVideos(c) { window.location.href=c?'视频/知识点讲解.html?cat='+c:'视频/知识点讲解.html'; }
-        function goToCorrection() { window.location.href='作业/作业批改.html?mode=correction'; }
-        function goToPhotoQa() { window.location.href='作业/作业批改.html?mode=qa'; }
-        function goToErrorAnalysis() { window.location.href='错因诊断/错因诊断.html'; }
+        function goToCorrection() { window.location.href='作业/作业批改-v2.html?mode=correction'; }
+        function goToPhotoQa() { window.location.href='作业/作业批改-v2.html?mode=qa'; }
         function goToErase() { window.location.href='试卷/试卷擦除.html'; }
         function openExamPapers() { window.location.href='试卷/试卷下载.html'; }
         function openPaperExplain() { window.location.href='试卷讲解/试卷讲解.html'; }
@@ -652,29 +1379,116 @@
             setTimeout(function(){t.classList.remove('show');},2000);
         }
 
-        /* ── 专项大招课 ── */
+        /* ── 通用常量 ── */
         var GRADES=['一年级','二年级','三年级','四年级','五年级','六年级','七年级','八年级','九年级'];
+        var SEMESTERS=['上学期','下学期'];
+
+        /* ── 底部筛选弹窗（共享） ── */
+        var bsOverlay = document.getElementById('bsOverlay');
+        var bsSheet = document.getElementById('bsSheet');
+        var bsGradeGrid = document.getElementById('bsGradeGrid');
+        var bsSemRow = document.getElementById('bsSemRow');
+        var bsSemLabel = document.getElementById('bsSemLabel');
+        var bsCurrentTarget = null;
+        var bsTempGrade = '';
+        var bsTempSem = '';
+        var bsHasSemester = false;
+
+        var videoActiveGrade = sessionStorage.getItem('gradeClass') || '七年级';
+        var videoActiveSemester = '上学期';
+        if (GRADES.indexOf(videoActiveGrade) === -1) videoActiveGrade = '七年级';
+        document.getElementById('videoGradeBtnText').textContent = videoActiveGrade + videoActiveSemester.replace('学期','');
+
+        function openGradeSheet(target) {
+            bsCurrentTarget = target;
+            if (target === 'video') {
+                bsTempGrade = videoActiveGrade; bsTempSem = videoActiveSemester; bsHasSemester = true;
+            } else if (target === 'zk') {
+                bsTempGrade = zkActiveGrade; bsTempSem = ''; bsHasSemester = false;
+            } else if (target === 'paper') {
+                bsTempGrade = activeGrade; bsTempSem = activeSemester; bsHasSemester = true;
+            }
+            renderBsContent();
+            bsOverlay.classList.add('open');
+            bsSheet.classList.add('open');
+        }
+
+        function renderBsContent() {
+            bsGradeGrid.innerHTML = GRADES.map(function(g) {
+                return '<button class="bs-grade-opt' + (g === bsTempGrade ? ' active' : '') + '" data-grade="' + g + '">' + g + '</button>';
+            }).join('');
+            if (bsHasSemester) {
+                bsSemLabel.style.display = '';
+                bsSemRow.style.display = '';
+                bsSemRow.innerHTML = SEMESTERS.map(function(s) {
+                    return '<button class="bs-sem-btn' + (s === bsTempSem ? ' active' : '') + '" data-sem="' + s + '">' + s + '</button>';
+                }).join('');
+            } else {
+                bsSemLabel.style.display = 'none';
+                bsSemRow.style.display = 'none';
+            }
+        }
+
+        bsGradeGrid.addEventListener('click', function(e) {
+            var opt = e.target.closest('.bs-grade-opt');
+            if (!opt) return;
+            bsTempGrade = opt.dataset.grade;
+            bsGradeGrid.querySelectorAll('.bs-grade-opt').forEach(function(o) { o.classList.toggle('active', o.dataset.grade === bsTempGrade); });
+        });
+
+        bsSemRow.addEventListener('click', function(e) {
+            var btn = e.target.closest('.bs-sem-btn');
+            if (!btn) return;
+            bsTempSem = btn.dataset.sem;
+            bsSemRow.querySelectorAll('.bs-sem-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.sem === bsTempSem); });
+        });
+
+        function closeGradeSheet() {
+            bsOverlay.classList.remove('open');
+            bsSheet.classList.remove('open');
+            if (!bsCurrentTarget) return;
+            if (bsCurrentTarget === 'video') {
+                videoActiveGrade = bsTempGrade;
+                videoActiveSemester = bsTempSem;
+                document.getElementById('videoGradeBtnText').textContent = videoActiveGrade + videoActiveSemester.replace('学期','');
+            } else if (bsCurrentTarget === 'zk') {
+                zkActiveGrade = bsTempGrade;
+                document.getElementById('zkGradeBtnText').textContent = zkActiveGrade;
+                renderZkCards();
+            } else if (bsCurrentTarget === 'paper') {
+                activeGrade = bsTempGrade;
+                activeSemester = bsTempSem;
+                updateGradeBtnText();
+                activePaperFilter = '热门推荐';
+                document.querySelectorAll('#paperFilters .paper-filter').forEach(function(f) { f.classList.toggle('active', f.dataset.filter === '热门推荐'); });
+                renderPapers();
+            }
+            bsCurrentTarget = null;
+        }
+
+        /* ── 专项大招课 ── */
         var ZK={
             primary:[
-                {title:'语文·古诗名篇',desc:'生动讲解 情景联想',lang:'cn',subj:'语文',topic:'古诗名篇',count:24},
-                {title:'语文·看图写话',desc:'观察方法 表达训练',lang:'cn',subj:'语文',topic:'看图写话',count:18},
-                {title:'语文·阅读理解',desc:'精读泛读 答题技巧',lang:'cn',subj:'语文',topic:'阅读理解',count:20},
-                {title:'英语·语法提升',desc:'语法提升 系统精讲',lang:'en',subj:'英语',topic:'语法提升',count:18},
-                {title:'英语·阅读专项',desc:'阅读策略 词汇拓展',lang:'en',subj:'英语',topic:'阅读专项',count:16},
+                {title:'语文-古诗名篇',desc:'生动讲解 情景联想',lang:'cn',subj:'语文',topic:'古诗名篇'},
+                {title:'语文-看图写话',desc:'观察方法 表达训练',lang:'cn',subj:'语文',topic:'看图写话'},
+                {title:'语文-阅读理解',desc:'精读泛读 答题技巧',lang:'cn',subj:'语文',topic:'阅读理解'},
+                {title:'英语-语法提升',desc:'语法提升 系统精讲',lang:'en',subj:'英语',topic:'语法提升'},
+                {title:'英语-阅读专项',desc:'阅读策略 词汇拓展',lang:'en',subj:'英语',topic:'阅读专项'},
             ],
             middle:[
-                {title:'语文·中文阅读',desc:'记叙文/说明文/议论文',lang:'cn',subj:'语文',topic:'中文阅读',count:32},
-                {title:'语文·中文写作',desc:'审题立意 结构布局',lang:'cn',subj:'语文',topic:'中文写作',count:28},
-                {title:'语文·名著专项',desc:'必读名著考点精讲',lang:'cn',subj:'语文',topic:'名著专项',count:20},
-                {title:'英语·语法专项',desc:'时态/从句/非谓语',lang:'en',subj:'英语',topic:'语法专项',count:26},
-                {title:'英语·题型技巧',desc:'完形/阅读/写作',lang:'en',subj:'英语',topic:'题型技巧',count:22},
+                {title:'语文-中文阅读',desc:'记叙文、说明文、议论文阅读答题框架',lang:'cn',subj:'语文',topic:'中文阅读'},
+                {title:'语文-中文写作',desc:'审题立意、结构布局、语言锤炼',lang:'cn',subj:'语文',topic:'中文写作'},
+                {title:'语文-名著专项',desc:'必读名著考点精讲与真题演练',lang:'cn',subj:'语文',topic:'名著专项'},
+                {title:'英语-语法专项',desc:'时态、从句、非谓语系统梳理',lang:'en',subj:'英语',topic:'语法专项'},
+                {title:'英语-题型技巧',desc:'完形、阅读、写作高分技巧',lang:'en',subj:'英语',topic:'题型技巧'},
             ]
         };
-        var zkG=sessionStorage.getItem('gradeClass')||'七年级';
-        if(GRADES.indexOf(zkG)===-1) zkG='七年级';
-        function renderZk(){
-            var mid=/[七八九]年级/.test(zkG), cards=mid?ZK.middle:ZK.primary;
-            document.getElementById('zkLabel').textContent=zkG;
+        var zkActiveGrade=sessionStorage.getItem('gradeClass')||'七年级';
+        if(GRADES.indexOf(zkActiveGrade)===-1) zkActiveGrade='七年级';
+        document.getElementById('zkGradeBtnText').textContent=zkActiveGrade;
+
+        function renderZkCards(){
+            var mid=/[七八九]年级/.test(zkActiveGrade), cards=mid?ZK.middle:ZK.primary;
             document.getElementById('zkCards').innerHTML=cards.map(function(c){
                 var bar=c.lang==='cn'?'zk-bar-cn':'zk-bar-en';
                 var p='cat=special-skills&subj='+encodeURIComponent(c.subj);
@@ -685,66 +1499,463 @@
                     '<div class="zk-arrow"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div></div>';
             }).join('');
         }
-        renderZk();
+        renderZkCards();
 
-        /* ── 精品试卷推荐列表 ── */
-        var V2_PAPERS = {
+        /* ── 精品试卷（完整数据 + 筛选） ── */
+        var PAPER_DATA = {
             chinese: [
-                { t: '部编版七年级语文上册新课标重点模拟题', dl: '2.3k', rec: '推荐' },
-                { t: '部编版七年级语文上册古诗文默写与赏析卷', dl: '2.1k', rec: '精选' },
-                { t: '人教版七年级语文上册阅读理解专项训练', dl: '1.9k' },
-                { t: '部编版七年级语文上册期末综合测试卷', dl: '1.9k', rec: '推荐' },
-                { t: '部编版六年级语文上册阅读理解专项突破', dl: '3.5k', rec: '精选' },
+                { id:'cn01', title:'2025-2026学年部编版一年级语文上册拼音与识字专项检测卷', downloads:'1.2k', filter:'热门推荐', recommend:'推荐', grade:'一年级', semester:'上学期' },
+                { id:'cn02', title:'2025-2026学年人教版一年级语文上册期末综合检测卷', downloads:'950', filter:'期末试题', grade:'一年级', semester:'上学期' },
+                { id:'cn03', title:'2025-2026学年部编版一年级语文下册看图说话专项训练卷', downloads:'1.0k', filter:'热门推荐', grade:'一年级', semester:'下学期' },
+                { id:'cn04', title:'2025-2026学年部编版二年级语文上册阅读与写话专项训练', downloads:'1.1k', filter:'热门推荐', recommend:'推荐', grade:'二年级', semester:'上学期' },
+                { id:'cn05', title:'2025-2026学年人教版二年级语文上册期末综合检测卷', downloads:'890', filter:'期末试题', grade:'二年级', semester:'上学期' },
+                { id:'cn06', title:'2025-2026学年部编版二年级语文下册看图写话专项训练', downloads:'950', filter:'热门推荐', grade:'二年级', semester:'下学期' },
+                { id:'cn07', title:'2025-2026学年部编版三年级语文上册课内阅读理解专练', downloads:'650', filter:'热门推荐', grade:'三年级', semester:'上学期' },
+                { id:'cn08', title:'2025-2026学年人教版三年级语文上册期末综合检测卷', downloads:'720', filter:'期末试题', grade:'三年级', semester:'上学期' },
+                { id:'cn09', title:'2025-2026学年部编版三年级语文下册阅读理解入门专练', downloads:'680', filter:'热门推荐', grade:'三年级', semester:'下学期' },
+                { id:'cn10', title:'2025-2026学年部编版四年级语文上册课内阅读精选练习卷', downloads:'1.9k', filter:'热门推荐', grade:'四年级', semester:'上学期' },
+                { id:'cn11', title:'2025-2026学年人教版四年级语文上册期末综合检测卷', downloads:'880', filter:'期末试题', grade:'四年级', semester:'上学期' },
+                { id:'cn12', title:'2025-2026学年部编版四年级语文下册阅读理解专项突破', downloads:'800', filter:'热门推荐', grade:'四年级', semester:'下学期' },
+                { id:'cn13', title:'2025-2026学年部编版五年级语文上册阅读与写作综合卷', downloads:'2.8k', filter:'热门推荐', recommend:'推荐', grade:'五年级', semester:'上学期' },
+                { id:'cn14', title:'2025-2026学年人教版五年级语文上册期中综合测试卷', downloads:'950', filter:'期中试题', grade:'五年级', semester:'上学期' },
+                { id:'cn15', title:'2025-2026学年人教版五年级语文上册期末综合测试卷', downloads:'1.2k', filter:'期末试题', grade:'五年级', semester:'上学期' },
+                { id:'cn16', title:'2025-2026学年部编版五年级语文下册作文训练专项卷', downloads:'960', filter:'热门推荐', grade:'五年级', semester:'下学期' },
+                { id:'cn17', title:'2025-2026学年部编版六年级语文上册阅读理解专项突破', downloads:'3.5k', filter:'热门推荐', recommend:'精选', grade:'六年级', semester:'上学期' },
+                { id:'cn18', title:'2025-2026学年人教版六年级语文上册期末综合检测卷', downloads:'1.4k', filter:'期末试题', grade:'六年级', semester:'上学期' },
+                { id:'cn19', title:'2025-2026学年部编版小学语文必背古诗75首默写检测卷', downloads:'4.2k', filter:'热门推荐', recommend:'推荐', grade:'六年级', semester:'下学期' },
+                { id:'cn20', title:'2024年人教版小升初语文真题卷（全国通用版）', downloads:'3.1k', filter:'小升初真题', recommend:'精选', grade:'六年级', semester:'下学期' },
+                { id:'cn21', title:'2025-2026学年部编版六年级语文小升初模拟冲刺卷（一）', downloads:'1.8k', filter:'小升初模拟', grade:'六年级', semester:'下学期' },
+                { id:'cn22', title:'2025-2026学年部编版六年级语文下册总复习综合专练', downloads:'1.5k', filter:'热门推荐', recommend:'推荐', grade:'六年级', semester:'下学期' },
+                { id:'cn23', title:'2025-2026学年部编版七年级语文上册新课标重点模拟题', downloads:'2.3k', filter:'热门推荐', recommend:'推荐', grade:'七年级', semester:'上学期' },
+                { id:'cn24', title:'2025-2026学年人教版七年级语文上册阅读理解专项训练', downloads:'1.9k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'cn25', title:'2025-2026学年部编版七年级语文上册古诗文默写与赏析卷', downloads:'2.1k', filter:'热门推荐', recommend:'精选', grade:'七年级', semester:'上学期' },
+                { id:'cn26', title:'2025-2026学年人教版七年级语文上册记叙文写作专项训练', downloads:'1.6k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'cn27', title:'2025-2026学年部编版七年级语文上册文言文阅读精选练习', downloads:'1.8k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'cn28', title:'2025-2026学年人教版七年级语文上册基础知识（字词句）综合卷', downloads:'1.5k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'cn29', title:'2025-2026学年部编版七年级语文上册名著阅读常考知识点卷', downloads:'2.0k', filter:'热门推荐', recommend:'推荐', grade:'七年级', semester:'上学期' },
+                { id:'cn30', title:'2025-2026学年人教版七年级语文上册课内外阅读对比训练', downloads:'1.4k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'cn31', title:'2025-2026学年部编版七年级语文上册现代文阅读理解专练', downloads:'1.7k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'cn32', title:'2025-2026学年人教版七年级语文上册综合能力模拟检测卷', downloads:'1.3k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'cn33', title:'2025-2026学年人教版七年级语文上册期中综合测试卷', downloads:'1.6k', filter:'期中试题', grade:'七年级', semester:'上学期' },
+                { id:'cn34', title:'2025-2026学年部编版七年级语文上册期末综合测试卷', downloads:'1.9k', filter:'期末试题', recommend:'推荐', grade:'七年级', semester:'上学期' },
+                { id:'cn35', title:'2025-2026学年人教版七年级语文上册第一单元检测卷', downloads:'1.1k', filter:'单元测试', grade:'七年级', semester:'上学期' },
+                { id:'cn36', title:'2025-2026学年部编版七年级语文下册古诗文理解与默写', downloads:'1.7k', filter:'热门推荐', grade:'七年级', semester:'下学期' },
+                { id:'cn37', title:'2025-2026学年人教版七年级语文下册期末冲刺检测卷', downloads:'1.5k', filter:'期末试题', grade:'七年级', semester:'下学期' },
+                { id:'cn38', title:'2025-2026学年部编版八年级语文上册名著阅读专项训练', downloads:'2.0k', filter:'热门推荐', recommend:'推荐', grade:'八年级', semester:'上学期' },
+                { id:'cn39', title:'2025-2026学年人教版八年级语文上册文言文阅读精练卷', downloads:'1.8k', filter:'热门推荐', grade:'八年级', semester:'上学期' },
+                { id:'cn40', title:'2025-2026学年部编版八年级语文上册期末综合检测卷', downloads:'2.1k', filter:'期末试题', recommend:'推荐', grade:'八年级', semester:'上学期' },
+                { id:'cn41', title:'2025-2026学年人教版八年级语文上册期中综合测试卷', downloads:'1.4k', filter:'期中试题', grade:'八年级', semester:'上学期' },
+                { id:'cn42', title:'2025-2026学年部编版八年级语文下册议论文写作训练卷', downloads:'1.5k', filter:'热门推荐', grade:'八年级', semester:'下学期' },
+                { id:'cn43', title:'2025-2026学年部编版九年级语文上册中考模拟卷（一）', downloads:'3.2k', filter:'热门推荐', recommend:'推荐', grade:'九年级', semester:'上学期' },
+                { id:'cn44', title:'2025-2026学年人教版九年级语文上册古诗文默写专练', downloads:'1.4k', filter:'热门推荐', grade:'九年级', semester:'上学期' },
+                { id:'cn45', title:'2025-2026学年部编版九年级语文上册名著常考知识点汇总卷', downloads:'2.6k', filter:'热门推荐', recommend:'精选', grade:'九年级', semester:'上学期' },
+                { id:'cn46', title:'2025-2026学年人教版九年级语文上册期末综合检测卷', downloads:'1.6k', filter:'期末试题', grade:'九年级', semester:'上学期' },
+                { id:'cn47', title:'2025年部编版九年级语文中考模拟冲刺卷（全国通用）', downloads:'3.9k', filter:'热门推荐', recommend:'推荐', grade:'九年级', semester:'下学期' },
+                { id:'cn48', title:'2024年人教版九年级语文中考真题汇编（含答案解析）', downloads:'2.8k', filter:'热门推荐', recommend:'精选', grade:'九年级', semester:'下学期' },
             ],
             math: [
-                { t: '人教版七年级数学上册有理数综合训练卷', dl: '2.1k', rec: '推荐' },
-                { t: '人教版七年级数学上册整式加减运算检测卷', dl: '1.6k', rec: '精选' },
-                { t: '人教版五年级数学上册应用题分类专练卷', dl: '4.1k', rec: '精选' },
-                { t: '人教版七年级数学上册计算能力达标检测卷', dl: '1.7k', rec: '推荐' },
-                { t: '人教版七年级数学上册期末综合测试卷', dl: '1.8k' },
+                { id:'ma01', title:'2025-2026学年人教版一年级数学上册10以内加减法专练', downloads:'1.1k', filter:'热门推荐', recommend:'推荐', grade:'一年级', semester:'上学期' },
+                { id:'ma02', title:'2025-2026学年人教版一年级数学上册期末综合测试卷', downloads:'880', filter:'期末试题', grade:'一年级', semester:'上学期' },
+                { id:'ma03', title:'2025-2026学年北师大版一年级数学下册20以内加减法卷', downloads:'1.0k', filter:'热门推荐', grade:'一年级', semester:'下学期' },
+                { id:'ma04', title:'2025-2026学年西师版（新课标版）二年级数学上册100以内加减法', downloads:'980', filter:'热门推荐', recommend:'推荐', grade:'二年级', semester:'上学期' },
+                { id:'ma05', title:'2025-2026学年人教版二年级数学上册期末综合检测卷', downloads:'850', filter:'期末试题', grade:'二年级', semester:'上学期' },
+                { id:'ma06', title:'2025-2026学年北师大版二年级数学下册乘法口诀专练卷', downloads:'920', filter:'热门推荐', grade:'二年级', semester:'下学期' },
+                { id:'ma07', title:'2025-2026学年人教版三年级数学上册乘除法口算速算卷', downloads:'2.9k', filter:'热门推荐', recommend:'精选', grade:'三年级', semester:'上学期' },
+                { id:'ma08', title:'2025-2026学年苏教版三年级数学上册期末综合测试卷', downloads:'700', filter:'期末试题', grade:'三年级', semester:'上学期' },
+                { id:'ma09', title:'2025-2026学年北师大版三年级数学下册面积与周长专练', downloads:'680', filter:'热门推荐', grade:'三年级', semester:'下学期' },
+                { id:'ma10', title:'2025-2026学年人教版四年级数学上册图形与几何专项训练', downloads:'1.8k', filter:'热门推荐', grade:'四年级', semester:'上学期' },
+                { id:'ma11', title:'2025-2026学年西师版四年级数学上册期末综合检测卷', downloads:'850', filter:'期末试题', grade:'四年级', semester:'上学期' },
+                { id:'ma12', title:'2025-2026学年人教版四年级数学下册小数运算专练卷', downloads:'760', filter:'热门推荐', grade:'四年级', semester:'下学期' },
+                { id:'ma13', title:'2025-2026学年北师大版五年级数学上册分数与小数综合卷', downloads:'2.5k', filter:'热门推荐', grade:'五年级', semester:'上学期' },
+                { id:'ma14', title:'2025-2026学年人教版五年级数学上册应用题分类专练卷', downloads:'4.1k', filter:'热门推荐', recommend:'精选', grade:'五年级', semester:'上学期' },
+                { id:'ma15', title:'2025-2026学年苏教版五年级数学上册期末综合测试卷', downloads:'1.0k', filter:'期末试题', grade:'五年级', semester:'上学期' },
+                { id:'ma16', title:'2025-2026学年人教版五年级数学下册分数四则运算专练', downloads:'880', filter:'热门推荐', grade:'五年级', semester:'下学期' },
+                { id:'ma17', title:'2025-2026学年人教版六年级数学上册计算能力提升卷', downloads:'3.6k', filter:'热门推荐', recommend:'推荐', grade:'六年级', semester:'上学期' },
+                { id:'ma18', title:'2025-2026学年北师大版六年级数学上册期末综合测试卷', downloads:'1.2k', filter:'期末试题', grade:'六年级', semester:'上学期' },
+                { id:'ma19', title:'2024年人教版小升初数学真题卷（全国通用精选版）', downloads:'2.6k', filter:'小升初真题', recommend:'精选', grade:'六年级', semester:'下学期' },
+                { id:'ma20', title:'2025-2026学年西师版（新课标版）六年级数学小升初模拟卷', downloads:'1.5k', filter:'小升初模拟', grade:'六年级', semester:'下学期' },
+                { id:'ma21', title:'2025-2026学年人教版小学数学易错题精选100题汇编', downloads:'3.3k', filter:'热门推荐', recommend:'推荐', grade:'六年级', semester:'下学期' },
+                { id:'ma22', title:'2025-2026学年人教版七年级数学上册有理数综合训练卷', downloads:'2.1k', filter:'热门推荐', recommend:'推荐', grade:'七年级', semester:'上学期' },
+                { id:'ma23', title:'2025-2026学年北师大版七年级数学上册一元一次方程专练', downloads:'1.8k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'ma24', title:'2025-2026学年人教版七年级数学上册整式加减运算检测卷', downloads:'1.6k', filter:'热门推荐', recommend:'精选', grade:'七年级', semester:'上学期' },
+                { id:'ma25', title:'2025-2026学年苏教版七年级数学上册几何图形初步认识卷', downloads:'1.4k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'ma26', title:'2025-2026学年人教版七年级数学上册数轴与绝对值专项', downloads:'1.5k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'ma27', title:'2025-2026学年北师大版七年级数学上册应用题综合训练卷', downloads:'1.3k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'ma28', title:'2025-2026学年人教版七年级数学上册计算能力达标检测卷', downloads:'1.7k', filter:'热门推荐', recommend:'推荐', grade:'七年级', semester:'上学期' },
+                { id:'ma29', title:'2025-2026学年西师版七年级数学上册角与线段综合专练', downloads:'1.2k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'ma30', title:'2025-2026学年人教版七年级数学上册易错题精选检测卷', downloads:'1.9k', filter:'热门推荐', recommend:'精选', grade:'七年级', semester:'上学期' },
+                { id:'ma31', title:'2025-2026学年北师大版七年级数学上册综合能力模拟卷', downloads:'1.1k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'ma32', title:'2025-2026学年人教版七年级数学上册期末综合测试卷', downloads:'1.8k', filter:'期末试题', recommend:'推荐', grade:'七年级', semester:'上学期' },
+                { id:'ma33', title:'2025-2026学年北师大版七年级数学上册期中综合检测卷', downloads:'1.3k', filter:'期中试题', grade:'七年级', semester:'上学期' },
+                { id:'ma34', title:'2025-2026学年人教版七年级数学下册几何初步专项训练', downloads:'1.5k', filter:'热门推荐', grade:'七年级', semester:'下学期' },
+                { id:'ma35', title:'2025-2026学年人教版八年级数学上册全等三角形专练卷', downloads:'1.9k', filter:'热门推荐', recommend:'推荐', grade:'八年级', semester:'上学期' },
+                { id:'ma36', title:'2025-2026学年北师大版八年级数学上册一次函数综合训练', downloads:'1.7k', filter:'热门推荐', grade:'八年级', semester:'上学期' },
+                { id:'ma37', title:'2025-2026学年人教版八年级数学上册期末综合检测卷', downloads:'1.6k', filter:'期末试题', grade:'八年级', semester:'上学期' },
+                { id:'ma38', title:'2025-2026学年苏教版八年级数学上册期中综合检测卷', downloads:'1.5k', filter:'期中试题', grade:'八年级', semester:'上学期' },
+                { id:'ma39', title:'2025-2026学年人教版九年级数学上册二次函数专项训练', downloads:'2.4k', filter:'热门推荐', recommend:'推荐', grade:'九年级', semester:'上学期' },
+                { id:'ma40', title:'2025年人教版中考数学压轴题专练（含解题思路）', downloads:'3.8k', filter:'热门推荐', recommend:'推荐', grade:'九年级', semester:'上学期' },
+                { id:'ma41', title:'2025-2026学年北师大版九年级数学下册几何证明专项卷', downloads:'1.2k', filter:'热门推荐', grade:'九年级', semester:'下学期' },
+                { id:'ma42', title:'2025年人教版九年级数学中考冲刺模拟卷（全国通用）', downloads:'2.2k', filter:'热门推荐', grade:'九年级', semester:'下学期' },
             ],
             english: [
-                { t: '人教版七年级英语上册阅读理解精练（含答案）', dl: '1.8k', rec: '推荐' },
-                { t: '人教版七年级英语上册语法填空与单选专练', dl: '1.6k', rec: '精选' },
-                { t: '外研版六年级英语上册常用句型与对话练习', dl: '3.2k', rec: '精选' },
-                { t: '人教版七年级英语上册时态综合练习', dl: '1.7k', rec: '推荐' },
-                { t: '人教版七年级英语上册期末综合试卷', dl: '1.3k' },
+                { id:'en01', title:'2025-2026学年人教版（PEP）一年级英语上册字母与单词专练', downloads:'680', filter:'热门推荐', grade:'一年级', semester:'上学期' },
+                { id:'en02', title:'2025-2026学年人教版（PEP）一年级英语上册期末综合测试卷', downloads:'620', filter:'期末试题', grade:'一年级', semester:'上学期' },
+                { id:'en03', title:'2025-2026学年外研版二年级英语上册日常对话专项训练卷', downloads:'720', filter:'热门推荐', grade:'二年级', semester:'上学期' },
+                { id:'en04', title:'2025-2026学年人教版（PEP）二年级英语上册期末综合检测卷', downloads:'650', filter:'期末试题', grade:'二年级', semester:'上学期' },
+                { id:'en05', title:'2025-2026学年译林版三年级英语上册字母与自然拼读练习卷', downloads:'2.9k', filter:'热门推荐', grade:'三年级', semester:'上学期' },
+                { id:'en06', title:'2025-2026学年人教版（PEP）三年级英语上册期末综合测试卷', downloads:'580', filter:'期末试题', grade:'三年级', semester:'上学期' },
+                { id:'en07', title:'2025-2026学年外研版四年级英语上册单词拼写与句型检测卷', downloads:'1.8k', filter:'热门推荐', grade:'四年级', semester:'上学期' },
+                { id:'en08', title:'2025-2026学年人教版（PEP）四年级英语下册阅读理解入门卷', downloads:'720', filter:'热门推荐', grade:'四年级', semester:'下学期' },
+                { id:'en09', title:'2025-2026学年译林版五年级英语上册阅读理解精选20篇', downloads:'2.4k', filter:'热门推荐', grade:'五年级', semester:'上学期' },
+                { id:'en10', title:'2025-2026学年人教版（PEP）五年级英语上册期末综合测试卷', downloads:'880', filter:'期末试题', grade:'五年级', semester:'上学期' },
+                { id:'en11', title:'2025-2026学年人教版（PEP）六年级英语上册语法总复习专项卷', downloads:'2.7k', filter:'热门推荐', recommend:'推荐', grade:'六年级', semester:'上学期' },
+                { id:'en12', title:'2025-2026学年外研版六年级英语上册常用句型与对话练习', downloads:'3.2k', filter:'热门推荐', recommend:'精选', grade:'六年级', semester:'上学期' },
+                { id:'en13', title:'2024年人教版小升初英语真题卷（全国通用版）', downloads:'2.0k', filter:'小升初真题', recommend:'精选', grade:'六年级', semester:'下学期' },
+                { id:'en14', title:'2025-2026学年人教版（PEP）六年级英语下册总复习综合卷', downloads:'1.2k', filter:'热门推荐', recommend:'推荐', grade:'六年级', semester:'下学期' },
+                { id:'en15', title:'2025-2026学年人教版七年级英语上册阅读理解精练（含答案）', downloads:'1.8k', filter:'热门推荐', recommend:'推荐', grade:'七年级', semester:'上学期' },
+                { id:'en16', title:'2025-2026学年外研版七年级英语上册完形填空专项训练卷', downloads:'1.5k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'en17', title:'2025-2026学年人教版七年级英语上册语法填空与单选专练', downloads:'1.6k', filter:'热门推荐', recommend:'精选', grade:'七年级', semester:'上学期' },
+                { id:'en18', title:'2025-2026学年译林版七年级英语上册词汇拼写专项检测卷', downloads:'1.3k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'en19', title:'2025-2026学年人教版七年级英语上册听力理解模拟训练卷', downloads:'1.4k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'en20', title:'2025-2026学年外研版七年级英语上册书面表达写作训练卷', downloads:'1.2k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'en21', title:'2025-2026学年人教版七年级英语上册时态综合练习（一般现在时）', downloads:'1.7k', filter:'热门推荐', recommend:'推荐', grade:'七年级', semester:'上学期' },
+                { id:'en22', title:'2025-2026学年译林版七年级英语上册情景交际与补全对话卷', downloads:'1.1k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'en23', title:'2025-2026学年人教版七年级英语上册课文知识点综合检测卷', downloads:'1.5k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'en24', title:'2025-2026学年外研版七年级英语上册综合能力模拟检测卷', downloads:'1.0k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'en25', title:'2025-2026学年人教版七年级英语上册期末综合试卷', downloads:'1.3k', filter:'期末试题', grade:'七年级', semester:'上学期' },
+                { id:'en26', title:'2025-2026学年外研版七年级英语下册语法填空综合专练', downloads:'1.3k', filter:'热门推荐', grade:'七年级', semester:'下学期' },
+                { id:'en27', title:'2025-2026学年人教版八年级英语上册阅读理解专项训练卷', downloads:'1.5k', filter:'热门推荐', recommend:'推荐', grade:'八年级', semester:'上学期' },
+                { id:'en28', title:'2025-2026学年外研版八年级英语上册完形填空与语法填空卷', downloads:'960', filter:'热门推荐', grade:'八年级', semester:'上学期' },
+                { id:'en29', title:'2025-2026学年人教版八年级英语上册期末综合检测卷', downloads:'1.4k', filter:'期末试题', grade:'八年级', semester:'上学期' },
+                { id:'en30', title:'2025-2026学年人教版八年级英语下册书面表达高分范文卷', downloads:'2.1k', filter:'热门推荐', recommend:'精选', grade:'八年级', semester:'下学期' },
+                { id:'en31', title:'2025-2026学年人教版九年级英语上册中考听力模拟训练', downloads:'3.5k', filter:'热门推荐', recommend:'推荐', grade:'九年级', semester:'上学期' },
+                { id:'en32', title:'2025-2026学年外研版九年级英语上册时态综合练习卷', downloads:'1.6k', filter:'热门推荐', grade:'九年级', semester:'上学期' },
+                { id:'en33', title:'2025年人教版九年级英语中考听力模拟冲刺卷（全国通用）', downloads:'3.5k', filter:'热门推荐', recommend:'推荐', grade:'九年级', semester:'下学期' },
+                { id:'en34', title:'2025-2026学年外研版九年级英语下册期中综合模拟卷', downloads:'1.1k', filter:'期中试题', grade:'九年级', semester:'下学期' },
             ],
             science: [
-                { t: '浙教版七年级科学上册生物知识点检测卷', dl: '1.8k', rec: '推荐' },
-                { t: '浙教版七年级科学上册物质的特性专项训练', dl: '1.5k', rec: '精选' },
-                { t: '浙教版七年级科学上册温度与物态变化专练', dl: '1.3k', rec: '推荐' },
-                { t: '教科版七年级科学上册期末综合检测卷', dl: '950' },
-                { t: '浙教版八年级科学上册力学综合专项训练卷', dl: '2.3k', rec: '推荐' },
+                { id:'sc01', title:'2025-2026学年浙教版七年级科学上册生物知识点检测卷', downloads:'1.8k', filter:'热门推荐', recommend:'推荐', grade:'七年级', semester:'上学期' },
+                { id:'sc02', title:'2025-2026学年教科版七年级科学上册植物与动物分类检测卷', downloads:'1.3k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'sc03', title:'2025-2026学年浙教版七年级科学上册物质的特性专项训练', downloads:'1.5k', filter:'热门推荐', recommend:'精选', grade:'七年级', semester:'上学期' },
+                { id:'sc04', title:'2025-2026学年人教版七年级科学上册地球与宇宙综合检测卷', downloads:'1.2k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'sc05', title:'2025-2026学年教科版七年级科学上册科学探究方法专练卷', downloads:'1.0k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'sc06', title:'2025-2026学年浙教版七年级科学上册水和溶液综合检测卷', downloads:'1.4k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'sc07', title:'2025-2026学年人教版七年级科学上册生态系统与环境专练', downloads:'1.1k', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'sc08', title:'2025-2026学年教科版七年级科学上册显微镜观察实验报告卷', downloads:'950', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'sc09', title:'2025-2026学年浙教版七年级科学上册温度与物态变化专练', downloads:'1.3k', filter:'热门推荐', recommend:'推荐', grade:'七年级', semester:'上学期' },
+                { id:'sc10', title:'2025-2026学年人教版七年级科学上册综合能力模拟检测卷', downloads:'880', filter:'热门推荐', grade:'七年级', semester:'上学期' },
+                { id:'sc11', title:'2025-2026学年浙教版七年级科学上册期中综合考试卷', downloads:'720', filter:'期中试题', grade:'七年级', semester:'上学期' },
+                { id:'sc12', title:'2025-2026学年教科版七年级科学上册期末综合检测卷', downloads:'950', filter:'期末试题', grade:'七年级', semester:'上学期' },
+                { id:'sc13', title:'2025-2026学年浙教版七年级科学下册地球与宇宙专项训练', downloads:'880', filter:'热门推荐', grade:'七年级', semester:'下学期' },
+                { id:'sc14', title:'2025-2026学年浙教版八年级科学上册力学综合专项训练卷', downloads:'2.3k', filter:'热门推荐', recommend:'推荐', grade:'八年级', semester:'上学期' },
+                { id:'sc15', title:'2025-2026学年教科版八年级科学上册电学实验专题检测卷', downloads:'1.5k', filter:'热门推荐', grade:'八年级', semester:'上学期' },
+                { id:'sc16', title:'2025-2026学年浙教版八年级科学上册期末综合检测卷', downloads:'850', filter:'期末试题', grade:'八年级', semester:'上学期' },
+                { id:'sc17', title:'2025-2026学年教科版八年级科学下册光学与声学综合专练', downloads:'1.6k', filter:'热门推荐', grade:'八年级', semester:'下学期' },
+                { id:'sc18', title:'2025-2026学年浙教版九年级科学上册中考真题分类汇编', downloads:'960', filter:'热门推荐', recommend:'精选', grade:'九年级', semester:'上学期' },
+                { id:'sc19', title:'2025-2026学年教科版九年级科学上册化学元素与化合物卷', downloads:'2.1k', filter:'热门推荐', recommend:'精选', grade:'九年级', semester:'上学期' },
+                { id:'sc20', title:'2025年浙教版中考科学实验探究题精选（含评分标准）', downloads:'2.7k', filter:'热门推荐', recommend:'推荐', grade:'九年级', semester:'上学期' },
+                { id:'sc21', title:'2025-2026学年浙教版九年级科学下册酸碱盐综合检测卷', downloads:'2.0k', filter:'热门推荐', recommend:'精选', grade:'九年级', semester:'下学期' },
+                { id:'sc22', title:'2025年教科版中考科学计算题专项训练（密度/压强/浮力）', downloads:'1.9k', filter:'热门推荐', grade:'九年级', semester:'下学期' },
             ]
         };
-        var v2PaperSubj = 'chinese';
-        var iconMap = { chinese:'pri-cn', math:'pri-ma', english:'pri-en', science:'pri-sc' };
 
-        function renderV2Papers() {
-            var items = V2_PAPERS[v2PaperSubj] || [];
-            var ic = iconMap[v2PaperSubj];
-            document.getElementById('v2PaperList').innerHTML = items.map(function(p) {
-                var tag = '';
-                if (p.rec === '推荐') tag = '<span class="pr-rec-tag prt-hot">推荐</span>';
-                else if (p.rec === '精选') tag = '<span class="pr-rec-tag prt-pick">精选</span>';
-                return '<div class="paper-rec-item" onclick="window.location.href=\'试卷/试卷下载.html\'">' +
-                    '<div class="pr-icon ' + ic + '"><svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>' +
-                    '<div class="pr-body"><div class="pr-title">' + tag + p.t + '</div>' +
-                    '<div class="pr-meta"><svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>' + p.dl + '人下载</div></div>' +
-                    '<div class="pr-arrow"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div></div>';
+        var activeGrade = sessionStorage.getItem('gradeClass')||'七年级';
+        if(GRADES.indexOf(activeGrade)===-1) activeGrade='七年级';
+        var activeSemester = '上学期';
+        var activePaperSubj = 'chinese';
+        var activePaperFilter = '热门推荐';
+
+        function updateGradeBtnText(){
+            var short = activeSemester==='上学期'?'上':'下';
+            document.getElementById('paperGradeBtnText').textContent = activeGrade + short;
+        }
+        updateGradeBtnText();
+
+        function renderPapers(){
+            var list=document.getElementById('paperList');
+            var items=(PAPER_DATA[activePaperSubj]||[]).filter(function(p){return p.grade===activeGrade && p.semester===activeSemester;});
+            if(activePaperFilter!=='all'){items=items.filter(function(p){return p.filter===activePaperFilter;});}
+            var iconMap={chinese:'pi-chinese',math:'pi-math',english:'pi-eng',science:'pi-sci'};
+            var icon=iconMap[activePaperSubj]||'pi-chinese';
+            if(!items.length){
+                list.innerHTML='<div style="text-align:center;padding:24px 0;color:#a1a1aa;font-size:.75rem;">暂无该分类试卷</div>';
+                return;
+            }
+            list.innerHTML=items.map(function(p){
+                var recHtml=p.recommend?'<span class="paper-recommend '+(p.recommend==='推荐'?'pr-recommend':'pr-pick')+'">'+p.recommend+'</span>':'';
+                return '<div class="paper-item" onclick="window.location.href=\'试卷/试卷详情.html?id='+p.id+'&title='+encodeURIComponent(p.title)+'\'">' +
+                    '<div class="paper-icon '+icon+'"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>' +
+                    '<div class="paper-info"><div class="paper-title">'+recHtml+p.title+'</div>' +
+                    '<div class="paper-row"><span class="paper-dl"><svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>'+p.downloads+'人下载</span></div></div>' +
+                    '<div class="paper-arrow"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></div></div>';
             }).join('');
         }
 
-        document.getElementById('v2PaperTabs').addEventListener('click', function(e) {
-            var btn = e.target.closest('.pt-btn');
-            if (!btn) return;
-            this.querySelectorAll('.pt-btn').forEach(function(b) { b.classList.remove('active'); });
-            btn.classList.add('active');
-            v2PaperSubj = btn.dataset.subj;
-            renderV2Papers();
+        document.getElementById('paperTabs').addEventListener('click',function(e){
+            var tab=e.target.closest('.pt-btn');
+            if(!tab) return;
+            document.querySelectorAll('#paperTabs .pt-btn').forEach(function(t){t.classList.remove('active');});
+            tab.classList.add('active');
+            activePaperSubj=tab.dataset.subj;
+            activePaperFilter='热门推荐';
+            document.querySelectorAll('#paperFilters .paper-filter').forEach(function(f){f.classList.toggle('active',f.dataset.filter==='热门推荐');});
+            renderPapers();
         });
-        renderV2Papers();
+
+        document.getElementById('paperFilters').addEventListener('click',function(e){
+            var btn=e.target.closest('.paper-filter');
+            if(!btn) return;
+            document.querySelectorAll('#paperFilters .paper-filter').forEach(function(f){f.classList.remove('active');});
+            btn.classList.add('active');
+            activePaperFilter=btn.dataset.filter;
+            renderPapers();
+        });
+
+        renderPapers();
+
+        /* ── 过稿模式 ── */
+        var reviewOpen = false;
+        var reviewNodes = [];
+        var rpPanel = null;
+        var prdLoaded = false;
+        var elsBuilt = false;
+
+        function renderMd(md) {
+            var inCode = false, codeLines = [], inTable = false, tableLines = [];
+            var out = [];
+            md.split('\n').forEach(function(line) {
+                if (line.match(/^```/)) {
+                    if (inCode) { out.push('<pre><code>' + codeLines.join('\n') + '</code></pre>'); codeLines = []; }
+                    inCode = !inCode; return;
+                }
+                if (inCode) { codeLines.push(line.replace(/</g,'&lt;')); return; }
+                if (line.match(/^\|.+\|$/)) {
+                    if (line.match(/^\|[\s:|-]+\|$/)) return;
+                    var cells = line.split('|').filter(function(c,i,a){return i>0&&i<a.length-1;}).map(function(c){return c.trim();});
+                    if (!inTable) { inTable = true; tableLines = []; }
+                    tableLines.push(cells);
+                    return;
+                }
+                if (inTable) { flushTable(); inTable = false; }
+                if (line.match(/^#{1}\s/)) { out.push('<h1>'+inline(line.replace(/^#\s+/,''))+'</h1>'); return; }
+                if (line.match(/^#{2}\s/)) { out.push('<h2>'+inline(line.replace(/^##\s+/,''))+'</h2>'); return; }
+                if (line.match(/^#{3}\s/)) { out.push('<h3>'+inline(line.replace(/^###\s+/,''))+'</h3>'); return; }
+                if (line.match(/^#{4}\s/)) { out.push('<h4>'+inline(line.replace(/^####\s+/,''))+'</h4>'); return; }
+                if (line.match(/^>\s+/)) { out.push('<blockquote>'+inline(line.replace(/^>\s+/,''))+'</blockquote>'); return; }
+                if (line.match(/^\[!\]/)) { out.push('<div class="prd-note">'+inline(line.replace(/^\[!\]\s*/,''))+'</div>'); return; }
+                if (line.match(/^---$/)) { out.push('<hr>'); return; }
+                if (line.match(/^[-*]\s/)) { out.push('<li>'+inline(line.replace(/^[-*]\s+/,''))+'</li>'); return; }
+                if (line.match(/^\d+\.\s/)) { out.push('<li>'+inline(line.replace(/^\d+\.\s+/,''))+'</li>'); return; }
+                if (line.trim()) out.push('<p>'+inline(line)+'</p>');
+            });
+            if (inTable) flushTable();
+            function flushTable() {
+                var h='<table><thead><tr>'+tableLines[0].map(function(c){return '<th>'+inline(c)+'</th>';}).join('')+'</tr></thead><tbody>';
+                for(var i=1;i<tableLines.length;i++) h+='<tr>'+tableLines[i].map(function(c){return '<td>'+inline(c)+'</td>';}).join('')+'</tr>';
+                out.push(h+'</tbody></table>');
+            }
+            function inline(s) {
+                return s
+                    .replace(/`([^`]+)`/g, '<code>$1</code>')
+                    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+            }
+            return out.join('\n');
+        }
+
+        function loadPrdDoc() {
+            prdLoaded = true;
+        }
+
+        function buildElsPanel() {
+            elsBuilt = true;
+            var els = document.querySelectorAll('[data-doc]');
+            var sections = {};
+            els.forEach(function(el) {
+                var doc = el.getAttribute('data-doc') || '';
+                var prd = el.getAttribute('data-prd') || '';
+                var track = el.getAttribute('data-track') || '';
+                if (!prd && !track) return;
+                var sec = doc.split('-')[0] || '其他';
+                if (!sections[sec]) sections[sec] = [];
+                sections[sec].push({ el: el, doc: doc, prd: prd, track: track });
+            });
+            var container = document.getElementById('rpTabEls');
+            container.innerHTML = '';
+            var total = 0;
+            var sectionNames = {
+                'ai': '🤖 AI 卡片', 'voice': '🎤 语音', 'camera': '📷 拍照',
+                'tool': '🛠️ 工具区', 'video': '🎬 视频课堂',
+                'zk': '📚 专项大招课', 'paper': '📄 精品试卷'
+            };
+            Object.keys(sections).forEach(function(sec) {
+                var div = document.createElement('div');
+                div.className = 'rp-section';
+                div.innerHTML = '<div class="rp-section-title">' + (sectionNames[sec] || sec) + '</div>';
+                sections[sec].forEach(function(item) {
+                    total++;
+                    var card = document.createElement('div');
+                    card.className = 'rp-item';
+                    card.innerHTML =
+                        '<div class="rp-item-id">' + item.doc + '</div>' +
+                        (item.prd ? '<div class="rp-item-prd">' + item.prd + '</div>' : '') +
+                        (item.track ? '<div class="rp-item-track">📊 ' + item.track + '</div>' : '');
+                    card.onclick = function() {
+                        reviewNodes.forEach(function(n) { n.el.classList.remove('review-highlight'); });
+                        document.querySelectorAll('.rp-item').forEach(function(i) { i.classList.remove('rp-highlight'); });
+                        item.el.classList.add('review-highlight');
+                        card.classList.add('rp-highlight');
+                        item.el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    };
+                    div.appendChild(card);
+                    reviewNodes.push(item);
+                });
+                container.appendChild(div);
+            });
+            document.getElementById('rpCount').textContent = total + ' 个标注项';
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.rp-tab').forEach(function(t) { t.classList.toggle('active', t.dataset.tab === tab); });
+            document.getElementById('rpTabDoc').style.display = tab === 'doc' ? '' : 'none';
+            document.getElementById('rpTabEls').style.display = tab === 'els' ? '' : 'none';
+            if (tab === 'doc' && !prdLoaded) loadPrdDoc();
+            if (tab === 'els' && !elsBuilt) buildElsPanel();
+        }
+
+        var _currentMode = 'demo';
+        function setMode(mode) {
+            if (mode === _currentMode) return;
+            _currentMode = mode;
+            var btns = document.querySelectorAll('#modeToggle button');
+            btns.forEach(function(b, i) { b.classList.toggle('active', mode === 'demo' ? i === 0 : i === 1); });
+            rpPanel = document.getElementById('reviewPanel');
+            if (mode === 'review') {
+                reviewOpen = true;
+                rpPanel.classList.add('open');
+                if (!prdLoaded) loadPrdDoc();
+            } else {
+                reviewOpen = false;
+                rpPanel.classList.remove('open');
+                reviewNodes.forEach(function(n) { n.el.classList.remove('review-highlight'); });
+            }
+        }
+
+        document.getElementById('modeToggle').addEventListener('click', function(e) { e.stopPropagation(); });
+
+        if (new URLSearchParams(window.location.search).get('mode') === 'review') {
+            setTimeout(function() { _currentMode = 'demo'; setMode('review'); }, 100);
+        }
+
+        /* ── 拖拽移动 ── */
+        (function() {
+            var panel, header, dragging = false, ox, oy, sx, sy;
+            document.addEventListener('DOMContentLoaded', function() {
+                panel = document.getElementById('reviewPanel');
+                header = document.getElementById('rpHeader');
+                header.addEventListener('mousedown', startDrag);
+                header.addEventListener('touchstart', startDragTouch, { passive: false });
+                panel.querySelectorAll('.rp-resize').forEach(function(h) {
+                    h.addEventListener('mousedown', startResize);
+                    h.addEventListener('touchstart', startResizeTouch, { passive: false });
+                });
+            });
+            function startDrag(e) {
+                if (e.target.closest('.rp-close')) return;
+                dragging = true;
+                ox = e.clientX; oy = e.clientY;
+                sx = panel.offsetLeft; sy = panel.offsetTop;
+                document.addEventListener('mousemove', onDrag);
+                document.addEventListener('mouseup', stopDrag);
+                e.preventDefault();
+            }
+            function startDragTouch(e) {
+                if (e.target.closest('.rp-close')) return;
+                dragging = true;
+                var t = e.touches[0];
+                ox = t.clientX; oy = t.clientY;
+                sx = panel.offsetLeft; sy = panel.offsetTop;
+                document.addEventListener('touchmove', onDragTouch, { passive: false });
+                document.addEventListener('touchend', stopDrag);
+                e.preventDefault();
+            }
+            function onDrag(e) {
+                if (!dragging) return;
+                moveTo(e.clientX, e.clientY);
+            }
+            function onDragTouch(e) {
+                if (!dragging) return;
+                var t = e.touches[0];
+                moveTo(t.clientX, t.clientY);
+                e.preventDefault();
+            }
+            function moveTo(cx, cy) {
+                var nx = sx + (cx - ox);
+                var ny = sy + (cy - oy);
+                nx = Math.max(0, Math.min(nx, window.innerWidth - 80));
+                ny = Math.max(0, Math.min(ny, window.innerHeight - 40));
+                panel.style.left = nx + 'px';
+                panel.style.top = ny + 'px';
+                panel.style.right = 'auto';
+            }
+            function stopDrag() {
+                dragging = false;
+                document.removeEventListener('mousemove', onDrag);
+                document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchmove', onDragTouch);
+                document.removeEventListener('touchend', stopDrag);
+            }
+
+            /* ── 调整大小 ── */
+            var resizing = false, rDir, rox, roy, rRect;
+            function startResize(e) {
+                rDir = e.target.dataset.dir;
+                resizing = true;
+                rox = e.clientX; roy = e.clientY;
+                rRect = { l: panel.offsetLeft, t: panel.offsetTop, w: panel.offsetWidth, h: panel.offsetHeight };
+                document.addEventListener('mousemove', onResize);
+                document.addEventListener('mouseup', stopResize);
+                e.preventDefault(); e.stopPropagation();
+            }
+            function startResizeTouch(e) {
+                rDir = e.target.dataset.dir;
+                resizing = true;
+                var t = e.touches[0];
+                rox = t.clientX; roy = t.clientY;
+                rRect = { l: panel.offsetLeft, t: panel.offsetTop, w: panel.offsetWidth, h: panel.offsetHeight };
+                document.addEventListener('touchmove', onResizeTouch, { passive: false });
+                document.addEventListener('touchend', stopResize);
+                e.preventDefault(); e.stopPropagation();
+            }
+            function onResize(e) { if (resizing) applyResize(e.clientX, e.clientY); }
+            function onResizeTouch(e) {
+                if (!resizing) return;
+                var t = e.touches[0];
+                applyResize(t.clientX, t.clientY);
+                e.preventDefault();
+            }
+            function applyResize(cx, cy) {
+                var dx = cx - rox, dy = cy - roy;
+                var minW = 280, minH = 300;
+                var nl = rRect.l, nt = rRect.t, nw = rRect.w, nh = rRect.h;
+                if (rDir.indexOf('e') >= 0) nw = Math.max(minW, rRect.w + dx);
+                if (rDir.indexOf('w') >= 0) { nw = Math.max(minW, rRect.w - dx); nl = rRect.l + rRect.w - nw; }
+                if (rDir.indexOf('s') >= 0) nh = Math.max(minH, rRect.h + dy);
+                if (rDir.indexOf('n') >= 0) { nh = Math.max(minH, rRect.h - dy); nt = rRect.t + rRect.h - nh; }
+                panel.style.width = nw + 'px';
+                panel.style.height = nh + 'px';
+                panel.style.left = nl + 'px';
+                panel.style.top = nt + 'px';
+                panel.style.right = 'auto';
+            }
+            function stopResize() {
+                resizing = false;
+                document.removeEventListener('mousemove', onResize);
+                document.removeEventListener('mouseup', stopResize);
+                document.removeEventListener('touchmove', onResizeTouch);
+                document.removeEventListener('touchend', stopResize);
+            }
+        })();
     </script>
 
 </body>
