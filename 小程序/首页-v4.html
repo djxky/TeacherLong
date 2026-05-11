@@ -696,7 +696,7 @@
                             <button class="ai-input-btn" id="aiVoiceToggle" onclick="event.stopPropagation(); toggleVoiceMode()" data-doc="voice-btn" data-prd="切换文字/语音输入模式" data-track="/click/teacherLongHomePage/voiceToggle | 语音切换 | 无">
                                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 15a3 3 0 003-3V5a3 3 0 00-6 0v7a3 3 0 003 3z"/></svg>
                             </button>
-                            <button class="ai-input-btn" onclick="event.stopPropagation(); window.location.href='作业/作业批改-v2.html'" data-doc="cam-btn" data-prd="直接跳转拍照页（作业批改模式），底部可切换批改/搜题/错因等模式" data-track="/click/teacherLongHomePage/enterCamera | 点击拍照 | 无">
+                            <button class="ai-input-btn" onclick="event.stopPropagation(); window.location.href='作业/作业批改-v2.html'" data-doc="cam-btn" data-prd="直接跳转拍照页（作业批改模式），底部可切换批改/搜题/录错题/试卷擦除" data-track="/click/teacherLongHomePage/enterCamera | 点击拍照 | 无">
                                 <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             </button>
                         </div>
@@ -909,7 +909,7 @@
                     <p>3. <strong>拍照入口</strong>：点击相机图标 → 直接跳转拍照页（默认批改模式）</p>
 
                     <h4>为什么拍照不进对话页</h4>
-                    <p>拍照页底部已有模式切换（批改/搜题/录错题/错因诊断），用户无需先跟 AI 对话再选工具。如果用户想"拍照后跟 AI 聊"，可以在对话页内使用相机按钮。</p>
+                    <p>拍照页底部已有模式切换（批改/搜题/录错题/试卷擦除），用户无需先跟 AI 对话再选工具。如果用户想"拍照后跟 AI 聊"，可以在对话页内使用相机按钮。</p>
 
                     <h3>业务规则</h3>
                     <ul>
@@ -963,7 +963,6 @@
                         <tbody>
                             <tr><td>错题本</td><td>错题列表页</td></tr>
                             <tr><td>录错题</td><td>拍照页（录错题模式）</td></tr>
-                            <tr><td>错因诊断</td><td>拍照页（错因诊断模式）</td></tr>
                             <tr><td>试卷擦除</td><td>试卷擦除页</td></tr>
                             <tr><td>试卷下载</td><td>试卷下载页</td></tr>
                             <tr><td>试卷讲解</td><td>试卷讲解页</td></tr>
@@ -992,7 +991,7 @@
 
                     <h3>关联模块</h3>
                     <ul>
-                        <li>→ 拍照页：作业批改、拍照搜题、录错题、错因诊断共用拍照页，通过模式参数区分</li>
+                        <li>→ 拍照页：作业批改、拍照搜题、录错题共用拍照页，通过模式参数区分</li>
                         <li>→ 各独立功能页：试卷擦除、试卷下载、试卷讲解、错题本等</li>
                     </ul>
 

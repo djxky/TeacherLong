@@ -323,7 +323,7 @@
         }
         .print-opt-cancel:active { background: #f8fafc; }
 
-        /* ── 举一反三模块 ── */
+        /* ── AI 推荐模块 ── */
         .similar-section {
             border-radius: 16px;
             background: linear-gradient(135deg, rgba(245,243,255,0.85) 0%, rgba(238,242,255,0.85) 100%);
@@ -370,6 +370,7 @@
             font-size: 12px; color: #475569; padding: 3px 0;
         }
         .similar-q-answer {
+            display: none;
             margin-top: 8px; padding: 6px 10px; border-radius: 8px;
             background: rgba(16,185,129,0.08); font-size: 11px; color: #059669; font-weight: 600;
         }
@@ -678,13 +679,12 @@
                     <h3 class="text-xs font-semibold text-indigo-400 mb-2 tracking-wide">答案解析</h3>
                     <div id="detail-analysis" class="text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">加载中...</div>
                 </div>
-                <!-- 举一反三 -->
+                <!-- AI 推荐 -->
                 <div class="similar-section" id="similar-section">
                     <div class="similar-header">
                         <div class="similar-title">
                             <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                            举一反三练习
-                            <span class="similar-badge">AI 生成</span>
+                            AI 推荐练习
                         </div>
                         <button class="similar-print-btn" onclick="printSimilarToShare()">
                             <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
@@ -718,7 +718,7 @@
             <!-- 第 1 页：题目 -->
             <div class="print-page-questions">
                 <div class="print-header">
-                    <div class="print-title">🧠 举一反三练习题</div>
+                    <div class="print-title">🧠 AI 推荐练习题</div>
                     <div class="print-subtitle" id="print-similar-subtitle">AI 龙老师 · 同类题型强化训练</div>
                 </div>
                 <div class="print-section-title">📝 练习题（共 <span id="print-q-count">5</span> 题）</div>
@@ -727,7 +727,7 @@
             <!-- 第 2 页：答案解析 -->
             <div class="print-page-answers">
                 <div class="print-header">
-                    <div class="print-title">🧠 举一反三练习题 · 参考答案</div>
+                    <div class="print-title">🧠 AI 推荐练习题 · 参考答案</div>
                     <div class="print-subtitle" id="print-ans-subtitle">AI 龙老师 · 答案解析</div>
                 </div>
                 <div class="print-section-title">✅ 参考答案与解析</div>
@@ -740,7 +740,7 @@
         <div class="print-opt-sheet" id="printOptSheet">
             <div class="print-opt-handle"></div>
             <div class="print-opt-title">打印错题</div>
-            <div class="print-opt-desc" id="printOptDesc">是否在打印时附上举一反三练习题？</div>
+            <div class="print-opt-desc" id="printOptDesc">是否在打印时附上AI 推荐练习题？</div>
             <div class="print-opt-choices">
                 <button class="print-opt-btn" onclick="doPrint(false)">
                     <div class="print-opt-icon poi-plain">
@@ -756,7 +756,7 @@
                         <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                     </div>
                     <div class="print-opt-text">
-                        <h4>原题 + 举一反三练习</h4>
+                        <h4>原题 + AI 推荐练习</h4>
                         <p>每道错题配 3 道同类练习 · 答案单独成页</p>
                     </div>
                 </button>
@@ -1250,13 +1250,13 @@
                 }
             }
             detailPage.dataset.currentQid = questionId || '';
-            // 渲染举一反三
+            // 渲染AI 推荐
             renderSimilarQuestions(q);
             detailPage.classList.remove('hidden');
             detailPage.classList.add('active');
         }
 
-        /* ── 举一反三数据与渲染 ── */
+        /* ── AI 推荐数据与渲染 ── */
         var SIMILAR_QUESTIONS = {
             math: [
                 {
@@ -1355,7 +1355,6 @@
                     sq.num + ' <span style="font-weight:400;color:#a5b4fc;">· ' + sq.type + '</span></div>' +
                     '<div class="similar-q-text">' + sq.text.replace(/\n/g, '<br>') + '</div>' +
                     optsHtml +
-                    '<div class="similar-q-answer">' + sq.answer + '</div>' +
                     '</div>';
             }).join('');
         }
@@ -1566,9 +1565,9 @@
             if (scope === 'selected') {
                 var n = document.querySelectorAll('.question-checkbox.checked').length;
                 if (n === 0) { showToast('请先选择要打印的题目'); return; }
-                if (desc) desc.textContent = '已选 ' + n + ' 道错题，是否附上举一反三练习题？';
+                if (desc) desc.textContent = '已选 ' + n + ' 道错题，是否附上AI 推荐练习题？';
             } else {
-                if (desc) desc.textContent = '是否在打印时附上举一反三练习题？';
+                if (desc) desc.textContent = '是否在打印时附上AI 推荐练习题？';
             }
             document.getElementById('printOptScrim').classList.add('show');
             document.getElementById('printOptSheet').classList.add('show');
@@ -1600,7 +1599,7 @@
             window.location.href = '打印错题.html';
         }
 
-        var SIMILAR_PER_QUESTION = 3; // 每道错题配几道举一反三
+        var SIMILAR_PER_QUESTION = 3; // 每道错题配几道AI 推荐
 
         function printWithSimilar(questions) {
             var subjNames = { math:'数学', chinese:'语文', english:'英语', science:'科学' };
@@ -1624,7 +1623,7 @@
             if (printQCount) printQCount.textContent = totalSimilar;
 
             var printTitle = printArea.querySelector('.print-title');
-            if (printTitle) printTitle.textContent = '错题 + 举一反三练习册';
+            if (printTitle) printTitle.textContent = '错题 + AI 推荐练习册';
 
             var globalIdx = 0;
             var qsHtml = '';
@@ -1639,7 +1638,7 @@
                 qsHtml += '<div style="font-size:13px;color:#1e293b;line-height:1.7;">' + (group.q.title || '（见原题图片）') + '</div>';
                 qsHtml += '</div>';
 
-                qsHtml += '<div style="margin:10px 0 4px;font-size:11px;font-weight:700;color:#7c3aed;letter-spacing:0.04em;">— 举一反三练习 —</div>';
+                qsHtml += '<div style="margin:10px 0 4px;font-size:11px;font-weight:700;color:#7c3aed;letter-spacing:0.04em;">— AI 推荐练习 —</div>';
                 group.similars.forEach(function(sq, si) {
                     globalIdx++;
                     var optsHtml = '';
@@ -1663,7 +1662,7 @@
             var ansHtml = '';
             groups.forEach(function(group, gi) {
                 ansHtml += '<div style="font-size:12px;font-weight:800;color:#1e293b;margin-bottom:8px;padding:5px 10px;background:#f8fafc;border-left:4px solid #6366f1;border-radius:0 6px 6px 0;">';
-                ansHtml += '错题 ' + (gi + 1) + ' · ' + group.subjLabel + ' · 举一反三答案';
+                ansHtml += '错题 ' + (gi + 1) + ' · ' + group.subjLabel + ' · AI 推荐答案';
                 ansHtml += '</div>';
                 group.similars.forEach(function(sq, si) {
                     globalIdx++;
