@@ -25,7 +25,7 @@ jobs:
             echo "未配置 Secret：WEWORK_WEBHOOK_MINIPROGRAM，跳过企微通知。"
             exit 0
           fi
-          PREVIEW_URL='https://djxky.github.io/TeacherLong/%E5%B0%8F%E7%A8%8B%E5%BA%8F/%E9%A6%96%E9%A1%B5-v3.html'
+          PREVIEW_URL='https://djxky.github.io/TeacherLong/%E5%B0%8F%E7%A8%8B%E5%BA%8F/%E9%A6%96%E9%A1%B5-v4.html'
 
           BULLETS="$(
             echo "$COMMITS_JSON" | jq -r '
