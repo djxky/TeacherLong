@@ -950,9 +950,9 @@
                 </ul>
                 <p><strong>业务规则</strong>：</p>
                 <ul>
-                    <li>根据当前错题的知识点和题型自动生成，数量 3-5 道</li>
+                    <li>根据当前错题的知识点和题型自动生成，数量 1-3 道</li>
                     <li>与原错题难度相近</li>
-                    <li>推荐练习区域始终展示，无需用户手动触发</li>
+                    <li>无推荐题目时，整个 AI 推荐练习模块不展示</li>
                 </ul>
 
                 <!-- ── 4.2 错因诊断入口 ── -->
@@ -1279,17 +1279,6 @@
                     text: '已知 m + n = 8，m² + n² = 40，求 mn 的值，并判断 m、n 是否是方程 x² − 8x + k = 0 的两根（给出 k 的值）。',
                     answer: '答案：mn = 12，k = 12（2mn = (m+n)²−(m²+n²) = 64−40 = 24，mn = 12）'
                 },
-                {
-                    num: '第 4 题', type: '选择题',
-                    text: '若实数 p、q 满足 p + q = −3，pq = 2，则 p³ + q³ 的值是？',
-                    opts: ['A. −9', 'B. −15', 'C. −21', 'D. −27'],
-                    answer: '答案：B（p³+q³ = (p+q)(p²−pq+q²) = −3×(9−2−4) = −3×5 = −15）'
-                },
-                {
-                    num: '第 5 题', type: '填空题',
-                    text: '若 a − b = 6，a² + b² = 52，则 ab = ______，a + b = ______。',
-                    answer: '答案：ab = 8，a+b = ±10（由 (a−b)² = a²+b²−2ab 得 36 = 52−2ab，ab = 8；(a+b)² = a²+b²+2ab = 52+16 = 68… 注意重新计算：(a+b)² = 52+16=68，a+b=±√68=±2√17）'
-                }
             ],
             chinese: [
                 {
@@ -1343,9 +1332,15 @@
 
         function renderSimilarQuestions(q) {
             var subj = q ? q.subject : 'math';
-            var questions = SIMILAR_QUESTIONS[subj] || SIMILAR_QUESTIONS.math;
+            var questions = SIMILAR_QUESTIONS[subj] || [];
+            var section = document.getElementById('similar-section');
             var list = document.getElementById('similar-questions-list');
-            if (!list) return;
+            if (!section || !list) return;
+            if (!questions.length) {
+                section.style.display = 'none';
+                return;
+            }
+            section.style.display = '';
             list.innerHTML = questions.map(function(sq) {
                 var optsHtml = '';
                 if (sq.opts && sq.opts.length) {
